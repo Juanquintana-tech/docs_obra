@@ -172,7 +172,10 @@ function condicionRow(texto: string, criterio: string, cumple: boolean | null): 
 // DENSIDAD IN SITU — Word
 // ══════════════════════════════════════════════════════════════════════════════
 
-function densidadWord(datos: DensidadInput & Record<string, unknown>, obra: Obra): Buffer {
+async function densidadWord(
+  datos: DensidadInput & Record<string, unknown>,
+  obra: Obra
+): Promise<Buffer> {
   const cab = (datos.cabecera as Record<string, string>) ?? {}
   const calc = computeDensidad(datos)
 
@@ -307,14 +310,14 @@ function densidadWord(datos: DensidadInput & Record<string, unknown>, obra: Obra
     ]
   })
 
-  return Buffer.from(Packer.toBuffer(doc) as unknown as ArrayBuffer)
+  return Buffer.from(await Packer.toBuffer(doc))
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
 // PLACA DE CARGA — Word
 // ══════════════════════════════════════════════════════════════════════════════
 
-function placaWord(datos: PlacaInput & Record<string, unknown>, obra: Obra): Buffer {
+async function placaWord(datos: PlacaInput & Record<string, unknown>, obra: Obra): Promise<Buffer> {
   const cab = (datos.cabecera as Record<string, string>) ?? {}
   const calc = computePlaca(datos as PlacaInput)
 
@@ -459,7 +462,7 @@ function placaWord(datos: PlacaInput & Record<string, unknown>, obra: Obra): Buf
     ]
   })
 
-  return Buffer.from(Packer.toBuffer(doc) as unknown as ArrayBuffer)
+  return Buffer.from(await Packer.toBuffer(doc))
 }
 
 // ══════════════════════════════════════════════════════════════════════════════

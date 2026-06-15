@@ -3,7 +3,7 @@
  * Todos los payloads son objetos planos serializables.
  */
 import { ipcMain, dialog, BrowserWindow } from 'electron'
-import { writeFile, readFile } from 'fs/promises'
+import { writeFile, readFile, rename } from 'fs/promises'
 import { basename } from 'path'
 import * as db from './db'
 import type { PlanRow, ObraInput, EnsayoInput, PlanRowPatch } from './db'
@@ -72,6 +72,28 @@ async function exportDeliverable(obraId: number, kind: 'excel' | 'word'): Promis
   const buf = kind === 'excel' ? await buildExcel(plan, info) : buildWord(plan, info)
   await writeFile(filePath, buf)
   return filePath
+}
+
+/** Valida la forma de las reglas antes de persistirlas (evita corromper test_rules.json). */
+function validateRules(rules: unknown): asserts rules is Rules {
+  if (!rules || typeof rules !== 'object' || Array.isArray(rules)) {
+    throw new Error('Reglas inválidas: se esperaba un objeto de categorías')
+  }
+  for (const [cat, def] of Object.entries(rules as Record<string, unknown>)) {
+    const d = def as { tests?: unknown }
+    if (!d || typeof d !== 'object' || !Array.isArray(d.tests)) {
+      throw new Error(`Reglas inválidas: la categoría "${cat}" no tiene un array 'tests'`)
+    }
+    for (const t of d.tests) {
+      if (
+        !t ||
+        typeof t !== 'object' ||
+        typeof (t as { description?: unknown }).description !== 'string'
+      ) {
+        throw new Error(`Reglas inválidas: un ensayo de "${cat}" no tiene 'description'`)
+      }
+    }
+  }
 }
 
 export function registerIpc(): void {
@@ -174,7 +196,13 @@ export function registerIpc(): void {
     return JSON.parse(raw) as Rules
   })
   ipcMain.handle('presup:saveRules', async (_e, rules: Rules) => {
-    await writeFile(knowledgePath('test_rules.json'), JSON.stringify(rules, null, 2), 'utf-8')
+    validateRules(rules) // lanza si la forma no es válida → no se toca el fichero
+    // Escritura atómica: fichero temporal + rename, para no dejar un JSON truncado
+    // si el proceso muere a mitad (test_rules.json es el fichero base del motor).
+    const path = knowledgePath('test_rules.json')
+    const tmp = `${path}.tmp`
+    await writeFile(tmp, JSON.stringify(rules, null, 2), 'utf-8')
+    await rename(tmp, path)
     // Invalidar el cache del pipeline para que el próximo presupuesto use las reglas nuevas
     // Se importa aquí para evitar ciclos (el pipeline lo carga lazy)
     const { invalidateRulesCache } = await import('./services/pipeline')

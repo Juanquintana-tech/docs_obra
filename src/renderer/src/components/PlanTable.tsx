@@ -122,17 +122,19 @@ function PlanTableInner({
   const activeEdits: Record<number, EditState> = editable ? { ...initEdits(), ...edits } : edits
 
   function setField(id: number, field: keyof Omit<EditState, 'total'>, val: string): void {
-    setEdits((prev) => {
-      const cur = prev[id] ?? activeEdits[id]
-      const next = { ...cur, [field]: val }
-      // Recalcular total al cambiar n_tests o unit_price
-      if (field === 'n_tests' || field === 'unit_price') {
-        const nTests = fromStr(field === 'n_tests' ? val : next.n_tests)
-        const uPrice = fromStr(field === 'unit_price' ? val : next.unit_price)
-        next.total = Math.round(nTests * uPrice * 100) / 100
-      }
-      return { ...prev, [id]: next }
-    })
+    const cur = activeEdits[id]
+    const next = { ...cur, [field]: val }
+    // Recalcular total al cambiar n_tests o unit_price
+    if (field === 'n_tests' || field === 'unit_price') {
+      const nTests = fromStr(field === 'n_tests' ? val : next.n_tests)
+      const uPrice = fromStr(field === 'unit_price' ? val : next.unit_price)
+      next.total = Math.round(nTests * uPrice * 100) / 100
+    }
+    const newEdits = { ...activeEdits, [id]: next }
+    setEdits(newEdits)
+    // Propaga SIEMPRE al padre, no solo al cambiar el precio: así "Guardar" sin
+    // pulsar "Recalcular" no pierde las ediciones de medición/lotes/uds.
+    propagate(newEdits)
   }
 
   /** Recalcula n_tests = n_lots × tests_per_lot para todas las filas y actualiza totales. */
@@ -258,17 +260,7 @@ function PlanTableInner({
             <input
               className="plan-input plan-input-price"
               value={e.unit_price}
-              onChange={(ev) => {
-                setField(er.id, 'unit_price', ev.target.value)
-                propagate({
-                  ...activeEdits,
-                  [er.id]: {
-                    ...e,
-                    unit_price: ev.target.value,
-                    total: fromStr(e.n_tests) * fromStr(ev.target.value)
-                  }
-                })
-              }}
+              onChange={(ev) => setField(er.id, 'unit_price', ev.target.value)}
               title="€/ud"
             />
           </td>

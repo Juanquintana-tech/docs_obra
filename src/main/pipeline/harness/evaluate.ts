@@ -38,7 +38,8 @@ async function main(): Promise<void> {
 
   console.log(`\x1b[1mEvaluando ${cases.length} casos (${file})\x1b[0m\n`)
   for (const c of cases) {
-    const matches = pricer.findMatches(
+    // Mide el RAG REAL (híbrido si hay índice de embeddings; si no, TF-IDF).
+    const matches = await pricer.findMatchesHybrid(
       `${c.query} ${c.category ? (pricerCtx(c.category) ?? '') : ''}`.trim(),
       TOP_K
     )

@@ -2,7 +2,7 @@
  * Página de Ensayos — lista de informes de campo por obra y editor por tipo.
  * Tipos soportados: densidad_in_situ (ASTM D-6938) y placa_carga (NLT-357/98).
  */
-import { useEffect, useState, type JSX } from 'react'
+import { Fragment, useEffect, useState, type JSX } from 'react'
 import { api } from '../lib/api'
 import type { Ensayo, EnsayoInput, Obra } from '../lib/types'
 import './Ensayos.css'
@@ -633,10 +633,8 @@ function DensidadForm({
             const comp = dm > 0 && ds > 0 ? ((ds / dm) * 100).toFixed(1) : null
             const compOk = comp !== null ? parseFloat(comp) >= compMin : null
             return (
-              <>
-                <div key={`n-${i}`} className="dens-cell-n">
-                  {i + 1}
-                </div>
+              <Fragment key={`row-${i}`}>
+                <div className="dens-cell-n">{i + 1}</div>
                 <input
                   key={`ref-${i}`}
                   className="dens-input"
@@ -683,7 +681,7 @@ function DensidadForm({
                   value={String(row.observaciones ?? '')}
                   onChange={(e) => setEnsayo(i, 'observaciones', e.target.value)}
                 />
-              </>
+              </Fragment>
             )
           })}
         </div>
