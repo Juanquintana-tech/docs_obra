@@ -9,7 +9,7 @@
  */
 import { readFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
-import { extractText } from '../extractor'
+import { extractDocument } from '../extractor'
 import { classifyMaterials, extractObraInfo } from '../classifier'
 import { generatePlan } from '../planner'
 import { loadRules, buildPricer } from './loadKnowledge'
@@ -41,9 +41,9 @@ async function main(): Promise<void> {
   const path = resolve(process.cwd(), arg)
 
   console.log('1) Extrayendo texto…')
-  const { text, totalPages, needsOcr } = await extractText(path)
+  const { text, format, needsOcr } = await extractDocument(path)
   console.log(
-    `   ${totalPages} págs, ${text.length} caracteres${needsOcr ? ' (¡parece escaneado!)' : ''}`
+    `   formato=${format}, ${text.length} caracteres${needsOcr ? ' (¡parece escaneado!)' : ''}`
   )
 
   console.log('2) Clasificando con el LLM (obra + materiales)…')

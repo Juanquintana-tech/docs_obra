@@ -1,22 +1,23 @@
 /**
- * Demo del extractor: extrae el texto de un PDF y muestra estadísticas.
+ * Demo del extractor: extrae el texto de un documento (PDF/DOCX/XLSX/TXT)
+ * y muestra estadísticas.
  *
  *   npm run extract:demo -- ruta/al/proyecto.pdf
  */
 import { resolve } from 'path'
-import { extractText } from '../extractor'
+import { extractDocument } from '../extractor'
 
 async function main(): Promise<void> {
   const arg = process.argv[2]
   if (!arg) {
-    console.error('Uso: npm run extract:demo -- ruta/al/archivo.pdf')
+    console.error('Uso: npm run extract:demo -- ruta/al/archivo.(pdf|docx|xlsx|txt)')
     process.exit(1)
   }
   const path = resolve(process.cwd(), arg)
-  const r = await extractText(path)
-  console.log(`\x1b[1mPDF:\x1b[0m ${path}`)
-  console.log(`  páginas: ${r.totalPages}`)
-  console.log(`  método: ${r.method}`)
+  const r = await extractDocument(path)
+  console.log(`\x1b[1mDocumento:\x1b[0m ${path}`)
+  console.log(`  formato: ${r.format}`)
+  if (r.format === 'pdf') console.log(`  páginas: ${r.totalPages}  ·  método: ${r.method}`)
   console.log(`  caracteres extraídos: ${r.text.length}`)
   if (r.needsOcr) {
     console.log(
