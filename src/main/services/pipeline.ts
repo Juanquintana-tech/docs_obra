@@ -6,7 +6,8 @@ import { readFile } from 'fs/promises'
 import { extractDocument } from '../pipeline/extractor'
 import { classifyMaterials, extractObraInfo } from '../pipeline/classifier'
 import { generatePlan, type Material, type Rules } from '../pipeline/planner'
-import { RagPricer } from '../pipeline/rag/ragPricer'
+import { RagPricer, CATEGORY_CTX } from '../pipeline/rag/ragPricer'
+import type { RagMatch } from '../pipeline/rag/types'
 import { generateExcel, generateWord, type ObraInfo } from '../pipeline/formatter'
 import type { PlanRowInput } from '../pipeline/types'
 import { knowledgePath, templatePath } from '../paths'
@@ -57,6 +58,33 @@ export async function ingestDocument(path: string): Promise<IngestResult> {
     plan,
     meta: { format, chars: text.length, needsOcr }
   }
+}
+
+// ── Consultas RAG (para la pantalla de validación) ──────────────────────────
+export interface RagStatus {
+  ready: boolean
+  size: number
+  usesEmbeddings: boolean
+  categories: string[]
+}
+
+export async function ragStatus(): Promise<RagStatus> {
+  const pricer = await getPricer()
+  return {
+    ready: !!pricer,
+    size: pricer?.catalogSize ?? 0,
+    usesEmbeddings: pricer?.usesEmbeddings ?? false,
+    categories: Object.keys(CATEGORY_CTX)
+  }
+}
+
+/** Busca los n mejores matches para una consulta, aplicando el contexto de categoría
+ *  (mismo enriquecimiento que usa getBestPrice). */
+export async function ragFindMatches(query: string, category = '', n = 8): Promise<RagMatch[]> {
+  const pricer = await getPricer()
+  if (!pricer) return []
+  const ctx = CATEGORY_CTX[category] ?? ''
+  return pricer.findMatches(`${query} ${ctx}`.trim(), n)
 }
 
 export async function buildExcel(plan: PlanRowInput[], obra: ObraInfo): Promise<Buffer> {

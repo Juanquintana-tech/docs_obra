@@ -132,7 +132,10 @@ y la arquitectura deben dejarles sitio desde el principio.
       por fila (feature #1). Verificado: typecheck + lint + build OK; app arranca sin crash, DB+IPC OK.
       PENDIENTE: confirmación VISUAL del usuario con `npm run dev` + key MiniMax en .env para ingesta en vivo.
       DIFERIDO (pulido): streaming fila a fila en Nueva Obra; tabla editable; features #2/#3/#4.
-- [ ] Fase 4.5 (hito RAG) — pantalla interna de validación del RAG.
+- [x] Fase 4.5 (hito RAG) — pantalla interna "Validación RAG": buscador ensayo→catálogo con
+      score por confianza (verde/ámbar/rojo), selector de categoría, banner de estado del motor
+      (TF-IDF vs híbrido). IPC rag:status/rag:findMatches. Verificado: typecheck/lint/build OK.
+      ⏳ EN CURSO: activar embeddings (MiniMax, pluggable) — requiere la API key para construir el índice.
 - [x] Fase 5 — Empaquetado: electron-builder con extraResources (knowledge/templates →
       Contents/Resources para que process.resourcesPath los encuentre). Generado .dmg + .zip
       (x64, ~121 MB). Verificado: .app empaquetado arranca, DB en userData "CYE", better-sqlite3

@@ -6,7 +6,8 @@
 import { ipcRenderer } from 'electron'
 import type { Obra, PlanRow, ObraInput, GlobalStats, PriceCorrectionInput } from '../main/db'
 import type { PlanRowInput } from '../main/pipeline/types'
-import type { IngestResult } from '../main/services/pipeline'
+import type { IngestResult, RagStatus } from '../main/services/pipeline'
+import type { RagMatch } from '../main/pipeline/rag/types'
 
 export interface PickedDocument {
   path: string
@@ -38,7 +39,12 @@ export const api = {
   // ── Entregables (devuelven la ruta guardada o null si se cancela) ──
   exportExcel: (obraId: number): Promise<string | null> =>
     ipcRenderer.invoke('export:excel', obraId),
-  exportWord: (obraId: number): Promise<string | null> => ipcRenderer.invoke('export:word', obraId)
+  exportWord: (obraId: number): Promise<string | null> => ipcRenderer.invoke('export:word', obraId),
+
+  // ── RAG (validación) ──
+  ragStatus: (): Promise<RagStatus> => ipcRenderer.invoke('rag:status'),
+  ragFindMatches: (query: string, category?: string, n?: number): Promise<RagMatch[]> =>
+    ipcRenderer.invoke('rag:findMatches', query, category, n)
 }
 
 export type Api = typeof api

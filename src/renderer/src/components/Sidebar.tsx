@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
 
-export type PageName = 'dashboard' | 'proyectos' | 'nueva' | 'detalle'
+export type PageName = 'dashboard' | 'proyectos' | 'nueva' | 'detalle' | 'validacion'
 
 interface NavDef {
   section: string
@@ -15,6 +15,10 @@ const NAV: NavDef[] = [
       { name: 'proyectos', label: 'Proyectos', ico: '🏗️' },
       { name: 'nueva', label: 'Nuevo Proyecto', ico: '➕' }
     ]
+  },
+  {
+    section: 'Laboratorio',
+    items: [{ name: 'validacion', label: 'Validación RAG', ico: '🎯' }]
   }
 ]
 

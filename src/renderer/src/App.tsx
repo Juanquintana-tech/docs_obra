@@ -4,6 +4,7 @@ import { Dashboard } from './pages/Dashboard'
 import { Proyectos } from './pages/Proyectos'
 import { NuevaObra } from './pages/NuevaObra'
 import { Detalle } from './pages/Detalle'
+import { ValidacionRag } from './pages/ValidacionRag'
 
 interface Route {
   page: PageName
@@ -23,6 +24,7 @@ function App(): JSX.Element {
         {route.page === 'dashboard' && <Dashboard onOpen={openObra} onNew={() => go('nueva')} />}
         {route.page === 'proyectos' && <Proyectos onOpen={openObra} onNew={() => go('nueva')} />}
         {route.page === 'nueva' && <NuevaObra onSaved={openObra} />}
+        {route.page === 'validacion' && <ValidacionRag />}
         {route.page === 'detalle' && route.obraId != null && (
           <Detalle
             obraId={route.obraId}

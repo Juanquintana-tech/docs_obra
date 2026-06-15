@@ -41,6 +41,11 @@ export class RagPricer {
     return !!this.opts.embeddings
   }
 
+  /** Nº de entradas (ensayos con precio) en el índice. */
+  get catalogSize(): number {
+    return this.entries.length
+  }
+
   /** Construye el índice a partir de las entradas del catálogo. */
   fit(entries: CatalogEntry[]): void {
     this.entries = entries

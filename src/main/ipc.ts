@@ -9,7 +9,13 @@ import * as db from './db'
 import type { PlanRow, ObraInput } from './db'
 import type { PlanRowInput } from './pipeline/types'
 import type { ObraInfo } from './pipeline/formatter'
-import { ingestDocument, buildExcel, buildWord } from './services/pipeline'
+import {
+  ingestDocument,
+  buildExcel,
+  buildWord,
+  ragStatus,
+  ragFindMatches
+} from './services/pipeline'
 
 /** Mapea filas de la DB (row_type) al contrato del pipeline (type) para el formatter. */
 function toPlanInput(rows: PlanRow[]): PlanRowInput[] {
@@ -97,4 +103,10 @@ export function registerIpc(): void {
   // ── Entregables ──
   ipcMain.handle('export:excel', (_e, obraId: number) => exportDeliverable(obraId, 'excel'))
   ipcMain.handle('export:word', (_e, obraId: number) => exportDeliverable(obraId, 'word'))
+
+  // ── RAG (pantalla de validación) ──
+  ipcMain.handle('rag:status', () => ragStatus())
+  ipcMain.handle('rag:findMatches', (_e, query: string, category?: string, n?: number) =>
+    ragFindMatches(query, category ?? '', n)
+  )
 }
