@@ -22,7 +22,7 @@ const SAMPLE_MATERIALS: Material[] = [
 async function main(): Promise<void> {
   const rules = loadRules()
   const pricer = await buildPricer()
-  const plan = generatePlan(SAMPLE_MATERIALS, rules, pricer)
+  const plan = await generatePlan(SAMPLE_MATERIALS, rules, pricer)
 
   let total = 0
   let currentMat = ''

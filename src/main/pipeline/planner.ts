@@ -78,12 +78,19 @@ export function calculateNLots(
  * Genera las filas 'test' del plan. Por cada material aplica las reglas de su
  * categoría y, si se pasa un RagPricer, valora cada ensayo con el catálogo.
  */
-export function generatePlan(
+export async function generatePlan(
   materials: Material[],
   rules: Rules,
   pricer?: RagPricer | null
-): PlanRowInput[] {
-  const out: PlanRowInput[] = []
+): Promise<PlanRowInput[]> {
+  // ── Pasada 1: filas estructurales (sin precio) + items a valorar ──
+  interface Pending {
+    row: PlanRowInput
+    description: string
+    category: string
+  }
+  const pending: Pending[] = []
+
   for (const mat of materials) {
     const category = mat.category ?? 'OTRO'
     const rule = rules[category]
@@ -98,46 +105,52 @@ export function generatePlan(
       const freqQty = coerceInt(test.freq_qty, 1)
       const testsPerLot = coerceInt(test.tests_per_lot, 1)
       const description = test.description ?? ''
-
       const nLots = calculateNLots(quantity, freqUnit, materialUnit)
       const nTests = nLots * freqQty * testsPerLot
+      const baseUnitPrice = coerceFloat(test.unit_price, 0) // fallback si el RAG no acierta
 
-      let unitPrice = coerceFloat(test.unit_price, 0)
-      let priceSource: 'alagal' | 'fallback' = 'fallback'
-      let ragDesc = ''
-      let ragScore = 0
-
-      if (pricer) {
-        const r = pricer.getBestPrice(description, category)
-        if (r.precio != null) {
-          unitPrice = r.precio
-          priceSource = 'alagal'
-          ragDesc = r.descripcion
-          ragScore = r.score
-        } else {
-          ragScore = r.score
-        }
-      }
-
-      out.push({
-        type: 'test',
-        material: materialName,
-        subcategory: test.subcategory ?? '',
+      pending.push({
         description,
-        measurement: quantity,
-        measurement_unit: mat.unit ?? rule.unit ?? '',
-        freq_qty: freqQty,
-        freq_unit: freqUnit,
-        n_lots: nLots,
-        tests_per_lot: testsPerLot,
-        n_tests: nTests,
-        unit_price: unitPrice,
-        total: nTests * unitPrice,
-        price_source: priceSource,
-        rag_score: Math.round(ragScore * 1000) / 1000,
-        rag_desc: ragDesc
+        category,
+        row: {
+          type: 'test',
+          material: materialName,
+          subcategory: test.subcategory ?? '',
+          description,
+          measurement: quantity,
+          measurement_unit: mat.unit ?? rule.unit ?? '',
+          freq_qty: freqQty,
+          freq_unit: freqUnit,
+          n_lots: nLots,
+          tests_per_lot: testsPerLot,
+          n_tests: nTests,
+          unit_price: baseUnitPrice,
+          total: nTests * baseUnitPrice,
+          price_source: 'fallback',
+          rag_score: 0,
+          rag_desc: ''
+        }
       })
     }
   }
-  return out
+
+  // ── Pasada 2: valoración en bloque (híbrido si está operativo, si no TF-IDF) ──
+  if (pricer && pending.length > 0) {
+    const results = await pricer.priceMany(
+      pending.map((p) => ({ description: p.description, category: p.category }))
+    )
+    pending.forEach((p, i) => {
+      const r = results[i]
+      const nTests = p.row.n_tests ?? 0
+      if (r.precio != null) {
+        p.row.unit_price = r.precio
+        p.row.total = nTests * r.precio
+        p.row.price_source = 'alagal'
+        p.row.rag_desc = r.descripcion
+      }
+      p.row.rag_score = Math.round(r.score * 1000) / 1000
+    })
+  }
+
+  return pending.map((p) => p.row)
 }

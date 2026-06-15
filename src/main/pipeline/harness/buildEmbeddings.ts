@@ -12,28 +12,13 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
 import { loadCatalog } from '../rag/catalog'
-import { MiniMaxEmbeddingsProvider, l2normalize } from '../rag/minimaxEmbeddings'
+import { l2normalize } from '../rag/minimaxEmbeddings'
+import { createEmbeddingsProvider } from '../rag/embeddings'
 import type { EmbeddingsIndexFile } from '../rag/ragPricer'
 import { TARIFAS_PATH } from './loadKnowledge'
 
 const OUT_PATH = resolve(process.cwd(), 'resources/knowledge/alagal_embeddings.json')
-const CHUNK = 16
-
-function loadEnv(): void {
-  const p = resolve(process.cwd(), '.env')
-  if (!existsSync(p)) return
-  for (const line of readFileSync(p, 'utf-8').split('\n')) {
-    const t = line.trim()
-    if (!t || t.startsWith('#') || !t.includes('=')) continue
-    const i = t.indexOf('=')
-    const k = t.slice(0, i).trim()
-    const v = t
-      .slice(i + 1)
-      .trim()
-      .replace(/^['"]|['"]$/g, '')
-    if (k && v && !(k in process.env)) process.env[k] = v
-  }
-}
+const CHUNK = 64
 
 function loadExisting(): EmbeddingsIndexFile | null {
   if (!existsSync(OUT_PATH)) return null
@@ -45,8 +30,8 @@ function loadExisting(): EmbeddingsIndexFile | null {
 }
 
 async function main(): Promise<void> {
-  loadEnv()
-  const provider = new MiniMaxEmbeddingsProvider({ batchSize: CHUNK, throttleMs: 1500 })
+  const provider = createEmbeddingsProvider()
+  console.log(`Proveedor de embeddings: ${provider.id} (dim ${provider.dim})`)
 
   const catalog = await loadCatalog(TARIFAS_PATH)
   const existing = loadExisting()

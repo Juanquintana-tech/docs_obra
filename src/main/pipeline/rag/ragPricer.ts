@@ -20,6 +20,14 @@ export interface EmbeddingsIndexFile {
 
 export const DEFAULT_EMB_WEIGHT = 0.5
 
+export interface PriceResult {
+  precio: number | null
+  descripcion: string
+  codigo: string
+  score: number
+  source: 'alagal' | 'fallback'
+}
+
 /** Contexto semántico por categoría interna → términos clave (port de CATEGORY_CTX). */
 export const CATEGORY_CTX: Record<string, string> = {
   HORMIGON: 'hormigon probetas resistencia compresion fabricacion',
@@ -124,6 +132,65 @@ export class RagPricer {
     }
     scored.sort((a, b) => b.score - a.score)
     return scored.slice(0, n).map(({ doc, score }) => this.toMatch(doc, score))
+  }
+
+  /**
+   * Valora muchos ensayos de una vez (para generar un plan). Si el modo híbrido
+   * está operativo, embebe TODAS las consultas en una sola pasada (eficiente) y
+   * combina con TF-IDF; si no, usa solo TF-IDF. Devuelve un resultado por item,
+   * en el mismo orden. score < threshold → source='fallback', precio=null.
+   */
+  async priceMany(
+    items: { description: string; category?: string }[],
+    threshold = DEFAULT_THRESHOLD,
+    weight = DEFAULT_EMB_WEIGHT
+  ): Promise<PriceResult[]> {
+    if (items.length === 0) return []
+    const queries = items.map((it) =>
+      `${it.description} ${CATEGORY_CTX[it.category ?? ''] ?? ''}`.trim()
+    )
+
+    let qvecs: number[][] | null = null
+    if (this.usesEmbeddings && this.opts.embeddings) {
+      const raw = await this.opts.embeddings.embed(queries, 'query')
+      qvecs = raw.map(l2normalize)
+    }
+
+    return queries.map((query, qi) => {
+      const tfidf = this.tfidf.scoreAll(normalize(query))
+      const qv = qvecs?.[qi]
+      let bestDoc = -1
+      let bestScore = -1
+      for (let i = 0; i < this.entries.length; i++) {
+        let score = tfidf[i]
+        if (qv) {
+          const ev = this.embVecs[i]
+          let emb = 0
+          if (ev) {
+            let dot = 0
+            for (let k = 0; k < qv.length && k < ev.length; k++) dot += qv[k] * ev[k]
+            emb = Math.max(0, dot)
+          }
+          score = weight * emb + (1 - weight) * tfidf[i]
+        }
+        if (score > bestScore) {
+          bestScore = score
+          bestDoc = i
+        }
+      }
+      const round = Math.round(bestScore * 10000) / 10000
+      if (bestDoc < 0 || bestScore < threshold) {
+        return { precio: null, descripcion: '', codigo: '', score: round, source: 'fallback' }
+      }
+      const e = this.entries[bestDoc]
+      return {
+        precio: e.precio,
+        descripcion: e.descripcion,
+        codigo: e.codigo,
+        score: round,
+        source: 'alagal'
+      }
+    })
   }
 
   /**

@@ -8,7 +8,7 @@ import { extractDocument } from '../pipeline/extractor'
 import { classifyMaterials, extractObraInfo } from '../pipeline/classifier'
 import { generatePlan, type Material, type Rules } from '../pipeline/planner'
 import { RagPricer, CATEGORY_CTX, type EmbeddingsIndexFile } from '../pipeline/rag/ragPricer'
-import { MiniMaxEmbeddingsProvider } from '../pipeline/rag/minimaxEmbeddings'
+import { createEmbeddingsProvider } from '../pipeline/rag/embeddings'
 import type { RagMatch } from '../pipeline/rag/types'
 import { generateExcel, generateWord, type ObraInfo } from '../pipeline/formatter'
 import { generateInformeWord, generateInformeExcel } from '../pipeline/informes'
@@ -31,14 +31,14 @@ async function getRules(): Promise<Rules> {
 async function getPricer(): Promise<RagPricer | null> {
   if (_pricer) return _pricer
   try {
-    // El proveedor de embeddings solo se adjunta si hay key (para la consulta híbrida).
-    const hasKey = !!process.env.MINIMAX_API_KEY
-    const embeddings = hasKey ? new MiniMaxEmbeddingsProvider() : null
+    // Proveedor de embeddings local (sin API ni rate limit); el modelo se carga
+    // de forma perezosa solo si hay índice y se hace una consulta híbrida.
+    const embeddings = createEmbeddingsProvider()
     const pricer = await RagPricer.fromXlsx(knowledgePath('tarifas_alagal.xlsx'), { embeddings })
 
     // Carga el índice de embeddings persistido, si se construyó (rag:build-embeddings).
     const embPath = knowledgePath('alagal_embeddings.json')
-    if (embeddings && existsSync(embPath)) {
+    if (existsSync(embPath)) {
       try {
         pricer.loadEmbeddings(JSON.parse(readFileSync(embPath, 'utf-8')) as EmbeddingsIndexFile)
       } catch (e) {
@@ -65,7 +65,7 @@ export async function ingestDocument(path: string): Promise<IngestResult> {
   const { text, format, needsOcr } = await extractDocument(path)
   const [obraInfo, materials] = await Promise.all([extractObraInfo(text), classifyMaterials(text)])
   const [rules, pricer] = await Promise.all([getRules(), getPricer()])
-  const plan = generatePlan(materials, rules, pricer)
+  const plan = await generatePlan(materials, rules, pricer)
   return {
     obra: {
       obra: obraInfo.obra ?? '',
