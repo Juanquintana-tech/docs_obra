@@ -159,12 +159,18 @@ ellos NO hacen (generación del plan valorado con IA) y, con los ensayos de camp
 su terreno (ejecución). Prioridad orientada a: cerrar el ciclo plan→ejecución, requisitos ENAC, y el
 objetivo del usuario de mejorar el RAG.
 
-**P1 — RAG: embeddings + bucle de aprendizaje** _(objetivo declarado del usuario; en curso)_
+**P1 — RAG híbrido** ✅ HECHO (embeddings LOCALES) · _bucle de aprendizaje pendiente_
 
-- Activar embeddings MiniMax (índice persistido) → híbrido con TF-IDF. Requiere API key.
-- Feature #2: al corregir un precio en la tabla editable, guardar en `price_corrections` → alimenta
-  el harness. La app mejora con el uso. (Tabla editable ya existe; falta cablear la captura.)
-- Medir antes/después en la pantalla Validación RAG (objetivo: corregir el miss "granulometría→proctor").
+- ✅ Embeddings hechos con modelo LOCAL (transformers.js, multilingual-e5-small) en vez de MiniMax:
+  la key MiniMax estaba bloqueada por rate limit (RPM) y, además, local es mejor para una app
+  offline (sin red, sin coste, sin límites). MiniMax queda enchufable como alternativa.
+  Híbrido (emb × TF-IDF) operativo en consulta (Validación RAG) y en la generación del plan (priceMany).
+  Medido: corrige "granulometría→proctor" (92€→44€) sin romper aciertos previos. Índice 749/749.
+- ⏳ Feature #2 (pendiente): al corregir un precio en la tabla editable, guardar en `price_corrections`
+  → alimenta el harness. La app mejora con el uso. (Tabla editable y tabla DB ya existen; falta cablear la captura.)
+- ⚠️ Empaquetado: el modelo de embeddings (~100 MB) se cachea en node_modules; para distribuir offline
+  hay que bundlear el modelo en resources y apuntar `env.localModelPath`. Sub-tarea de la fase de distribución.
+- Posible mejora futura: tunear umbral/peso del híbrido con un set de casos reales (harness rag:eval).
 
 **P2 — Cerrar el ciclo plan ↔ ejecución** _(lo que distingue a un LIMS de un generador)_
 
