@@ -269,6 +269,42 @@
 .plan-table .num {
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Inputs dentro de la tabla editable ── */
+.plan-input {
+  width: 100%;
+  min-width: 52px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 6px;
+  font-size: 13px;
+  text-align: right;
+  font-family: inherit;
+  background: #f8faff;
+  color: var(--text);
+}
+.plan-input:focus {
+  outline: none;
+  border-color: var(--mid);
+  background: #fff;
+}
+.plan-input-price {
+  font-weight: 600;
+  color: var(--navy);
+  border-color: var(--mid);
+}
+.plan-input-ntest {
+  font-weight: 700;
+  color: var(--orange);
+  border-color: var(--orange);
+}
+.plan-total-cell {
+  font-weight: 700;
+  color: var(--navy);
+}
+.row-warn td {
+  background: #fffbeb !important;
+}
 .plan-total {
   display: flex;
   justify-content: flex-end;

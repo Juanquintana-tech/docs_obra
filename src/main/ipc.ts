@@ -6,7 +6,7 @@ import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { writeFile, readFile } from 'fs/promises'
 import { basename } from 'path'
 import * as db from './db'
-import type { PlanRow, ObraInput, EnsayoInput } from './db'
+import type { PlanRow, ObraInput, EnsayoInput, PlanRowPatch } from './db'
 import type { PlanRowInput } from './pipeline/types'
 import type { ObraInfo } from './pipeline/formatter'
 import {
@@ -91,6 +91,9 @@ export function registerIpc(): void {
   ipcMain.handle('db:deleteObra', (_e, id: number) => db.deleteObra(id))
   ipcMain.handle('db:savePriceCorrection', (_e, c: db.PriceCorrectionInput) =>
     db.savePriceCorrection(c)
+  )
+  ipcMain.handle('db:updatePlanRows', (_e, obraId: number, patches: PlanRowPatch[]) =>
+    db.updatePlanRows(obraId, patches)
   )
 
   // ── Ingesta ──

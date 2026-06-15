@@ -149,6 +149,57 @@ export function deleteObra(obraId: number): void {
   getDb().prepare('DELETE FROM obras WHERE id=?').run(obraId)
 }
 
+/** Campos editables de una fila del plan (los que el usuario puede cambiar manualmente). */
+export interface PlanRowPatch {
+  id: number
+  measurement?: number | null
+  n_lots?: number | null
+  tests_per_lot?: number | null
+  n_tests: number
+  unit_price: number
+  total: number
+}
+
+/**
+ * Actualiza los campos editables de un conjunto de filas en una sola transacción
+ * y recalcula los totales de la obra (total_importe, n_ensayos, n_materiales).
+ */
+export function updatePlanRows(obraId: number, patches: PlanRowPatch[]): void {
+  const db = getDb()
+  const updateRow = db.prepare(
+    `UPDATE plan_rows
+     SET measurement=@measurement, n_lots=@n_lots, tests_per_lot=@tests_per_lot,
+         n_tests=@n_tests, unit_price=@unit_price, total=@total
+     WHERE id=@id`
+  )
+  const tx = db.transaction(() => {
+    for (const p of patches) {
+      updateRow.run({
+        id: p.id,
+        measurement: p.measurement ?? null,
+        n_lots: p.n_lots ?? null,
+        tests_per_lot: p.tests_per_lot ?? null,
+        n_tests: p.n_tests,
+        unit_price: p.unit_price,
+        total: p.total
+      })
+    }
+    // Recalcular stats de la obra a partir de las filas actualizadas
+    const agg = db
+      .prepare(
+        `SELECT COALESCE(SUM(total),0)   AS total_importe,
+                COALESCE(SUM(n_tests),0) AS n_ensayos,
+                COUNT(DISTINCT CASE WHEN material!='' THEN material END) AS n_materiales
+         FROM plan_rows WHERE obra_id=? AND row_type='test'`
+      )
+      .get(obraId) as { total_importe: number; n_ensayos: number; n_materiales: number }
+    db.prepare(
+      `UPDATE obras SET total_importe=?, n_ensayos=?, n_materiales=? WHERE id=?`
+    ).run(agg.total_importe, agg.n_ensayos, agg.n_materiales, obraId)
+  })
+  tx()
+}
+
 // ── Lectura ────────────────────────────────────────────────────────────────
 export function getObras(status?: 'activa' | 'archivada'): Obra[] {
   const db = getDb()

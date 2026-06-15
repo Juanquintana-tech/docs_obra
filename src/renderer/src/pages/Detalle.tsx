@@ -1,8 +1,8 @@
 import { useEffect, useState, type JSX } from 'react'
 import { api } from '../lib/api'
 import { eur } from '../lib/format'
-import { PlanTable } from '../components/PlanTable'
-import type { Obra, PlanRow } from '../lib/types'
+import { PlanTable, EditablePlanTable } from '../components/PlanTable'
+import type { Obra, PlanRow, PlanRowPatch } from '../lib/types'
 
 interface Props {
   obraId: number
@@ -14,6 +14,8 @@ interface Props {
 export function Detalle({ obraId, onBack, onDeleted, onEnsayos }: Props): JSX.Element {
   const [obra, setObra] = useState<Obra | null>(null)
   const [rows, setRows] = useState<PlanRow[]>([])
+  const [editedRows, setEditedRows] = useState<PlanRow[]>([])
+  const [editing, setEditing] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [ensayosCount, setEnsayosCount] = useState(0)
@@ -26,8 +28,46 @@ export function Detalle({ obraId, onBack, onDeleted, onEnsayos }: Props): JSX.El
   async function reload(): Promise<void> {
     const [o, r, counts] = await Promise.all([api.getObra(obraId), api.getPlanRows(obraId), api.countEnsayosPorObra()])
     setObra(o ?? null)
-    setRows(r.filter((x) => x.row_type === 'test'))
+    const testRows = r.filter((x) => x.row_type === 'test')
+    setRows(testRows)
+    setEditedRows(testRows)
     setEnsayosCount(counts[obraId] ?? 0)
+  }
+
+  function startEdit(): void {
+    setEditedRows(rows.map((r) => ({ ...r })))
+    setEditing(true)
+    setMsg(null)
+  }
+
+  function cancelEdit(): void {
+    setEditing(false)
+    setEditedRows(rows)
+    setMsg(null)
+  }
+
+  async function savePlan(): Promise<void> {
+    setBusy(true)
+    setMsg(null)
+    try {
+      const patches: PlanRowPatch[] = editedRows.map((r) => ({
+        id: r.id,
+        measurement: r.measurement,
+        n_lots: r.n_lots,
+        tests_per_lot: r.tests_per_lot,
+        n_tests: r.n_tests ?? 0,
+        unit_price: r.unit_price ?? 0,
+        total: r.total ?? 0
+      }))
+      await api.updatePlanRows(obraId, patches)
+      setEditing(false)
+      setMsg('Plan actualizado y totales recalculados.')
+      await reload()
+    } catch (e) {
+      setMsg(`Error al guardar: ${e instanceof Error ? e.message : String(e)}`)
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function exportDoc(kind: 'excel' | 'word'): Promise<void> {
@@ -92,27 +132,52 @@ export function Detalle({ obraId, onBack, onDeleted, onEnsayos }: Props): JSX.El
       </div>
 
       <div className="toolbar">
-        <button className="btn btn-navy" onClick={() => exportDoc('excel')} disabled={busy}>
+        <button className="btn btn-navy" onClick={() => exportDoc('excel')} disabled={busy || editing}>
           ⬇ Excel
         </button>
-        <button className="btn btn-navy" onClick={() => exportDoc('word')} disabled={busy}>
+        <button className="btn btn-navy" onClick={() => exportDoc('word')} disabled={busy || editing}>
           ⬇ Word
         </button>
         <span className="spacer" />
-        <button className="btn" onClick={() => onEnsayos(obraId)}>
+        {!editing ? (
+          <button className="btn" onClick={startEdit} disabled={busy}>
+            ✏️ Editar plan
+          </button>
+        ) : (
+          <>
+            <button className="btn btn-primary" onClick={savePlan} disabled={busy}>
+              {busy ? 'Guardando…' : '💾 Guardar cambios'}
+            </button>
+            <button className="btn" onClick={cancelEdit} disabled={busy}>
+              Cancelar
+            </button>
+          </>
+        )}
+        <button className="btn" onClick={() => onEnsayos(obraId)} disabled={editing}>
           🧪 Ensayos ({ensayosCount})
         </button>
-        <button className="btn" onClick={toggleArchive}>
+        <button className="btn" onClick={toggleArchive} disabled={editing}>
           {obra.status === 'activa' ? '🗄 Archivar' : '↩ Activar'}
         </button>
-        <button className="btn btn-danger" onClick={remove}>
+        <button className="btn btn-danger" onClick={remove} disabled={editing}>
           🗑 Eliminar
         </button>
       </div>
 
-      {msg && <div className="banner banner-warn">{msg}</div>}
+      {msg && (
+        <div className={`banner ${msg.startsWith('Error') ? 'banner-error' : 'banner-warn'}`}>
+          {msg}
+        </div>
+      )}
 
-      <PlanTable rows={rows} />
+      {editing ? (
+        <EditablePlanTable
+          rows={editedRows}
+          onChange={setEditedRows}
+        />
+      ) : (
+        <PlanTable rows={rows} />
+      )}
     </div>
   )
 }
