@@ -116,9 +116,14 @@ y la arquitectura deben dejarles sitio desde el principio.
       ingest:demo. Verificado: extractor sobre PDF real (512 chars); wiring classifier→planner con
       proveedor simulado (descarta no-objetos, compone plan). Sin probar en vivo: HTTP real MiniMax
       (necesita key). DIFERIDO: OCR de PDFs escaneados (needsOcr=true detectado; ver nota OCR).
-- [ ] Fase 3 ← siguiente
-      \_ Nota OCR pendiente: para PDFs escaneados hace falta cadena PDF→imagen (unpdf renderPageAsImage + @napi-rs/canvas) + tesseract.js con traineddata es. Sub-tarea aislada; la mayoría de memorias
-      son texto nativo, por eso se difiere. Confirmar con el usuario si sus PDFs reales suelen ser escaneados.
-- [ ] Fase 4
+      Fase 2b: ingesta MULTI-FORMATO (extractDocument): .pdf (unpdf), .docx (mammoth),
+      .xlsx (exceljs), .txt. El usuario confirma que sus inputs reales suelen ser Word/Excel
+      con cantidades, texto nativo → OCR queda como BAJA prioridad (diferido, documentado).
+- [x] Fase 3 — Entregables: generateExcel (exceljs, port de generate_excel: cabecera, secciones
+      por material, tabla valorada, totales sin/con IVA) + generateWord (docxtemplater sobre
+      plantilla resources/templates/plan_plantilla.docx, generada con `docx` y editable en Word).
+      Scripts: template:build, deliver:demo. Verificado: Excel (totales 5187/1089,27/6276,27 €) y
+      Word (9 líneas de ensayo por el bucle {#rows}, totales y responsable) generados y releídos OK.
+- [ ] Fase 4 ← siguiente
 - [ ] Fase 4.5 (hito RAG)
 - [ ] Fase 5

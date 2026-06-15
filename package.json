@@ -13,6 +13,8 @@
     "plan:demo": "tsx src/main/pipeline/harness/planDemo.ts",
     "extract:demo": "tsx src/main/pipeline/harness/extractDemo.ts",
     "ingest:demo": "tsx src/main/pipeline/harness/ingestDemo.ts",
+    "template:build": "tsx src/main/pipeline/formatter/buildTemplate.ts",
+    "deliver:demo": "tsx src/main/pipeline/harness/deliverDemo.ts",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
@@ -29,8 +31,10 @@
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "better-sqlite3": "^12.10.1",
+    "docxtemplater": "^3.68.7",
     "exceljs": "^4.4.0",
     "mammoth": "^1.12.0",
+    "pizzip": "^3.2.0",
     "unpdf": "^1.6.2"
   },
   "devDependencies": {
@@ -42,6 +46,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "docx": "^9.7.1",
     "electron": "^39.2.6",
     "electron-builder": "^26.0.12",
     "electron-vite": "^5.0.0",
