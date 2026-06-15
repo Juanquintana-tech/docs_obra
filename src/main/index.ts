@@ -1,14 +1,18 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { getDb, closeDb, getObras, getGlobalStats } from './db'
+import { getDb, closeDb } from './db'
+import { registerIpc } from './ipc'
+import { loadDotenv } from './env'
 
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1280,
+    height: 820,
+    minWidth: 960,
+    minHeight: 640,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -50,12 +54,14 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  // Carga el .env (MINIMAX_API_KEY, etc.) antes de tocar la DB o el pipeline.
+  loadDotenv()
+
   // Inicializa la base de datos (crea el fichero y aplica migraciones).
   getDb()
 
-  // IPC del dominio (se irá ampliando por fases).
-  ipcMain.handle('db:getObras', (_e, status?: 'activa' | 'archivada') => getObras(status))
-  ipcMain.handle('db:getGlobalStats', () => getGlobalStats())
+  // Registra todos los handlers IPC (DB + ingesta + entregables).
+  registerIpc()
 
   createWindow()
 

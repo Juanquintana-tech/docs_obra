@@ -1,34 +1,37 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import { useState, type JSX } from 'react'
+import { Sidebar, type PageName } from './components/Sidebar'
+import { Dashboard } from './pages/Dashboard'
+import { Proyectos } from './pages/Proyectos'
+import { NuevaObra } from './pages/NuevaObra'
+import { Detalle } from './pages/Detalle'
 
-function App(): React.JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+interface Route {
+  page: PageName
+  obraId?: number
+}
+
+function App(): JSX.Element {
+  const [route, setRoute] = useState<Route>({ page: 'dashboard' })
+
+  const go = (page: PageName, obraId?: number): void => setRoute({ page, obraId })
+  const openObra = (id: number): void => setRoute({ page: 'detalle', obraId: id })
 
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
-      </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
-    </>
+    <div className="app">
+      <Sidebar current={route.page} onNavigate={(p) => go(p)} />
+      <main className="content">
+        {route.page === 'dashboard' && <Dashboard onOpen={openObra} onNew={() => go('nueva')} />}
+        {route.page === 'proyectos' && <Proyectos onOpen={openObra} onNew={() => go('nueva')} />}
+        {route.page === 'nueva' && <NuevaObra onSaved={openObra} />}
+        {route.page === 'detalle' && route.obraId != null && (
+          <Detalle
+            obraId={route.obraId}
+            onBack={() => go('proyectos')}
+            onDeleted={() => go('proyectos')}
+          />
+        )}
+      </main>
+    </div>
   )
 }
 

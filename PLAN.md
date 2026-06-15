@@ -124,6 +124,13 @@ y la arquitectura deben dejarles sitio desde el principio.
       plantilla resources/templates/plan_plantilla.docx, generada con `docx` y editable en Word).
       Scripts: template:build, deliver:demo. Verificado: Excel (totales 5187/1089,27/6276,27 €) y
       Word (9 líneas de ensayo por el bucle {#rows}, totales y responsable) generados y releídos OK.
-- [ ] Fase 4 ← siguiente
+- [x] Fase 4 — UI React: cableado IPC completo (preload/api.ts + main/ipc.ts), servicio de
+      pipeline cacheado (services/pipeline.ts, RAG con degradación elegante), resolución de rutas
+      resources (paths.ts) y carga de .env (env.ts). Páginas: Dashboard (KPIs), Proyectos (lista +
+      filtros + búsqueda), Nueva Obra (flujo: elegir doc → ingesta IA → revisar → guardar), Detalle
+      (plan + descargas Excel/Word + archivar/eliminar). Tema CYE; PlanTable con "nivel de confianza"
+      por fila (feature #1). Verificado: typecheck + lint + build OK; app arranca sin crash, DB+IPC OK.
+      PENDIENTE: confirmación VISUAL del usuario con `npm run dev` + key MiniMax en .env para ingesta en vivo.
+      DIFERIDO (pulido): streaming fila a fila en Nueva Obra; tabla editable; features #2/#3/#4.
 - [ ] Fase 4.5 (hito RAG)
 - [ ] Fase 5
