@@ -10,6 +10,7 @@
     "lint": "eslint --cache .",
     "rag:demo": "tsx src/main/pipeline/harness/ragDemo.ts",
     "rag:eval": "tsx src/main/pipeline/harness/evaluate.ts",
+    "rag:build-embeddings": "tsx src/main/pipeline/harness/buildEmbeddings.ts",
     "plan:demo": "tsx src/main/pipeline/harness/planDemo.ts",
     "extract:demo": "tsx src/main/pipeline/harness/extractDemo.ts",
     "ingest:demo": "tsx src/main/pipeline/harness/ingestDemo.ts",

@@ -93,25 +93,33 @@ export class TfidfIndex {
     return counts
   }
 
-  /** Devuelve los índices de doc top-k con su similitud coseno [0,1], desc. */
-  queryTopK(query: string, k = 5): Array<{ doc: number; score: number }> {
+  /** Similitud coseno [0,1] de la consulta contra TODOS los docs (índice = doc). */
+  scoreAll(query: string): number[] {
     const qVec = this.weightAndNormalize(this.transformQuery(query))
     const qMap = new Map<number, number>()
     for (let i = 0; i < qVec.idx.length; i++) qMap.set(qVec.idx[i], qVec.val[i])
 
-    const scores: Array<{ doc: number; score: number }> = []
+    const scores = new Array<number>(this.docVecs.length).fill(0)
     for (let d = 0; d < this.docVecs.length; d++) {
       const v = this.docVecs[d]
       let dot = 0
-      // itera por el vector más corto (la consulta)
       for (let i = 0; i < v.idx.length; i++) {
         const q = qMap.get(v.idx[i])
         if (q !== undefined) dot += q * v.val[i]
       }
-      if (dot > 0) scores.push({ doc: d, score: dot })
+      scores[d] = dot
     }
-    scores.sort((a, b) => b.score - a.score)
-    return scores.slice(0, k)
+    return scores
+  }
+
+  /** Devuelve los índices de doc top-k con su similitud coseno [0,1], desc. */
+  queryTopK(query: string, k = 5): Array<{ doc: number; score: number }> {
+    const scores = this.scoreAll(query)
+    const idxs = scores
+      .map((score, doc) => ({ doc, score }))
+      .filter((s) => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+    return idxs.slice(0, k)
   }
 
   get size(): number {

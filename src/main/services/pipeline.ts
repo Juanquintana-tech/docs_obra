@@ -3,10 +3,12 @@
  * cacheando el índice RAG y las reglas (se construyen una sola vez).
  */
 import { readFile } from 'fs/promises'
+import { existsSync, readFileSync } from 'fs'
 import { extractDocument } from '../pipeline/extractor'
 import { classifyMaterials, extractObraInfo } from '../pipeline/classifier'
 import { generatePlan, type Material, type Rules } from '../pipeline/planner'
-import { RagPricer, CATEGORY_CTX } from '../pipeline/rag/ragPricer'
+import { RagPricer, CATEGORY_CTX, type EmbeddingsIndexFile } from '../pipeline/rag/ragPricer'
+import { MiniMaxEmbeddingsProvider } from '../pipeline/rag/minimaxEmbeddings'
 import type { RagMatch } from '../pipeline/rag/types'
 import { generateExcel, generateWord, type ObraInfo } from '../pipeline/formatter'
 import { generateInformeWord, generateInformeExcel } from '../pipeline/informes'
@@ -23,12 +25,27 @@ async function getRules(): Promise<Rules> {
   return _rules
 }
 
-/** Construye (y cachea) el RAG. Degrada con elegancia: si falla, devuelve null
- *  y el planner usa precios base en vez de tumbar la app. */
+/** Construye (y cachea) el RAG. Si existe el índice de embeddings y hay API key,
+ *  activa el modo híbrido. Degrada con elegancia: si falla, devuelve null y el
+ *  planner usa precios base en vez de tumbar la app. */
 async function getPricer(): Promise<RagPricer | null> {
   if (_pricer) return _pricer
   try {
-    _pricer = await RagPricer.fromXlsx(knowledgePath('tarifas_alagal.xlsx'))
+    // El proveedor de embeddings solo se adjunta si hay key (para la consulta híbrida).
+    const hasKey = !!process.env.MINIMAX_API_KEY
+    const embeddings = hasKey ? new MiniMaxEmbeddingsProvider() : null
+    const pricer = await RagPricer.fromXlsx(knowledgePath('tarifas_alagal.xlsx'), { embeddings })
+
+    // Carga el índice de embeddings persistido, si se construyó (rag:build-embeddings).
+    const embPath = knowledgePath('alagal_embeddings.json')
+    if (embeddings && existsSync(embPath)) {
+      try {
+        pricer.loadEmbeddings(JSON.parse(readFileSync(embPath, 'utf-8')) as EmbeddingsIndexFile)
+      } catch (e) {
+        console.error('[pipeline] índice de embeddings ilegible, se usa solo TF-IDF:', e)
+      }
+    }
+    _pricer = pricer
     return _pricer
   } catch (e) {
     console.error('[pipeline] RAG no disponible, se usarán precios base:', e)
@@ -86,7 +103,8 @@ export async function ragFindMatches(query: string, category = '', n = 8): Promi
   const pricer = await getPricer()
   if (!pricer) return []
   const ctx = CATEGORY_CTX[category] ?? ''
-  return pricer.findMatches(`${query} ${ctx}`.trim(), n)
+  // Híbrido si hay embeddings operativos; si no, cae a TF-IDF internamente.
+  return pricer.findMatchesHybrid(`${query} ${ctx}`.trim(), n)
 }
 
 export async function buildExcel(plan: PlanRowInput[], obra: ObraInfo): Promise<Buffer> {
