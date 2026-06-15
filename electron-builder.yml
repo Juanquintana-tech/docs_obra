@@ -11,6 +11,13 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 asarUnpack:
   - resources/**
+# Copia los ficheros de conocimiento y plantillas a Contents/Resources del .app,
+# de modo que process.resourcesPath/{knowledge,templates} los encuentre en producción.
+extraResources:
+  - from: resources/knowledge
+    to: knowledge
+  - from: resources/templates
+    to: templates
 win:
   executableName: cye-electron
 nsis:

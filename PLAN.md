@@ -132,5 +132,11 @@ y la arquitectura deben dejarles sitio desde el principio.
       por fila (feature #1). Verificado: typecheck + lint + build OK; app arranca sin crash, DB+IPC OK.
       PENDIENTE: confirmación VISUAL del usuario con `npm run dev` + key MiniMax en .env para ingesta en vivo.
       DIFERIDO (pulido): streaming fila a fila en Nueva Obra; tabla editable; features #2/#3/#4.
-- [ ] Fase 4.5 (hito RAG)
-- [ ] Fase 5
+- [ ] Fase 4.5 (hito RAG) — pantalla interna de validación del RAG.
+- [x] Fase 5 — Empaquetado: electron-builder con extraResources (knowledge/templates →
+      Contents/Resources para que process.resourcesPath los encuentre). Generado .dmg + .zip
+      (x64, ~121 MB). Verificado: .app empaquetado arranca, DB en userData "CYE", better-sqlite3
+      nativo carga, recursos colocados. Host Intel x64 → build x64 correcto.
+      PENDIENTE distribución profesional: (a) firma + notarización Apple (Developer ID, evita
+      Gatekeeper); (b) build Windows .exe (vía CI/GitHub Actions, no desde Mac); (c) universal/arm64
+      para clientes Apple Silicon; (d) configurar publish/auto-update (hoy apunta a example.com).
