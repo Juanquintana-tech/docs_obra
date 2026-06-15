@@ -1,0 +1,31 @@
+{
+  "_comment": "Set de validación del RAG. Cada caso: query (descripción de ensayo) + entrada esperada (expected_code, código ALAGAL col. A) y/o expected_price. Estos casos son ILUSTRATIVOS (expected_price tomados del catálogo actual). SUSTITUIR por casos reales del laboratorio cuando los tengamos — ese es el objetivo del hito de Fase 4.5.",
+  "cases": [
+    {
+      "query": "Proctor Modificado UNE 103501:94",
+      "category": "TERRAPLEN_RELLENOS",
+      "expected_price": 92
+    },
+    {
+      "query": "Granulometría de suelos por tamizado UNE 103101:95",
+      "category": "TERRAPLEN_RELLENOS",
+      "expected_price": 44,
+      "_nota": "Caso difícil: el contexto de categoría sesga el match hacia 'proctor'. Lo dejamos como miss honesto que los embeddings deberían corregir."
+    },
+    {
+      "query": "Límites de Atterberg UNE 103103:94 y 103014:93",
+      "category": "TERRAPLEN_RELLENOS",
+      "expected_price": 63
+    },
+    {
+      "query": "Equivalente de arena UNE-EN 933-8",
+      "category": "ZAHORRA_ARTIFICIAL",
+      "expected_price": 51
+    },
+    {
+      "query": "Granulometría según UNE EN 933-1",
+      "category": "ZAHORRA_ARTIFICIAL",
+      "expected_price": 33
+    }
+  ]
+}

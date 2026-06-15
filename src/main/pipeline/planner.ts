@@ -1,0 +1,151 @@
+/**
+ * Genera el plan de ensayos a partir de los materiales clasificados.
+ * Port de agents/planner.py — aplica las reglas de test_rules.json.
+ */
+import type { PlanRowInput } from '../db'
+import type { RagPricer } from './rag/ragPricer'
+
+// ── Tipos de las reglas (test_rules.json) ──────────────────────────────────
+export interface TestRule {
+  description: string
+  subcategory?: string
+  freq_qty?: number | string
+  freq_unit?: string
+  tests_per_lot?: number | string
+  unit_price?: number | string
+}
+export interface CategoryRule {
+  keywords?: string[]
+  unit?: string
+  tests?: TestRule[]
+}
+export type Rules = Record<string, CategoryRule>
+
+// ── Material clasificado (salida del classifier) ────────────────────────────
+export interface Material {
+  material?: string
+  category?: string
+  quantity?: number | null
+  unit?: string
+  description?: string
+  notes?: string
+}
+
+// ── Coerciones tolerantes (port de _coerce_float / _coerce_int) ─────────────
+function coerceFloat(v: unknown, def = 0): number {
+  if (v == null || v === '') return def
+  const n = typeof v === 'number' ? v : Number(String(v).replace(',', '.'))
+  return Number.isFinite(n) ? n : def
+}
+function coerceInt(v: unknown, def = 1): number {
+  return Math.round(coerceFloat(v, def))
+}
+
+function normUnit(u: string | undefined): string {
+  return (u || '').trim().toLowerCase().replace(/³/g, '3').replace(/²/g, '2').replace(/\s+/g, '')
+}
+
+/**
+ * Extrae pares (volumen, unidad) de una frecuencia, admitiendo varios umbrales.
+ * "100 m3 / 1.000 m2" → [[100,'m3'],[1000,'m2']]; "500 t" → [[500,'t']].
+ * El separador de miles "." se elimina.
+ */
+export function parseFreqPairs(freqUnit: string): Array<[number, string]> {
+  const pairs: Array<[number, string]> = []
+  const re = /([\d.,]+)\s*(m3|m³|m2|m²|ml|kg|t|m)\b/gi
+  let m: RegExpExecArray | null
+  while ((m = re.exec(freqUnit)) !== null) {
+    const num = m[1].replace(/\./g, '').replace(',', '.')
+    const val = Number(num)
+    if (Number.isFinite(val)) pairs.push([val, normUnit(m[2])])
+  }
+  return pairs
+}
+
+/**
+ * Nº de LOTES según cantidad y umbral de frecuencia (port de _calculate_n_lots).
+ * Elige el umbral cuya unidad coincide con la del material; si no, el primero.
+ * Frecuencias no numéricas → 1 lote conceptual.
+ */
+export function calculateNLots(
+  quantity: number | null | undefined,
+  freqUnit: string,
+  materialUnit = ''
+): number {
+  if (quantity == null || quantity <= 0) return 1
+  const pairs = parseFreqPairs(freqUnit)
+  if (pairs.length === 0) return 1
+  const mu = normUnit(materialUnit)
+  const match = pairs.find(([, un]) => un && un === mu)
+  const umbral = match ? match[0] : pairs[0][0]
+  if (umbral <= 0) return 1
+  return Math.max(1, Math.ceil(quantity / umbral))
+}
+
+/**
+ * Genera las filas 'test' del plan. Por cada material aplica las reglas de su
+ * categoría y, si se pasa un RagPricer, valora cada ensayo con el catálogo.
+ */
+export function generatePlan(
+  materials: Material[],
+  rules: Rules,
+  pricer?: RagPricer | null
+): PlanRowInput[] {
+  const out: PlanRowInput[] = []
+  for (const mat of materials) {
+    const category = mat.category ?? 'OTRO'
+    const rule = rules[category]
+    if (!rule) continue
+
+    const quantity = mat.quantity ?? null
+    const materialName = mat.material || mat.description || ''
+    const materialUnit = mat.unit ?? rule.unit ?? ''
+
+    for (const test of rule.tests ?? []) {
+      const freqUnit = test.freq_unit ?? ''
+      const freqQty = coerceInt(test.freq_qty, 1)
+      const testsPerLot = coerceInt(test.tests_per_lot, 1)
+      const description = test.description ?? ''
+
+      const nLots = calculateNLots(quantity, freqUnit, materialUnit)
+      const nTests = nLots * freqQty * testsPerLot
+
+      let unitPrice = coerceFloat(test.unit_price, 0)
+      let priceSource: 'alagal' | 'fallback' = 'fallback'
+      let ragDesc = ''
+      let ragScore = 0
+
+      if (pricer) {
+        const r = pricer.getBestPrice(description, category)
+        if (r.precio != null) {
+          unitPrice = r.precio
+          priceSource = 'alagal'
+          ragDesc = r.descripcion
+          ragScore = r.score
+        } else {
+          ragScore = r.score
+        }
+      }
+
+      out.push({
+        type: 'test',
+        material: materialName,
+        subcategory: test.subcategory ?? '',
+        description,
+        measurement: quantity,
+        measurement_unit: mat.unit ?? rule.unit ?? '',
+        freq_qty: freqQty,
+        freq_unit: freqUnit,
+        n_lots: nLots,
+        tests_per_lot: testsPerLot,
+        n_tests: nTests,
+        unit_price: unitPrice,
+        total: nTests * unitPrice,
+        price_source: priceSource,
+        rag_score: Math.round(ragScore * 1000) / 1000,
+        rag_desc: ragDesc
+      })
+    }
+  }
+  return out
+}

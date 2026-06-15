@@ -1,0 +1,378 @@
+{
+  "TERRAPLEN_RELLENOS": {
+    "keywords": [
+      "terraplén",
+      "terraplen",
+      "relleno",
+      "rellenos localizados",
+      "pedraplén",
+      "pedraplen"
+    ],
+    "unit": "m3",
+    "tests": [
+      {
+        "description": "Granulometría de suelos por tamizado UNE 103101:95",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 35
+      },
+      {
+        "description": "Límites de Atterberg UNE 103103:94 y 103014:93",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 40
+      },
+      {
+        "description": "Proctor Modificado UNE 103501:94",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 55
+      },
+      {
+        "description": "Índice CBR en laboratorio UNE 103502:95",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 85
+      },
+      {
+        "description": "Ensayo de hinchamiento libre en edómetro UNE 103601:96",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 60
+      },
+      {
+        "description": "Contenido de materia orgánica en suelos UNE 103204:93",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 30
+      },
+      {
+        "description": "Contenido de sales solubles en suelos NLT 114-99",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 40
+      },
+      {
+        "description": "Contenido de yesos en suelos NLT 115-99",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 40
+      },
+      {
+        "description": "Densidad y humedad in situ por isótopos radiactivos ASTM D-3017",
+        "subcategory": "Control compactación",
+        "freq_qty": 5,
+        "freq_unit": "10.000 m2 y tongada",
+        "tests_per_lot": 1,
+        "unit_price": 13
+      },
+      {
+        "description": "Ensayo de carga con placa doble ciclo NLT-357",
+        "subcategory": "Control compactación",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m2 y tongada",
+        "tests_per_lot": 1,
+        "unit_price": 120
+      }
+    ]
+  },
+  "ZAHORRA_ARTIFICIAL": {
+    "keywords": [
+      "zahorra artificial",
+      "zahorra",
+      "grava cemento"
+    ],
+    "unit": "m3",
+    "tests": [
+      {
+        "description": "Granulometría según UNE EN 933-1",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "5.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 36
+      },
+      {
+        "description": "Equivalente de arena según UNE EN 933-8",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "5.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 25
+      },
+      {
+        "description": "Índice de lajas según UNE EN 933-3",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "5.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 36
+      },
+      {
+        "description": "Desgaste de Los Ángeles según UNE EN 1097-2",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 90
+      },
+      {
+        "description": "Proctor Modificado UNE 103501:94",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "5.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 55
+      },
+      {
+        "description": "Densidad y humedad in situ por isótopos radiactivos ASTM D-3017",
+        "subcategory": "Control compactación",
+        "freq_qty": 5,
+        "freq_unit": "5.000 m2 y tongada",
+        "tests_per_lot": 1,
+        "unit_price": 13
+      },
+      {
+        "description": "Ensayo de carga con placa doble ciclo NLT-357",
+        "subcategory": "Control compactación",
+        "freq_qty": 1,
+        "freq_unit": "5.000 m2 y tongada",
+        "tests_per_lot": 1,
+        "unit_price": 120
+      }
+    ]
+  },
+  "HORMIGON": {
+    "keywords": [
+      "hormigón",
+      "hormigon",
+      "ha-",
+      "hp-",
+      "hm-",
+      "hormigón armado",
+      "hormigón en masa"
+    ],
+    "unit": "m3",
+    "note": "1 lote por cada 100 m3 o fracción. 4 probetas por lote (2+2).",
+    "tests": [
+      {
+        "description": "Toma de muestra, medida de Cono, fabricación de 4 probetas cilíndricas 15x30 cm, curado y rotura a compresión (2+2) UNE EN 12350-1,2 y UNE EN 12390-1,2,3",
+        "subcategory": "Control de ejecución",
+        "freq_qty": 1,
+        "freq_unit": "100 m3 / 1.000 m2",
+        "tests_per_lot": 1,
+        "unit_price": 72
+      },
+      {
+        "description": "Determinación de la profundidad de penetración del agua bajo presión UNE EN 12390-8",
+        "subcategory": "Control de durabilidad",
+        "freq_qty": 1,
+        "freq_unit": "Inicio y cambio de suministro",
+        "tests_per_lot": 1,
+        "unit_price": 210
+      }
+    ]
+  },
+  "ESCOLLERA": {
+    "keywords": [
+      "escollera",
+      "enrocamiento",
+      "todo uno"
+    ],
+    "unit": "m3",
+    "tests": [
+      {
+        "description": "Granulometría de escollera UNE 103101",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "5.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 42
+      },
+      {
+        "description": "Índice de forma Art 331 PG-3",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "5.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 36
+      },
+      {
+        "description": "Desgaste de Los Ángeles según UNE EN 1097-2",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 90
+      },
+      {
+        "description": "Ensayo de durabilidad SDT NLT 251",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 90
+      },
+      {
+        "description": "Ensayo de desmoronamiento frente al agua NLT 255",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 90
+      }
+    ]
+  },
+  "SUELO_ESTABILIZADO": {
+    "keywords": [
+      "suelo estabilizado",
+      "sest",
+      "s-est",
+      "suelo-cemento",
+      "suelo cemento"
+    ],
+    "unit": "m3",
+    "tests": [
+      {
+        "description": "Análisis granulométrico por tamizado UNE 103101",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "Tipo de material",
+        "tests_per_lot": 3,
+        "unit_price": 35
+      },
+      {
+        "description": "Límites de Atterberg UNE 103103, 103104",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "Tipo de material",
+        "tests_per_lot": 3,
+        "unit_price": 40
+      },
+      {
+        "description": "Proctor Modificado UNE 103501-94",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "Tipo de material",
+        "tests_per_lot": 3,
+        "unit_price": 55
+      },
+      {
+        "description": "Estudio de dosificación de mezcla (4 series × 4 probetas, 4 porcentajes de cemento)",
+        "subcategory": "Dosificación",
+        "freq_qty": 1,
+        "freq_unit": "Fórmula",
+        "tests_per_lot": 1,
+        "unit_price": 480
+      },
+      {
+        "description": "Comprobación fórmula de trabajo: 3 probetas, rotura a compresión a 7 días",
+        "subcategory": "Dosificación",
+        "freq_qty": 1,
+        "freq_unit": "Fórmula",
+        "tests_per_lot": 3,
+        "unit_price": 180
+      },
+      {
+        "description": "Densidad y humedad in situ por isótopos radiactivos ASTM D-3017",
+        "subcategory": "Control compactación",
+        "freq_qty": 7,
+        "freq_unit": "3.500 m2",
+        "tests_per_lot": 1,
+        "unit_price": 13
+      }
+    ]
+  },
+  "MEZCLA_BITUMINOSA": {
+    "keywords": [
+      "mezcla bituminosa",
+      "mezclas bituminosas",
+      "mbc",
+      "ac 32",
+      "ac 22",
+      "ac 16",
+      "bbtm",
+      "aglomerado asfáltico",
+      "mezcla asfaltica"
+    ],
+    "unit": "t",
+    "tests": [
+      {
+        "description": "Comprobación fórmula de trabajo",
+        "subcategory": "Fórmula de trabajo",
+        "freq_qty": 1,
+        "freq_unit": "Fórmula",
+        "tests_per_lot": 1,
+        "unit_price": 185
+      },
+      {
+        "description": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
+        "subcategory": "Control puesta en obra",
+        "freq_qty": 1,
+        "freq_unit": "500 t / 3.500 m2",
+        "tests_per_lot": 1,
+        "unit_price": 48
+      },
+      {
+        "description": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
+        "subcategory": "Control puesta en obra",
+        "freq_qty": 1,
+        "freq_unit": "500 t / 3.500 m2",
+        "tests_per_lot": 1,
+        "unit_price": 36
+      },
+      {
+        "description": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5",
+        "subcategory": "Control puesta en obra",
+        "freq_qty": 1,
+        "freq_unit": "500 t / 3.500 m2",
+        "tests_per_lot": 1,
+        "unit_price": 90
+      },
+      {
+        "description": "Extracción de testigo en MBC: espesor y densidad aparente",
+        "subcategory": "Control unidad terminada",
+        "freq_qty": 3,
+        "freq_unit": "500 m / 3.500 m2 y capa",
+        "tests_per_lot": 1,
+        "unit_price": 50
+      }
+    ]
+  },
+  "ACERO": {
+    "keywords": [
+      "acero",
+      "armadura",
+      "ferralla",
+      "acero pasivo",
+      "acero activo"
+    ],
+    "unit": "t",
+    "tests": [
+      {
+        "description": "Determinación de características geométricas y mecánicas de acero para hormigón armado UNE EN ISO 15630-1",
+        "subcategory": "Recepción",
+        "freq_qty": 1,
+        "freq_unit": "40 t",
+        "tests_per_lot": 1,
+        "unit_price": 75
+      }
+    ]
+  }
+}

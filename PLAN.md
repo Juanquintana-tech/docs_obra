@@ -93,8 +93,12 @@ y la arquitectura deben dejarles sitio desde el principio.
 - [x] Fase 0 — scaffold electron-vite (Electron 39/React 19/Vite 7/TS 5.9) + capa de datos
       SQLite (better-sqlite3, migraciones user_version, esquema base + campos de features) +
       git inicializado. Verificado: build OK + DB migrada a v1 en ejecución real.
-- [ ] Fase 1  ← siguiente
-- [ ] Fase 2
+- [x] Fase 1 — pipeline núcleo: planner (port de planner.py) + test_rules.json + ragPricer
+      (TF-IDF char n-gram en TS, embeddings enchufables pendientes de activar) + harness de
+      evaluación (rag:demo / rag:eval / plan:demo). Baseline medido: 80% acierto precio en el
+      set de muestra. Verificado: typecheck OK + 3 scripts corren contra el catálogo real.
+      Pendiente futuro: activar embeddings (proveedor a elegir) y sembrar harness con casos reales.
+- [ ] Fase 2  ← siguiente
 - [ ] Fase 3
 - [ ] Fase 4
 - [ ] Fase 4.5 (hito RAG)
