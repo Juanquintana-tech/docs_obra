@@ -110,7 +110,14 @@ export function computeDensidad(input: DensidadInput): DensidadResult {
     const d_max = toFloat(r.d_max)
     const d_situ = toFloat(r.d_situ)
     const comp = d_max && d_situ ? Math.round((d_situ / d_max) * 1000) / 10 : null
-    return { ...r, d_max, h_opt: toFloat(r.h_opt), d_situ, h_situ: toFloat(r.h_situ), compactacion: comp }
+    return {
+      ...r,
+      d_max,
+      h_opt: toFloat(r.h_opt),
+      d_situ,
+      h_situ: toFloat(r.h_situ),
+      compactacion: comp
+    }
   })
 
   const d_situ_list = rows.map((r) => r.d_situ).filter((x): x is number => x !== null)
@@ -125,7 +132,9 @@ export function computeDensidad(input: DensidadInput): DensidadResult {
   const cv_h = Math.round(cvPct(h_situ_list) * 10) / 10
 
   const d_especificada = d_max_list.length ? Math.max(...d_max_list) : 0
-  const d_min_admisible = d_especificada ? Math.round((d_especificada - MARGEN_DENSIDAD) * 1000) / 1000 : 0
+  const d_min_admisible = d_especificada
+    ? Math.round((d_especificada - MARGEN_DENSIDAD) * 1000) / 1000
+    : 0
   const d_situ_minima = d_situ_list.length ? Math.round(Math.min(...d_situ_list) * 1000) / 1000 : 0
 
   const cond1 = comp_list.length ? media_comp >= compactacion_min : false
@@ -195,7 +204,9 @@ export interface PlacaResult {
 
 function asientoMedio(l1: unknown, l2: unknown, l3: unknown): number | null {
   const vals = [toFloat(l1), toFloat(l2), toFloat(l3)].filter((v): v is number => v !== null)
-  return vals.length ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 100) / 100 : null
+  return vals.length
+    ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 100) / 100
+    : null
 }
 
 function calcEv(
@@ -210,7 +221,10 @@ function calcEv(
   return Math.round((1.5 * radio_mm * delta_p) / ds)
 }
 
-function asientoEn(filas: (PlacaFila & { asiento_medio: number | null })[], presionObj: number): number | null {
+function asientoEn(
+  filas: (PlacaFila & { asiento_medio: number | null })[],
+  presionObj: number
+): number | null {
   for (const r of filas) {
     if (r.presion !== null && Math.abs(r.presion - presionObj) < 1e-6) return r.asiento_medio
   }

@@ -168,9 +168,7 @@ export function registerIpc(): void {
   })
 
   // ── Presupuestos (catálogo y reglas) ──
-  ipcMain.handle('presup:getCatalog', () =>
-    loadCatalog(knowledgePath('tarifas_alagal.xlsx'))
-  )
+  ipcMain.handle('presup:getCatalog', () => loadCatalog(knowledgePath('tarifas_alagal.xlsx')))
   ipcMain.handle('presup:getRules', async () => {
     const raw = await readFile(knowledgePath('test_rules.json'), 'utf-8')
     return JSON.parse(raw) as Rules

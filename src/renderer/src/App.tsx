@@ -23,8 +23,20 @@ function App(): JSX.Element {
     <div className="app">
       <Sidebar current={route.page} onNavigate={(p) => go(p)} />
       <main className="content">
-        {route.page === 'dashboard' && <Dashboard onOpen={openObra} onNew={() => go('nueva')} onEnsayos={(id) => go('ensayos', id)} />}
-        {route.page === 'proyectos' && <Proyectos onOpen={openObra} onNew={() => go('nueva')} onEnsayos={(id) => go('ensayos', id)} />}
+        {route.page === 'dashboard' && (
+          <Dashboard
+            onOpen={openObra}
+            onNew={() => go('nueva')}
+            onEnsayos={(id) => go('ensayos', id)}
+          />
+        )}
+        {route.page === 'proyectos' && (
+          <Proyectos
+            onOpen={openObra}
+            onNew={() => go('nueva')}
+            onEnsayos={(id) => go('ensayos', id)}
+          />
+        )}
         {route.page === 'nueva' && <NuevaObra onSaved={openObra} />}
         {route.page === 'ensayos' && <Ensayos initialObraId={route.obraId} />}
         {route.page === 'presupuestos' && <Presupuestos />}

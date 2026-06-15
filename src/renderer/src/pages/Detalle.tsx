@@ -26,7 +26,11 @@ export function Detalle({ obraId, onBack, onDeleted, onEnsayos }: Props): JSX.El
   }, [obraId])
 
   async function reload(): Promise<void> {
-    const [o, r, counts] = await Promise.all([api.getObra(obraId), api.getPlanRows(obraId), api.countEnsayosPorObra()])
+    const [o, r, counts] = await Promise.all([
+      api.getObra(obraId),
+      api.getPlanRows(obraId),
+      api.countEnsayosPorObra()
+    ])
     setObra(o ?? null)
     const testRows = r.filter((x) => x.row_type === 'test')
     setRows(testRows)
@@ -132,10 +136,18 @@ export function Detalle({ obraId, onBack, onDeleted, onEnsayos }: Props): JSX.El
       </div>
 
       <div className="toolbar">
-        <button className="btn btn-navy" onClick={() => exportDoc('excel')} disabled={busy || editing}>
+        <button
+          className="btn btn-navy"
+          onClick={() => exportDoc('excel')}
+          disabled={busy || editing}
+        >
           ⬇ Excel
         </button>
-        <button className="btn btn-navy" onClick={() => exportDoc('word')} disabled={busy || editing}>
+        <button
+          className="btn btn-navy"
+          onClick={() => exportDoc('word')}
+          disabled={busy || editing}
+        >
           ⬇ Word
         </button>
         <span className="spacer" />
@@ -171,10 +183,7 @@ export function Detalle({ obraId, onBack, onDeleted, onEnsayos }: Props): JSX.El
       )}
 
       {editing ? (
-        <EditablePlanTable
-          rows={editedRows}
-          onChange={setEditedRows}
-        />
+        <EditablePlanTable rows={editedRows} onChange={setEditedRows} />
       ) : (
         <PlanTable rows={rows} />
       )}

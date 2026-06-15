@@ -82,13 +82,38 @@ export function Dashboard({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
             >
               <div
                 className="obra-avatar"
-                style={{ background: avatarColor(o.id), width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 14, flexShrink: 0 }}
+                style={{
+                  background: avatarColor(o.id),
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  fontWeight: 800,
+                  fontSize: 14,
+                  flexShrink: 0
+                }}
               >
                 {initials(o.obra)}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--navy)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.obra || '(sin nombre)'}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-soft)', marginTop: 2 }}>{o.cliente || '—'} · Ref. {o.ref_lab || '—'}</div>
+                <div
+                  style={{
+                    fontWeight: 600,
+                    fontSize: 14,
+                    color: 'var(--navy)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {o.obra || '(sin nombre)'}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-soft)', marginTop: 2 }}>
+                  {o.cliente || '—'} · Ref. {o.ref_lab || '—'}
+                </div>
               </div>
               <div style={{ display: 'flex', gap: 20, fontSize: 13, flexShrink: 0 }}>
                 <span>
@@ -102,10 +127,26 @@ export function Dashboard({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
                 <span style={{ fontWeight: 700 }}>{eur(o.total_importe)}</span>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button className="btn" style={{ fontSize: 12, padding: '5px 10px' }} onClick={(e) => { e.stopPropagation(); onEnsayos(o.id) }}>
+                <button
+                  className="btn"
+                  style={{ fontSize: 12, padding: '5px 10px' }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEnsayos(o.id)
+                  }}
+                >
                   🧪 Ensayos
                 </button>
-                <span style={{ color: 'var(--border)', fontSize: 18, display: 'flex', alignItems: 'center' }}>›</span>
+                <span
+                  style={{
+                    color: 'var(--border)',
+                    fontSize: 18,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  ›
+                </span>
               </div>
             </div>
           ))}

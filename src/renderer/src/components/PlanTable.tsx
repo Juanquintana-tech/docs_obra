@@ -81,13 +81,7 @@ export function PlanTable({ rows }: Props): JSX.Element {
 
 /** Tabla editable (modo edición en Detalle). */
 export function EditablePlanTable({ rows, onChange }: EditableProps): JSX.Element {
-  return (
-    <PlanTableInner
-      rows={rows}
-      editable={true}
-      onChangeEditable={onChange}
-    />
-  )
+  return <PlanTableInner rows={rows} editable={true} onChangeEditable={onChange} />
 }
 
 // ── Implementación interna ────────────────────────────────────────────────────
@@ -122,9 +116,10 @@ function PlanTableInner({
     return m
   }
 
-  // Asegura que edits está inicializado cuando se entra en modo edición
-  const activeEdits: Record<number, EditState> =
-    editable && Object.keys(edits).length === 0 ? initEdits() : edits
+  // En modo edición, todas las filas deben estar presentes: se parte de los valores
+  // iniciales y se sobreescriben con las ediciones del usuario. (Antes, al editar una
+  // celda, el resto de filas desaparecían porque solo vivían en `edits` las tocadas.)
+  const activeEdits: Record<number, EditState> = editable ? { ...initEdits(), ...edits } : edits
 
   function setField(id: number, field: keyof Omit<EditState, 'total'>, val: string): void {
     setEdits((prev) => {
@@ -205,16 +200,20 @@ function PlanTableInner({
       trs.push(
         <tr key={`r-${i}`}>
           <td>{r.description}</td>
-          <td className="num">{num(r.measurement)} {r.measurement_unit}</td>
+          <td className="num">
+            {num(r.measurement)} {r.measurement_unit}
+          </td>
           <td className="num">{num(r.n_lots)}</td>
           <td className="num">{num(r.n_tests)}</td>
           <td className="num">{eur(r.unit_price)}</td>
           <td className="num">{eur(r.total)}</td>
-          <td><Confidence source={r.price_source} score={r.rag_score} /></td>
+          <td>
+            <Confidence source={r.price_source} score={r.rag_score} />
+          </td>
         </tr>
       )
     } else {
-      const er = (r as EditableRow)
+      const er = r as EditableRow
       if (er.row_type !== 'test') return
       const e = activeEdits[er.id]
       if (!e) return
@@ -261,13 +260,22 @@ function PlanTableInner({
               value={e.unit_price}
               onChange={(ev) => {
                 setField(er.id, 'unit_price', ev.target.value)
-                propagate({ ...activeEdits, [er.id]: { ...e, unit_price: ev.target.value, total: fromStr(e.n_tests) * fromStr(ev.target.value) } })
+                propagate({
+                  ...activeEdits,
+                  [er.id]: {
+                    ...e,
+                    unit_price: ev.target.value,
+                    total: fromStr(e.n_tests) * fromStr(ev.target.value)
+                  }
+                })
               }}
               title="€/ud"
             />
           </td>
           <td className="num plan-total-cell">{eur(e.total)}</td>
-          <td><Confidence source={r.price_source} score={r.rag_score} /></td>
+          <td>
+            <Confidence source={r.price_source} score={r.rag_score} />
+          </td>
         </tr>
       )
     }
@@ -278,9 +286,16 @@ function PlanTableInner({
       {editable && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           <span style={{ fontSize: 12, color: 'var(--text-soft)' }}>
-            Edita los campos y pulsa <b>Recalcular</b> para actualizar los totales (N lotes × ens./lote = Nº uds.).
+            Edita los campos y pulsa <b>Recalcular</b> para actualizar los totales (N lotes ×
+            ens./lote = Nº uds.).
           </span>
-          <button className="btn btn-primary" style={{ marginLeft: 'auto' }} onClick={() => { recalcAll() }}>
+          <button
+            className="btn btn-primary"
+            style={{ marginLeft: 'auto' }}
+            onClick={() => {
+              recalcAll()
+            }}
+          >
             🔄 Recalcular
           </button>
         </div>

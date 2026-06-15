@@ -4,7 +4,16 @@
  * Los tipos de dominio se importan como type-only (se borran en runtime).
  */
 import { ipcRenderer } from 'electron'
-import type { Obra, PlanRow, ObraInput, GlobalStats, PriceCorrectionInput, Ensayo, EnsayoInput, PlanRowPatch } from '../main/db'
+import type {
+  Obra,
+  PlanRow,
+  ObraInput,
+  GlobalStats,
+  PriceCorrectionInput,
+  Ensayo,
+  EnsayoInput,
+  PlanRowPatch
+} from '../main/db'
 import type { PlanRowInput } from '../main/pipeline/types'
 import type { IngestResult, RagStatus } from '../main/services/pipeline'
 import type { RagMatch } from '../main/pipeline/rag/types'
@@ -57,8 +66,7 @@ export const api = {
     ipcRenderer.invoke('ensayo:save', obraId, input),
   updateEnsayo: (ensayoId: number, input: EnsayoInput): Promise<void> =>
     ipcRenderer.invoke('ensayo:update', ensayoId, input),
-  deleteEnsayo: (ensayoId: number): Promise<void> =>
-    ipcRenderer.invoke('ensayo:delete', ensayoId),
+  deleteEnsayo: (ensayoId: number): Promise<void> => ipcRenderer.invoke('ensayo:delete', ensayoId),
   countEnsayosPorObra: (): Promise<Record<number, number>> =>
     ipcRenderer.invoke('ensayo:countPerObra'),
   exportEnsayoWord: (ensayoId: number): Promise<string | null> =>

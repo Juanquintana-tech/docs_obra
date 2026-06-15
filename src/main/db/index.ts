@@ -193,9 +193,12 @@ export function updatePlanRows(obraId: number, patches: PlanRowPatch[]): void {
          FROM plan_rows WHERE obra_id=? AND row_type='test'`
       )
       .get(obraId) as { total_importe: number; n_ensayos: number; n_materiales: number }
-    db.prepare(
-      `UPDATE obras SET total_importe=?, n_ensayos=?, n_materiales=? WHERE id=?`
-    ).run(agg.total_importe, agg.n_ensayos, agg.n_materiales, obraId)
+    db.prepare(`UPDATE obras SET total_importe=?, n_ensayos=?, n_materiales=? WHERE id=?`).run(
+      agg.total_importe,
+      agg.n_ensayos,
+      agg.n_materiales,
+      obraId
+    )
   })
   tx()
 }
@@ -354,16 +357,14 @@ export function getEnsayos(obraId: number, tipo?: string): Ensayo[] {
     ? db
         .prepare('SELECT * FROM ensayos WHERE obra_id=? AND tipo=? ORDER BY created_at DESC')
         .all(obraId, tipo)
-    : db
-        .prepare('SELECT * FROM ensayos WHERE obra_id=? ORDER BY created_at DESC')
-        .all(obraId)
+    : db.prepare('SELECT * FROM ensayos WHERE obra_id=? ORDER BY created_at DESC').all(obraId)
   return (rows as Record<string, unknown>[]).map(parseEnsayo)
 }
 
 export function getEnsayo(ensayoId: number): Ensayo | undefined {
-  const row = getDb()
-    .prepare('SELECT * FROM ensayos WHERE id=?')
-    .get(ensayoId) as Record<string, unknown> | undefined
+  const row = getDb().prepare('SELECT * FROM ensayos WHERE id=?').get(ensayoId) as
+    | Record<string, unknown>
+    | undefined
   return row ? parseEnsayo(row) : undefined
 }
 

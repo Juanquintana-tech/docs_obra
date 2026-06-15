@@ -5,15 +5,29 @@
  * Word → librería `docx`; Excel → `exceljs`.
  */
 import {
-  Document, Packer, Paragraph, Table, TableRow, TableCell,
-  TextRun, WidthType, AlignmentType, BorderStyle, ShadingType,
-  convertInchesToTwip, TableLayoutType
+  Document,
+  Packer,
+  Paragraph,
+  Table,
+  TableRow,
+  TableCell,
+  TextRun,
+  WidthType,
+  AlignmentType,
+  BorderStyle,
+  ShadingType,
+  convertInchesToTwip,
+  TableLayoutType
 } from 'docx'
 import ExcelJS from 'exceljs'
 import type { Ensayo, Obra } from '../db'
 import {
-  computeDensidad, computePlaca, TIPOS, toFloat,
-  type DensidadInput, type PlacaInput
+  computeDensidad,
+  computePlaca,
+  TIPOS,
+  toFloat,
+  type DensidadInput,
+  type PlacaInput
 } from './ensayos'
 
 // ── Constantes corporativas ──────────────────────────────────────────────────
@@ -58,7 +72,12 @@ function hdrCell(text: string, fill = MID): TableCell {
   })
 }
 
-function dataCell(text: string, bold = false, align: 'center' | 'left' | 'right' = 'center', fill?: string): TableCell {
+function dataCell(
+  text: string,
+  bold = false,
+  align: 'center' | 'left' | 'right' = 'center',
+  fill?: string
+): TableCell {
   const cell = new TableCell({
     borders: { top: THIN_BORDER, bottom: THIN_BORDER, left: THIN_BORDER, right: THIN_BORDER },
     ...(fill ? { shading: { type: ShadingType.SOLID, fill } } : {}),
@@ -102,19 +121,20 @@ function titlePar(text: string): Paragraph {
 }
 
 function infoRow(pairs: [string, string][]): Table {
-  const cells = pairs.map(([k, v]) =>
-    new TableCell({
-      borders: { top: THIN_BORDER, bottom: THIN_BORDER, left: THIN_BORDER, right: THIN_BORDER },
-      children: [
-        new Paragraph({
-          spacing: { before: 20, after: 20 },
-          children: [
-            new TextRun({ text: `${k}: `, bold: true, size: 15 }),
-            new TextRun({ text: v, size: 15 })
-          ]
-        })
-      ]
-    })
+  const cells = pairs.map(
+    ([k, v]) =>
+      new TableCell({
+        borders: { top: THIN_BORDER, bottom: THIN_BORDER, left: THIN_BORDER, right: THIN_BORDER },
+        children: [
+          new Paragraph({
+            spacing: { before: 20, after: 20 },
+            children: [
+              new TextRun({ text: `${k}: `, bold: true, size: 15 }),
+              new TextRun({ text: v, size: 15 })
+            ]
+          })
+        ]
+      })
   )
   return new Table({
     layout: TableLayoutType.FIXED,
@@ -197,7 +217,16 @@ function densidadWord(datos: DensidadInput & Record<string, unknown>, obra: Obra
   const doc = new Document({
     sections: [
       {
-        properties: { page: { margin: { top: convertInchesToTwip(0.7), bottom: convertInchesToTwip(0.7), left: convertInchesToTwip(0.8), right: convertInchesToTwip(0.8) } } },
+        properties: {
+          page: {
+            margin: {
+              top: convertInchesToTwip(0.7),
+              bottom: convertInchesToTwip(0.7),
+              left: convertInchesToTwip(0.8),
+              right: convertInchesToTwip(0.8)
+            }
+          }
+        },
         children: [
           ...letterheadSection(obra.obra),
           titlePar(TIPOS.densidad_in_situ.tituloInforme),
@@ -211,7 +240,12 @@ function densidadWord(datos: DensidadInput & Record<string, unknown>, obra: Obra
             ['Nº Lote', cab.n_lote || ''],
             ['Fecha ensayo', cab.fecha_ensayo || '']
           ]),
-          new Paragraph({ spacing: { before: 80, after: 40 }, children: [new TextRun({ text: 'RESULTADOS OBTENIDOS:', bold: true, size: 18, color: NAVY })] }),
+          new Paragraph({
+            spacing: { before: 80, after: 40 },
+            children: [
+              new TextRun({ text: 'RESULTADOS OBTENIDOS:', bold: true, size: 18, color: NAVY })
+            ]
+          }),
           new Table({
             layout: TableLayoutType.FIXED,
             width: { size: 100, type: WidthType.PERCENTAGE },
@@ -252,8 +286,21 @@ function densidadWord(datos: DensidadInput & Record<string, unknown>, obra: Obra
               )
             ]
           }),
-          new Paragraph({ spacing: { before: 120 }, children: [new TextRun({ text: `VEREDICTO: ${calc.veredicto}`, bold: true, size: 22, color: calc.veredicto === 'CUMPLE' ? '15803D' : 'B91C1C' })] }),
-          new Paragraph({ spacing: { before: 60 }, children: [new TextRun({ text: HABILITACION, size: 14, color: GREY, italics: true })] }),
+          new Paragraph({
+            spacing: { before: 120 },
+            children: [
+              new TextRun({
+                text: `VEREDICTO: ${calc.veredicto}`,
+                bold: true,
+                size: 22,
+                color: calc.veredicto === 'CUMPLE' ? '15803D' : 'B91C1C'
+              })
+            ]
+          }),
+          new Paragraph({
+            spacing: { before: 60 },
+            children: [new TextRun({ text: HABILITACION, size: 14, color: GREY, italics: true })]
+          }),
           signaturesPar(cab.director || DIRECTOR_DEFAULT, cab.jefe_area || JEFE_DEFAULT)
         ]
       }
@@ -278,7 +325,12 @@ function placaWord(datos: PlacaInput & Record<string, unknown>, obra: Obra): Buf
           columnSpan: 5,
           shading: { type: ShadingType.SOLID, fill: LIGHT },
           borders: { top: THIN_BORDER, bottom: THIN_BORDER, left: THIN_BORDER, right: THIN_BORDER },
-          children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: label, bold: true, size: 15 })] })]
+          children: [
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [new TextRun({ text: label, bold: true, size: 15 })]
+            })
+          ]
         })
       ]
     })
@@ -302,7 +354,16 @@ function placaWord(datos: PlacaInput & Record<string, unknown>, obra: Obra): Buf
   const doc = new Document({
     sections: [
       {
-        properties: { page: { margin: { top: convertInchesToTwip(0.7), bottom: convertInchesToTwip(0.7), left: convertInchesToTwip(0.8), right: convertInchesToTwip(0.8) } } },
+        properties: {
+          page: {
+            margin: {
+              top: convertInchesToTwip(0.7),
+              bottom: convertInchesToTwip(0.7),
+              left: convertInchesToTwip(0.8),
+              right: convertInchesToTwip(0.8)
+            }
+          }
+        },
         children: [
           ...letterheadSection(obra.obra),
           titlePar(TIPOS.placa_carga.tituloInforme),
@@ -316,7 +377,10 @@ function placaWord(datos: PlacaInput & Record<string, unknown>, obra: Obra): Buf
             ['Fecha ensayo', cab.fecha_ensayo || ''],
             ['Ø placa (mm)', cab.diam_placa || String(calc.radio_mm * 2)]
           ]),
-          new Paragraph({ spacing: { before: 80, after: 40 }, children: [new TextRun({ text: 'LECTURAS:', bold: true, size: 18, color: NAVY })] }),
+          new Paragraph({
+            spacing: { before: 80, after: 40 },
+            children: [new TextRun({ text: 'LECTURAS:', bold: true, size: 18, color: NAVY })]
+          }),
           new Table({
             layout: TableLayoutType.FIXED,
             width: { size: 100, type: WidthType.PERCENTAGE },
@@ -334,23 +398,61 @@ function placaWord(datos: PlacaInput & Record<string, unknown>, obra: Obra): Buf
               ...cicloRows('2º CICLO DE CARGA', calc.ciclo2)
             ]
           }),
-          new Paragraph({ spacing: { before: 100, after: 40 }, children: [new TextRun({ text: 'MÓDULOS DE COMPRESIBILIDAD:', bold: true, size: 18, color: NAVY })] }),
+          new Paragraph({
+            spacing: { before: 100, after: 40 },
+            children: [
+              new TextRun({
+                text: 'MÓDULOS DE COMPRESIBILIDAD:',
+                bold: true,
+                size: 18,
+                color: NAVY
+              })
+            ]
+          }),
           new Table({
             layout: TableLayoutType.FIXED,
             width: { size: 50, type: WidthType.PERCENTAGE },
             rows: [
-              new TableRow({ children: [dataCell('Ev1 (MPa) — módulo 1er ciclo', true, 'left'), dataCell(fmt(calc.ev1, 0), true)] }),
-              new TableRow({ children: [dataCell('Ev2 (MPa) — módulo 2º ciclo', true, 'left'), dataCell(fmt(calc.ev2, 0), true)] }),
+              new TableRow({
+                children: [
+                  dataCell('Ev1 (MPa) — módulo 1er ciclo', true, 'left'),
+                  dataCell(fmt(calc.ev1, 0), true)
+                ]
+              }),
+              new TableRow({
+                children: [
+                  dataCell('Ev2 (MPa) — módulo 2º ciclo', true, 'left'),
+                  dataCell(fmt(calc.ev2, 0), true)
+                ]
+              }),
               new TableRow({
                 children: [
                   dataCell(`Ev2/Ev1 (≤ ${fmt(calc.ratio_max, 1)})`, true, 'left'),
-                  dataCell(fmt(calc.ratio, 1), true, 'center', calc.ratio !== null ? (ratioOk ? 'DCFCE7' : 'FEE2E2') : 'FFFFFF')
+                  dataCell(
+                    fmt(calc.ratio, 1),
+                    true,
+                    'center',
+                    calc.ratio !== null ? (ratioOk ? 'DCFCE7' : 'FEE2E2') : 'FFFFFF'
+                  )
                 ]
               })
             ]
           }),
-          new Paragraph({ spacing: { before: 120 }, children: [new TextRun({ text: `VEREDICTO: ${calc.veredicto}`, bold: true, size: 22, color: calc.veredicto === 'CUMPLE' ? '15803D' : 'B91C1C' })] }),
-          new Paragraph({ spacing: { before: 60 }, children: [new TextRun({ text: HABILITACION, size: 14, color: GREY, italics: true })] }),
+          new Paragraph({
+            spacing: { before: 120 },
+            children: [
+              new TextRun({
+                text: `VEREDICTO: ${calc.veredicto}`,
+                bold: true,
+                size: 22,
+                color: calc.veredicto === 'CUMPLE' ? '15803D' : 'B91C1C'
+              })
+            ]
+          }),
+          new Paragraph({
+            spacing: { before: 60 },
+            children: [new TextRun({ text: HABILITACION, size: 14, color: GREY, italics: true })]
+          }),
           signaturesPar(cab.director || DIRECTOR_DEFAULT, cab.jefe_area || JEFE_DEFAULT)
         ]
       }
@@ -364,7 +466,10 @@ function placaWord(datos: PlacaInput & Record<string, unknown>, obra: Obra): Buf
 // DENSIDAD IN SITU — Excel
 // ══════════════════════════════════════════════════════════════════════════════
 
-async function densidadExcel(datos: DensidadInput & Record<string, unknown>, obra: Obra): Promise<Buffer> {
+async function densidadExcel(
+  datos: DensidadInput & Record<string, unknown>,
+  obra: Obra
+): Promise<Buffer> {
   const cab = (datos.cabecera as Record<string, string>) ?? {}
   const calc = computeDensidad(datos)
 
@@ -394,13 +499,25 @@ async function densidadExcel(datos: DensidadInput & Record<string, unknown>, obr
   }
 
   ws.addRow([])
-  const hdrs = ['Nº', 'D.Máx (g/cm³)', 'H.Ópt (%)', 'D.in situ (g/cm³)', 'H.in situ (%)', 'Compact. (%)']
+  const hdrs = [
+    'Nº',
+    'D.Máx (g/cm³)',
+    'H.Ópt (%)',
+    'D.in situ (g/cm³)',
+    'H.in situ (%)',
+    'Compact. (%)'
+  ]
   const hdrRow = ws.addRow(hdrs)
   hdrRow.eachCell((cell) => {
     cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: `FF${MID}` } }
     cell.alignment = { horizontal: 'center' }
-    cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } }
+    cell.border = {
+      top: { style: 'thin' },
+      bottom: { style: 'thin' },
+      left: { style: 'thin' },
+      right: { style: 'thin' }
+    }
   })
 
   for (const r of calc.rows) {
@@ -414,19 +531,32 @@ async function densidadExcel(datos: DensidadInput & Record<string, unknown>, obr
     ])
     row.eachCell((cell) => {
       cell.alignment = { horizontal: 'center' }
-      cell.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } }
+      cell.border = {
+        top: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+        right: { style: 'thin' }
+      }
     })
     if (r.compactacion !== null && r.compactacion !== undefined) {
       const compCell = row.getCell(6)
       compCell.font = { bold: true }
       compCell.fill = {
-        type: 'pattern', pattern: 'solid',
+        type: 'pattern',
+        pattern: 'solid',
         fgColor: { argb: r.compactacion >= calc.compactacion_min ? 'FFD1FAE5' : 'FFFEE2E2' }
       }
     }
   }
 
-  const mediaRow = ws.addRow(['MEDIA LOTE', '', '', calc.media_d_situ, calc.media_h_situ, calc.media_compactacion])
+  const mediaRow = ws.addRow([
+    'MEDIA LOTE',
+    '',
+    '',
+    calc.media_d_situ,
+    calc.media_h_situ,
+    calc.media_compactacion
+  ])
   mediaRow.font = { bold: true }
   mediaRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEFEFEF' } }
 
@@ -436,7 +566,14 @@ async function densidadExcel(datos: DensidadInput & Record<string, unknown>, obr
     color: { argb: calc.veredicto === 'CUMPLE' ? 'FF15803D' : 'FFB91C1C' }
   }
 
-  ws.columns = [{ width: 8 }, { width: 14 }, { width: 10 }, { width: 16 }, { width: 12 }, { width: 12 }]
+  ws.columns = [
+    { width: 8 },
+    { width: 14 },
+    { width: 10 },
+    { width: 16 },
+    { width: 12 },
+    { width: 12 }
+  ]
 
   return wb.xlsx.writeBuffer() as unknown as Promise<Buffer>
 }
@@ -445,13 +582,16 @@ async function densidadExcel(datos: DensidadInput & Record<string, unknown>, obr
 
 export async function generateInformeWord(ensayo: Ensayo, obra: Obra): Promise<Buffer> {
   const datos = ensayo.datos as Record<string, unknown>
-  if (ensayo.tipo === 'densidad_in_situ') return densidadWord(datos as DensidadInput & Record<string, unknown>, obra)
-  if (ensayo.tipo === 'placa_carga') return placaWord(datos as PlacaInput & Record<string, unknown>, obra)
+  if (ensayo.tipo === 'densidad_in_situ')
+    return densidadWord(datos as DensidadInput & Record<string, unknown>, obra)
+  if (ensayo.tipo === 'placa_carga')
+    return placaWord(datos as PlacaInput & Record<string, unknown>, obra)
   throw new Error(`Tipo de ensayo no soportado: ${ensayo.tipo}`)
 }
 
 export async function generateInformeExcel(ensayo: Ensayo, obra: Obra): Promise<Buffer> {
   const datos = ensayo.datos as Record<string, unknown>
-  if (ensayo.tipo === 'densidad_in_situ') return densidadExcel(datos as DensidadInput & Record<string, unknown>, obra)
+  if (ensayo.tipo === 'densidad_in_situ')
+    return densidadExcel(datos as DensidadInput & Record<string, unknown>, obra)
   throw new Error(`Informe Excel no disponible para tipo: ${ensayo.tipo}`)
 }

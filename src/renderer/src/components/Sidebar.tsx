@@ -1,6 +1,13 @@
 import type { JSX } from 'react'
 
-export type PageName = 'dashboard' | 'proyectos' | 'nueva' | 'detalle' | 'ensayos' | 'presupuestos' | 'validacion'
+export type PageName =
+  | 'dashboard'
+  | 'proyectos'
+  | 'nueva'
+  | 'detalle'
+  | 'ensayos'
+  | 'presupuestos'
+  | 'validacion'
 
 interface NavDef {
   section: string

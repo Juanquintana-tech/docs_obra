@@ -69,7 +69,9 @@ export function Proyectos({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
                 <span className="spacer" />
                 <span className={`badge badge-${o.status}`}>{o.status}</span>
               </div>
-              <div className="card-sub" style={{ marginBottom: 10 }}>{o.cliente || '—'} · {o.ref_lab || 'sin ref.'}</div>
+              <div className="card-sub" style={{ marginBottom: 10 }}>
+                {o.cliente || '—'} · {o.ref_lab || 'sin ref.'}
+              </div>
               <div className="card-stats">
                 <div className="stat">
                   <div className="stat-val">{o.n_ensayos}</div>
@@ -88,7 +90,10 @@ export function Proyectos({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
                 <button
                   className="btn"
                   style={{ fontSize: 12, padding: '4px 10px' }}
-                  onClick={(e) => { e.stopPropagation(); onEnsayos(o.id) }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEnsayos(o.id)
+                  }}
                 >
                   🧪 Ensayos
                 </button>
