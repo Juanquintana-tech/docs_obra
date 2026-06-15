@@ -4,6 +4,8 @@ import { Dashboard } from './pages/Dashboard'
 import { Proyectos } from './pages/Proyectos'
 import { NuevaObra } from './pages/NuevaObra'
 import { Detalle } from './pages/Detalle'
+import { Ensayos } from './pages/Ensayos'
+import { Presupuestos } from './pages/Presupuestos'
 import { ValidacionRag } from './pages/ValidacionRag'
 
 interface Route {
@@ -21,15 +23,18 @@ function App(): JSX.Element {
     <div className="app">
       <Sidebar current={route.page} onNavigate={(p) => go(p)} />
       <main className="content">
-        {route.page === 'dashboard' && <Dashboard onOpen={openObra} onNew={() => go('nueva')} />}
-        {route.page === 'proyectos' && <Proyectos onOpen={openObra} onNew={() => go('nueva')} />}
+        {route.page === 'dashboard' && <Dashboard onOpen={openObra} onNew={() => go('nueva')} onEnsayos={(id) => go('ensayos', id)} />}
+        {route.page === 'proyectos' && <Proyectos onOpen={openObra} onNew={() => go('nueva')} onEnsayos={(id) => go('ensayos', id)} />}
         {route.page === 'nueva' && <NuevaObra onSaved={openObra} />}
+        {route.page === 'ensayos' && <Ensayos initialObraId={route.obraId} />}
+        {route.page === 'presupuestos' && <Presupuestos />}
         {route.page === 'validacion' && <ValidacionRag />}
         {route.page === 'detalle' && route.obraId != null && (
           <Detalle
             obraId={route.obraId}
             onBack={() => go('proyectos')}
             onDeleted={() => go('proyectos')}
+            onEnsayos={(id) => go('ensayos', id)}
           />
         )}
       </main>

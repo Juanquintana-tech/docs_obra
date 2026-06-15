@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
 
-export type PageName = 'dashboard' | 'proyectos' | 'nueva' | 'detalle' | 'validacion'
+export type PageName = 'dashboard' | 'proyectos' | 'nueva' | 'detalle' | 'ensayos' | 'presupuestos' | 'validacion'
 
 interface NavDef {
   section: string
@@ -18,7 +18,11 @@ const NAV: NavDef[] = [
   },
   {
     section: 'Laboratorio',
-    items: [{ name: 'validacion', label: 'Validación RAG', ico: '🎯' }]
+    items: [
+      { name: 'ensayos', label: 'Ensayos', ico: '🧪' },
+      { name: 'presupuestos', label: 'Presupuestos', ico: '💶' },
+      { name: 'validacion', label: 'Validación RAG', ico: '🎯' }
+    ]
   }
 ]
 

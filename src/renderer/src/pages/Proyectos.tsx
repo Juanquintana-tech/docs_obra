@@ -6,15 +6,18 @@ import type { Obra } from '../lib/types'
 interface Props {
   onOpen: (id: number) => void
   onNew: () => void
+  onEnsayos: (obraId: number) => void
 }
 
-export function Proyectos({ onOpen, onNew }: Props): JSX.Element {
+export function Proyectos({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
   const [obras, setObras] = useState<Obra[]>([])
   const [filter, setFilter] = useState<'activa' | 'archivada'>('activa')
   const [q, setQ] = useState('')
+  const [counts, setCounts] = useState<Record<number, number>>({})
 
   useEffect(() => {
     api.getObras(filter).then(setObras)
+    api.countEnsayosPorObra().then(setCounts)
   }, [filter])
 
   const filtered = useMemo(() => {
@@ -61,22 +64,34 @@ export function Proyectos({ onOpen, onNew }: Props): JSX.Element {
         <div className="cards">
           {filtered.map((o) => (
             <div className="card clickable" key={o.id} onClick={() => onOpen(o.id)}>
-              <div className="row">
+              <div className="row" style={{ marginBottom: 6 }}>
                 <span className="card-title">{o.obra || '(sin nombre)'}</span>
                 <span className="spacer" />
                 <span className={`badge badge-${o.status}`}>{o.status}</span>
               </div>
-              <div className="card-sub">{o.cliente || '—'}</div>
-              <div className="card-meta">
-                <span>
-                  Ensayos: <b>{o.n_ensayos}</b>
-                </span>
-                <span>
-                  Materiales: <b>{o.n_materiales}</b>
-                </span>
-                <span>
-                  Importe: <b>{eur(o.total_importe)}</b>
-                </span>
+              <div className="card-sub" style={{ marginBottom: 10 }}>{o.cliente || '—'} · {o.ref_lab || 'sin ref.'}</div>
+              <div className="card-stats">
+                <div className="stat">
+                  <div className="stat-val">{o.n_ensayos}</div>
+                  <div className="stat-lbl">Planificados</div>
+                </div>
+                <div className="stat">
+                  <div className="stat-val">{counts[o.id] ?? 0}</div>
+                  <div className="stat-lbl">Informes</div>
+                </div>
+                <div className="stat">
+                  <div className="stat-val">{eur(o.total_importe)}</div>
+                  <div className="stat-lbl">Importe</div>
+                </div>
+              </div>
+              <div style={{ marginTop: 10, borderTop: '1px solid var(--border)', paddingTop: 10 }}>
+                <button
+                  className="btn"
+                  style={{ fontSize: 12, padding: '4px 10px' }}
+                  onClick={(e) => { e.stopPropagation(); onEnsayos(o.id) }}
+                >
+                  🧪 Ensayos
+                </button>
               </div>
             </div>
           ))}

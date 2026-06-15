@@ -9,7 +9,9 @@ import { generatePlan, type Material, type Rules } from '../pipeline/planner'
 import { RagPricer, CATEGORY_CTX } from '../pipeline/rag/ragPricer'
 import type { RagMatch } from '../pipeline/rag/types'
 import { generateExcel, generateWord, type ObraInfo } from '../pipeline/formatter'
+import { generateInformeWord, generateInformeExcel } from '../pipeline/informes'
 import type { PlanRowInput } from '../pipeline/types'
+import type { Ensayo, Obra } from '../db'
 import { knowledgePath, templatePath } from '../paths'
 
 let _rules: Rules | null = null
@@ -93,4 +95,17 @@ export async function buildExcel(plan: PlanRowInput[], obra: ObraInfo): Promise<
 
 export function buildWord(plan: PlanRowInput[], obra: ObraInfo): Buffer {
   return generateWord(plan, obra, templatePath('plan_plantilla.docx'))
+}
+
+export async function buildEnsayoWord(ensayo: Ensayo, obra: Obra): Promise<Buffer> {
+  return generateInformeWord(ensayo, obra)
+}
+
+export async function buildEnsayoExcel(ensayo: Ensayo, obra: Obra): Promise<Buffer> {
+  return generateInformeExcel(ensayo, obra)
+}
+
+/** Invalida el cache de reglas para que se relean en el próximo presupuesto. */
+export function invalidateRulesCache(): void {
+  _rules = null
 }

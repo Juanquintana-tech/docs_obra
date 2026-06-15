@@ -218,3 +218,108 @@ export function savePriceCorrection(c: PriceCorrectionInput): number {
     })
   return Number(res.lastInsertRowid)
 }
+
+// ── Ensayos (informes de campo) ───────────────────────────────────────────────
+export interface Ensayo {
+  id: number
+  obra_id: number
+  tipo: string
+  titulo: string
+  estado: 'borrador' | 'completado'
+  veredicto: string
+  responsable: string
+  /** JSON parseado — en DB se almacena como TEXT */
+  datos: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+export interface EnsayoInput {
+  tipo: string
+  titulo: string
+  estado: 'borrador' | 'completado'
+  veredicto: string
+  responsable?: string
+  datos: Record<string, unknown>
+}
+
+function parseEnsayo(row: Record<string, unknown>): Ensayo {
+  return {
+    ...(row as Omit<Ensayo, 'datos'>),
+    datos: (() => {
+      try {
+        return JSON.parse((row.datos as string) || '{}')
+      } catch {
+        return {}
+      }
+    })()
+  }
+}
+
+export function saveEnsayo(obraId: number, input: EnsayoInput): number {
+  const res = getDb()
+    .prepare(
+      `INSERT INTO ensayos (obra_id, tipo, titulo, estado, veredicto, responsable, datos)
+       VALUES (@obra_id, @tipo, @titulo, @estado, @veredicto, @responsable, @datos)`
+    )
+    .run({
+      obra_id: obraId,
+      tipo: input.tipo,
+      titulo: input.titulo,
+      estado: input.estado,
+      veredicto: input.veredicto,
+      responsable: input.responsable ?? '',
+      datos: JSON.stringify(input.datos)
+    })
+  return Number(res.lastInsertRowid)
+}
+
+export function updateEnsayo(ensayoId: number, input: EnsayoInput): void {
+  getDb()
+    .prepare(
+      `UPDATE ensayos
+       SET titulo=@titulo, estado=@estado, veredicto=@veredicto,
+           responsable=@responsable, datos=@datos,
+           updated_at=datetime('now','localtime')
+       WHERE id=@id`
+    )
+    .run({
+      id: ensayoId,
+      titulo: input.titulo,
+      estado: input.estado,
+      veredicto: input.veredicto,
+      responsable: input.responsable ?? '',
+      datos: JSON.stringify(input.datos)
+    })
+}
+
+export function deleteEnsayo(ensayoId: number): void {
+  getDb().prepare('DELETE FROM ensayos WHERE id=?').run(ensayoId)
+}
+
+export function getEnsayos(obraId: number, tipo?: string): Ensayo[] {
+  const db = getDb()
+  const rows = tipo
+    ? db
+        .prepare('SELECT * FROM ensayos WHERE obra_id=? AND tipo=? ORDER BY created_at DESC')
+        .all(obraId, tipo)
+    : db
+        .prepare('SELECT * FROM ensayos WHERE obra_id=? ORDER BY created_at DESC')
+        .all(obraId)
+  return (rows as Record<string, unknown>[]).map(parseEnsayo)
+}
+
+export function getEnsayo(ensayoId: number): Ensayo | undefined {
+  const row = getDb()
+    .prepare('SELECT * FROM ensayos WHERE id=?')
+    .get(ensayoId) as Record<string, unknown> | undefined
+  return row ? parseEnsayo(row) : undefined
+}
+
+/** Devuelve un mapa obra_id → número de informes registrados. */
+export function countEnsayosPorObra(): Record<number, number> {
+  const rows = getDb()
+    .prepare('SELECT obra_id, COUNT(*) AS n FROM ensayos GROUP BY obra_id')
+    .all() as { obra_id: number; n: number }[]
+  return Object.fromEntries(rows.map((r) => [r.obra_id, r.n]))
+}

@@ -8,13 +8,15 @@ interface Props {
   obraId: number
   onBack: () => void
   onDeleted: () => void
+  onEnsayos: (obraId: number) => void
 }
 
-export function Detalle({ obraId, onBack, onDeleted }: Props): JSX.Element {
+export function Detalle({ obraId, onBack, onDeleted, onEnsayos }: Props): JSX.Element {
   const [obra, setObra] = useState<Obra | null>(null)
   const [rows, setRows] = useState<PlanRow[]>([])
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [ensayosCount, setEnsayosCount] = useState(0)
 
   useEffect(() => {
     void reload()
@@ -22,9 +24,10 @@ export function Detalle({ obraId, onBack, onDeleted }: Props): JSX.Element {
   }, [obraId])
 
   async function reload(): Promise<void> {
-    const [o, r] = await Promise.all([api.getObra(obraId), api.getPlanRows(obraId)])
+    const [o, r, counts] = await Promise.all([api.getObra(obraId), api.getPlanRows(obraId), api.countEnsayosPorObra()])
     setObra(o ?? null)
     setRows(r.filter((x) => x.row_type === 'test'))
+    setEnsayosCount(counts[obraId] ?? 0)
   }
 
   async function exportDoc(kind: 'excel' | 'word'): Promise<void> {
@@ -71,8 +74,12 @@ export function Detalle({ obraId, onBack, onDeleted }: Props): JSX.Element {
 
       <div className="kpis">
         <div className="kpi">
-          <div className="label">Ensayos</div>
+          <div className="label">Ensayos planificados</div>
           <div className="value">{obra.n_ensayos}</div>
+        </div>
+        <div className="kpi">
+          <div className="label">Informes de campo</div>
+          <div className="value">{ensayosCount}</div>
         </div>
         <div className="kpi">
           <div className="label">Materiales</div>
@@ -92,6 +99,9 @@ export function Detalle({ obraId, onBack, onDeleted }: Props): JSX.Element {
           ⬇ Word
         </button>
         <span className="spacer" />
+        <button className="btn" onClick={() => onEnsayos(obraId)}>
+          🧪 Ensayos ({ensayosCount})
+        </button>
         <button className="btn" onClick={toggleArchive}>
           {obra.status === 'activa' ? '🗄 Archivar' : '↩ Activar'}
         </button>

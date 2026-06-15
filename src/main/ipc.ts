@@ -3,10 +3,10 @@
  * Todos los payloads son objetos planos serializables.
  */
 import { ipcMain, dialog, BrowserWindow } from 'electron'
-import { writeFile } from 'fs/promises'
+import { writeFile, readFile } from 'fs/promises'
 import { basename } from 'path'
 import * as db from './db'
-import type { PlanRow, ObraInput } from './db'
+import type { PlanRow, ObraInput, EnsayoInput } from './db'
 import type { PlanRowInput } from './pipeline/types'
 import type { ObraInfo } from './pipeline/formatter'
 import {
@@ -14,8 +14,13 @@ import {
   buildExcel,
   buildWord,
   ragStatus,
-  ragFindMatches
+  ragFindMatches,
+  buildEnsayoWord,
+  buildEnsayoExcel
 } from './services/pipeline'
+import { loadCatalog } from './pipeline/rag/catalog'
+import type { Rules } from './pipeline/planner'
+import { knowledgePath } from './paths'
 
 /** Mapea filas de la DB (row_type) al contrato del pipeline (type) para el formatter. */
 function toPlanInput(rows: PlanRow[]): PlanRowInput[] {
@@ -109,4 +114,69 @@ export function registerIpc(): void {
   ipcMain.handle('rag:findMatches', (_e, query: string, category?: string, n?: number) =>
     ragFindMatches(query, category ?? '', n)
   )
+
+  // ── Ensayos (informes de campo) ──
+  ipcMain.handle('ensayo:getAll', (_e, obraId: number, tipo?: string) =>
+    db.getEnsayos(obraId, tipo)
+  )
+  ipcMain.handle('ensayo:save', (_e, obraId: number, input: EnsayoInput) =>
+    db.saveEnsayo(obraId, input)
+  )
+  ipcMain.handle('ensayo:update', (_e, ensayoId: number, input: EnsayoInput) =>
+    db.updateEnsayo(ensayoId, input)
+  )
+  ipcMain.handle('ensayo:delete', (_e, ensayoId: number) => db.deleteEnsayo(ensayoId))
+  ipcMain.handle('ensayo:countPerObra', () => db.countEnsayosPorObra())
+
+  ipcMain.handle('ensayo:exportWord', async (_e, ensayoId: number) => {
+    const ensayo = db.getEnsayo(ensayoId)
+    if (!ensayo) throw new Error(`Ensayo ${ensayoId} no encontrado`)
+    const obra = db.getObra(ensayo.obra_id)
+    if (!obra) throw new Error(`Obra ${ensayo.obra_id} no encontrada`)
+
+    const safe = (ensayo.titulo || ensayo.tipo).replace(/[^\w-]+/g, '_').slice(0, 60)
+    const win = BrowserWindow.getFocusedWindow() ?? undefined
+    const { canceled, filePath } = await dialog.showSaveDialog(win!, {
+      defaultPath: `Informe_${safe}.docx`,
+      filters: [{ name: 'Word', extensions: ['docx'] }]
+    })
+    if (canceled || !filePath) return null
+    const buf = await buildEnsayoWord(ensayo, obra)
+    await writeFile(filePath, buf)
+    return filePath
+  })
+
+  ipcMain.handle('ensayo:exportExcel', async (_e, ensayoId: number) => {
+    const ensayo = db.getEnsayo(ensayoId)
+    if (!ensayo) throw new Error(`Ensayo ${ensayoId} no encontrado`)
+    const obra = db.getObra(ensayo.obra_id)
+    if (!obra) throw new Error(`Obra ${ensayo.obra_id} no encontrada`)
+
+    const safe = (ensayo.titulo || ensayo.tipo).replace(/[^\w-]+/g, '_').slice(0, 60)
+    const win = BrowserWindow.getFocusedWindow() ?? undefined
+    const { canceled, filePath } = await dialog.showSaveDialog(win!, {
+      defaultPath: `Informe_${safe}.xlsx`,
+      filters: [{ name: 'Excel', extensions: ['xlsx'] }]
+    })
+    if (canceled || !filePath) return null
+    const buf = await buildEnsayoExcel(ensayo, obra)
+    await writeFile(filePath, buf)
+    return filePath
+  })
+
+  // ── Presupuestos (catálogo y reglas) ──
+  ipcMain.handle('presup:getCatalog', () =>
+    loadCatalog(knowledgePath('tarifas_alagal.xlsx'))
+  )
+  ipcMain.handle('presup:getRules', async () => {
+    const raw = await readFile(knowledgePath('test_rules.json'), 'utf-8')
+    return JSON.parse(raw) as Rules
+  })
+  ipcMain.handle('presup:saveRules', async (_e, rules: Rules) => {
+    await writeFile(knowledgePath('test_rules.json'), JSON.stringify(rules, null, 2), 'utf-8')
+    // Invalidar el cache del pipeline para que el próximo presupuesto use las reglas nuevas
+    // Se importa aquí para evitar ciclos (el pipeline lo carga lazy)
+    const { invalidateRulesCache } = await import('./services/pipeline')
+    invalidateRulesCache()
+  })
 }
