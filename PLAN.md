@@ -110,8 +110,15 @@ y la arquitectura deben dejarles sitio desde el principio.
       evaluación (rag:demo / rag:eval / plan:demo). Baseline medido: 80% acierto precio en el
       set de muestra. Verificado: typecheck OK + 3 scripts corren contra el catálogo real.
       Pendiente futuro: activar embeddings (proveedor a elegir) y sembrar harness con casos reales.
-- [ ] Fase 2 ← siguiente
-- [ ] Fase 3
+- [x] Fase 2 — Ingesta: extractor de texto PDF (unpdf) con detección de escaneado; capa LLM
+      enchufable (LlmProvider + MiniMaxProvider + FallbackProvider) con MiniMax de base/fallback;
+      classifier (classifyMaterials + extractObraInfo, port de classifier.py). Demos: extract:demo,
+      ingest:demo. Verificado: extractor sobre PDF real (512 chars); wiring classifier→planner con
+      proveedor simulado (descarta no-objetos, compone plan). Sin probar en vivo: HTTP real MiniMax
+      (necesita key). DIFERIDO: OCR de PDFs escaneados (needsOcr=true detectado; ver nota OCR).
+- [ ] Fase 3 ← siguiente
+      \_ Nota OCR pendiente: para PDFs escaneados hace falta cadena PDF→imagen (unpdf renderPageAsImage + @napi-rs/canvas) + tesseract.js con traineddata es. Sub-tarea aislada; la mayoría de memorias
+      son texto nativo, por eso se difiere. Confirmar con el usuario si sus PDFs reales suelen ser escaneados.
 - [ ] Fase 4
 - [ ] Fase 4.5 (hito RAG)
 - [ ] Fase 5

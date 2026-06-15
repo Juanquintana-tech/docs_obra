@@ -11,6 +11,8 @@
     "rag:demo": "tsx src/main/pipeline/harness/ragDemo.ts",
     "rag:eval": "tsx src/main/pipeline/harness/evaluate.ts",
     "plan:demo": "tsx src/main/pipeline/harness/planDemo.ts",
+    "extract:demo": "tsx src/main/pipeline/harness/extractDemo.ts",
+    "ingest:demo": "tsx src/main/pipeline/harness/ingestDemo.ts",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
@@ -27,7 +29,8 @@
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "better-sqlite3": "^12.10.1",
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "unpdf": "^1.6.2"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
