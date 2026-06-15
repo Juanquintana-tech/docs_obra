@@ -9,7 +9,12 @@ import { loadRules, buildPricer } from './loadKnowledge'
 
 const SAMPLE_MATERIALS: Material[] = [
   { material: 'Terraplén núcleo', category: 'TERRAPLEN_RELLENOS', quantity: 25000, unit: 'm3' },
-  { material: 'Zahorra artificial ZA-25', category: 'ZAHORRA_ARTIFICIAL', quantity: 8000, unit: 'm3' },
+  {
+    material: 'Zahorra artificial ZA-25',
+    category: 'ZAHORRA_ARTIFICIAL',
+    quantity: 8000,
+    unit: 'm3'
+  },
   { material: 'Hormigón HA-30 cimentación', category: 'HORMIGON', quantity: 1200, unit: 'm3' },
   { material: 'Mezcla bituminosa AC22', category: 'MEZCLA_BITUMINOSA', quantity: 4500, unit: 't' }
 ]

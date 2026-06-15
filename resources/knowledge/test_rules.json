@@ -93,11 +93,7 @@
     ]
   },
   "ZAHORRA_ARTIFICIAL": {
-    "keywords": [
-      "zahorra artificial",
-      "zahorra",
-      "grava cemento"
-    ],
+    "keywords": ["zahorra artificial", "zahorra", "grava cemento"],
     "unit": "m3",
     "tests": [
       {
@@ -190,11 +186,7 @@
     ]
   },
   "ESCOLLERA": {
-    "keywords": [
-      "escollera",
-      "enrocamiento",
-      "todo uno"
-    ],
+    "keywords": ["escollera", "enrocamiento", "todo uno"],
     "unit": "m3",
     "tests": [
       {
@@ -240,13 +232,7 @@
     ]
   },
   "SUELO_ESTABILIZADO": {
-    "keywords": [
-      "suelo estabilizado",
-      "sest",
-      "s-est",
-      "suelo-cemento",
-      "suelo cemento"
-    ],
+    "keywords": ["suelo estabilizado", "sest", "s-est", "suelo-cemento", "suelo cemento"],
     "unit": "m3",
     "tests": [
       {
@@ -356,13 +342,7 @@
     ]
   },
   "ACERO": {
-    "keywords": [
-      "acero",
-      "armadura",
-      "ferralla",
-      "acero pasivo",
-      "acero activo"
-    ],
+    "keywords": ["acero", "armadura", "ferralla", "acero pasivo", "acero activo"],
     "unit": "t",
     "tests": [
       {

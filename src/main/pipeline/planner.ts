@@ -2,8 +2,10 @@
  * Genera el plan de ensayos a partir de los materiales clasificados.
  * Port de agents/planner.py — aplica las reglas de test_rules.json.
  */
-import type { PlanRowInput } from '../db'
+import type { Material, PlanRowInput } from './types'
 import type { RagPricer } from './rag/ragPricer'
+
+export type { Material } from './types'
 
 // ── Tipos de las reglas (test_rules.json) ──────────────────────────────────
 export interface TestRule {
@@ -20,16 +22,6 @@ export interface CategoryRule {
   tests?: TestRule[]
 }
 export type Rules = Record<string, CategoryRule>
-
-// ── Material clasificado (salida del classifier) ────────────────────────────
-export interface Material {
-  material?: string
-  category?: string
-  quantity?: number | null
-  unit?: string
-  description?: string
-  notes?: string
-}
 
 // ── Coerciones tolerantes (port de _coerce_float / _coerce_int) ─────────────
 function coerceFloat(v: unknown, def = 0): number {

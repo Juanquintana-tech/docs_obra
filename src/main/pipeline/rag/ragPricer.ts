@@ -14,8 +14,7 @@ import type { EmbeddingsProvider, RagMatch } from './types'
 export const CATEGORY_CTX: Record<string, string> = {
   HORMIGON: 'hormigon probetas resistencia compresion fabricacion',
   ZAHORRA_ARTIFICIAL: 'zahorra granulometria proctor compactacion aridos',
-  TERRAPLEN_RELLENOS:
-    'terraplen relleno suelos densidad proctor modificado apisonado compactacion',
+  TERRAPLEN_RELLENOS: 'terraplen relleno suelos densidad proctor modificado apisonado compactacion',
   SUELO_ESTABILIZADO: 'suelo estabilizado cemento cal tratamiento',
   MEZCLA_BITUMINOSA: 'mezcla bituminosa asfaltica ligante brea',
   ESCOLLERA: 'escollera enrocamiento petreos rocas',
@@ -79,12 +78,24 @@ export class RagPricer {
     testDescription: string,
     category = '',
     threshold = DEFAULT_THRESHOLD
-  ): { precio: number | null; descripcion: string; codigo: string; score: number; source: 'alagal' | 'fallback' } {
+  ): {
+    precio: number | null
+    descripcion: string
+    codigo: string
+    score: number
+    source: 'alagal' | 'fallback'
+  } {
     const ctx = CATEGORY_CTX[category] ?? ''
     const query = `${testDescription} ${ctx}`.trim()
     const [best] = this.findMatches(query, 1)
     if (!best || best.score < threshold) {
-      return { precio: null, descripcion: '', codigo: '', score: best?.score ?? 0, source: 'fallback' }
+      return {
+        precio: null,
+        descripcion: '',
+        codigo: '',
+        score: best?.score ?? 0,
+        source: 'fallback'
+      }
     }
     return {
       precio: best.precio,

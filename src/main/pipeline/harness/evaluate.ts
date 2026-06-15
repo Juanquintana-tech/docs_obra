@@ -11,6 +11,7 @@
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { buildPricer } from './loadKnowledge'
+import { CATEGORY_CTX } from '../rag/ragPricer'
 
 interface Case {
   query: string
@@ -73,7 +74,8 @@ async function main(): Promise<void> {
   } else {
     console.log('  (sin expected_code en los casos → precisión@1/recall no evaluados)')
   }
-  if (priceEvaluated) console.log(`  acierto precio: ${priceOk}/${priceEvaluated} (${pct(priceOk, priceEvaluated)})`)
+  if (priceEvaluated)
+    console.log(`  acierto precio: ${priceOk}/${priceEvaluated} (${pct(priceOk, priceEvaluated)})`)
   console.log(`  score medio: ${(scoreSum / n).toFixed(3)}`)
 }
 
@@ -81,8 +83,7 @@ function pct(a: number, b: number): string {
   return b ? `${((100 * a) / b).toFixed(0)}%` : 'n/a'
 }
 
-// Reutiliza el contexto de categoría del pricer sin exponer internals.
-import { CATEGORY_CTX } from '../rag/ragPricer'
+// Reutiliza el contexto de categoría del pricer (mismo enriquecimiento que getBestPrice).
 function pricerCtx(category: string): string | undefined {
   return CATEGORY_CTX[category]
 }

@@ -2,6 +2,10 @@ import { app } from 'electron'
 import { join } from 'path'
 import Database from 'better-sqlite3'
 import { migrate } from './migrations'
+import type { PlanRowInput } from '../pipeline/types'
+
+// La forma de fila que produce el pipeline vive en el contrato del pipeline.
+export type { PlanRowInput } from '../pipeline/types'
 
 // ── Tipos del dominio ─────────────────────────────────────────────────────
 export interface Obra {
@@ -38,26 +42,6 @@ export interface PlanRow {
   price_source: 'alagal' | 'fallback'
   rag_score: number
   rag_desc: string
-}
-
-/** Fila tal como la emite el pipeline (planner) antes de persistir. */
-export interface PlanRowInput {
-  type?: string
-  material?: string
-  subcategory?: string
-  description?: string
-  measurement?: number | null
-  measurement_unit?: string
-  freq_qty?: number | null
-  freq_unit?: string
-  n_lots?: number | null
-  tests_per_lot?: number | null
-  n_tests?: number
-  unit_price?: number
-  total?: number
-  price_source?: string
-  rag_score?: number
-  rag_desc?: string
 }
 
 export interface ObraInput {
