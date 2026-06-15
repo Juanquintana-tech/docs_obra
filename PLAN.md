@@ -143,3 +143,54 @@ y la arquitectura deben dejarles sitio desde el principio.
       PENDIENTE distribución profesional: (a) firma + notarización Apple (Developer ID, evita
       Gatekeeper); (b) build Windows .exe (vía CI/GitHub Actions, no desde Mac); (c) universal/arm64
       para clientes Apple Silicon; (d) configurar publish/auto-update (hoy apunta a example.com).
+- [x] Fase 6 — Laboratorio (aporte del usuario + revisión): informes de ensayo de campo
+      (densidad in situ ASTM D-6938 / placa de carga NLT-357 con cálculo y veredicto), generación
+      Word/Excel de informes (informes.ts), tabla del plan EDITABLE con recálculo + guardado en DB
+      (updatePlanRows con recalc de KPIs), página Presupuestos (catálogo + editor de reglas), pulido
+      UI (Dashboard, Proyectos con stats). Revisión: izado de PlacaTable, setState fuera de effect,
+      bug de filas que desaparecían al editar, Ev en vivo con radio real. Motor de cálculo verificado.
+
+---
+
+## 🧭 Roadmap próximo (fundamentado en plataformas CMT/LIMS)
+
+Referencias del sector: Spectra QEST, MetaField, eFieldData, ForneyVault, Aldoa. CYE ya cubre lo que
+ellos NO hacen (generación del plan valorado con IA) y, con los ensayos de campo, empieza a entrar en
+su terreno (ejecución). Prioridad orientada a: cerrar el ciclo plan→ejecución, requisitos ENAC, y el
+objetivo del usuario de mejorar el RAG.
+
+**P1 — RAG: embeddings + bucle de aprendizaje** _(objetivo declarado del usuario; en curso)_
+
+- Activar embeddings MiniMax (índice persistido) → híbrido con TF-IDF. Requiere API key.
+- Feature #2: al corregir un precio en la tabla editable, guardar en `price_corrections` → alimenta
+  el harness. La app mejora con el uso. (Tabla editable ya existe; falta cablear la captura.)
+- Medir antes/después en la pantalla Validación RAG (objetivo: corregir el miss "granulometría→proctor").
+
+**P2 — Cerrar el ciclo plan ↔ ejecución** _(lo que distingue a un LIMS de un generador)_
+
+- Vincular cada informe de ensayo a una línea del plan (`plan_row_id` en `ensayos`).
+- Vista de avance por obra: planificados vs ejecutados, % completado, pendientes. (Dashboard ya
+  insinúa "Informes de campo" vs "Planificados".)
+
+**P3 — Requisitos de acreditación ENAC**
+
+- Firma/responsable y estado de aprobación en informes (campos ya en esquema; falta flujo + sello).
+- Numeración correlativa de informes/expediente (año/secuencia), trazable.
+- Trazabilidad de muestras / cadena de custodia: nueva tabla `muestras` (id, fecha toma, técnico,
+  estado) enlazada a ensayos — núcleo LIMS clásico.
+
+**P4 — Inteligencia de producto** _(features diferenciadoras restantes)_
+
+- Feature #4: diff de planes cuando cambia el presupuesto (qué ensayos se añaden/quitan/varían).
+- Feature #3: chat sobre el proyecto ("¿por qué este ensayo?" → cita regla + fragmento de memoria).
+- Analítica entre proyectos: precios medios, ratios €/m³, histórico (cross-project analytics).
+
+**P5 — Entrega y distribución**
+
+- Exportar/empaquetar entregables al cliente (PDF firmado).
+- Distribución profesional (de Fase 5): firma+notarización Apple, build Windows vía CI, auto-update.
+
+**Deuda técnica / pulido** (transversal, no bloquea)
+
+- Tests automatizados (hoy el harness es manual); error-handling/telemetría; backups de la DB.
+- Pulido UX diferido: streaming fila a fila en Nueva Obra; OCR de PDFs escaneados (baja prioridad).
