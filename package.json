@@ -27,7 +27,8 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
-    "rag:compare": "tsx src/main/pipeline/harness/ragCompare.ts"
+    "rag:compare": "tsx src/main/pipeline/harness/ragCompare.ts",
+    "rag:cases": "tsx src/main/pipeline/harness/buildCasesFromBudgets.ts"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",

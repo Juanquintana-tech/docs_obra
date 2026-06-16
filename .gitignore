@@ -10,3 +10,6 @@ out
 
 # Índice de embeddings del RAG (derivado; se construye con `npm run rag:build-embeddings`)
 resources/knowledge/alagal_embeddings.json
+
+# Set de validación derivado de presupuestos reales (datos sensibles del laboratorio)
+resources/knowledge/cases_reales.json
