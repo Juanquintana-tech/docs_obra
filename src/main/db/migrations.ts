@@ -80,6 +80,15 @@ export const MIGRATIONS: Array<(db: Database) => void> = [
         created_at      TEXT    DEFAULT (datetime('now','localtime'))
       );
     `)
+  },
+
+  // ── v2 — libro de precios: rango por fila + estrategia por obra ──────────
+  (db) => {
+    db.exec(`
+      ALTER TABLE plan_rows ADD COLUMN price_min REAL;
+      ALTER TABLE plan_rows ADD COLUMN price_max REAL;
+      ALTER TABLE obras ADD COLUMN price_strategy TEXT DEFAULT 'reciente';
+    `)
   }
 ]
 

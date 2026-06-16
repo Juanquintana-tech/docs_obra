@@ -1,7 +1,13 @@
 import { useState, type JSX } from 'react'
 import { api } from '../lib/api'
 import { PlanTable } from '../components/PlanTable'
-import type { IngestResult, PlanRowInput } from '../lib/types'
+import type { IngestResult, PlanRowInput, PriceStrategy } from '../lib/types'
+
+const STRATEGY_LABELS: Record<PriceStrategy, string> = {
+  reciente: 'Precio más reciente',
+  mediana: 'Precio mediano',
+  max: 'Precio máximo'
+}
 
 interface Props {
   onSaved: (id: number) => void
@@ -21,6 +27,23 @@ export function NuevaObra({ onSaved }: Props): JSX.Element {
   const [refLab, setRefLab] = useState('')
   const [fecha, setFecha] = useState('')
   const [responsable, setResponsable] = useState('')
+  const [strategy, setStrategy] = useState<PriceStrategy>('reciente')
+  const [repricing, setRepricing] = useState(false)
+
+  /** Re-valora el plan con otra estrategia de precio (sin re-extraer ni re-clasificar). */
+  async function changeStrategy(next: PriceStrategy): Promise<void> {
+    setStrategy(next)
+    if (!result) return
+    setRepricing(true)
+    try {
+      const plan = await api.repricePlan(result.materials, next)
+      setResult({ ...result, plan, strategy: next })
+    } catch (e) {
+      setError(errorMessage(e))
+    } finally {
+      setRepricing(false)
+    }
+  }
 
   async function pickAndIngest(): Promise<void> {
     setError(null)
@@ -29,7 +52,7 @@ export function NuevaObra({ onSaved }: Props): JSX.Element {
     setFileName(picked.name)
     setPhase('ingesting')
     try {
-      const r = await api.ingestDocument(picked.path)
+      const r = await api.ingestDocument(picked.path, strategy)
       setResult(r)
       setObra(r.obra.obra)
       setCliente(r.obra.cliente)
@@ -46,7 +69,15 @@ export function NuevaObra({ onSaved }: Props): JSX.Element {
     setPhase('saving')
     try {
       const id = await api.saveObra(
-        { obra, cliente, ref_lab: refLab, fecha, responsable, coef_baja: 1 },
+        {
+          obra,
+          cliente,
+          ref_lab: refLab,
+          fecha,
+          responsable,
+          coef_baja: 1,
+          price_strategy: strategy
+        },
         result.plan as PlanRowInput[]
       )
       onSaved(id)
@@ -111,7 +142,28 @@ export function NuevaObra({ onSaved }: Props): JSX.Element {
             </p>
           </div>
 
-          <h3 style={{ marginBottom: 12 }}>Plan de ensayos valorado</h3>
+          <div
+            className="row"
+            style={{ justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}
+          >
+            <h3>Plan de ensayos valorado</h3>
+            <div className="field" style={{ marginBottom: 0, minWidth: 230 }}>
+              <label>Estrategia de precio {repricing && '· recalculando…'}</label>
+              <select
+                className="select"
+                value={strategy}
+                disabled={repricing}
+                onChange={(e) => changeStrategy(e.target.value as PriceStrategy)}
+                title="Precio aplicado desde el histórico de presupuestos del laboratorio"
+              >
+                {(Object.keys(STRATEGY_LABELS) as PriceStrategy[]).map((s) => (
+                  <option key={s} value={s}>
+                    {STRATEGY_LABELS[s]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <PlanTable rows={result.plan} />
 
           <div className="toolbar" style={{ marginTop: 20, justifyContent: 'flex-end' }}>

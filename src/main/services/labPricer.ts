@@ -97,6 +97,20 @@ export class LabPricer {
   get hasPriceBook(): boolean {
     return this.priceBookPricer.catalogSize > 0
   }
+
+  /** Nº de ensayos en el libro de precios (para estado de la UI). */
+  get size(): number {
+    return this.priceBookPricer.catalogSize
+  }
+
+  get usesEmbeddings(): boolean {
+    return this.priceBookPricer.usesEmbeddings
+  }
+
+  /** Matches del libro de precios para una consulta (pantalla de validación). */
+  findMatches(query: string, n = 8): Promise<import('../pipeline/rag/types').RagMatch[]> {
+    return this.priceBookPricer.findMatchesHybrid(query, n)
+  }
 }
 
 export interface LabPricerPaths {

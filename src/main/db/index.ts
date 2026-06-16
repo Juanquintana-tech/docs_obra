@@ -19,6 +19,7 @@ export interface Obra {
   n_ensayos: number
   n_materiales: number
   responsable: string
+  price_strategy: string
   created_at: string
   status: 'activa' | 'archivada'
 }
@@ -39,9 +40,11 @@ export interface PlanRow {
   n_tests: number
   unit_price: number
   total: number
-  price_source: 'alagal' | 'fallback'
+  price_source: string
   rag_score: number
   rag_desc: string
+  price_min: number | null
+  price_max: number | null
 }
 
 export interface ObraInput {
@@ -51,6 +54,7 @@ export interface ObraInput {
   fecha?: string
   coef_baja?: number
   responsable?: string
+  price_strategy?: string
 }
 
 // ── Conexión (singleton) ────────────────────────────────────────────────────
@@ -84,19 +88,19 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
 
   const insertObra = db.prepare(
     `INSERT INTO obras (obra, cliente, ref_lab, fecha, coef_baja, total_importe,
-                        n_ensayos, n_materiales, responsable)
+                        n_ensayos, n_materiales, responsable, price_strategy)
      VALUES (@obra, @cliente, @ref_lab, @fecha, @coef_baja, @total_importe,
-             @n_ensayos, @n_materiales, @responsable)`
+             @n_ensayos, @n_materiales, @responsable, @price_strategy)`
   )
   const insertRow = db.prepare(
     `INSERT INTO plan_rows
        (obra_id, row_type, material, subcategory, description, measurement,
         measurement_unit, freq_qty, freq_unit, n_lots, tests_per_lot, n_tests,
-        unit_price, total, price_source, rag_score, rag_desc)
+        unit_price, total, price_source, rag_score, rag_desc, price_min, price_max)
      VALUES
        (@obra_id, @row_type, @material, @subcategory, @description, @measurement,
         @measurement_unit, @freq_qty, @freq_unit, @n_lots, @tests_per_lot, @n_tests,
-        @unit_price, @total, @price_source, @rag_score, @rag_desc)`
+        @unit_price, @total, @price_source, @rag_score, @rag_desc, @price_min, @price_max)`
   )
 
   const tx = db.transaction(() => {
@@ -109,7 +113,8 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
       total_importe: totalImporte,
       n_ensayos: nEnsayos,
       n_materiales: nMateriales,
-      responsable: info.responsable ?? ''
+      responsable: info.responsable ?? '',
+      price_strategy: info.price_strategy ?? 'reciente'
     })
     const obraId = Number(res.lastInsertRowid)
 
@@ -133,7 +138,9 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
         total: row.total ?? 0,
         price_source: row.price_source ?? 'fallback',
         rag_score: row.rag_score ?? 0,
-        rag_desc: row.rag_desc ?? ''
+        rag_desc: row.rag_desc ?? '',
+        price_min: row.price_min ?? null,
+        price_max: row.price_max ?? null
       })
     }
     return obraId

@@ -21,7 +21,7 @@ function main(): void {
   writeFileSync(outPath, JSON.stringify({ entries }, null, 2))
 
   const conRango = entries.filter((e) => e.max > e.min).length
-  console.log(`Libro de precios: ${entries.length} ensayos únicos (${pairs.length} líneas)`) // eslint-disable-line
+  console.log(`Libro de precios: ${entries.length} ensayos únicos (${pairs.length} líneas)`)
   console.log(`  con rango (varía entre presupuestos): ${conRango} · → ${outPath} (gitignored)`)
   console.log('\nTop 10 (n = nº presupuestos):')
   for (const e of entries.slice(0, 10)) {

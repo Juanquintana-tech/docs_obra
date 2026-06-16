@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
 import { RagPricer, type EmbeddingsIndexFile } from '../rag/ragPricer'
 import { createEmbeddingsProvider } from '../rag/embeddings'
+import { buildLabPricer, type LabPricer } from '../../services/labPricer'
 import type { Rules } from '../planner'
 
 export const KNOWLEDGE_DIR = resolve(process.cwd(), 'resources/knowledge')
@@ -26,4 +27,13 @@ export async function buildPricer(tfidfOnly = false): Promise<RagPricer> {
     pricer.loadEmbeddings(JSON.parse(readFileSync(EMBEDDINGS_PATH, 'utf-8')) as EmbeddingsIndexFile)
   }
   return pricer
+}
+
+/** Motor de precios completo (libro de precios + ALAGAL) como en la app. */
+export function buildPlanPricer(): Promise<LabPricer> {
+  return buildLabPricer({
+    priceBookPath: resolve(KNOWLEDGE_DIR, 'price_book.json'),
+    alagalXlsxPath: TARIFAS_PATH,
+    alagalEmbeddingsPath: EMBEDDINGS_PATH
+  })
 }

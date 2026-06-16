@@ -18,7 +18,8 @@ import type { PlanRowInput } from '../main/pipeline/types'
 import type { IngestResult, RagStatus } from '../main/services/pipeline'
 import type { RagMatch } from '../main/pipeline/rag/types'
 import type { CatalogEntry } from '../main/pipeline/rag/catalog'
-import type { Rules } from '../main/pipeline/planner'
+import type { Rules, Material } from '../main/pipeline/planner'
+import type { PriceStrategy } from '../main/pipeline/rag/priceBook'
 
 export interface PickedDocument {
   path: string
@@ -46,8 +47,10 @@ export const api = {
 
   // ── Ingesta ──
   pickDocument: (): Promise<PickedDocument | null> => ipcRenderer.invoke('ingest:pickDocument'),
-  ingestDocument: (path: string): Promise<IngestResult> =>
-    ipcRenderer.invoke('ingest:document', path),
+  ingestDocument: (path: string, strategy?: PriceStrategy): Promise<IngestResult> =>
+    ipcRenderer.invoke('ingest:document', path, strategy),
+  repricePlan: (materials: Material[], strategy: PriceStrategy): Promise<PlanRowInput[]> =>
+    ipcRenderer.invoke('plan:reprice', materials, strategy),
 
   // ── Entregables (devuelven la ruta guardada o null si se cancela) ──
   exportExcel: (obraId: number): Promise<string | null> =>

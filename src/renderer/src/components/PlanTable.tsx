@@ -15,6 +15,8 @@ export interface PlanTableRow {
   total?: number | null
   price_source?: string
   rag_score?: number
+  price_min?: number | null
+  price_max?: number | null
 }
 
 // ── Tipos para el modo edición ────────────────────────────────────────────────
@@ -46,18 +48,26 @@ function fromStr(s: string): number {
 
 /** Insignia de confianza de la IA por fila (feature diferenciadora #1). */
 function Confidence({ source, score }: { source?: string; score?: number }): JSX.Element {
+  const pct = score != null ? `${(score * 100).toFixed(0)}%` : ''
+  if (source === 'pricebook') {
+    return (
+      <span className="badge badge-alagal" title={`Precio de vuestro histórico · similitud ${pct}`}>
+        ● Histórico {pct}
+      </span>
+    )
+  }
   if (source === 'alagal') {
     return (
       <span
-        className="badge badge-alagal"
-        title={`Similitud RAG: ${((score ?? 0) * 100).toFixed(0)}%`}
+        className="badge badge-fallback"
+        title={`Sin histórico propio: precio del catálogo ALAGAL · similitud ${pct}`}
       >
-        ● Catálogo {score != null ? `${(score * 100).toFixed(0)}%` : ''}
+        ◐ Catálogo {pct}
       </span>
     )
   }
   return (
-    <span className="badge badge-fallback" title="Sin match en catálogo: precio base de las reglas">
+    <span className="badge badge-fallback" title="Sin match: precio base de las reglas">
       ○ Base
     </span>
   )
@@ -207,7 +217,14 @@ function PlanTableInner({
           </td>
           <td className="num">{num(r.n_lots)}</td>
           <td className="num">{num(r.n_tests)}</td>
-          <td className="num">{eur(r.unit_price)}</td>
+          <td className="num">
+            {eur(r.unit_price)}
+            {r.price_min != null && r.price_max != null && r.price_max !== r.price_min && (
+              <span className="muted" style={{ display: 'block', fontSize: 11 }}>
+                {num(r.price_min)}–{num(r.price_max)} €
+              </span>
+            )}
+          </td>
           <td className="num">{eur(r.total)}</td>
           <td>
             <Confidence source={r.price_source} score={r.rag_score} />

@@ -9,7 +9,7 @@ import { tmpdir } from 'os'
 import { resolve } from 'path'
 import { generatePlan, type Material } from '../planner'
 import { generateExcel, generateWord, type ObraInfo } from '../formatter'
-import { loadRules, buildPricer } from './loadKnowledge'
+import { loadRules, buildPlanPricer } from './loadKnowledge'
 
 const SAMPLE_MATERIALS: Material[] = [
   { material: 'Terraplén núcleo', category: 'TERRAPLEN_RELLENOS', quantity: 25000, unit: 'm3' },
@@ -32,8 +32,8 @@ const OBRA: ObraInfo = {
 
 async function main(): Promise<void> {
   const rules = loadRules()
-  const pricer = await buildPricer()
-  const plan = await generatePlan(SAMPLE_MATERIALS, rules, pricer)
+  const pricer = await buildPlanPricer()
+  const plan = await generatePlan(SAMPLE_MATERIALS, rules, (items) => pricer.priceMany(items))
 
   const xlsx = await generateExcel(plan, OBRA)
   const docx = generateWord(plan, OBRA)

@@ -32,4 +32,7 @@ export interface PlanRowInput {
   price_source?: string
   rag_score?: number
   rag_desc?: string
+  /** rango de precio del libro de precios (si la fuente es 'pricebook') */
+  price_min?: number | null
+  price_max?: number | null
 }

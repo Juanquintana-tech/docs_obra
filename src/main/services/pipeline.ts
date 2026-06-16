@@ -3,13 +3,13 @@
  * cacheando el índice RAG y las reglas (se construyen una sola vez).
  */
 import { readFile } from 'fs/promises'
-import { existsSync, readFileSync } from 'fs'
 import { extractDocument } from '../pipeline/extractor'
 import { classifyMaterials, extractObraInfo } from '../pipeline/classifier'
 import { generatePlan, type Material, type Rules } from '../pipeline/planner'
-import { RagPricer, CATEGORY_CTX, type EmbeddingsIndexFile } from '../pipeline/rag/ragPricer'
-import { createEmbeddingsProvider } from '../pipeline/rag/embeddings'
+import { CATEGORY_CTX } from '../pipeline/rag/ragPricer'
 import type { RagMatch } from '../pipeline/rag/types'
+import type { PriceStrategy } from '../pipeline/rag/priceBook'
+import { buildLabPricer, type LabPricer } from './labPricer'
 import { generateExcel, generateWord, type ObraInfo } from '../pipeline/formatter'
 import { generateInformeWord, generateInformeExcel } from '../pipeline/informes'
 import type { PlanRowInput } from '../pipeline/types'
@@ -17,7 +17,8 @@ import type { Ensayo, Obra } from '../db'
 import { knowledgePath, templatePath } from '../paths'
 
 let _rules: Rules | null = null
-let _pricer: RagPricer | null = null
+let _pricer: LabPricer | null = null
+let _pricerPromise: Promise<LabPricer> | null = null
 
 async function getRules(): Promise<Rules> {
   if (_rules) return _rules
@@ -25,47 +26,41 @@ async function getRules(): Promise<Rules> {
   return _rules
 }
 
-/** Construye (y cachea) el RAG. Si existe el índice de embeddings y hay API key,
- *  activa el modo híbrido. Degrada con elegancia: si falla, devuelve null y el
- *  planner usa precios base en vez de tumbar la app. */
-async function getPricer(): Promise<RagPricer | null> {
-  if (_pricer) return _pricer
-  try {
-    // Proveedor de embeddings local (sin API ni rate limit); el modelo se carga
-    // de forma perezosa solo si hay índice y se hace una consulta híbrida.
-    const embeddings = createEmbeddingsProvider()
-    const pricer = await RagPricer.fromXlsx(knowledgePath('tarifas_alagal.xlsx'), { embeddings })
-
-    // Carga el índice de embeddings persistido, si se construyó (rag:build-embeddings).
-    const embPath = knowledgePath('alagal_embeddings.json')
-    if (existsSync(embPath)) {
-      try {
-        pricer.loadEmbeddings(JSON.parse(readFileSync(embPath, 'utf-8')) as EmbeddingsIndexFile)
-      } catch (e) {
-        console.error('[pipeline] índice de embeddings ilegible, se usa solo TF-IDF:', e)
-      }
-    }
-    _pricer = pricer
-    return _pricer
-  } catch (e) {
-    console.error('[pipeline] RAG no disponible, se usarán precios base:', e)
-    return null
+/** Construye (y cachea) el motor de precios: libro de precios propio + ALAGAL de
+ *  fallback. Cachea la PROMESA en vuelo para no construirlo dos veces si hay
+ *  ingestas concurrentes. */
+function getPricer(): Promise<LabPricer> {
+  if (_pricer) return Promise.resolve(_pricer)
+  if (!_pricerPromise) {
+    _pricerPromise = buildLabPricer({
+      priceBookPath: knowledgePath('price_book.json'),
+      alagalXlsxPath: knowledgePath('tarifas_alagal.xlsx'),
+      alagalEmbeddingsPath: knowledgePath('alagal_embeddings.json')
+    }).then((p) => {
+      _pricer = p
+      return p
+    })
   }
+  return _pricerPromise
 }
 
 export interface IngestResult {
   obra: { obra: string; cliente: string; ref_doc: string; municipio: string }
   materials: Material[]
   plan: PlanRowInput[]
+  strategy: PriceStrategy
   meta: { format: string; chars: number; needsOcr: boolean }
 }
 
-/** PDF/Word/Excel → texto → (obra, materiales) → plan valorado. */
-export async function ingestDocument(path: string): Promise<IngestResult> {
+/** PDF/Word/Excel → texto → (obra, materiales) → plan valorado con la estrategia dada. */
+export async function ingestDocument(
+  path: string,
+  strategy: PriceStrategy = 'reciente'
+): Promise<IngestResult> {
   const { text, format, needsOcr } = await extractDocument(path)
   const [obraInfo, materials] = await Promise.all([extractObraInfo(text), classifyMaterials(text)])
   const [rules, pricer] = await Promise.all([getRules(), getPricer()])
-  const plan = await generatePlan(materials, rules, pricer)
+  const plan = await generatePlan(materials, rules, (items) => pricer.priceMany(items, strategy))
   return {
     obra: {
       obra: obraInfo.obra ?? '',
@@ -75,8 +70,18 @@ export async function ingestDocument(path: string): Promise<IngestResult> {
     },
     materials,
     plan,
+    strategy,
     meta: { format, chars: text.length, needsOcr }
   }
+}
+
+/** Re-valora unos materiales con otra estrategia (sin re-extraer ni re-clasificar). */
+export async function repricePlan(
+  materials: Material[],
+  strategy: PriceStrategy
+): Promise<PlanRowInput[]> {
+  const [rules, pricer] = await Promise.all([getRules(), getPricer()])
+  return generatePlan(materials, rules, (items) => pricer.priceMany(items, strategy))
 }
 
 // ── Consultas RAG (para la pantalla de validación) ──────────────────────────
@@ -90,21 +95,18 @@ export interface RagStatus {
 export async function ragStatus(): Promise<RagStatus> {
   const pricer = await getPricer()
   return {
-    ready: !!pricer,
-    size: pricer?.catalogSize ?? 0,
-    usesEmbeddings: pricer?.usesEmbeddings ?? false,
+    ready: pricer.hasPriceBook,
+    size: pricer.size,
+    usesEmbeddings: pricer.usesEmbeddings,
     categories: Object.keys(CATEGORY_CTX)
   }
 }
 
-/** Busca los n mejores matches para una consulta, aplicando el contexto de categoría
- *  (mismo enriquecimiento que usa getBestPrice). */
+/** Busca los n mejores matches en el libro de precios (pantalla de validación). */
 export async function ragFindMatches(query: string, category = '', n = 8): Promise<RagMatch[]> {
   const pricer = await getPricer()
-  if (!pricer) return []
   const ctx = CATEGORY_CTX[category] ?? ''
-  // Híbrido si hay embeddings operativos; si no, cae a TF-IDF internamente.
-  return pricer.findMatchesHybrid(`${query} ${ctx}`.trim(), n)
+  return pricer.findMatches(`${query} ${ctx}`.trim(), n)
 }
 
 export async function buildExcel(plan: PlanRowInput[], obra: ObraInfo): Promise<Buffer> {

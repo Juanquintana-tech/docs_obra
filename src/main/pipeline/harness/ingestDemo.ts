@@ -12,7 +12,7 @@ import { resolve } from 'path'
 import { extractDocument } from '../extractor'
 import { classifyMaterials, extractObraInfo } from '../classifier'
 import { generatePlan } from '../planner'
-import { loadRules, buildPricer } from './loadKnowledge'
+import { loadRules, buildPlanPricer } from './loadKnowledge'
 
 /** Carga simple de .env (KEY=VALUE) si existe, sin pisar variables ya definidas. */
 function loadEnv(): void {
@@ -56,8 +56,8 @@ async function main(): Promise<void> {
 
   console.log('3) Generando plan valorado…')
   const rules = loadRules()
-  const pricer = await buildPricer()
-  const plan = await generatePlan(materials, rules, pricer)
+  const pricer = await buildPlanPricer()
+  const plan = await generatePlan(materials, rules, (items) => pricer.priceMany(items))
   const total = plan.reduce((s, r) => s + (r.total ?? 0), 0)
   console.log(
     `   ${plan.length} líneas de ensayo · total sin IVA = €${total.toFixed(2)} · ` +

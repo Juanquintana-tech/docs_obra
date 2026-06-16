@@ -11,6 +11,7 @@ import type { PlanRowInput } from './pipeline/types'
 import type { ObraInfo } from './pipeline/formatter'
 import {
   ingestDocument,
+  repricePlan,
   buildExcel,
   buildWord,
   ragStatus,
@@ -18,6 +19,8 @@ import {
   buildEnsayoWord,
   buildEnsayoExcel
 } from './services/pipeline'
+import type { Material } from './pipeline/planner'
+import type { PriceStrategy } from './pipeline/rag/priceBook'
 import { loadCatalog } from './pipeline/rag/catalog'
 import type { Rules } from './pipeline/planner'
 import { knowledgePath } from './paths'
@@ -40,7 +43,9 @@ function toPlanInput(rows: PlanRow[]): PlanRowInput[] {
     total: r.total,
     price_source: r.price_source,
     rag_score: r.rag_score,
-    rag_desc: r.rag_desc
+    rag_desc: r.rag_desc,
+    price_min: r.price_min,
+    price_max: r.price_max
   }))
 }
 
@@ -128,7 +133,12 @@ export function registerIpc(): void {
     if (canceled || filePaths.length === 0) return null
     return { path: filePaths[0], name: basename(filePaths[0]) }
   })
-  ipcMain.handle('ingest:document', (_e, path: string) => ingestDocument(path))
+  ipcMain.handle('ingest:document', (_e, path: string, strategy?: PriceStrategy) =>
+    ingestDocument(path, strategy)
+  )
+  ipcMain.handle('plan:reprice', (_e, materials: Material[], strategy: PriceStrategy) =>
+    repricePlan(materials, strategy)
+  )
 
   // ── Entregables ──
   ipcMain.handle('export:excel', (_e, obraId: number) => exportDeliverable(obraId, 'excel'))

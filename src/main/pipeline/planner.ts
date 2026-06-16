@@ -3,9 +3,23 @@
  * Port de agents/planner.py — aplica las reglas de test_rules.json.
  */
 import type { Material, PlanRowInput } from './types'
-import type { RagPricer } from './rag/ragPricer'
 
 export type { Material } from './types'
+
+/** Resultado de valorar un ensayo (lo que devuelve el motor de precios). */
+export interface PriceQuote {
+  precio: number | null
+  descripcion: string
+  score: number
+  source: string
+  min?: number | null
+  max?: number | null
+}
+
+/** Función de valoración por lotes; la estrategia/fuente la encapsula el caller. */
+export type PriceManyFn = (
+  items: { description: string; category?: string }[]
+) => Promise<PriceQuote[]>
 
 // ── Tipos de las reglas (test_rules.json) ──────────────────────────────────
 export interface TestRule {
@@ -81,7 +95,7 @@ export function calculateNLots(
 export async function generatePlan(
   materials: Material[],
   rules: Rules,
-  pricer?: RagPricer | null
+  priceMany?: PriceManyFn | null
 ): Promise<PlanRowInput[]> {
   // ── Pasada 1: filas estructurales (sin precio) + items a valorar ──
   interface Pending {
@@ -134,9 +148,9 @@ export async function generatePlan(
     }
   }
 
-  // ── Pasada 2: valoración en bloque (híbrido si está operativo, si no TF-IDF) ──
-  if (pricer && pending.length > 0) {
-    const results = await pricer.priceMany(
+  // ── Pasada 2: valoración en bloque (libro de precios → ALAGAL → base) ──
+  if (priceMany && pending.length > 0) {
+    const results = await priceMany(
       pending.map((p) => ({ description: p.description, category: p.category }))
     )
     pending.forEach((p, i) => {
@@ -145,8 +159,10 @@ export async function generatePlan(
       if (r.precio != null) {
         p.row.unit_price = r.precio
         p.row.total = nTests * r.precio
-        p.row.price_source = 'alagal'
+        p.row.price_source = r.source
         p.row.rag_desc = r.descripcion
+        p.row.price_min = r.min ?? null
+        p.row.price_max = r.max ?? null
       }
       p.row.rag_score = Math.round(r.score * 1000) / 1000
     })
