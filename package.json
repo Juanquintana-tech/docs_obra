@@ -28,7 +28,9 @@
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
     "rag:compare": "tsx src/main/pipeline/harness/ragCompare.ts",
-    "rag:cases": "tsx src/main/pipeline/harness/buildCasesFromBudgets.ts"
+    "rag:cases": "tsx src/main/pipeline/harness/buildCasesFromBudgets.ts",
+    "rag:price-book": "tsx src/main/pipeline/harness/buildPriceBook.ts",
+    "rag:review-pricebook": "tsx src/main/pipeline/harness/priceBookReview.ts"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
