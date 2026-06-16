@@ -30,7 +30,8 @@
     "rag:compare": "tsx src/main/pipeline/harness/ragCompare.ts",
     "rag:cases": "tsx src/main/pipeline/harness/buildCasesFromBudgets.ts",
     "rag:price-book": "tsx src/main/pipeline/harness/buildPriceBook.ts",
-    "rag:review-pricebook": "tsx src/main/pipeline/harness/priceBookReview.ts"
+    "rag:review-pricebook": "tsx src/main/pipeline/harness/priceBookReview.ts",
+    "rag:review-pricer": "tsx src/main/pipeline/harness/labPricerReview.ts"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",

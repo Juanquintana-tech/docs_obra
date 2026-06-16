@@ -14,7 +14,7 @@ import { l2normalize } from '../rag/minimaxEmbeddings'
 import { normalize } from '../rag/normalize'
 import type { CatalogEntry } from '../rag/catalog'
 import { loadRules } from './loadKnowledge'
-import type { PriceBookEntry } from './buildPriceBook'
+import type { PriceBookEntry } from '../rag/priceBook'
 
 async function main(): Promise<void> {
   const pbPath = resolve(process.cwd(), 'resources/knowledge/price_book.json')
@@ -28,7 +28,7 @@ async function main(): Promise<void> {
   const catalog: CatalogEntry[] = entries.map((e) => ({
     codigo: e.codigo,
     descripcion: e.descripcion,
-    precio: e.precio,
+    precio: e.reciente,
     categoria: '',
     doc: normalize(e.descripcion)
   }))

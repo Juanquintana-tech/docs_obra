@@ -11,6 +11,15 @@ export interface BudgetPair {
   query: string
   price: number
   src: string
+  /** año del presupuesto (4 dígitos) inferido del nombre de fichero; 0 si desconocido */
+  year: number
+}
+
+/** Infiere el año (2000+) del nombre del presupuesto: toma el token de 2 dígitos en [19,30]. */
+export function yearFromLabel(label: string): number {
+  const tokens = label.match(/(?<!\d)\d{2}(?!\d)/g) ?? []
+  const years = tokens.map(Number).filter((n) => n >= 19 && n <= 30)
+  return years.length ? 2000 + Math.max(...years) : 0
 }
 
 const HEADER_PRICE = /precio\s*unitario|p\.?\s*unitario|precio\s*ud/i
@@ -29,6 +38,7 @@ function toNum(v: unknown): number | null {
 
 function extractFromFile(path: string, label: string): BudgetPair[] {
   const out: BudgetPair[] = []
+  const year = yearFromLabel(label)
   let sheets: unknown[][][]
   try {
     const wb = XLSX.readFile(path, { cellDates: true })
@@ -59,7 +69,7 @@ function extractFromFile(path: string, label: string): BudgetPair[] {
       if (!desc || desc.length < 10 || price == null || price <= 0 || price > 5000) continue
       if (CHAPTER.test(desc)) continue
       if (!TEST_HINT.test(desc)) continue
-      out.push({ query: desc, price, src: label })
+      out.push({ query: desc, price, src: label, year })
     }
   }
   return out
@@ -82,13 +92,3 @@ export function extractBudgetPairs(base: string): BudgetPair[] {
 
 export const DEFAULT_BUDGETS_DIR =
   '/Users/usuario/Desktop/Proyecto_docs_obra/Docs_post_demo_1/Presupuestos'
-
-export function normalizeDesc(s: string): string {
-  return s.toLowerCase().replace(/\s+/g, ' ').trim()
-}
-
-export function median(nums: number[]): number {
-  const s = [...nums].sort((a, b) => a - b)
-  const m = Math.floor(s.length / 2)
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
-}
