@@ -38,9 +38,11 @@ export async function extractDocument(path: string): Promise<ExtractResult> {
     case '.docx':
       return extractDocx(path)
     case '.xlsx':
-    case '.xls':
     case '.xlsm':
       return extractXlsx(path)
+    case '.xls':
+      // Formato binario legacy (BIFF): exceljs no lo lee → SheetJS.
+      return extractXlsLegacy(path)
     case '.txt':
     case '.md':
     case '.csv':
@@ -89,6 +91,34 @@ async function extractXlsx(path: string): Promise<ExtractResult> {
       if (cells.length) lines.push(cells.join('\t'))
     })
   })
+  return {
+    text: lines.join('\n').trim(),
+    format: 'xlsx',
+    totalPages: 0,
+    method: 'native',
+    needsOcr: false
+  }
+}
+
+/** Lee .xls binario legacy (BIFF) con SheetJS. Mismo formato de salida que extractXlsx. */
+async function extractXlsLegacy(path: string): Promise<ExtractResult> {
+  // xlsx (SheetJS) es CommonJS: con el import dinámico, los export viven bajo .default.
+  const mod = await import('xlsx')
+  const XLSX = (mod as unknown as { default?: typeof mod }).default ?? mod
+  const wb = XLSX.readFile(path, { cellDates: true })
+  const lines: string[] = []
+  for (const name of wb.SheetNames) {
+    const ws = wb.Sheets[name]
+    if (!ws) continue
+    lines.push(`# ${name}`)
+    const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, blankrows: false })
+    for (const row of rows) {
+      const cells = (row as unknown[])
+        .map((c) => (c == null ? '' : String(c).trim()))
+        .filter(Boolean)
+      if (cells.length) lines.push(cells.join('\t'))
+    }
+  }
   return {
     text: lines.join('\n').trim(),
     format: 'xlsx',
