@@ -1,26 +1,28 @@
 import { useEffect, useMemo, useState, type JSX } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { eur } from '../lib/format'
+import { Ic } from '../components/Icon'
 import type { Obra } from '../lib/types'
 
-interface Props {
-  onOpen: (id: number) => void
-  onNew: () => void
-  onEnsayos: (obraId: number) => void
-}
-
-export function Proyectos({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
-  const [obras, setObras] = useState<Obra[]>([])
+export function Proyectos(): JSX.Element {
+  const navigate = useNavigate()
+  const [obras, setObras] = useState<Obra[] | null>(null)
   const [filter, setFilter] = useState<'activa' | 'archivada'>('activa')
   const [q, setQ] = useState('')
   const [counts, setCounts] = useState<Record<number, number>>({})
 
   useEffect(() => {
+    setObras(null)
     api.getObras(filter).then(setObras)
-    api.countEnsayosPorObra().then(setCounts)
   }, [filter])
 
+  useEffect(() => {
+    api.countEnsayosPorObra().then(setCounts)
+  }, [])
+
   const filtered = useMemo(() => {
+    if (!obras) return null
     const term = q.trim().toLowerCase()
     if (!term) return obras
     return obras.filter(
@@ -33,10 +35,10 @@ export function Proyectos({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
       <div className="page-head">
         <div>
           <h1>Proyectos</h1>
-          <p>{filtered.length} proyecto(s)</p>
+          <p>{filtered === null ? 'Cargando…' : `${filtered.length} proyecto(s)`}</p>
         </div>
-        <button className="btn btn-primary" onClick={onNew}>
-          ➕ Nuevo Proyecto
+        <button className="btn btn-primary" onClick={() => navigate('/nueva')}>
+          <Ic.NuevoProyecto /> Nuevo Proyecto
         </button>
       </div>
 
@@ -58,12 +60,16 @@ export function Proyectos({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
         </select>
       </div>
 
-      {filtered.length === 0 ? (
+      {filtered === null ? (
+        <div className="cards">
+          {[1, 2, 3, 4].map((i) => <div key={i} className="skeleton skeleton-card" />)}
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="empty">No hay proyectos que coincidan.</div>
       ) : (
         <div className="cards">
           {filtered.map((o) => (
-            <div className="card clickable" key={o.id} onClick={() => onOpen(o.id)}>
+            <div className="card clickable" key={o.id} onClick={() => navigate('/detalle/' + o.id)}>
               <div className="row" style={{ marginBottom: 6 }}>
                 <span className="card-title">{o.obra || '(sin nombre)'}</span>
                 <span className="spacer" />
@@ -92,10 +98,10 @@ export function Proyectos({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
                   style={{ fontSize: 12, padding: '4px 10px' }}
                   onClick={(e) => {
                     e.stopPropagation()
-                    onEnsayos(o.id)
+                    navigate('/ensayos/' + o.id)
                   }}
                 >
-                  🧪 Ensayos
+                  <Ic.Ensayos /> Ensayos
                 </button>
               </div>
             </div>

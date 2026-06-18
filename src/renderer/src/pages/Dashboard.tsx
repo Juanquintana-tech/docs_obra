@@ -1,13 +1,9 @@
 import { useEffect, useState, type JSX } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { eur } from '../lib/format'
+import { Ic } from '../components/Icon'
 import type { GlobalStats, Obra } from '../lib/types'
-
-interface Props {
-  onOpen: (id: number) => void
-  onNew: () => void
-  onEnsayos: (obraId: number) => void
-}
 
 function initials(name: string): string {
   return name
@@ -22,9 +18,10 @@ function avatarColor(id: number): string {
   return AVATAR_COLORS[id % AVATAR_COLORS.length]
 }
 
-export function Dashboard({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
+export function Dashboard(): JSX.Element {
+  const navigate = useNavigate()
   const [stats, setStats] = useState<GlobalStats | null>(null)
-  const [recent, setRecent] = useState<Obra[]>([])
+  const [recent, setRecent] = useState<Obra[] | null>(null)
   const [counts, setCounts] = useState<Record<number, number>>({})
 
   useEffect(() => {
@@ -40,32 +37,44 @@ export function Dashboard({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
           <h1>Dashboard</h1>
           <p>Resumen de la actividad de control de calidad</p>
         </div>
-        <button className="btn btn-primary" onClick={onNew}>
-          ➕ Nuevo Proyecto
-        </button>
       </div>
 
       <div className="kpis">
-        <div className="kpi">
-          <div className="label">Proyectos activos</div>
-          <div className="value">{stats?.n_obras ?? '—'}</div>
-        </div>
-        <div className="kpi">
-          <div className="label">Ensayos planificados</div>
-          <div className="value">{stats?.n_ensayos ?? '—'}</div>
-        </div>
-        <div className="kpi">
-          <div className="label">Informes de campo</div>
-          <div className="value">{Object.values(counts).reduce((a, b) => a + b, 0)}</div>
-        </div>
-        <div className="kpi">
-          <div className="label">Importe acumulado</div>
-          <div className="value">{stats ? eur(stats.importe_total) : '—'}</div>
-        </div>
+        {stats === null ? (
+          <>
+            <div className="skeleton skeleton-kpi" />
+            <div className="skeleton skeleton-kpi" />
+            <div className="skeleton skeleton-kpi" />
+          </>
+        ) : (
+          <>
+            <div className="kpi">
+              <div className="label">Proyectos activos</div>
+              <div className="value">{stats.n_obras}</div>
+            </div>
+            <div className="kpi">
+              <div className="label">Ensayos planificados</div>
+              <div className="value">{stats.n_ensayos}</div>
+            </div>
+            <div className="kpi">
+              <div className="label">Informes de campo</div>
+              <div className="value">{Object.values(counts).reduce((a, b) => a + b, 0)}</div>
+            </div>
+          </>
+        )}
       </div>
 
-      <h2 style={{ marginBottom: 14 }}>Últimos proyectos activos</h2>
-      {recent.length === 0 ? (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '20px 0 14px' }}>
+        <h2>Últimos proyectos activos</h2>
+        <button className="btn btn-primary" onClick={() => navigate('/nueva')}>
+          <Ic.NuevoProyecto /> Nuevo Proyecto
+        </button>
+      </div>
+      {recent === null ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[1, 2, 3].map((i) => <div key={i} className="skeleton skeleton-row" />)}
+        </div>
+      ) : recent.length === 0 ? (
         <div className="empty">
           Aún no hay proyectos. Crea el primero con <b>Nuevo Proyecto</b>.
         </div>
@@ -75,26 +84,14 @@ export function Dashboard({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
             <div
               key={o.id}
               className="obra-row"
-              onClick={() => onOpen(o.id)}
+              onClick={() => navigate('/detalle/' + o.id)}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && onOpen(o.id)}
+              onKeyDown={(e) => e.key === 'Enter' && navigate('/detalle/' + o.id)}
             >
               <div
                 className="obra-avatar"
-                style={{
-                  background: avatarColor(o.id),
-                  width: 40,
-                  height: 40,
-                  borderRadius: 10,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  fontWeight: 800,
-                  fontSize: 14,
-                  flexShrink: 0
-                }}
+                style={{ background: avatarColor(o.id) }}
               >
                 {initials(o.obra)}
               </div>
@@ -132,10 +129,10 @@ export function Dashboard({ onOpen, onNew, onEnsayos }: Props): JSX.Element {
                   style={{ fontSize: 12, padding: '5px 10px' }}
                   onClick={(e) => {
                     e.stopPropagation()
-                    onEnsayos(o.id)
+                    navigate('/ensayos/' + o.id)
                   }}
                 >
-                  🧪 Ensayos
+                  <Ic.Ensayos /> Ensayos
                 </button>
                 <span
                   style={{

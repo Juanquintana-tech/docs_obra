@@ -2,12 +2,12 @@
 .ens-card {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: 4px solid var(--mid);
   border-radius: var(--radius);
-  padding: 14px 18px;
+  padding: 10px 14px;
   box-shadow: var(--shadow);
 }
 .ens-card-left {
@@ -15,28 +15,28 @@
   min-width: 0;
 }
 .ens-tipo {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: var(--text-soft);
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 .ens-titulo {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--navy);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .ens-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 .ens-card-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -292,4 +292,242 @@
   font-weight: 600;
   color: var(--mid);
   background: #f0f5ff;
+}
+
+/* ── Granulometría: lista de masas ──────────────────────────── */
+.granulo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 6px;
+}
+.granulo-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 4px 2px 0;
+  background: var(--surface);
+}
+.granulo-n {
+  min-width: 30px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-soft);
+  background: var(--bg);
+  border-radius: 5px 0 0 5px;
+  padding: 6px 2px;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.granulo-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  text-align: right;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 4px 2px;
+  color: var(--text);
+}
+.granulo-input:focus {
+  outline: none;
+}
+.granulo-cell:focus-within {
+  border-color: var(--mid);
+}
+
+/* ── Albarán ─────────────────────────────────────────────────── */
+.albaran-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.alb-card {
+  border-radius: 8px;
+}
+.alb-header-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.alb-logo-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.alb-logo-text {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--navy);
+  letter-spacing: 0.06em;
+}
+.alb-logo-sub {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+}
+.alb-doc-title {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--navy);
+  line-height: 1.4;
+}
+.alb-header-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.alb-header-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+.alb-header-field:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.alb-hf-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  white-space: nowrap;
+  min-width: 130px;
+}
+.alb-hf-input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+.alb-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.alb-field-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.alb-inline-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.alb-inline-label {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--text-soft);
+  min-width: 140px;
+}
+.alb-inline-input {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 8px;
+  font-size: 13px;
+}
+.alb-textarea {
+  width: 100%;
+  resize: vertical;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+.alb-checks-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.alb-check-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.alb-check-label input[type='checkbox'],
+.alb-check-label input[type='radio'] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--mid);
+  cursor: pointer;
+}
+.alb-muestra-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px 8px;
+}
+.alb-mg-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.alb-mg-hdr {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-soft);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.alb-textarea-sm {
+  width: 100%;
+  resize: vertical;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+.alb-firma-cell {
+  gap: 6px;
+}
+.alb-ens-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 8px;
+}
+.alb-ens-input {
+  padding: 5px 8px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+.alb-insp-layout {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: start;
+}
+.alb-insp-right {
+  display: flex;
+  gap: 16px;
+}
+.alb-acept-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  min-width: 170px;
 }

@@ -5,6 +5,8 @@ export interface ObraInfo {
   ref_lab?: string
   fecha?: string
   responsable?: string
+  /** Tipo de IVA de la obra (fracción, p.ej. 0.21). Si falta, se usa IVA_RATE. */
+  iva_rate?: number
 }
 
 /** Paleta corporativa CYE (port de formatter.py). */

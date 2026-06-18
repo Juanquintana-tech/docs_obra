@@ -4,19 +4,12 @@
  *
  *   npm run rag:review-pricer
  */
-import { resolve } from 'path'
-import { buildLabPricer, type LabPriceItem } from '../../services/labPricer'
-import { loadRules } from './loadKnowledge'
+import { type LabPriceItem } from '../../services/labPricer'
+import { buildPlanPricer, loadRules } from './loadKnowledge'
 import type { PriceStrategy } from '../rag/priceBook'
 
-const K = resolve(process.cwd(), 'resources/knowledge')
-
 async function main(): Promise<void> {
-  const pricer = await buildLabPricer({
-    priceBookPath: resolve(K, 'price_book.json'),
-    alagalXlsxPath: resolve(K, 'tarifas_alagal.xlsx'),
-    alagalEmbeddingsPath: resolve(K, 'alagal_embeddings.json')
-  })
+  const pricer = await buildPlanPricer()
 
   const rules = loadRules()
   const items: LabPriceItem[] = []

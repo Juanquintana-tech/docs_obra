@@ -3,6 +3,7 @@ import { join } from 'path'
 import Database from 'better-sqlite3'
 import { migrate } from './migrations'
 import type { PlanRowInput } from '../pipeline/types'
+import type { PriceStrategy } from '../pipeline/rag/priceBook'
 
 // La forma de fila que produce el pipeline vive en el contrato del pipeline.
 export type { PlanRowInput } from '../pipeline/types'
@@ -40,11 +41,9 @@ export interface PlanRow {
   n_tests: number
   unit_price: number
   total: number
-  price_source: string
+  price_source: 'alagal' | 'fallback'
   rag_score: number
   rag_desc: string
-  price_min: number | null
-  price_max: number | null
 }
 
 export interface ObraInput {
@@ -54,7 +53,7 @@ export interface ObraInput {
   fecha?: string
   coef_baja?: number
   responsable?: string
-  price_strategy?: string
+  price_strategy?: PriceStrategy
 }
 
 // ── Conexión (singleton) ────────────────────────────────────────────────────
@@ -96,11 +95,11 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
     `INSERT INTO plan_rows
        (obra_id, row_type, material, subcategory, description, measurement,
         measurement_unit, freq_qty, freq_unit, n_lots, tests_per_lot, n_tests,
-        unit_price, total, price_source, rag_score, rag_desc, price_min, price_max)
+        unit_price, total, price_source, rag_score, rag_desc)
      VALUES
        (@obra_id, @row_type, @material, @subcategory, @description, @measurement,
         @measurement_unit, @freq_qty, @freq_unit, @n_lots, @tests_per_lot, @n_tests,
-        @unit_price, @total, @price_source, @rag_score, @rag_desc, @price_min, @price_max)`
+        @unit_price, @total, @price_source, @rag_score, @rag_desc)`
   )
 
   const tx = db.transaction(() => {
@@ -138,9 +137,7 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
         total: row.total ?? 0,
         price_source: row.price_source ?? 'fallback',
         rag_score: row.rag_score ?? 0,
-        rag_desc: row.rag_desc ?? '',
-        price_min: row.price_min ?? null,
-        price_max: row.price_max ?? null
+        rag_desc: row.rag_desc ?? ''
       })
     }
     return obraId
@@ -150,6 +147,22 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
 
 export function updateStatus(obraId: number, status: 'activa' | 'archivada'): void {
   getDb().prepare('UPDATE obras SET status=? WHERE id=?').run(status, obraId)
+}
+
+export function updateObraInfo(obraId: number, info: ObraInput): void {
+  getDb()
+    .prepare(
+      `UPDATE obras SET obra=@obra, cliente=@cliente, ref_lab=@ref_lab,
+       fecha=@fecha, responsable=@responsable WHERE id=@id`
+    )
+    .run({
+      id: obraId,
+      obra: info.obra,
+      cliente: info.cliente ?? '',
+      ref_lab: info.ref_lab ?? '',
+      fecha: info.fecha ?? '',
+      responsable: info.responsable ?? ''
+    })
 }
 
 export function deleteObra(obraId: number): void {
@@ -209,8 +222,119 @@ export function updatePlanRows(obraId: number, patches: PlanRowPatch[]): void {
   })
   tx()
 }
+/** Recalcula totales de la obra (extrae la lógica común de updatePlanRows y las nuevas funciones). */
+function refreshObraStats(db: Database.Database, obraId: number): void {
+  const agg = db
+    .prepare(
+      `SELECT COALESCE(SUM(total),0)   AS total_importe,
+              COALESCE(SUM(n_tests),0) AS n_ensayos,
+              COUNT(DISTINCT CASE WHEN material!='' THEN material END) AS n_materiales
+       FROM plan_rows WHERE obra_id=? AND row_type='test'`
+    )
+    .get(obraId) as { total_importe: number; n_ensayos: number; n_materiales: number }
+  db.prepare(`UPDATE obras SET total_importe=?, n_ensayos=?, n_materiales=? WHERE id=?`).run(
+    agg.total_importe, agg.n_ensayos, agg.n_materiales, obraId
+  )
+}
 
-// ── Lectura ────────────────────────────────────────────────────────────────
+export function deletePlanRow(rowId: number): void {
+  const db = getDb()
+  const row = db.prepare('SELECT obra_id FROM plan_rows WHERE id=?').get(rowId) as { obra_id: number } | undefined
+  if (!row) return
+  db.prepare('DELETE FROM plan_rows WHERE id=?').run(rowId)
+  refreshObraStats(db, row.obra_id)
+}
+
+export interface NewPlanRowData {
+  material?: string
+  subcategory?: string
+  description?: string
+  n_tests?: number
+  unit_price?: number
+}
+
+export function addPlanRow(obraId: number, data: NewPlanRowData): number {
+  const db = getDb()
+  const nTests = data.n_tests ?? 0
+  const unitPrice = data.unit_price ?? 0
+  const result = db
+    .prepare(
+      `INSERT INTO plan_rows
+         (obra_id, row_type, material, subcategory, description,
+          measurement, measurement_unit, freq_qty, freq_unit,
+          n_lots, tests_per_lot, n_tests, unit_price, total,
+          price_source, rag_score, rag_desc)
+       VALUES (?, 'test', ?, ?, ?, NULL, '', NULL, '',
+               NULL, NULL, ?, ?, ?, 'fallback', 0, '')`
+    )
+    .run(obraId, data.material ?? '', data.subcategory ?? '', data.description ?? '',
+         nTests, unitPrice, Math.round(nTests * unitPrice * 100) / 100)
+  refreshObraStats(db, obraId)
+  return result.lastInsertRowid as number
+}
+export interface PlanEdits {
+  deletes: number[]
+  adds: NewPlanRowData[]
+  updates: PlanRowPatch[]
+}
+
+/**
+ * Aplica borrados, inserciones y actualizaciones del plan en una sola transacción.
+ * Si cualquier operación falla, ningún cambio queda guardado en la DB.
+ */
+export function savePlanEdits(obraId: number, edits: PlanEdits): void {
+  const db = getDb()
+
+  const deleteStmt = db.prepare('DELETE FROM plan_rows WHERE id=?')
+  const insertStmt = db.prepare(
+    `INSERT INTO plan_rows
+       (obra_id, row_type, material, subcategory, description,
+        measurement, measurement_unit, freq_qty, freq_unit,
+        n_lots, tests_per_lot, n_tests, unit_price, total,
+        price_source, rag_score, rag_desc)
+     VALUES (?, 'test', ?, ?, ?, NULL, '', NULL, '',
+             NULL, NULL, ?, ?, ?, 'fallback', 0, '')`
+  )
+  const updateStmt = db.prepare(
+    `UPDATE plan_rows
+     SET measurement=@measurement, n_lots=@n_lots, tests_per_lot=@tests_per_lot,
+         n_tests=@n_tests, unit_price=@unit_price, total=@total
+     WHERE id=@id`
+  )
+
+  db.transaction(() => {
+    for (const id of edits.deletes) deleteStmt.run(id)
+
+    for (const row of edits.adds) {
+      const nTests = row.n_tests ?? 0
+      const unitPrice = row.unit_price ?? 0
+      insertStmt.run(
+        obraId,
+        row.material ?? '',
+        row.subcategory ?? '',
+        row.description ?? '',
+        nTests,
+        unitPrice,
+        Math.round(nTests * unitPrice * 100) / 100
+      )
+    }
+
+    for (const p of edits.updates) {
+      updateStmt.run({
+        id: p.id,
+        measurement: p.measurement ?? null,
+        n_lots: p.n_lots ?? null,
+        tests_per_lot: p.tests_per_lot ?? null,
+        n_tests: p.n_tests,
+        unit_price: p.unit_price,
+        total: p.total
+      })
+    }
+
+    refreshObraStats(db, obraId)
+  })()
+}
+
 export function getObras(status?: 'activa' | 'archivada'): Obra[] {
   const db = getDb()
   const rows = status

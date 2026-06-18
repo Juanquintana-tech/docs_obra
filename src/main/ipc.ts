@@ -2,15 +2,16 @@
  * Registro de handlers IPC. Único punto donde el renderer toca el backend.
  * Todos los payloads son objetos planos serializables.
  */
-import { ipcMain, dialog, BrowserWindow } from 'electron'
-import { writeFile, readFile, rename } from 'fs/promises'
+import { ipcMain, dialog, BrowserWindow, shell } from 'electron'
+import { writeFile, readFile } from 'fs/promises'
 import { basename } from 'path'
 import * as db from './db'
-import type { PlanRow, ObraInput, EnsayoInput, PlanRowPatch } from './db'
+import type { PlanRow, ObraInput, EnsayoInput, PlanRowPatch, NewPlanRowData, PlanEdits } from './db'
 import type { PlanRowInput } from './pipeline/types'
 import type { ObraInfo } from './pipeline/formatter'
 import {
   ingestDocument,
+  ingestText,
   repricePlan,
   buildExcel,
   buildWord,
@@ -19,10 +20,11 @@ import {
   buildEnsayoWord,
   buildEnsayoExcel
 } from './services/pipeline'
-import type { Material } from './pipeline/planner'
-import type { PriceStrategy } from './pipeline/rag/priceBook'
 import { loadCatalog } from './pipeline/rag/catalog'
+import { scanEnsayo } from './pipeline/ocr/ensayoOcr'
 import type { Rules } from './pipeline/planner'
+import type { Material } from './pipeline/types'
+import type { PriceStrategy } from './pipeline/rag/priceBook'
 import { knowledgePath } from './paths'
 
 /** Mapea filas de la DB (row_type) al contrato del pipeline (type) para el formatter. */
@@ -43,9 +45,7 @@ function toPlanInput(rows: PlanRow[]): PlanRowInput[] {
     total: r.total,
     price_source: r.price_source,
     rag_score: r.rag_score,
-    rag_desc: r.rag_desc,
-    price_min: r.price_min,
-    price_max: r.price_max
+    rag_desc: r.rag_desc
   }))
 }
 
@@ -59,46 +59,32 @@ function obraToInfo(o: db.Obra): ObraInfo {
   }
 }
 
+/** Muestra el diálogo de guardado, escribe el buffer y devuelve la ruta o null si se cancela. */
+async function saveWithDialog(
+  defaultName: string,
+  ext: string,
+  build: () => Buffer | Promise<Buffer>
+): Promise<string | null> {
+  const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+  const { canceled, filePath } = await dialog.showSaveDialog(win, {
+    defaultPath: defaultName,
+    filters: [{ name: ext.toUpperCase(), extensions: [ext] }]
+  })
+  if (canceled || !filePath) return null
+  await writeFile(filePath, await build())
+  return filePath
+}
+
 async function exportDeliverable(obraId: number, kind: 'excel' | 'word'): Promise<string | null> {
   const obra = db.getObra(obraId)
   if (!obra) throw new Error(`Obra ${obraId} no encontrada`)
   const plan = toPlanInput(db.getPlanRows(obraId))
   const info = obraToInfo(obra)
-
   const ext = kind === 'excel' ? 'xlsx' : 'docx'
   const safe = (obra.obra || 'plan').replace(/[^\w-]+/g, '_').slice(0, 60)
-  const win = BrowserWindow.getFocusedWindow() ?? undefined
-  const { canceled, filePath } = await dialog.showSaveDialog(win!, {
-    defaultPath: `Plan_${safe}.${ext}`,
-    filters: [{ name: ext.toUpperCase(), extensions: [ext] }]
-  })
-  if (canceled || !filePath) return null
-
-  const buf = kind === 'excel' ? await buildExcel(plan, info) : buildWord(plan, info)
-  await writeFile(filePath, buf)
-  return filePath
-}
-
-/** Valida la forma de las reglas antes de persistirlas (evita corromper test_rules.json). */
-function validateRules(rules: unknown): asserts rules is Rules {
-  if (!rules || typeof rules !== 'object' || Array.isArray(rules)) {
-    throw new Error('Reglas inválidas: se esperaba un objeto de categorías')
-  }
-  for (const [cat, def] of Object.entries(rules as Record<string, unknown>)) {
-    const d = def as { tests?: unknown }
-    if (!d || typeof d !== 'object' || !Array.isArray(d.tests)) {
-      throw new Error(`Reglas inválidas: la categoría "${cat}" no tiene un array 'tests'`)
-    }
-    for (const t of d.tests) {
-      if (
-        !t ||
-        typeof t !== 'object' ||
-        typeof (t as { description?: unknown }).description !== 'string'
-      ) {
-        throw new Error(`Reglas inválidas: un ensayo de "${cat}" no tiene 'description'`)
-      }
-    }
-  }
+  return saveWithDialog(`Plan_${safe}.${ext}`, ext, () =>
+    kind === 'excel' ? buildExcel(plan, info) : buildWord(plan, info)
+  )
 }
 
 export function registerIpc(): void {
@@ -115,12 +101,25 @@ export function registerIpc(): void {
   ipcMain.handle('db:updateStatus', (_e, id: number, status: 'activa' | 'archivada') =>
     db.updateStatus(id, status)
   )
+  ipcMain.handle('db:updateObraInfo', (_e, id: number, info: ObraInput) =>
+    db.updateObraInfo(id, info)
+  )
   ipcMain.handle('db:deleteObra', (_e, id: number) => db.deleteObra(id))
+  ipcMain.handle('app:showInFolder', (_e, path: string) => {
+    if (path) shell.showItemInFolder(path)
+  })
   ipcMain.handle('db:savePriceCorrection', (_e, c: db.PriceCorrectionInput) =>
     db.savePriceCorrection(c)
   )
   ipcMain.handle('db:updatePlanRows', (_e, obraId: number, patches: PlanRowPatch[]) =>
     db.updatePlanRows(obraId, patches)
+  )
+  ipcMain.handle('db:deletePlanRow', (_e, rowId: number) => db.deletePlanRow(rowId))
+  ipcMain.handle('db:addPlanRow', (_e, obraId: number, data: NewPlanRowData) =>
+    db.addPlanRow(obraId, data)
+  )
+  ipcMain.handle('db:savePlanEdits', (_e, obraId: number, edits: PlanEdits) =>
+    db.savePlanEdits(obraId, edits)
   )
 
   // ── Ingesta ──
@@ -136,7 +135,10 @@ export function registerIpc(): void {
   ipcMain.handle('ingest:document', (_e, path: string, strategy?: PriceStrategy) =>
     ingestDocument(path, strategy)
   )
-  ipcMain.handle('plan:reprice', (_e, materials: Material[], strategy: PriceStrategy) =>
+  ipcMain.handle('ingest:text', (_e, text: string, strategy?: PriceStrategy) =>
+    ingestText(text, strategy)
+  )
+  ipcMain.handle('pipeline:repricePlan', (_e, materials: Material[], strategy: PriceStrategy) =>
     repricePlan(materials, strategy)
   )
 
@@ -163,22 +165,19 @@ export function registerIpc(): void {
   ipcMain.handle('ensayo:delete', (_e, ensayoId: number) => db.deleteEnsayo(ensayoId))
   ipcMain.handle('ensayo:countPerObra', () => db.countEnsayosPorObra())
 
+  ipcMain.handle(
+    'ensayo:scanFromImage',
+    (_e, arg: { tipo: string; imageBase64: string; mimeType: string }) =>
+      scanEnsayo(arg.tipo, arg.imageBase64, arg.mimeType)
+  )
+
   ipcMain.handle('ensayo:exportWord', async (_e, ensayoId: number) => {
     const ensayo = db.getEnsayo(ensayoId)
     if (!ensayo) throw new Error(`Ensayo ${ensayoId} no encontrado`)
     const obra = db.getObra(ensayo.obra_id)
     if (!obra) throw new Error(`Obra ${ensayo.obra_id} no encontrada`)
-
     const safe = (ensayo.titulo || ensayo.tipo).replace(/[^\w-]+/g, '_').slice(0, 60)
-    const win = BrowserWindow.getFocusedWindow() ?? undefined
-    const { canceled, filePath } = await dialog.showSaveDialog(win!, {
-      defaultPath: `Informe_${safe}.docx`,
-      filters: [{ name: 'Word', extensions: ['docx'] }]
-    })
-    if (canceled || !filePath) return null
-    const buf = await buildEnsayoWord(ensayo, obra)
-    await writeFile(filePath, buf)
-    return filePath
+    return saveWithDialog(`Informe_${safe}.docx`, 'docx', () => buildEnsayoWord(ensayo, obra))
   })
 
   ipcMain.handle('ensayo:exportExcel', async (_e, ensayoId: number) => {
@@ -186,17 +185,8 @@ export function registerIpc(): void {
     if (!ensayo) throw new Error(`Ensayo ${ensayoId} no encontrado`)
     const obra = db.getObra(ensayo.obra_id)
     if (!obra) throw new Error(`Obra ${ensayo.obra_id} no encontrada`)
-
     const safe = (ensayo.titulo || ensayo.tipo).replace(/[^\w-]+/g, '_').slice(0, 60)
-    const win = BrowserWindow.getFocusedWindow() ?? undefined
-    const { canceled, filePath } = await dialog.showSaveDialog(win!, {
-      defaultPath: `Informe_${safe}.xlsx`,
-      filters: [{ name: 'Excel', extensions: ['xlsx'] }]
-    })
-    if (canceled || !filePath) return null
-    const buf = await buildEnsayoExcel(ensayo, obra)
-    await writeFile(filePath, buf)
-    return filePath
+    return saveWithDialog(`Informe_${safe}.xlsx`, 'xlsx', () => buildEnsayoExcel(ensayo, obra))
   })
 
   // ── Presupuestos (catálogo y reglas) ──
@@ -206,13 +196,7 @@ export function registerIpc(): void {
     return JSON.parse(raw) as Rules
   })
   ipcMain.handle('presup:saveRules', async (_e, rules: Rules) => {
-    validateRules(rules) // lanza si la forma no es válida → no se toca el fichero
-    // Escritura atómica: fichero temporal + rename, para no dejar un JSON truncado
-    // si el proceso muere a mitad (test_rules.json es el fichero base del motor).
-    const path = knowledgePath('test_rules.json')
-    const tmp = `${path}.tmp`
-    await writeFile(tmp, JSON.stringify(rules, null, 2), 'utf-8')
-    await rename(tmp, path)
+    await writeFile(knowledgePath('test_rules.json'), JSON.stringify(rules, null, 2), 'utf-8')
     // Invalidar el cache del pipeline para que el próximo presupuesto use las reglas nuevas
     // Se importa aquí para evitar ciclos (el pipeline lo carga lazy)
     const { invalidateRulesCache } = await import('./services/pipeline')

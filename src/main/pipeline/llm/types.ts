@@ -12,10 +12,21 @@ export interface ChatOptions {
   tag?: string
 }
 
+export interface VisionOptions extends ChatOptions {
+  mimeType?: string
+}
+
 export interface LlmProvider {
   readonly id: string
   /** Envía system+user y devuelve el contenido del mensaje (texto). */
   chat(system: string, user: string, opts?: ChatOptions): Promise<string>
+  /** Envía sistema+texto+imagen (base64) y devuelve JSON como string. Solo proveedores con visión. */
+  chatWithImage?(
+    system: string,
+    user: string,
+    imageBase64: string,
+    opts?: VisionOptions
+  ): Promise<string>
 }
 
 export class LlmError extends Error {

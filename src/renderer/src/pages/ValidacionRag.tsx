@@ -1,7 +1,9 @@
 import { useEffect, useState, type JSX } from 'react'
 import { api } from '../lib/api'
 import { eur } from '../lib/format'
+import { Ic } from '../components/Icon'
 import type { RagMatch, RagStatus } from '../lib/types'
+import type { CatalogEntry } from '../../../main/pipeline/rag/catalog'
 
 const THRESHOLD = 0.3
 
@@ -13,6 +15,7 @@ function scoreColor(score: number): string {
 
 export function ValidacionRag(): JSX.Element {
   const [status, setStatus] = useState<RagStatus | null>(null)
+  const [catalog, setCatalog] = useState<CatalogEntry[]>([])
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('')
   const [matches, setMatches] = useState<RagMatch[] | null>(null)
@@ -20,6 +23,7 @@ export function ValidacionRag(): JSX.Element {
 
   useEffect(() => {
     api.ragStatus().then(setStatus)
+    api.getCatalog().then(setCatalog)
   }, [])
 
   async function search(): Promise<void> {
@@ -30,6 +34,11 @@ export function ValidacionRag(): JSX.Element {
     } finally {
       setBusy(false)
     }
+  }
+
+  function clearSearch(): void {
+    setMatches(null)
+    setQuery('')
   }
 
   return (
@@ -80,17 +89,20 @@ export function ValidacionRag(): JSX.Element {
             </select>
           </div>
           <button className="btn btn-primary" onClick={search} disabled={busy || !query.trim()}>
-            {busy ? 'Buscando…' : '🔍 Buscar'}
+            {busy ? 'Buscando…' : <><Ic.Search /> Buscar</>}
           </button>
         </div>
       </div>
 
+      {/* ── Resultados de búsqueda ── */}
       {matches && (
         <>
-          <p className="muted" style={{ marginBottom: 10 }}>
-            {matches.length} resultados. Umbral de aceptación: {THRESHOLD} (por debajo → precio
-            base).
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+            <p className="muted" style={{ margin: 0 }}>
+              {matches.length} resultados para <b>«{query}»</b> · umbral {THRESHOLD}
+            </p>
+            <button className="btn btn-sm" onClick={clearSearch}>✕ Volver al catálogo</button>
+          </div>
           {matches.length === 0 ? (
             <div className="empty">Sin coincidencias.</div>
           ) : (
@@ -114,6 +126,39 @@ export function ValidacionRag(): JSX.Element {
                     <td className="num">
                       <b style={{ color: scoreColor(m.score) }}>{(m.score * 100).toFixed(0)}%</b>
                     </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
+
+      {/* ── Catálogo completo (por defecto) ── */}
+      {!matches && (
+        <>
+          <p className="muted" style={{ marginBottom: 10 }}>
+            Catálogo completo — <b>{catalog.length}</b> entradas. Usa el buscador para ver scores de similitud.
+          </p>
+          {catalog.length === 0 ? (
+            <div className="empty">Cargando catálogo…</div>
+          ) : (
+            <table className="plan-table">
+              <thead>
+                <tr>
+                  <th>Categoría</th>
+                  <th>Descripción</th>
+                  <th>Código</th>
+                  <th>Precio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {catalog.map((e, i) => (
+                  <tr key={e.codigo + i}>
+                    <td style={{ fontSize: 11, color: 'var(--text-soft)' }}>{e.categoria}</td>
+                    <td>{e.descripcion}</td>
+                    <td className="num">{e.codigo}</td>
+                    <td className="num">{eur(e.precio)}</td>
                   </tr>
                 ))}
               </tbody>

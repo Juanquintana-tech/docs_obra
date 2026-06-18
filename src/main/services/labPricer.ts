@@ -9,10 +9,8 @@
 import { existsSync, readFileSync } from 'fs'
 import { RagPricer, type EmbeddingsIndexFile } from '../pipeline/rag/ragPricer'
 import { normalize } from '../pipeline/rag/normalize'
-import { l2normalize } from '../pipeline/rag/minimaxEmbeddings'
-import { createEmbeddingsProvider } from '../pipeline/rag/embeddings'
-import type { EmbeddingsProvider } from '../pipeline/rag/types'
 import type { CatalogEntry } from '../pipeline/rag/catalog'
+import type { EmbeddingsProvider } from '../pipeline/rag/types'
 import {
   loadPriceBook,
   priceForStrategy,
@@ -20,9 +18,16 @@ import {
   type PriceStrategy
 } from '../pipeline/rag/priceBook'
 
-/** Confianza mínima para aceptar un match del libro de precios / de ALAGAL. */
-const PB_THRESHOLD = 0.45
-const ALAGAL_THRESHOLD = 0.3
+/**
+ * Confianza mínima para aceptar un match del libro de precios / de ALAGAL.
+ * Calibrados con `npm run rag:thresholds` en modo híbrido (peso emb. 0.3): los
+ * match reales puntúan ≥0.975 y los no-match ≤0.474, así que 0.55 los separa con
+ * margen. Por debajo del umbral se cae a ALAGAL y, si no, a precio base del
+ * planner — preferible a colar un precio equivocado. ALAGAL (fallback) usa un
+ * umbral algo menor pero ya no 0.3 (los embeddings inflaban los no-match).
+ */
+const PB_THRESHOLD = 0.55
+const ALAGAL_THRESHOLD = 0.45
 
 export interface LabPriceResult {
   precio: number | null
@@ -115,14 +120,25 @@ export class LabPricer {
 
 export interface LabPricerPaths {
   priceBookPath: string
+  priceBookEmbeddingsPath: string
   alagalXlsxPath: string
   alagalEmbeddingsPath: string
 }
 
-/** Construye el LabPricer cargando libro de precios + ALAGAL y sus embeddings. */
-export async function buildLabPricer(paths: LabPricerPaths): Promise<LabPricer> {
-  const provider = createEmbeddingsProvider() // compartido → el modelo se carga una sola vez
-
+/**
+ * Construye el LabPricer cargando libro de precios + ALAGAL y sus embeddings
+ * pre-computados (vectores del catálogo persistidos en JSON).
+ *
+ * `provider` es el proveedor de embeddings para las CONSULTAS en tiempo real
+ * (híbrido). En el proceso main de Electron pásale UtilityEmbeddingsProvider
+ * (la inferencia ONNX vive en un UtilityProcess; ver embeddingsWorker.ts). Si es
+ * null → TF-IDF puro. Los harness (tsx) lo dejan en null o usan
+ * createEmbeddingsProvider() directamente.
+ */
+export async function buildLabPricer(
+  paths: LabPricerPaths,
+  provider: EmbeddingsProvider | null = null
+): Promise<LabPricer> {
   // ── Libro de precios (primario) ──
   const pbEntries = existsSync(paths.priceBookPath) ? loadPriceBook(paths.priceBookPath) : []
   const pbByCode = new Map(pbEntries.map((e) => [e.codigo, e]))
@@ -135,7 +151,11 @@ export async function buildLabPricer(paths: LabPricerPaths): Promise<LabPricer> 
   }))
   const priceBookPricer = new RagPricer({ embeddings: provider })
   priceBookPricer.fit(pbCatalog)
-  if (pbCatalog.length) await loadInMemoryEmbeddings(priceBookPricer, pbCatalog, provider)
+  if (pbCatalog.length && existsSync(paths.priceBookEmbeddingsPath)) {
+    priceBookPricer.loadEmbeddings(
+      JSON.parse(readFileSync(paths.priceBookEmbeddingsPath, 'utf-8')) as EmbeddingsIndexFile
+    )
+  }
 
   // ── ALAGAL (fallback) ──
   let alagalPricer: RagPricer | null = null
@@ -151,21 +171,4 @@ export async function buildLabPricer(paths: LabPricerPaths): Promise<LabPricer> 
   }
 
   return new LabPricer(priceBookPricer, alagalPricer, pbByCode)
-}
-
-/** Calcula los embeddings de un catálogo en memoria y los carga en el pricer. */
-async function loadInMemoryEmbeddings(
-  pricer: RagPricer,
-  catalog: CatalogEntry[],
-  provider: EmbeddingsProvider
-): Promise<void> {
-  const vecs = await provider.embed(
-    catalog.map((c) => c.descripcion),
-    'doc'
-  )
-  pricer.loadEmbeddings({
-    model: provider.id,
-    dim: provider.dim,
-    entries: catalog.map((c, i) => ({ codigo: c.codigo, vector: l2normalize(vecs[i]) }))
-  })
 }

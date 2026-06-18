@@ -4,6 +4,7 @@
  */
 import { useEffect, useMemo, useState, type JSX } from 'react'
 import { api } from '../lib/api'
+import { Ic } from '../components/Icon'
 import type { CatalogEntry } from '../../../main/pipeline/rag/catalog'
 import type { Rules, CategoryRule, TestRule } from '../../../main/pipeline/planner'
 
@@ -36,13 +37,13 @@ export function Presupuestos(): JSX.Element {
           className={`tab-btn${tab === 'catalog' ? ' active' : ''}`}
           onClick={() => setTab('catalog')}
         >
-          📋 Catálogo ALAGAL
+          <Ic.Catalog /> Catálogo ALAGAL
         </button>
         <button
           className={`tab-btn${tab === 'rules' ? ' active' : ''}`}
           onClick={() => setTab('rules')}
         >
-          ⚙️ Reglas de ensayo
+          <Ic.Rules /> Reglas de ensayo
         </button>
       </div>
 
@@ -158,12 +159,22 @@ function RulesTab(): JSX.Element {
     })
   }, [])
 
-  function setTestPrice(cat: string, testIdx: number, val: string): void {
+  function setTestField(
+    cat: string,
+    testIdx: number,
+    field: keyof TestRule,
+    val: string
+  ): void {
     if (!rules) return
-    const num = parseFloat(val.replace(',', '.'))
     const newRules = JSON.parse(JSON.stringify(rules)) as Rules
-    if (newRules[cat]?.tests?.[testIdx]) {
-      newRules[cat].tests![testIdx].unit_price = isNaN(num) ? 0 : num
+    if (!newRules[cat]?.tests?.[testIdx]) return
+    const numFields: (keyof TestRule)[] = ['freq_qty', 'tests_per_lot', 'unit_price']
+    const entry = newRules[cat].tests![testIdx] as unknown as Record<string, unknown>
+    if (numFields.includes(field)) {
+      const n = parseFloat(val.replace(',', '.'))
+      entry[field] = isNaN(n) ? 0 : n
+    } else {
+      entry[field] = val
     }
     setRules(newRules)
     setDirty(true)
@@ -193,7 +204,6 @@ function RulesTab(): JSX.Element {
       {msg && (
         <div
           className="banner banner-ok"
-          style={{ background: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}
         >
           {msg}
         </div>
@@ -210,7 +220,7 @@ function RulesTab(): JSX.Element {
       >
         {dirty && <span style={{ color: 'var(--warn)', fontSize: 13 }}>● Cambios sin guardar</span>}
         <button className="btn btn-primary" onClick={save} disabled={saving || !dirty}>
-          {saving ? 'Guardando…' : '💾 Guardar cambios'}
+          {saving ? 'Guardando…' : <><Ic.Save /> Guardar cambios</>}
         </button>
       </div>
 
@@ -251,9 +261,9 @@ function RulesTab(): JSX.Element {
                     <thead>
                       <tr>
                         <th style={{ textAlign: 'left' }}>Descripción del ensayo</th>
-                        <th style={{ width: 100 }}>Subcategoría</th>
                         <th style={{ width: 80 }}>Freq. qty</th>
-                        <th style={{ width: 80 }}>Freq. unit</th>
+                        <th style={{ width: 110 }}>Freq. unit</th>
+                        <th style={{ width: 90 }}>Ens./lote</th>
                         <th style={{ width: 110 }}>Precio base (€)</th>
                       </tr>
                     </thead>
@@ -261,25 +271,46 @@ function RulesTab(): JSX.Element {
                       {tests.map((test: TestRule, i: number) => (
                         <tr key={i}>
                           <td style={{ textAlign: 'left', fontSize: 13 }}>{test.description}</td>
-                          <td style={{ fontSize: 12, color: 'var(--text-soft)' }}>
-                            {test.subcategory ?? '—'}
+                          <td>
+                            <input
+                              type="number"
+                              min={0}
+                              step={1}
+                              className="input"
+                              style={{ width: 70, padding: '4px 8px', fontSize: 13, textAlign: 'right' }}
+                              value={test.freq_qty ?? ''}
+                              onChange={(e) => setTestField(cat, i, 'freq_qty', e.target.value)}
+                            />
                           </td>
-                          <td style={{ fontSize: 12 }}>{test.freq_qty ?? '—'}</td>
-                          <td style={{ fontSize: 12 }}>{test.freq_unit ?? '—'}</td>
+                          <td>
+                            <input
+                              type="text"
+                              className="input"
+                              style={{ width: 100, padding: '4px 8px', fontSize: 13 }}
+                              value={test.freq_unit ?? ''}
+                              onChange={(e) => setTestField(cat, i, 'freq_unit', e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min={0}
+                              step={1}
+                              className="input"
+                              style={{ width: 70, padding: '4px 8px', fontSize: 13, textAlign: 'right' }}
+                              value={test.tests_per_lot ?? ''}
+                              onChange={(e) => setTestField(cat, i, 'tests_per_lot', e.target.value)}
+                            />
+                          </td>
                           <td>
                             <input
                               type="number"
                               min={0}
                               step={0.01}
                               className="input"
-                              style={{
-                                width: 90,
-                                padding: '4px 8px',
-                                fontSize: 13,
-                                textAlign: 'right'
-                              }}
+                              style={{ width: 90, padding: '4px 8px', fontSize: 13, textAlign: 'right' }}
                               value={test.unit_price ?? 0}
-                              onChange={(e) => setTestPrice(cat, i, e.target.value)}
+                              onChange={(e) => setTestField(cat, i, 'unit_price', e.target.value)}
                             />
                           </td>
                         </tr>

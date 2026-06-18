@@ -7,8 +7,9 @@
 import { type ChatOptions, type LlmProvider, LlmError } from './types'
 import { MiniMaxProvider } from './minimax'
 
-export { type LlmProvider, type ChatOptions, LlmError } from './types'
+export { type LlmProvider, type ChatOptions, type VisionOptions, LlmError } from './types'
 export { MiniMaxProvider } from './minimax'
+export { GeminiProvider } from './gemini'
 
 /**
  * Encadena proveedores: intenta el primero y, si lanza LlmError, pasa al siguiente.

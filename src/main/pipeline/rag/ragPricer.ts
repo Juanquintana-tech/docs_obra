@@ -18,7 +18,14 @@ export interface EmbeddingsIndexFile {
   entries: { codigo: string; vector: number[] }[]
 }
 
-export const DEFAULT_EMB_WEIGHT = 0.5
+/**
+ * Peso de la señal de embeddings al combinar con TF-IDF [0,1].
+ * Calibrado a 0.3 (npm run rag:thresholds): a 0.5 los embeddings e5 saturaban el
+ * score (todo ~0.96–0.99) y los no-match subían hasta ~0.58, dejando el umbral
+ * sin margen. A 0.3 se conserva un hueco limpio (match real ≥0.975 vs no-match
+ * ≤0.474) manteniendo algo de ayuda semántica para descripciones parafraseadas.
+ */
+export const DEFAULT_EMB_WEIGHT = 0.3
 
 export interface PriceResult {
   precio: number | null

@@ -29,11 +29,17 @@ export async function buildPricer(tfidfOnly = false): Promise<RagPricer> {
   return pricer
 }
 
-/** Motor de precios completo (libro de precios + ALAGAL) como en la app. */
+/** Motor de precios completo (libro de precios + ALAGAL) como en la app.
+ *  Pasa el proveedor de embeddings (bajo tsx funciona en proceso, sin el crash de
+ *  ONNX del main) para que el harness refleje el modo HÍBRIDO real. */
 export function buildPlanPricer(): Promise<LabPricer> {
-  return buildLabPricer({
-    priceBookPath: resolve(KNOWLEDGE_DIR, 'price_book.json'),
-    alagalXlsxPath: TARIFAS_PATH,
-    alagalEmbeddingsPath: EMBEDDINGS_PATH
-  })
+  return buildLabPricer(
+    {
+      priceBookPath: resolve(KNOWLEDGE_DIR, 'price_book.json'),
+      priceBookEmbeddingsPath: resolve(KNOWLEDGE_DIR, 'price_book_embeddings.json'),
+      alagalXlsxPath: TARIFAS_PATH,
+      alagalEmbeddingsPath: EMBEDDINGS_PATH
+    },
+    createEmbeddingsProvider()
+  )
 }

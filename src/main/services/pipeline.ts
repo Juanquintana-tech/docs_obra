@@ -10,6 +10,7 @@ import { CATEGORY_CTX } from '../pipeline/rag/ragPricer'
 import type { RagMatch } from '../pipeline/rag/types'
 import type { PriceStrategy } from '../pipeline/rag/priceBook'
 import { buildLabPricer, type LabPricer } from './labPricer'
+import { UtilityEmbeddingsProvider } from './embeddingsProcess'
 import { generateExcel, generateWord, type ObraInfo } from '../pipeline/formatter'
 import { generateInformeWord, generateInformeExcel } from '../pipeline/informes'
 import type { PlanRowInput } from '../pipeline/types'
@@ -19,6 +20,14 @@ import { knowledgePath, templatePath } from '../paths'
 let _rules: Rules | null = null
 let _pricer: LabPricer | null = null
 let _pricerPromise: Promise<LabPricer> | null = null
+
+/** Proveedor de embeddings compartido (UtilityProcess); se cierra al salir. */
+const _embeddings = new UtilityEmbeddingsProvider()
+
+/** Detiene el UtilityProcess de embeddings (llamar al cerrar la app). */
+export function disposePipeline(): void {
+  _embeddings.dispose()
+}
 
 async function getRules(): Promise<Rules> {
   if (_rules) return _rules
@@ -32,11 +41,15 @@ async function getRules(): Promise<Rules> {
 function getPricer(): Promise<LabPricer> {
   if (_pricer) return Promise.resolve(_pricer)
   if (!_pricerPromise) {
-    _pricerPromise = buildLabPricer({
-      priceBookPath: knowledgePath('price_book.json'),
-      alagalXlsxPath: knowledgePath('tarifas_alagal.xlsx'),
-      alagalEmbeddingsPath: knowledgePath('alagal_embeddings.json')
-    }).then((p) => {
+    _pricerPromise = buildLabPricer(
+      {
+        priceBookPath: knowledgePath('price_book.json'),
+        priceBookEmbeddingsPath: knowledgePath('price_book_embeddings.json'),
+        alagalXlsxPath: knowledgePath('tarifas_alagal.xlsx'),
+        alagalEmbeddingsPath: knowledgePath('alagal_embeddings.json')
+      },
+      _embeddings
+    ).then((p) => {
       _pricer = p
       return p
     })
@@ -72,6 +85,28 @@ export async function ingestDocument(
     plan,
     strategy,
     meta: { format, chars: text.length, needsOcr }
+  }
+}
+
+/** Texto plano pegado directamente por el usuario → (obra, materiales) → plan valorado. */
+export async function ingestText(
+  text: string,
+  strategy: PriceStrategy = 'reciente'
+): Promise<IngestResult> {
+  const [obraInfo, materials] = await Promise.all([extractObraInfo(text), classifyMaterials(text)])
+  const [rules, pricer] = await Promise.all([getRules(), getPricer()])
+  const plan = await generatePlan(materials, rules, (items) => pricer.priceMany(items, strategy))
+  return {
+    obra: {
+      obra: obraInfo.obra ?? '',
+      cliente: obraInfo.cliente ?? '',
+      ref_doc: obraInfo.ref_doc ?? '',
+      municipio: obraInfo.municipio ?? ''
+    },
+    materials,
+    plan,
+    strategy,
+    meta: { format: 'txt', chars: text.length, needsOcr: false }
   }
 }
 
@@ -114,15 +149,27 @@ export async function buildExcel(plan: PlanRowInput[], obra: ObraInfo): Promise<
 }
 
 export function buildWord(plan: PlanRowInput[], obra: ObraInfo): Buffer {
-  return generateWord(plan, obra, templatePath('plan_plantilla.docx'))
+  return generateWord(plan, obra, templatePath('presupuesto_plantilla.docx'))
 }
 
 export async function buildEnsayoWord(ensayo: Ensayo, obra: Obra): Promise<Buffer> {
-  return generateInformeWord(ensayo, obra)
+  return generateInformeWord(
+    ensayo,
+    obra,
+    templatePath('membrete_cye.jpeg'),
+    templatePath('plantilla_densidad_in_situ.xlsx'),
+    templatePath('plantilla_placa_carga.xlsx')
+  )
 }
 
 export async function buildEnsayoExcel(ensayo: Ensayo, obra: Obra): Promise<Buffer> {
-  return generateInformeExcel(ensayo, obra)
+  const tpl =
+    ensayo.tipo === 'placa_carga'
+      ? templatePath('plantilla_placa_carga.xlsx')
+      : ensayo.tipo === 'granulometria'
+        ? templatePath('informe_granulometría.xlsx')
+        : templatePath('plantilla_densidad_in_situ.xlsx')
+  return generateInformeExcel(ensayo, obra, tpl)
 }
 
 /** Invalida el cache de reglas para que se relean en el próximo presupuesto. */

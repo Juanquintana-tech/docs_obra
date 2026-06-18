@@ -123,11 +123,13 @@ export async function generateExcel(planRows: PlanRowInput[], obra: ObraInfo): P
   }
 
   // ── Totales ──
+  const ivaRate = obra.iva_rate ?? IVA_RATE
+  const ivaPct = Number((ivaRate * 100).toFixed(2)) // 0.21 → 21, 0.105 → 10.5
   const total = testRows.reduce((s, r) => s + (r.total ?? 0), 0)
   rowNum++ // fila en blanco
   writeTotalRow(ws, rowNum, TOTAL_LABEL, total, true)
-  writeTotalRow(ws, rowNum + 1, 'IVA 21%:', total * IVA_RATE, false)
-  writeTotalRow(ws, rowNum + 2, 'TOTAL (IVA incluido):', total * (1 + IVA_RATE), true)
+  writeTotalRow(ws, rowNum + 1, `IVA ${ivaPct}%:`, total * ivaRate, false)
+  writeTotalRow(ws, rowNum + 2, 'TOTAL (IVA incluido):', total * (1 + ivaRate), true)
 
   return Buffer.from(await wb.xlsx.writeBuffer())
 }

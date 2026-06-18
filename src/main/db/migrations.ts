@@ -89,6 +89,24 @@ export const MIGRATIONS: Array<(db: Database) => void> = [
       ALTER TABLE plan_rows ADD COLUMN price_max REAL;
       ALTER TABLE obras ADD COLUMN price_strategy TEXT DEFAULT 'reciente';
     `)
+  },
+
+  // ── v3 — IVA personalizable por obra ────────────────────────────────────
+  (db) => {
+    db.exec(`ALTER TABLE obras ADD COLUMN iva_rate REAL DEFAULT 0.21;`)
+  },
+
+  // ── v4 — descuento sobre precio de lista (no acumulable) ─────────────────
+  // `unit_price_base` guarda el precio de lista (pre-descuento) de cada fila y
+  // `discount_pct` el descuento vigente de la obra. Aplicar un descuento siempre
+  // se recalcula desde la base, de modo que NUNCA se compone y 0% restaura el
+  // precio original. Backfill: la base de las filas existentes = su precio actual.
+  (db) => {
+    db.exec(`
+      ALTER TABLE plan_rows ADD COLUMN unit_price_base REAL;
+      ALTER TABLE obras ADD COLUMN discount_pct REAL DEFAULT 0;
+      UPDATE plan_rows SET unit_price_base = unit_price WHERE unit_price_base IS NULL;
+    `)
   }
 ]
 

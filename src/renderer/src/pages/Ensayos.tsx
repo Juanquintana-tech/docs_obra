@@ -1,21 +1,47 @@
 /**
  * Página de Ensayos — lista de informes de campo por obra y editor por tipo.
- * Tipos soportados: densidad_in_situ (ASTM D-6938) y placa_carga (NLT-357/98).
+ * Tipos soportados: densidad_in_situ (ASTM D-6938), placa_carga (NLT-357/98),
+ * granulometria de escollera (UNE EN 13383-2) y albaran_ensayos.
  */
-import { Fragment, useEffect, useState, type JSX } from 'react'
+import { Fragment, useEffect, useState, useCallback, type JSX } from 'react'
+import { useParams } from 'react-router-dom'
 import { api } from '../lib/api'
+import { Ic } from '../components/Icon'
+import { ScanPanel } from '../components/ScanPanel'
+import { errorMessage } from '../lib/errors'
+import {
+  densidadSummary,
+  placaSummary,
+  asientoMedio,
+  granulometriaSummary,
+  parseMasas,
+  GRANULO_SPEC
+} from '../lib/ensayoCalc'
 import type { Ensayo, EnsayoInput, Obra } from '../lib/types'
 import './Ensayos.css'
 
 // ── Tipos de ensayo (espejo de ensayos.ts TIPOS) ─────────────────────────────
 
 const TIPOS: Record<string, { label: string; norma: string }> = {
+  albaran_ensayos: {
+    label: 'Albarán de ensayos',
+    norma: 'CYE — Solicitud, toma de muestra y registro'
+  },
   densidad_in_situ: {
     label: 'Densidad y humedad in situ',
     norma: 'ASTM D-6938 / PG-3 Art.330.6.5.4'
   },
-  placa_carga: { label: 'Ensayo de carga con placa', norma: 'NLT-357/98' }
+  placa_carga: { label: 'Ensayo de carga con placa', norma: 'NLT-357/98' },
+  granulometria: {
+    label: 'Granulometría de escollera (5-40 kg)',
+    norma: 'UNE EN 13383-2'
+  }
 }
+
+/** Tipos que tienen informe Word disponible (granulometría aún no). */
+const WORD_TIPOS = new Set(['albaran_ensayos', 'densidad_in_situ', 'placa_carga'])
+/** Tipos con export a Excel. */
+const EXCEL_TIPOS = new Set(['densidad_in_situ', 'placa_carga', 'granulometria'])
 
 // ── Valores por defecto de presiones de placa ────────────────────────────────
 
@@ -28,6 +54,63 @@ function defaultDensidadDatos(): Record<string, unknown> {
     ensayos: Array.from({ length: 6 }, (_, i) => ({ n: i + 1 })),
     compactacion_min: 100,
     cond3_cumple: null
+  }
+}
+
+function defaultAlbaranDatos(): Record<string, unknown> {
+  return {
+    n_ensayo_ot: '',
+    fecha_toma: '',
+    fecha_entrada: '',
+    titulo_obra: '',
+    ref_obra: '',
+    empresa: '',
+    direccion: '',
+    nif_cif: '',
+    persona_contacto: '',
+    telefono_fax: '',
+    observaciones_cliente: '',
+    peticionario: '',
+    efectuada_por_cye: false,
+    recibida_en_cye: false,
+    ensayo_in_situ: false,
+    recogida_por_cye_en: '',
+    material_descripcion: '',
+    localizacion: '',
+    otros_datos: '',
+    indicaciones_toma: '',
+    cantidad_muestra: '',
+    firma_tipo: 'analista',
+    fdo_muestra: '',
+    ensayos_solicitados: Array.from({ length: 8 }, () => ({ ensayo: '', normativa: '' })),
+    condiciones_ejecucion: '',
+    inspeccion: '',
+    aceptacion_cliente: false,
+    aceptacion_peticionario: false,
+    aceptacion_dir_tecnico: false,
+    aceptacion_jefe_area: false,
+    comentarios: '',
+    fdo_cliente: '',
+    fecha_firma_cliente: '',
+    fdo_tecnico: '',
+    fecha_firma_tecnico: '',
+    fecha_encargo: '',
+    fecha_informe: ''
+  }
+}
+
+/** Nº de filas inicial de la lista de masas (las del registro en papel); ampliable. */
+const GRANULO_FILAS_INICIALES = 30
+const GRANULO_FILAS_MAX = 430 // capacidad de la plantilla (B3:B432)
+
+function defaultGranulometriaDatos(): Record<string, unknown> {
+  return {
+    cabecera: { material: 'Escollera 5-40 kg / Armour stone 5-40 kg' },
+    masas: Array.from({ length: GRANULO_FILAS_INICIALES }, () => ''),
+    fragmentos_masa: '',
+    m50: '',
+    lt_pct: '',
+    particulas_45: ''
   }
 }
 
@@ -63,37 +146,54 @@ function fmt(v: unknown, dec = 2): string {
 
 // ── Componente principal ─────────────────────────────────────────────────────
 
-interface Props {
-  initialObraId?: number
-}
-
-export function Ensayos({ initialObraId }: Props): JSX.Element {
+export function Ensayos(): JSX.Element {
+  const { obraId: obraIdStr } = useParams<{ obraId?: string }>()
   const [obras, setObras] = useState<Obra[]>([])
-  const [obraId, setObraId] = useState<number | null>(initialObraId ?? null)
+  const [obraId, setObraId] = useState<number | null>(obraIdStr ? Number(obraIdStr) : null)
   const [ensayos, setEnsayos] = useState<Ensayo[]>([])
   const [editing, setEditing] = useState<Ensayo | null>(null) // null = lista
   const [creating, setCreating] = useState<string | null>(null) // tipo nuevo
   const [msg, setMsg] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
+  const [lastPath, setLastPath] = useState<string | null>(null)
 
   useEffect(() => {
-    api.getObras().then(setObras)
+    let cancelled = false
+    api.getObras().then(
+      (list) => {
+        if (!cancelled) setObras(list)
+      },
+      (e) => {
+        if (!cancelled) setMsg(`Error al cargar proyectos: ${errorMessage(e)}`)
+      }
+    )
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {
     if (!obraId) return
     let cancelled = false
-    api.getEnsayos(obraId).then((list) => {
-      if (!cancelled) setEnsayos(list)
-    })
+    api.getEnsayos(obraId).then(
+      (list) => {
+        if (!cancelled) setEnsayos(list)
+      },
+      (e) => {
+        if (!cancelled) setMsg(`Error al cargar ensayos: ${errorMessage(e)}`)
+      }
+    )
     return () => {
       cancelled = true
     }
   }, [obraId])
 
   async function loadEnsayos(id: number): Promise<void> {
-    const list = await api.getEnsayos(id)
-    setEnsayos(list)
+    try {
+      const list = await api.getEnsayos(id)
+      setEnsayos(list)
+    } catch (e) {
+      setMsg(`Error al cargar ensayos: ${errorMessage(e)}`)
+    }
   }
 
   const obra = obras.find((o) => o.id === obraId)
@@ -131,10 +231,31 @@ export function Ensayos({ initialObraId }: Props): JSX.Element {
           </select>
         </div>
 
+        {msg && (
+          <div
+            className={`banner ${msg.startsWith('Error') ? 'banner-error' : 'banner-ok'}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12
+            }}
+          >
+            <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{msg}</span>
+            {lastPath && (
+              <button
+                className="btn btn-sm"
+                style={{ flexShrink: 0 }}
+                onClick={() => api.showInFolder(lastPath)}
+              >
+                <Ic.Folder /> Abrir carpeta
+              </button>
+            )}
+          </div>
+        )}
+
         {obraId && obra && (
           <>
-            {msg && <div className="banner banner-ok">{msg}</div>}
-
             {/* KPIs */}
             <div className="kpis" style={{ marginBottom: 20 }}>
               <div className="kpi">
@@ -165,7 +286,7 @@ export function Ensayos({ initialObraId }: Props): JSX.Element {
             <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
               {Object.entries(TIPOS).map(([tipo, meta]) => (
                 <button key={tipo} className="btn btn-primary" onClick={() => setCreating(tipo)}>
-                  ➕ {meta.label}
+                  <Ic.Plus /> {meta.label}
                 </button>
               ))}
             </div>
@@ -184,33 +305,49 @@ export function Ensayos({ initialObraId }: Props): JSX.Element {
                     onEdit={() => setEditing(e)}
                     onDelete={async () => {
                       if (!confirm('¿Eliminar este informe?')) return
-                      await api.deleteEnsayo(e.id)
-                      await loadEnsayos(obraId)
-                      setMsg('Informe eliminado.')
-                    }}
-                    onExportWord={async () => {
-                      setBusy(true)
                       try {
-                        const path = await api.exportEnsayoWord(e.id)
-                        if (path) setMsg(`Guardado: ${path}`)
-                      } finally {
-                        setBusy(false)
+                        await api.deleteEnsayo(e.id)
+                        await loadEnsayos(obraId)
+                        setLastPath(null)
+                        setMsg('Informe eliminado.')
+                      } catch (err) {
+                        setMsg(`Error al eliminar: ${errorMessage(err)}`)
                       }
                     }}
-                    onExportExcel={
-                      e.tipo === 'densidad_in_situ'
+                    onExportWord={
+                      WORD_TIPOS.has(e.tipo)
                         ? async () => {
-                            setBusy(true)
+                            setMsg(null)
+                            setLastPath(null)
                             try {
-                              const path = await api.exportEnsayoExcel(e.id)
-                              if (path) setMsg(`Guardado: ${path}`)
-                            } finally {
-                              setBusy(false)
+                              const path = await api.exportEnsayoWord(e.id)
+                              if (path) {
+                                setLastPath(path)
+                                setMsg(`Guardado: ${path}`)
+                              }
+                            } catch (err) {
+                              setMsg(`Error al exportar: ${errorMessage(err)}`)
                             }
                           }
                         : undefined
                     }
-                    busy={busy}
+                    onExportExcel={
+                      EXCEL_TIPOS.has(e.tipo)
+                        ? async () => {
+                            setMsg(null)
+                            setLastPath(null)
+                            try {
+                              const path = await api.exportEnsayoExcel(e.id)
+                              if (path) {
+                                setLastPath(path)
+                                setMsg(`Guardado: ${path}`)
+                              }
+                            } catch (err) {
+                              setMsg(`Error al exportar: ${errorMessage(err)}`)
+                            }
+                          }
+                        : undefined
+                    }
                   />
                 ))}
               </div>
@@ -230,7 +367,11 @@ export function Ensayos({ initialObraId }: Props): JSX.Element {
     ? (editing.datos as Record<string, unknown>)
     : tipo === 'densidad_in_situ'
       ? defaultDensidadDatos()
-      : defaultPlacaDatos()
+      : tipo === 'albaran_ensayos'
+        ? defaultAlbaranDatos()
+        : tipo === 'granulometria'
+          ? defaultGranulometriaDatos()
+          : defaultPlacaDatos()
 
   return (
     <EnsayoEditor
@@ -265,17 +406,26 @@ function EnsayoCard({
   onEdit,
   onDelete,
   onExportWord,
-  onExportExcel,
-  busy
+  onExportExcel
 }: {
   ensayo: Ensayo
   onEdit: () => void
   onDelete: () => void
-  onExportWord: () => void
-  onExportExcel?: () => void
-  busy: boolean
+  onExportWord?: () => Promise<void>
+  onExportExcel?: () => Promise<void>
 }): JSX.Element {
   const meta = TIPOS[ensayo.tipo]
+  const [running, setRunning] = useState<'word' | 'excel' | null>(null)
+
+  const run = (kind: 'word' | 'excel', fn: () => Promise<void>) => async (): Promise<void> => {
+    setRunning(kind)
+    try {
+      await fn()
+    } finally {
+      setRunning(null)
+    }
+  }
+
   return (
     <div className="ens-card">
       <div className="ens-card-left">
@@ -292,19 +442,29 @@ function EnsayoCard({
         </div>
       </div>
       <div className="ens-card-actions">
-        <button className="btn" onClick={onEdit}>
-          ✏️ Editar
+        <button className="btn" onClick={onEdit} disabled={running !== null}>
+          <Ic.Edit /> Editar
         </button>
-        <button className="btn btn-navy" onClick={onExportWord} disabled={busy}>
-          ⬇ Word
-        </button>
-        {onExportExcel && (
-          <button className="btn btn-navy" onClick={onExportExcel} disabled={busy}>
-            ⬇ Excel
+        {onExportWord && (
+          <button
+            className="btn btn-navy"
+            onClick={run('word', onExportWord)}
+            disabled={running !== null}
+          >
+            <Ic.Download /> {running === 'word' ? 'Generando…' : 'Word'}
           </button>
         )}
-        <button className="btn btn-danger" onClick={onDelete}>
-          🗑
+        {onExportExcel && (
+          <button
+            className="btn btn-navy"
+            onClick={run('excel', onExportExcel)}
+            disabled={running !== null}
+          >
+            <Ic.Download /> {running === 'excel' ? 'Generando…' : 'Excel'}
+          </button>
+        )}
+        <button className="btn btn-danger" onClick={onDelete} disabled={running !== null}>
+          <Ic.Trash />
         </button>
       </div>
     </div>
@@ -335,14 +495,27 @@ function EnsayoEditor({
   const [responsable, setResponsable] = useState(responsableInit)
   const [estado, setEstado] = useState<'borrador' | 'completado'>(estadoInit)
   const [busy, setBusy] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [scanBanner, setScanBanner] = useState<string | null>(null)
 
   const meta = TIPOS[tipo]
   const veredicto = computeVeredictoLocal(tipo, datos)
 
+  const handleScanResult = useCallback(
+    (ocr: Record<string, unknown>) => {
+      setDatos((prev) => applyOcrResult(tipo, prev, ocr))
+      setScanBanner('Datos extraídos del formulario. Revisa y corrige antes de guardar.')
+    },
+    [tipo]
+  )
+
   async function handleSave(): Promise<void> {
     setBusy(true)
+    setSaveError(null)
     try {
       await onSave({ tipo, titulo, responsable, estado, veredicto, datos })
+    } catch (e) {
+      setSaveError(errorMessage(e))
     } finally {
       setBusy(false)
     }
@@ -400,13 +573,38 @@ function EnsayoEditor({
         </div>
       </div>
 
+      {saveError && <div className="banner banner-error">⚠ {saveError}</div>}
+      {scanBanner && (
+        <div className="banner banner-ok" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>✓ {scanBanner}</span>
+          <button
+            className="btn btn-ghost"
+            style={{ padding: '2px 8px', fontSize: 12 }}
+            onClick={() => setScanBanner(null)}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Panel de escaneo de formularios con IA */}
+      <ScanPanel tipo={tipo} onResult={handleScanResult} />
+
       {/* Formulario específico */}
       {tipo === 'densidad_in_situ' && <DensidadForm datos={datos} onChange={setDatos} />}
       {tipo === 'placa_carga' && <PlacaForm datos={datos} onChange={setDatos} />}
+      {tipo === 'granulometria' && <GranulometriaForm datos={datos} onChange={setDatos} />}
+      {tipo === 'albaran_ensayos' && <AlbaranForm datos={datos} onChange={setDatos} />}
 
       <div className="toolbar" style={{ marginTop: 20 }}>
         <button className="btn btn-primary" onClick={handleSave} disabled={busy}>
-          {busy ? 'Guardando…' : '💾 Guardar informe'}
+          {busy ? (
+            'Guardando…'
+          ) : (
+            <>
+              <Ic.Save /> Guardar informe
+            </>
+          )}
         </button>
         <button className="btn" onClick={onCancel}>
           Cancelar
@@ -416,72 +614,98 @@ function EnsayoEditor({
   )
 }
 
+// ── Merge de resultado OCR en datos del formulario ────────────────────────────
+
+function applyOcrResult(
+  tipo: string,
+  current: Record<string, unknown>,
+  ocr: Record<string, unknown>
+): Record<string, unknown> {
+  if (tipo === 'densidad_in_situ') {
+    type DensRow = { referencia?: string | null; d_max?: string | null; h_opt?: string | null; d_situ?: string | null; h_situ?: string | null; observaciones?: string | null }
+    const ocrCab = (ocr.cabecera as Record<string, string | null>) ?? {}
+    const ocrRows = (ocr.ensayos as DensRow[]) ?? []
+    const cab = (current.cabecera as Record<string, string>) ?? {}
+    const newCab = { ...cab }
+    for (const [k, v] of Object.entries(ocrCab)) {
+      if (v !== null && v !== '') newCab[k] = v as string
+    }
+    const validRows = ocrRows.filter(
+      (r) => r.d_situ !== null || r.h_situ !== null || r.referencia !== null || r.d_max !== null
+    )
+    const newRows =
+      validRows.length > 0
+        ? validRows.map((r, i) => ({
+            n: i + 1,
+            referencia: r.referencia ?? '',
+            d_max: r.d_max ?? '',
+            h_opt: r.h_opt ?? '',
+            d_situ: r.d_situ ?? '',
+            h_situ: r.h_situ ?? '',
+            observaciones: r.observaciones ?? ''
+          }))
+        : current.ensayos
+    return { ...current, cabecera: newCab, ensayos: newRows }
+  }
+
+  if (tipo === 'albaran_ensayos') {
+    const merged: Record<string, unknown> = { ...current }
+    for (const [k, v] of Object.entries(ocr)) {
+      if (v !== null && v !== undefined && v !== '') merged[k] = v
+    }
+    return merged
+  }
+
+  if (tipo === 'granulometria') {
+    type GranuOcr = { cabecera?: Record<string, string | null>; masas?: (string | null)[] }
+    const granu = ocr as GranuOcr
+    const cab = (current.cabecera as Record<string, string>) ?? {}
+    const newCab = { ...cab }
+    for (const [k, v] of Object.entries(granu.cabecera ?? {})) {
+      if (v !== null && v !== '') newCab[k] = v as string
+    }
+    const masas = (granu.masas ?? []).filter((m): m is string => m !== null && m !== '')
+    return {
+      ...current,
+      cabecera: newCab,
+      ...(masas.length > 0 ? { masas } : {})
+    }
+  }
+
+  if (tipo === 'placa_carga') {
+    const PRES_C1 = [0.0, 0.07, 0.15, 0.21, 0.28, 0.35, 0.42, 0.5]
+    const PRES_D = [0.25, 0.125, 0.0]
+    const PRES_C2 = [0.07, 0.15, 0.21, 0.28, 0.35, 0.42]
+    type PlacaRow = { l1?: string | null; l2?: string | null; l3?: string | null }
+    const inj = (rows: PlacaRow[], pres: number[]): Record<string, unknown>[] =>
+      pres.map((p, i) => ({ presion: p, l1: rows[i]?.l1 ?? '', l2: rows[i]?.l2 ?? '', l3: rows[i]?.l3 ?? '' }))
+    const ocrCab = (ocr.cabecera as Record<string, string | null>) ?? {}
+    const cab = (current.cabecera as Record<string, string>) ?? {}
+    const newCab = { ...cab }
+    for (const [k, v] of Object.entries(ocrCab)) {
+      if (v !== null && v !== '') newCab[k] = v as string
+    }
+    return {
+      ...current,
+      cabecera: newCab,
+      ciclo1: inj((ocr.ciclo1 as PlacaRow[]) ?? [], PRES_C1),
+      descarga: inj((ocr.descarga as PlacaRow[]) ?? [], PRES_D),
+      ciclo2: inj((ocr.ciclo2 as PlacaRow[]) ?? [], PRES_C2)
+    }
+  }
+
+  return current
+}
+
 // ── Cálculo de veredicto en el renderer (sin IPC) ─────────────────────────────
-// Replica las condiciones de computeDensidad / computePlaca para mostrar
-// el veredicto en tiempo real mientras se rellena el formulario.
+// Delega en ensayoCalc.ts (espejo fiel del backend) para mostrar el veredicto en
+// tiempo real mientras se rellena el formulario, con los mismos redondeos.
 
 function computeVeredictoLocal(tipo: string, datos: Record<string, unknown>): string {
   try {
-    if (tipo === 'densidad_in_situ') {
-      const rows = (datos.ensayos as { d_max?: unknown; d_situ?: unknown }[] | undefined) ?? []
-      const compMin = parseFloat(String(datos.compactacion_min ?? 100))
-      const compVals = rows.flatMap((r) => {
-        const dm = parseFloat(String(r.d_max ?? '').replace(',', '.'))
-        const ds = parseFloat(String(r.d_situ ?? '').replace(',', '.'))
-        return dm > 0 && ds > 0 ? [(ds / dm) * 100] : []
-      })
-      if (!compVals.length) return ''
-      const mediaComp = compVals.reduce((a, b) => a + b, 0) / compVals.length
-      const cond1 = mediaComp >= compMin
-      const dMaxVals = rows.flatMap((r) => {
-        const v = parseFloat(String(r.d_max ?? '').replace(',', '.'))
-        return v > 0 ? [v] : []
-      })
-      const dSituVals = rows.flatMap((r) => {
-        const v = parseFloat(String(r.d_situ ?? '').replace(',', '.'))
-        return v > 0 ? [v] : []
-      })
-      const dEspec = dMaxVals.length ? Math.max(...dMaxVals) : 0
-      const dMinAdm = dEspec ? dEspec - 0.03 : 0
-      const dSituMin = dSituVals.length ? Math.min(...dSituVals) : 0
-      const cond2 = dSituVals.length ? dSituMin >= dMinAdm : false
-      let ok = cond1 && cond2
-      if (datos.cond3_cumple === false) ok = false
-      return ok ? 'CUMPLE' : 'NO CUMPLE'
-    }
-    if (tipo === 'placa_carga') {
-      const c1 =
-        (datos.ciclo1 as
-          | { presion?: unknown; l1?: unknown; l2?: unknown; l3?: unknown }[]
-          | undefined) ?? []
-      const c2 =
-        (datos.ciclo2 as
-          | { presion?: unknown; l1?: unknown; l2?: unknown; l3?: unknown }[]
-          | undefined) ?? []
-      const am = (r: { l1?: unknown; l2?: unknown; l3?: unknown }): number | null => {
-        const vals = [r.l1, r.l2, r.l3]
-          .map((v) => parseFloat(String(v ?? '').replace(',', '.')))
-          .filter((v) => !isNaN(v))
-        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null
-      }
-      const asientoEn = (filas: typeof c1, p: number): number | null => {
-        const row = filas.find(
-          (r) => Math.abs(parseFloat(String(r.presion ?? '').replace(',', '.')) - p) < 1e-6
-        )
-        return row ? am(row) : null
-      }
-      const ev = (s035: number | null, s015: number | null): number | null => {
-        if (s035 === null || s015 === null) return null
-        const ds = s035 - s015
-        return ds > 0 ? (1.5 * 150 * 0.2) / ds : null
-      }
-      const ev1 = ev(asientoEn(c1, 0.35), asientoEn(c1, 0.15))
-      const ev2 = ev(asientoEn(c2, 0.35), asientoEn(c2, 0.15))
-      const ratioMax = parseFloat(String(datos.ratio_max ?? 2.2))
-      if (ev1 === null || ev2 === null || ev1 === 0) return ''
-      const ratio = ev2 / ev1
-      return ratio <= ratioMax ? 'CUMPLE' : 'NO CUMPLE'
-    }
+    if (tipo === 'densidad_in_situ') return densidadSummary(datos)?.veredicto ?? ''
+    if (tipo === 'placa_carga') return placaSummary(datos).veredicto
+    if (tipo === 'granulometria') return granulometriaSummary(datos).veredicto
   } catch {
     /* silent */
   }
@@ -644,6 +868,7 @@ function DensidadForm({
                 <input
                   key={`dm-${i}`}
                   className="dens-input"
+                  inputMode="decimal"
                   value={String(row.d_max ?? '')}
                   onChange={(e) => setEnsayo(i, 'd_max', e.target.value)}
                   placeholder="0,000"
@@ -651,6 +876,7 @@ function DensidadForm({
                 <input
                   key={`ho-${i}`}
                   className="dens-input"
+                  inputMode="decimal"
                   value={String(row.h_opt ?? '')}
                   onChange={(e) => setEnsayo(i, 'h_opt', e.target.value)}
                   placeholder="0,0"
@@ -658,6 +884,7 @@ function DensidadForm({
                 <input
                   key={`ds-${i}`}
                   className="dens-input"
+                  inputMode="decimal"
                   value={String(row.d_situ ?? '')}
                   onChange={(e) => setEnsayo(i, 'd_situ', e.target.value)}
                   placeholder="0,000"
@@ -665,6 +892,7 @@ function DensidadForm({
                 <input
                   key={`hs-${i}`}
                   className="dens-input"
+                  inputMode="decimal"
                   value={String(row.h_situ ?? '')}
                   onChange={(e) => setEnsayo(i, 'h_situ', e.target.value)}
                   placeholder="0,0"
@@ -709,29 +937,9 @@ function DensidadResumen({
   cond3: boolean | null
   onCond3: (v: boolean | null) => void
 }): JSX.Element {
-  const ensayos = (datos.ensayos as Record<string, unknown>[]) ?? []
-  const compVals = ensayos.flatMap((r) => {
-    const dm = parseFloat(String(r.d_max ?? '').replace(',', '.'))
-    const ds = parseFloat(String(r.d_situ ?? '').replace(',', '.'))
-    return dm > 0 && ds > 0 ? [(ds / dm) * 100] : []
-  })
-  const dMaxVals = ensayos.flatMap((r) => {
-    const v = parseFloat(String(r.d_max ?? '').replace(',', '.'))
-    return v > 0 ? [v] : []
-  })
-  const dSituVals = ensayos.flatMap((r) => {
-    const v = parseFloat(String(r.d_situ ?? '').replace(',', '.'))
-    return v > 0 ? [v] : []
-  })
-
-  if (!compVals.length) return <></>
-
-  const mediaComp = compVals.reduce((a, b) => a + b, 0) / compVals.length
-  const dEspec = dMaxVals.length ? Math.max(...dMaxVals) : 0
-  const dMinAdm = dEspec ? dEspec - 0.03 : 0
-  const dSituMin = dSituVals.length ? Math.min(...dSituVals) : 0
-  const cond1 = mediaComp >= compMin
-  const cond2 = dSituVals.length ? dSituMin >= dMinAdm : false
+  const summary = densidadSummary(datos)
+  if (!summary) return <></>
+  const { mediaComp, dMinAdm, dSituMin, cond1, cond2 } = summary
 
   return (
     <div className="card">
@@ -812,6 +1020,7 @@ function PlacaTable({
               <td>
                 <input
                   className="placa-input"
+                  inputMode="decimal"
                   value={String(r.l1 ?? '')}
                   onChange={(e) => setFila(section, i, 'l1', e.target.value)}
                 />
@@ -819,6 +1028,7 @@ function PlacaTable({
               <td>
                 <input
                   className="placa-input"
+                  inputMode="decimal"
                   value={String(r.l2 ?? '')}
                   onChange={(e) => setFila(section, i, 'l2', e.target.value)}
                 />
@@ -826,6 +1036,7 @@ function PlacaTable({
               <td>
                 <input
                   className="placa-input"
+                  inputMode="decimal"
                   value={String(r.l3 ?? '')}
                   onChange={(e) => setFila(section, i, 'l3', e.target.value)}
                 />
@@ -868,43 +1079,18 @@ function PlacaForm({
     onChange({ ...datos, [section]: arr })
   }
 
-  // Calcular asiento medio y Ev en tiempo real
+  // Asiento medio por fila (solo presentación; el cálculo de Ev vive en ensayoCalc).
   const amCalc = (r: Record<string, unknown>): string => {
-    const vals = ['l1', 'l2', 'l3']
-      .map((k) => parseFloat(String(r[k] ?? '').replace(',', '.')))
-      .filter((v) => !isNaN(v))
-    return vals.length
-      ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2).replace('.', ',')
-      : '—'
+    const v = asientoMedio(r)
+    return v !== null ? v.toFixed(2).replace('.', ',') : '—'
   }
 
-  const asientoEn = (filas: typeof ciclo1, p: number): number | null => {
-    const row = filas.find(
-      (r) => Math.abs(parseFloat(String(r.presion ?? '').replace(',', '.')) - p) < 1e-6
-    )
-    if (!row) return null
-    const vals = ['l1', 'l2', 'l3']
-      .map((k) => parseFloat(String(row[k] ?? '').replace(',', '.')))
-      .filter((v) => !isNaN(v))
-    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null
-  }
-
-  // Radio real de la placa (de la cabecera) para que el Ev mostrado en vivo coincida
-  // con el del informe. El veredicto (ratio Ev2/Ev1) es independiente del radio.
-  const radioMm = (datos.radio_mm as number) ?? 150
-  const ev = (s035: number | null, s015: number | null): string => {
-    if (s035 === null || s015 === null) return '—'
-    const ds = s035 - s015
-    if (ds <= 0) return '—'
-    return ((1.5 * radioMm * 0.2) / ds).toFixed(0)
-  }
-
-  const ev1str = ev(asientoEn(ciclo1, 0.35), asientoEn(ciclo1, 0.15))
-  const ev2str = ev(asientoEn(ciclo2, 0.35), asientoEn(ciclo2, 0.15))
-  const ev1 = parseFloat(ev1str)
-  const ev2 = parseFloat(ev2str)
-  const ratio = !isNaN(ev1) && !isNaN(ev2) && ev1 > 0 ? ev2 / ev1 : null
-  const ratioOk = ratio !== null ? ratio <= ratioMax : null
+  // Módulos y veredicto en vivo — misma fuente y redondeos que el informe.
+  const summary = placaSummary(datos)
+  const ev1str = summary.ev1 !== null ? String(summary.ev1) : '—'
+  const ev2str = summary.ev2 !== null ? String(summary.ev2) : '—'
+  const ratio = summary.ratio
+  const ratioOk = summary.cumple
 
   return (
     <div>
@@ -950,14 +1136,13 @@ function PlacaForm({
             <input
               className="input"
               value={cab.diam_placa ?? '300'}
-              onChange={(e) => {
-                setCab('diam_placa', e.target.value)
+              onChange={(e) =>
                 onChange({
                   ...datos,
                   cabecera: { ...cab, diam_placa: e.target.value },
-                  radio_mm: parseFloat(e.target.value) / 2 || 150
+                  radio_mm: parseFloat(e.target.value.replace(',', '.')) / 2 || 150
                 })
-              }}
+              }
             />
           </div>
           <div className="field-group" style={{ maxWidth: 120 }}>
@@ -1026,6 +1211,735 @@ function PlacaForm({
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FORMULARIO GRANULOMETRÍA DE ESCOLLERA (UNE EN 13383-2, clase 5-40 kg)
+// ══════════════════════════════════════════════════════════════════════════════
+
+function GranulometriaForm({
+  datos,
+  onChange
+}: {
+  datos: Record<string, unknown>
+  onChange: (d: Record<string, unknown>) => void
+}): JSX.Element {
+  const cab = (datos.cabecera as Record<string, string>) ?? {}
+  const setCab = (key: string, val: string): void =>
+    onChange({ ...datos, cabecera: { ...cab, [key]: val } })
+  const set = (key: string, val: unknown): void => onChange({ ...datos, [key]: val })
+
+  const s = granulometriaSummary(datos)
+  const sp = GRANULO_SPEC
+  const masasOk = parseMasas(datos.masas)
+
+  // Lista de masas como array de filas (admite datos antiguos guardados como texto).
+  const masasArr: string[] = Array.isArray(datos.masas)
+    ? (datos.masas as unknown[]).map((m) => String(m ?? ''))
+    : String(datos.masas ?? '')
+        .split(/[\n,;]+/)
+        .map((x) => x.trim())
+  const setMasa = (i: number, val: string): void => {
+    const next = masasArr.slice()
+    next[i] = val
+    set('masas', next)
+  }
+  const setNFilas = (n: number): void => {
+    const next = Array.from({ length: n }, (_, i) => masasArr[i] ?? '')
+    set('masas', next)
+  }
+
+  const rangeRow = (
+    label: string,
+    val: number,
+    [lo, hi]: readonly number[],
+    dec = 0
+  ): JSX.Element => {
+    const ok = val >= lo && val <= hi
+    return (
+      <tr className={s.n ? (ok ? 'cond-ok' : 'cond-no') : ''}>
+        <td>{label}</td>
+        <td>{val.toFixed(dec)} %</td>
+        <td>
+          {lo}–{hi} %
+        </td>
+        <td className="cond-verdict">{s.n ? (ok ? '✓' : '✗') : '—'}</td>
+      </tr>
+    )
+  }
+
+  return (
+    <div>
+      {/* Cabecera */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Datos de la muestra</div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Material</label>
+            <input
+              className="input"
+              value={cab.material ?? ''}
+              onChange={(e) => setCab('material', e.target.value)}
+            />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Ref. muestra</label>
+            <input
+              className="input"
+              value={cab.muestra ?? ''}
+              onChange={(e) => setCab('muestra', e.target.value)}
+            />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Localización muestra</label>
+            <input
+              className="input"
+              value={cab.localizacion ?? ''}
+              onChange={(e) => setCab('localizacion', e.target.value)}
+            />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Fecha muestreo</label>
+            <input
+              className="input"
+              value={cab.fecha_muestreo ?? ''}
+              onChange={(e) => setCab('fecha_muestreo', e.target.value)}
+              placeholder="dd-mm-aaaa"
+            />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Fecha ensayo</label>
+            <input
+              className="input"
+              value={cab.fecha_ensayo ?? ''}
+              onChange={(e) => setCab('fecha_ensayo', e.target.value)}
+              placeholder="dd-mm-aaaa"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Masas — lista numerada (como el registro en papel), ampliable */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            marginBottom: 12,
+            flexWrap: 'wrap'
+          }}
+        >
+          <div className="sec-label" style={{ marginBottom: 0 }}>
+            Masas de las piedras (kg)
+          </div>
+          <span className="badge badge-activa">{masasOk.length} piedras con dato</span>
+          <div style={{ flex: 1 }} />
+          <label className="field-label" style={{ marginBottom: 0 }}>
+            Filas:
+          </label>
+          <input
+            type="number"
+            min={1}
+            max={GRANULO_FILAS_MAX}
+            className="input"
+            style={{ width: 80 }}
+            value={masasArr.length}
+            onChange={(e) =>
+              setNFilas(Math.max(1, Math.min(GRANULO_FILAS_MAX, parseInt(e.target.value) || 1)))
+            }
+          />
+          <button
+            type="button"
+            className="btn btn-sm"
+            onClick={() => setNFilas(Math.min(GRANULO_FILAS_MAX, masasArr.length + 10))}
+          >
+            <Ic.Plus /> 10 filas
+          </button>
+        </div>
+        <div className="granulo-grid">
+          {masasArr.map((m, i) => (
+            <div className="granulo-cell" key={i}>
+              <span className="granulo-n">{i + 1}</span>
+              <input
+                className="granulo-input"
+                inputMode="decimal"
+                value={String(m ?? '')}
+                onChange={(e) => setMasa(i, e.target.value)}
+                placeholder="kg"
+              />
+            </div>
+          ))}
+        </div>
+        <div className="field-row" style={{ marginTop: 14 }}>
+          <div className="field-group" style={{ maxWidth: 240 }}>
+            <label className="field-label">Masa fragmentos &lt; 1,5 kg (kg)</label>
+            <input
+              className="input"
+              inputMode="decimal"
+              value={String(datos.fragmentos_masa ?? '')}
+              onChange={(e) => set('fragmentos_masa', e.target.value)}
+              placeholder="0"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Resumen manual */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Resumen manual del laboratorio</div>
+        <div className="field-row">
+          <div className="field-group" style={{ maxWidth: 180 }}>
+            <label className="field-label">M50 (kg)</label>
+            <input
+              className="input"
+              inputMode="decimal"
+              value={String(datos.m50 ?? '')}
+              onChange={(e) => set('m50', e.target.value)}
+            />
+          </div>
+          <div className="field-group" style={{ maxWidth: 180 }}>
+            <label className="field-label">% LT (L/E &gt; 3)</label>
+            <input
+              className="input"
+              inputMode="decimal"
+              value={String(datos.lt_pct ?? '')}
+              onChange={(e) => set('lt_pct', e.target.value)}
+            />
+          </div>
+          <div className="field-group" style={{ maxWidth: 220 }}>
+            <label className="field-label">Nº piedras con L &gt; 45 cm</label>
+            <input
+              className="input"
+              inputMode="numeric"
+              value={String(datos.particulas_45 ?? '')}
+              onChange={(e) => set('particulas_45', e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Resultados / cumplimiento */}
+      <div className="card">
+        <div className="sec-label">
+          Distribución de masas y cumplimiento (clase 5-40 kg) — {s.n} piedras, {s.masaTotal} kg
+        </div>
+        <table className="cond-table">
+          <tbody>
+            {rangeRow('ELL — % < 1,5 kg', s.ell, sp.ell)}
+            {rangeRow('NLL — % < 5 kg', s.nll, sp.nll)}
+            {rangeRow('NUL — % < 40 kg', s.nul, sp.nul)}
+            {rangeRow('EUL — % < 80 kg', s.eul, sp.eul)}
+            <tr
+              className={
+                s.n ? (s.mem >= sp.mem[0] && s.mem <= sp.mem[1] ? 'cond-ok' : 'cond-no') : ''
+              }
+            >
+              <td>MEM — masa media (kg)</td>
+              <td>{s.mem.toFixed(1)} kg</td>
+              <td>
+                {sp.mem[0]}–{sp.mem[1]} kg
+              </td>
+              <td className="cond-verdict">
+                {s.n ? (s.mem >= sp.mem[0] && s.mem <= sp.mem[1] ? '✓' : '✗') : '—'}
+              </td>
+            </tr>
+            {s.ltPct !== null && (
+              <tr className={s.ltPct <= sp.lt_max ? 'cond-ok' : 'cond-no'}>
+                <td>LT — L/E &gt; 3</td>
+                <td>{s.ltPct.toFixed(0)} %</td>
+                <td>≤ {sp.lt_max} %</td>
+                <td className="cond-verdict">{s.ltPct <= sp.lt_max ? '✓' : '✗'}</td>
+              </tr>
+            )}
+            {s.p45Pct !== null && (
+              <tr className={s.p45Pct <= sp.p45_max ? 'cond-ok' : 'cond-no'}>
+                <td>Partículas con L &gt; 45 cm</td>
+                <td>{s.p45Pct.toFixed(0)} %</td>
+                <td>≤ {sp.p45_max} %</td>
+                <td className="cond-verdict">{s.p45Pct <= sp.p45_max ? '✓' : '✗'}</td>
+              </tr>
+            )}
+            {s.m50 !== null && (
+              <tr>
+                <td>M50 — masa al 50 %</td>
+                <td>{s.m50.toFixed(1)} kg</td>
+                <td>—</td>
+                <td className="cond-verdict">—</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FORMULARIO ALBARÁN (SOLICITUD, TOMA DE MUESTRA Y REGISTRO DE ENSAYO)
+// ══════════════════════════════════════════════════════════════════════════════
+
+function AlbaranForm({
+  datos,
+  onChange
+}: {
+  datos: Record<string, unknown>
+  onChange: (d: Record<string, unknown>) => void
+}): JSX.Element {
+  function set(key: string, val: unknown): void {
+    onChange({ ...datos, [key]: val })
+  }
+
+  const ensayosSolicitados =
+    (datos.ensayos_solicitados as { ensayo: string; normativa: string }[]) ?? []
+
+  function setEnsayoSol(i: number, key: 'ensayo' | 'normativa', val: string): void {
+    const updated = ensayosSolicitados.map((r, idx) => (idx === i ? { ...r, [key]: val } : r))
+    set('ensayos_solicitados', updated)
+  }
+
+  return (
+    <div className="albaran-wrap">
+      {/* ── Cabecera del documento ── */}
+      <div className="card alb-card" style={{ marginBottom: 14 }}>
+        <div className="alb-header-row">
+          <div className="alb-logo-block">
+            <div className="alb-logo-text">CYE</div>
+            <div className="alb-logo-sub">CONTROL Y ESTUDIOS</div>
+            <div className="alb-doc-title">
+              SOLICITUD, TOMA DE MUESTRA Y<br />
+              REGISTRO DE ENSAYO
+            </div>
+          </div>
+          <div className="alb-header-fields">
+            <div className="alb-header-field">
+              <span className="alb-hf-label">Nº de ensayo (O.T.)</span>
+              <input
+                className="input alb-hf-input"
+                value={String(datos.n_ensayo_ot ?? '')}
+                onChange={(e) => set('n_ensayo_ot', e.target.value)}
+              />
+            </div>
+            <div className="alb-header-field">
+              <span className="alb-hf-label">Fecha de toma</span>
+              <input
+                className="input alb-hf-input"
+                value={String(datos.fecha_toma ?? '')}
+                onChange={(e) => set('fecha_toma', e.target.value)}
+                placeholder="dd-mm-aaaa"
+              />
+            </div>
+            <div className="alb-header-field">
+              <span className="alb-hf-label">Fecha de entrada</span>
+              <input
+                className="input alb-hf-input"
+                value={String(datos.fecha_entrada ?? '')}
+                onChange={(e) => set('fecha_entrada', e.target.value)}
+                placeholder="dd-mm-aaaa"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Datos de la obra ── */}
+      <div className="card alb-card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Datos de la obra</div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Título</label>
+            <input
+              className="input"
+              value={String(datos.titulo_obra ?? '')}
+              onChange={(e) => set('titulo_obra', e.target.value)}
+            />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Ref. Obra</label>
+            <input
+              className="input"
+              value={String(datos.ref_obra ?? '')}
+              onChange={(e) => set('ref_obra', e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Datos del cliente ── */}
+      <div className="card alb-card" style={{ marginBottom: 14 }}>
+        <div className="alb-two-col">
+          <div>
+            <div className="sec-label">Datos del cliente</div>
+            <div className="alb-field-stack">
+              <div className="alb-inline-field">
+                <span className="alb-inline-label">Empresa:</span>
+                <input
+                  className="input alb-inline-input"
+                  value={String(datos.empresa ?? '')}
+                  onChange={(e) => set('empresa', e.target.value)}
+                />
+              </div>
+              <div className="alb-inline-field">
+                <span className="alb-inline-label">Dirección:</span>
+                <input
+                  className="input alb-inline-input"
+                  value={String(datos.direccion ?? '')}
+                  onChange={(e) => set('direccion', e.target.value)}
+                />
+              </div>
+              <div className="alb-inline-field">
+                <span className="alb-inline-label">N.I.F. / C.I.F.:</span>
+                <input
+                  className="input alb-inline-input"
+                  value={String(datos.nif_cif ?? '')}
+                  onChange={(e) => set('nif_cif', e.target.value)}
+                />
+              </div>
+              <div className="alb-inline-field">
+                <span className="alb-inline-label">Persona de contacto:</span>
+                <input
+                  className="input alb-inline-input"
+                  value={String(datos.persona_contacto ?? '')}
+                  onChange={(e) => set('persona_contacto', e.target.value)}
+                />
+              </div>
+              <div className="alb-inline-field">
+                <span className="alb-inline-label">Teléfono / Fax:</span>
+                <input
+                  className="input alb-inline-input"
+                  value={String(datos.telefono_fax ?? '')}
+                  onChange={(e) => set('telefono_fax', e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="alb-inline-field" style={{ marginTop: 8 }}>
+              <span className="alb-inline-label">Observaciones:</span>
+              <input
+                className="input alb-inline-input"
+                value={String(datos.observaciones_cliente ?? '')}
+                onChange={(e) => set('observaciones_cliente', e.target.value)}
+              />
+            </div>
+          </div>
+          <div>
+            <div className="sec-label">Peticionario</div>
+            <textarea
+              className="input alb-textarea"
+              rows={7}
+              value={String(datos.peticionario ?? '')}
+              onChange={(e) => set('peticionario', e.target.value)}
+              placeholder="(cumplimentar cuando sea distinto del cliente y no se conozcan los datos)"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Toma de muestra ── */}
+      <div className="card alb-card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Toma de muestra</div>
+        <div className="alb-checks-row">
+          <label className="alb-check-label">
+            <input
+              type="checkbox"
+              checked={Boolean(datos.efectuada_por_cye)}
+              onChange={(e) => set('efectuada_por_cye', e.target.checked)}
+            />
+            Efectuada por CYE
+          </label>
+          <label className="alb-check-label">
+            <input
+              type="checkbox"
+              checked={Boolean(datos.recibida_en_cye)}
+              onChange={(e) => set('recibida_en_cye', e.target.checked)}
+            />
+            Recibida en CYE
+          </label>
+          <label className="alb-check-label">
+            <input
+              type="checkbox"
+              checked={Boolean(datos.ensayo_in_situ)}
+              onChange={(e) => set('ensayo_in_situ', e.target.checked)}
+            />
+            Ensayo in situ
+          </label>
+          <label className="alb-check-label">
+            <input
+              type="checkbox"
+              checked={Boolean(datos.recogida_por_cye_en !== '')}
+              onChange={(e) => {
+                if (!e.target.checked) set('recogida_por_cye_en', '')
+              }}
+            />
+            Recogida por CYE en:
+          </label>
+          <input
+            className="input"
+            style={{ flex: 1, minWidth: 120 }}
+            value={String(datos.recogida_por_cye_en ?? '')}
+            onChange={(e) => set('recogida_por_cye_en', e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* ── Tabla de muestra ── */}
+      <div className="card alb-card" style={{ marginBottom: 14 }}>
+        <div className="alb-muestra-grid">
+          {/* Fila 1 */}
+          <div className="alb-mg-cell alb-mg-hdr">Material y descripción</div>
+          <div className="alb-mg-cell alb-mg-hdr">Localización</div>
+          <div className="alb-mg-cell alb-mg-hdr">Otros datos</div>
+
+          <div className="alb-mg-cell">
+            <textarea
+              className="input alb-textarea-sm"
+              rows={3}
+              value={String(datos.material_descripcion ?? '')}
+              onChange={(e) => set('material_descripcion', e.target.value)}
+            />
+          </div>
+          <div className="alb-mg-cell">
+            <textarea
+              className="input alb-textarea-sm"
+              rows={3}
+              value={String(datos.localizacion ?? '')}
+              onChange={(e) => set('localizacion', e.target.value)}
+            />
+          </div>
+          <div className="alb-mg-cell">
+            <textarea
+              className="input alb-textarea-sm"
+              rows={3}
+              value={String(datos.otros_datos ?? '')}
+              onChange={(e) => set('otros_datos', e.target.value)}
+            />
+          </div>
+
+          {/* Fila 2 */}
+          <div className="alb-mg-cell alb-mg-hdr">Indicaciones sobre la toma de muestra</div>
+          <div className="alb-mg-cell alb-mg-hdr">Cantidad de muestra</div>
+          <div className="alb-mg-cell alb-mg-hdr">Firma / receptor</div>
+
+          <div className="alb-mg-cell">
+            <textarea
+              className="input alb-textarea-sm"
+              rows={3}
+              value={String(datos.indicaciones_toma ?? '')}
+              onChange={(e) => set('indicaciones_toma', e.target.value)}
+            />
+          </div>
+          <div className="alb-mg-cell">
+            <textarea
+              className="input alb-textarea-sm"
+              rows={3}
+              value={String(datos.cantidad_muestra ?? '')}
+              onChange={(e) => set('cantidad_muestra', e.target.value)}
+            />
+          </div>
+          <div className="alb-mg-cell alb-firma-cell">
+            <label className="alb-check-label">
+              <input
+                type="radio"
+                name="firma_tipo"
+                value="analista"
+                checked={datos.firma_tipo === 'analista'}
+                onChange={() => set('firma_tipo', 'analista')}
+              />
+              Analista que toma la muestra
+            </label>
+            <label className="alb-check-label">
+              <input
+                type="radio"
+                name="firma_tipo"
+                value="receptor"
+                checked={datos.firma_tipo === 'receptor'}
+                onChange={() => set('firma_tipo', 'receptor')}
+              />
+              Persona que recibe / recoge la muestra
+            </label>
+            <div className="alb-inline-field" style={{ marginTop: 8 }}>
+              <span className="alb-inline-label">Fdo.:</span>
+              <input
+                className="input alb-inline-input"
+                value={String(datos.fdo_muestra ?? '')}
+                onChange={(e) => set('fdo_muestra', e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Ensayos solicitados ── */}
+      <div className="card alb-card" style={{ marginBottom: 14 }}>
+        <div className="alb-ens-grid">
+          <div className="alb-mg-hdr" style={{ padding: '6px 10px', textAlign: 'center' }}>
+            Ensayos solicitados
+          </div>
+          <div className="alb-mg-hdr" style={{ padding: '6px 10px', textAlign: 'center' }}>
+            Normativa aplicable
+          </div>
+          {ensayosSolicitados.map((row, i) => (
+            <Fragment key={i}>
+              <input
+                className="input alb-ens-input"
+                value={row.ensayo}
+                onChange={(e) => setEnsayoSol(i, 'ensayo', e.target.value)}
+              />
+              <input
+                className="input alb-ens-input"
+                value={row.normativa}
+                onChange={(e) => setEnsayoSol(i, 'normativa', e.target.value)}
+              />
+            </Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Condiciones de ejecución ── */}
+      <div className="card alb-card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">
+          Condiciones de ejecución{' '}
+          <span style={{ fontWeight: 400, textTransform: 'none', fontSize: 11 }}>
+            (cuando sean distintas a la Norma de Ensayo)
+          </span>
+        </div>
+        <textarea
+          className="input alb-textarea"
+          rows={3}
+          value={String(datos.condiciones_ejecucion ?? '')}
+          onChange={(e) => set('condiciones_ejecucion', e.target.value)}
+        />
+      </div>
+
+      {/* ── Inspección de la muestra ── */}
+      <div className="card alb-card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Inspección de la muestra</div>
+        <div className="alb-insp-layout">
+          <div className="alb-insp-left">
+            <div className="alb-checks-row" style={{ marginBottom: 10 }}>
+              {(['aceptada', 'en_espera', 'rechazada'] as const).map((v) => (
+                <label key={v} className="alb-check-label">
+                  <input
+                    type="radio"
+                    name="inspeccion"
+                    value={v}
+                    checked={datos.inspeccion === v}
+                    onChange={() => set('inspeccion', v)}
+                  />
+                  {v === 'aceptada' ? 'Aceptada' : v === 'en_espera' ? 'En espera' : 'Rechazada'}
+                </label>
+              ))}
+            </div>
+            <label className="field-label">Comentarios</label>
+            <textarea
+              className="input alb-textarea"
+              rows={3}
+              value={String(datos.comentarios ?? '')}
+              onChange={(e) => set('comentarios', e.target.value)}
+            />
+          </div>
+          <div className="alb-insp-right">
+            <div className="alb-acept-block">
+              <div className="sec-label">Aceptación</div>
+              <label className="alb-check-label">
+                <input
+                  type="checkbox"
+                  checked={Boolean(datos.aceptacion_cliente)}
+                  onChange={(e) => set('aceptacion_cliente', e.target.checked)}
+                />
+                El cliente
+              </label>
+              <label className="alb-check-label">
+                <input
+                  type="checkbox"
+                  checked={Boolean(datos.aceptacion_peticionario)}
+                  onChange={(e) => set('aceptacion_peticionario', e.target.checked)}
+                />
+                Peticionario
+              </label>
+              <div className="alb-inline-field" style={{ marginTop: 6 }}>
+                <span className="alb-inline-label">Fdo.:</span>
+                <input
+                  className="input alb-inline-input"
+                  value={String(datos.fdo_cliente ?? '')}
+                  onChange={(e) => set('fdo_cliente', e.target.value)}
+                />
+              </div>
+              <div className="alb-inline-field">
+                <span className="alb-inline-label">Fecha:</span>
+                <input
+                  className="input alb-inline-input"
+                  value={String(datos.fecha_firma_cliente ?? '')}
+                  onChange={(e) => set('fecha_firma_cliente', e.target.value)}
+                  placeholder="dd-mm-aaaa"
+                />
+              </div>
+            </div>
+            <div className="alb-acept-block">
+              <div className="sec-label">Aceptación</div>
+              <label className="alb-check-label">
+                <input
+                  type="checkbox"
+                  checked={Boolean(datos.aceptacion_dir_tecnico)}
+                  onChange={(e) => set('aceptacion_dir_tecnico', e.target.checked)}
+                />
+                Dir. técnico
+              </label>
+              <label className="alb-check-label">
+                <input
+                  type="checkbox"
+                  checked={Boolean(datos.aceptacion_jefe_area)}
+                  onChange={(e) => set('aceptacion_jefe_area', e.target.checked)}
+                />
+                Jefe de área
+              </label>
+              <div className="alb-inline-field" style={{ marginTop: 6 }}>
+                <span className="alb-inline-label">Fdo.:</span>
+                <input
+                  className="input alb-inline-input"
+                  value={String(datos.fdo_tecnico ?? '')}
+                  onChange={(e) => set('fdo_tecnico', e.target.value)}
+                />
+              </div>
+              <div className="alb-inline-field">
+                <span className="alb-inline-label">Fecha:</span>
+                <input
+                  className="input alb-inline-input"
+                  value={String(datos.fecha_firma_tecnico ?? '')}
+                  onChange={(e) => set('fecha_firma_tecnico', e.target.value)}
+                  placeholder="dd-mm-aaaa"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Registro ── */}
+      <div className="card alb-card">
+        <div className="sec-label">Registro</div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Fecha de encargo</label>
+            <input
+              className="input"
+              value={String(datos.fecha_encargo ?? '')}
+              onChange={(e) => set('fecha_encargo', e.target.value)}
+              placeholder="dd-mm-aaaa"
+            />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Fecha de informe</label>
+            <input
+              className="input"
+              value={String(datos.fecha_informe ?? '')}
+              onChange={(e) => set('fecha_informe', e.target.value)}
+              placeholder="dd-mm-aaaa"
+            />
+          </div>
+        </div>
       </div>
     </div>
   )

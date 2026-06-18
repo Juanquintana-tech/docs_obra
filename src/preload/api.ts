@@ -12,13 +12,15 @@ import type {
   PriceCorrectionInput,
   Ensayo,
   EnsayoInput,
-  PlanRowPatch
+  PlanRowPatch,
+  NewPlanRowData,
+  PlanEdits
 } from '../main/db'
-import type { PlanRowInput } from '../main/pipeline/types'
+import type { PlanRowInput, Material } from '../main/pipeline/types'
 import type { IngestResult, RagStatus } from '../main/services/pipeline'
 import type { RagMatch } from '../main/pipeline/rag/types'
 import type { CatalogEntry } from '../main/pipeline/rag/catalog'
-import type { Rules, Material } from '../main/pipeline/planner'
+import type { Rules } from '../main/pipeline/planner'
 import type { PriceStrategy } from '../main/pipeline/rag/priceBook'
 
 export interface PickedDocument {
@@ -39,18 +41,31 @@ export const api = {
     ipcRenderer.invoke('db:saveObra', info, plan),
   updateStatus: (id: number, status: 'activa' | 'archivada'): Promise<void> =>
     ipcRenderer.invoke('db:updateStatus', id, status),
+  updateObraInfo: (id: number, info: ObraInput): Promise<void> =>
+    ipcRenderer.invoke('db:updateObraInfo', id, info),
   deleteObra: (id: number): Promise<void> => ipcRenderer.invoke('db:deleteObra', id),
+  /** Revela un fichero en el Finder/Explorador (tras exportar un informe). */
+  showInFolder: (path: string): Promise<void> => ipcRenderer.invoke('app:showInFolder', path),
   savePriceCorrection: (c: PriceCorrectionInput): Promise<number> =>
     ipcRenderer.invoke('db:savePriceCorrection', c),
   updatePlanRows: (obraId: number, patches: PlanRowPatch[]): Promise<void> =>
     ipcRenderer.invoke('db:updatePlanRows', obraId, patches),
+  deletePlanRow: (rowId: number): Promise<void> =>
+    ipcRenderer.invoke('db:deletePlanRow', rowId),
+  addPlanRow: (obraId: number, data: NewPlanRowData): Promise<number> =>
+    ipcRenderer.invoke('db:addPlanRow', obraId, data),
+  savePlanEdits: (obraId: number, edits: PlanEdits): Promise<void> =>
+    ipcRenderer.invoke('db:savePlanEdits', obraId, edits),
 
   // ── Ingesta ──
   pickDocument: (): Promise<PickedDocument | null> => ipcRenderer.invoke('ingest:pickDocument'),
   ingestDocument: (path: string, strategy?: PriceStrategy): Promise<IngestResult> =>
     ipcRenderer.invoke('ingest:document', path, strategy),
+  ingestText: (text: string, strategy?: PriceStrategy): Promise<IngestResult> =>
+    ipcRenderer.invoke('ingest:text', text, strategy),
+  /** Recalcula el plan con otra estrategia de precios (sin re-ingestar el documento). */
   repricePlan: (materials: Material[], strategy: PriceStrategy): Promise<PlanRowInput[]> =>
-    ipcRenderer.invoke('plan:reprice', materials, strategy),
+    ipcRenderer.invoke('pipeline:repricePlan', materials, strategy),
 
   // ── Entregables (devuelven la ruta guardada o null si se cancela) ──
   exportExcel: (obraId: number): Promise<string | null> =>
@@ -76,6 +91,14 @@ export const api = {
     ipcRenderer.invoke('ensayo:exportWord', ensayoId),
   exportEnsayoExcel: (ensayoId: number): Promise<string | null> =>
     ipcRenderer.invoke('ensayo:exportExcel', ensayoId),
+  /** Extrae datos de un formulario de ensayo a partir de una imagen en base64.
+   *  Devuelve { ocr, tipo } con los campos extraídos listos para mergear. */
+  scanEnsayoFromImage: (
+    tipo: string,
+    imageBase64: string,
+    mimeType: string
+  ): Promise<{ ocr: Record<string, unknown>; tipo: string }> =>
+    ipcRenderer.invoke('ensayo:scanFromImage', { tipo, imageBase64, mimeType }),
 
   // ── Presupuestos (catálogo y reglas) ──
   getCatalog: (): Promise<CatalogEntry[]> => ipcRenderer.invoke('presup:getCatalog'),
