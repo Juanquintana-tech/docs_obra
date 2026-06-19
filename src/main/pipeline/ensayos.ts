@@ -42,12 +42,18 @@ export const TIPOS: Record<string, TipoMeta> = {
 
 // ── Helpers numéricos ─────────────────────────────────────────────────────────
 
-/** Parsea un valor como float, aceptando coma decimal española. Devuelve null si no es válido. */
+/** Parsea un valor como float, aceptando coma decimal española.
+ *  Si contiene "/" (dos lecturas, ej. "0,80/0,81"), devuelve el mayor. */
 export function toFloat(v: unknown): number | null {
   if (v === null || v === undefined || v === '') return null
   if (typeof v === 'number') return isNaN(v) ? null : v
-  const s = String(v).trim().replace(',', '.')
-  const n = parseFloat(s)
+  const s = String(v).trim()
+  if (s.includes('/')) {
+    const parts = s.split('/').map((p) => parseFloat(p.trim().replace(',', '.')))
+    const valid = parts.filter((n) => !isNaN(n))
+    return valid.length ? Math.max(...valid) : null
+  }
+  const n = parseFloat(s.replace(',', '.'))
   return isNaN(n) ? null : n
 }
 
@@ -88,6 +94,8 @@ export interface DensidadInput {
   cabecera?: Record<string, string>
   ensayos: DensidadRow[]
   compactacion_min?: number
+  correccion_densidad?: number | null
+  correccion_humedad?: number | null
   cond3_cumple?: boolean | null
 }
 
@@ -110,11 +118,14 @@ export interface DensidadResult {
 export function computeDensidad(input: DensidadInput): DensidadResult {
   const compactacion_min = input.compactacion_min ?? COMPACTACION_MIN_DEFAULT
   const cond3_cumple = input.cond3_cumple ?? null
+  const corr_d = toFloat(input.correccion_densidad) ?? 0
+  const corr_h = toFloat(input.correccion_humedad) ?? 0
 
   const rows = (input.ensayos ?? []).map((r) => {
     const d_max = toFloat(r.d_max)
     const d_situ = toFloat(r.d_situ)
-    const comp = d_max && d_situ ? Math.round((d_situ / d_max) * 1000) / 10 : null
+    const d_corr = d_situ !== null ? d_situ + corr_d : null
+    const comp = d_max && d_corr ? Math.round((d_corr / d_max) * 1000) / 10 : null
     return {
       ...r,
       d_max,
@@ -126,24 +137,26 @@ export function computeDensidad(input: DensidadInput): DensidadResult {
   })
 
   const d_situ_list = rows.map((r) => r.d_situ).filter((x): x is number => x !== null)
+  const d_corr_list = d_situ_list.map((d) => d + corr_d)
   const h_situ_list = rows.map((r) => r.h_situ).filter((x): x is number => x !== null)
+  const h_corr_list = h_situ_list.map((h) => h + corr_h)
   const comp_list = rows.map((r) => r.compactacion).filter((x): x is number => x !== null)
   const d_max_list = rows.map((r) => r.d_max).filter((x): x is number => x !== null)
 
-  const media_d_situ = Math.round(mean(d_situ_list) * 1000) / 1000
-  const media_h_situ = Math.round(mean(h_situ_list) * 10) / 10
+  const media_d_situ = Math.round(mean(d_corr_list) * 1000) / 1000
+  const media_h_situ = Math.round(mean(h_corr_list) * 10) / 10
   const media_comp = Math.round(mean(comp_list) * 10) / 10
-  const cv_d = Math.round(cvPct(d_situ_list) * 10) / 10
-  const cv_h = Math.round(cvPct(h_situ_list) * 10) / 10
+  const cv_d = Math.round(cvPct(d_corr_list) * 10) / 10
+  const cv_h = Math.round(cvPct(h_corr_list) * 10) / 10
 
   const d_especificada = d_max_list.length ? Math.max(...d_max_list) : 0
   const d_min_admisible = d_especificada
     ? Math.round((d_especificada - MARGEN_DENSIDAD) * 1000) / 1000
     : 0
-  const d_situ_minima = d_situ_list.length ? Math.round(Math.min(...d_situ_list) * 1000) / 1000 : 0
+  const d_situ_minima = d_corr_list.length ? Math.round(Math.min(...d_corr_list) * 1000) / 1000 : 0
 
   const cond1 = comp_list.length ? media_comp >= compactacion_min : false
-  const cond2 = d_situ_list.length ? d_situ_minima >= d_min_admisible : false
+  const cond2 = d_corr_list.length ? d_situ_minima >= d_min_admisible : false
 
   let cumple = cond1 && cond2
   if (cond3_cumple === false) cumple = false

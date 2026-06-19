@@ -874,67 +874,252 @@
 .tab-btn.active { color: var(--mid); border-bottom-color: var(--mid); background: transparent; }
 
 /* ── ScanPanel ── */
+/* ── Scan Panel ──────────────────────────────────────────────────────────── */
 .scan-panel {
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(31,56,100,.10);
+  margin-bottom: 18px;
 }
-.scan-toggle {
+
+/* Cabecera: gradiente azul, siempre visible */
+.scan-header {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  background: var(--bg);
+  gap: 12px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--mid) 100%);
   border: none;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--navy);
   text-align: left;
-  transition: background .12s;
+  transition: filter .15s;
+  color: #fff;
 }
-.scan-toggle:hover { background: var(--surface); }
-.scan-toggle.open { background: var(--surface); border-bottom: 1px solid var(--border); }
-.scan-toggle-chevron { margin-left: auto; font-size: 10px; opacity: .6; }
+.scan-header:hover { filter: brightness(1.08); }
+.scan-header.open  { border-radius: 12px 12px 0 0; }
+
+.scan-header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: rgba(255,255,255,.18);
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+.scan-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.scan-header-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+.scan-header-sub {
+  font-size: 12px;
+  opacity: .8;
+}
+.scan-header-chevron {
+  font-size: 11px;
+  opacity: .7;
+  flex-shrink: 0;
+}
+
+/* Cuerpo expandido */
 .scan-body {
-  padding: 14px;
+  padding: 18px;
   background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
 }
+
+/* Layout de dos columnas: drop zone + instrucciones */
+.scan-main-layout {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* Drop zone */
 .scan-drop-zone {
+  flex: 1;
   border: 2px dashed var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 28px 20px;
   text-align: center;
   color: var(--text-soft);
+  background: var(--bg);
   transition: border-color .15s, background .15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
 }
 .scan-drop-zone.drag-over {
   border-color: var(--mid);
   background: color-mix(in srgb, var(--mid) 8%, transparent);
 }
+.scan-drop-icon {
+  color: var(--mid);
+  margin-bottom: 4px;
+  opacity: .85;
+}
+.scan-drop-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+}
+.scan-drop-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.scan-fmt-badges {
+  display: flex;
+  gap: 6px;
+  margin: 6px 0 4px;
+}
+.scan-fmt-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--light);
+  color: var(--navy);
+}
+.scan-drop-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Panel de instrucciones */
+.scan-info-panel {
+  width: 210px;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--navy) 4%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.scan-info-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--navy);
+}
+.scan-steps {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.scan-tip-box {
+  font-size: 11.5px;
+  color: var(--text-soft);
+  background: color-mix(in srgb, var(--mid) 10%, transparent);
+  border-left: 3px solid var(--mid);
+  border-radius: 0 6px 6px 0;
+  padding: 7px 10px;
+  line-height: 1.5;
+}
+.scan-powered {
+  margin: auto 0 0;
+  font-size: 10.5px;
+  color: var(--text-soft);
+  opacity: .65;
+  text-align: right;
+}
+
+/* Cámara */
+.scan-camera-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.scan-camera-video {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.scan-camera-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Preview de archivo seleccionado */
 .scan-preview-area {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0;
+  gap: 12px;
 }
 .scan-preview-img {
   max-width: 100%;
-  max-height: 260px;
+  max-height: 300px;
   object-fit: contain;
   border-radius: 8px;
   border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
-.scan-camera video {
+.scan-pdf-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
   border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  width: 100%;
 }
-.scan-disclaimer {
-  margin: 10px 0 0;
+.scan-pdf-icon { font-size: 40px; line-height: 1; }
+.scan-pdf-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.scan-pdf-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+}
+.scan-pdf-sub {
   font-size: 11px;
+  color: var(--text-soft);
+}
+.scan-preview-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.scan-scanning-hint {
+  margin: 0;
+  font-size: 11.5px;
   color: var(--text-soft);
   font-style: italic;
 }
+
 /* Spinner inline */
 .spin {
   display: inline-block;
@@ -949,14 +1134,207 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.scan-pdf-badge {
+/* ── Ensayo group picker ─────────────────────────────────────────────────── */
+.ensayo-picker {
+  margin-bottom: 22px;
+}
+.ensayo-picker-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 8px;
+}
+.ensayo-grupos {
+  display: flex;
+  gap: 10px;
+}
+.ensayo-grupo-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  user-select: none;
+}
+.ensayo-grupo-card:hover {
+  border-color: var(--grupo-color, var(--mid));
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  background: color-mix(in srgb, var(--grupo-color, var(--mid)) 4%, var(--surface));
+}
+.ensayo-grupo-card.active {
+  border-color: var(--grupo-color, var(--navy));
+  background: color-mix(in srgb, var(--grupo-color, var(--navy)) 7%, var(--surface));
+  box-shadow: 0 2px 10px rgba(0,0,0,0.09);
+}
+.ensayo-grupo-abrev {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--grupo-color, var(--navy)) 14%, transparent);
+  color: var(--grupo-color, var(--navy));
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ensayo-grupo-info {
+  flex: 1;
+  min-width: 0;
+}
+.ensayo-grupo-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+.ensayo-grupo-desc {
+  font-size: 11px;
+  color: var(--text-soft);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ensayo-grupo-chevron {
+  font-size: 10px;
+  color: var(--text-soft);
+  flex-shrink: 0;
+  transition: transform 0.18s;
+}
+.ensayo-grupo-card.active .ensayo-grupo-chevron {
+  color: var(--grupo-color, var(--navy));
+}
+
+/* Panel de sub-tipos (expandido) */
+.ensayo-subtypes-panel {
+  margin-top: 8px;
+  padding: 12px;
+  border: 1.5px solid var(--grupo-color, var(--navy));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--grupo-color, var(--navy)) 3%, var(--surface));
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  animation: subtypes-in 0.14s ease;
+}
+@keyframes subtypes-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ensayo-subtype-btn {
+  flex: 1;
+  min-width: 160px;
+  padding: 11px 15px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.13s, background 0.13s, box-shadow 0.13s;
   display: flex;
   flex-direction: column;
+  gap: 3px;
+}
+.ensayo-subtype-btn:hover {
+  border-color: var(--grupo-color, var(--navy));
+  background: color-mix(in srgb, var(--grupo-color, var(--navy)) 5%, var(--surface));
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+}
+.ensayo-subtype-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--grupo-color, var(--navy));
+  display: block;
+}
+.ensayo-subtype-norma {
+  font-size: 11px;
+  color: var(--text-soft);
+  display: block;
+}
+
+/* ── OCR confidence semáforo ───────────────────────────────────────────────── */
+
+.ocr-high {
+  background: rgba(34, 197, 94, 0.10) !important;
+  border-color: rgba(34, 197, 94, 0.45) !important;
+  transition: background 0.2s, border-color 0.2s;
+}
+.ocr-mid {
+  background: rgba(234, 179, 8, 0.10) !important;
+  border-color: rgba(234, 179, 8, 0.55) !important;
+  transition: background 0.2s, border-color 0.2s;
+}
+.ocr-low {
+  background: rgba(239, 68, 68, 0.10) !important;
+  border-color: rgba(239, 68, 68, 0.50) !important;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+/* ── ScanPanel: resultado de confianza ──────────────────────────────────────── */
+
+.scan-conf-result {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.scan-conf-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+.scan-conf-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.scan-conf-chip {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 24px;
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
-  color: var(--navy);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1.5px solid currentColor;
+}
+.scan-conf-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.scan-conf-high {
+  color: rgb(22, 163, 74);
+  background: rgba(34, 197, 94, 0.08);
+}
+.scan-conf-mid {
+  color: rgb(161, 98, 7);
+  background: rgba(234, 179, 8, 0.10);
+}
+.scan-conf-low {
+  color: rgb(185, 28, 28);
+  background: rgba(239, 68, 68, 0.08);
+}
+.scan-conf-hint {
+  font-size: 12.5px;
+  color: var(--text-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+.scan-conf-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }

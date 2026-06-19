@@ -10,11 +10,18 @@
  * condiciones de densidad y la tabla de módulos de placa.
  */
 
-/** Parsea aceptando coma decimal española. Devuelve null si no es válido. */
+/** Parsea aceptando coma decimal española.
+ *  Si contiene "/" (dos lecturas, ej. "0,80/0,81"), devuelve el mayor. */
 export function toNum(v: unknown): number | null {
   if (v === null || v === undefined || v === '') return null
   if (typeof v === 'number') return isNaN(v) ? null : v
-  const n = parseFloat(String(v).trim().replace(',', '.'))
+  const s = String(v).trim()
+  if (s.includes('/')) {
+    const parts = s.split('/').map((p) => parseFloat(p.trim().replace(',', '.')))
+    const valid = parts.filter((n) => !isNaN(n))
+    return valid.length ? Math.max(...valid) : null
+  }
+  const n = parseFloat(s.replace(',', '.'))
   return isNaN(n) ? null : n
 }
 
@@ -42,22 +49,23 @@ export function densidadSummary(datos: Record<string, unknown>): DensidadSummary
   const rows = (datos.ensayos as Record<string, unknown>[] | undefined) ?? []
   const compMin = toNum(datos.compactacion_min) ?? 100
 
+  const corrD = toNum(datos.correccion_densidad) ?? 0
   const comps: number[] = []
   const dMaxList: number[] = []
-  const dSituList: number[] = []
+  const dCorrList: number[] = []
   for (const r of rows) {
     const dm = toNum(r.d_max)
     const ds = toNum(r.d_situ)
     if (dm !== null) dMaxList.push(dm)
-    if (ds !== null) dSituList.push(ds)
-    if (dm && ds) comps.push(Math.round((ds / dm) * 1000) / 10) // 1 decimal, como backend
+    if (ds !== null) dCorrList.push(ds + corrD)
+    if (dm && ds) comps.push(Math.round(((ds + corrD) / dm) * 1000) / 10) // 1 decimal, como backend
   }
   if (!comps.length) return null
 
   const mediaComp = Math.round(mean(comps) * 10) / 10
   const dEspec = dMaxList.length ? Math.max(...dMaxList) : 0
   const dMinAdm = dEspec ? Math.round((dEspec - MARGEN_DENSIDAD) * 1000) / 1000 : 0
-  const dSituMin = dSituList.length ? Math.round(Math.min(...dSituList) * 1000) / 1000 : 0
+  const dSituMin = dCorrList.length ? Math.round(Math.min(...dCorrList) * 1000) / 1000 : 0
   const cond1 = mediaComp >= compMin
   const cond2 = dSituList.length ? dSituMin >= dMinAdm : false
   const cond3 = (datos.cond3_cumple as boolean | null | undefined) ?? null
@@ -243,4 +251,55 @@ export function granulometriaSummary(datos: Record<string, unknown>): Granulomet
     p45Pct,
     veredicto
   }
+}
+
+// ── Toma de hormigón / probetas (EHE-08) ──────────────────────────────────────
+
+export interface TomaHormigonSummary {
+  fck: number | null
+  media28: number | null
+  n28: number
+  veredicto: 'CUMPLE' | 'NO CUMPLE' | ''
+}
+
+/** Extrae el fck de un tipo de hormigón: "HA-30/B/20/IIa" → 30, "HP-45/..." → 45. */
+export function parseFck(tipoHormigon: string): number | null {
+  const m = String(tipoHormigon ?? '').match(/H[APBR]-(\d+)/i)
+  return m ? parseInt(m[1], 10) : null
+}
+
+/** Área de la sección de una probeta cilíndrica 150mm en mm². */
+const AREA_150MM = Math.PI * 75 * 75
+
+/** Tensión (MPa) a partir de carga máxima (kN) para probeta cilíndrica 150mm. */
+export function cargaToTension(cargaKn: number): number {
+  return Math.round((cargaKn * 1000) / AREA_150MM * 100) / 100
+}
+
+export function tomaHormigonSummary(datos: Record<string, unknown>): TomaHormigonSummary {
+  const ident = (datos.identificacion as Record<string, unknown>) ?? {}
+  const fckManual = toNum(datos.fck_manual)
+  const fck = fckManual ?? parseFck(String(ident.tipo_hormigon ?? ''))
+
+  const roturas = (datos.roturas as Record<string, unknown>[] | undefined) ?? []
+  const tensiones28 = roturas
+    .filter((r) => {
+      const edad = toNum(r.edad_dias)
+      return edad !== null && Math.round(edad) === 28
+    })
+    .map((r) => toNum(r.tension_mpa))
+    .filter((v): v is number => v !== null)
+
+  const n28 = tensiones28.length
+  const media28 =
+    n28 > 0
+      ? Math.round((tensiones28.reduce((a, b) => a + b, 0) / n28) * 100) / 100
+      : null
+
+  let veredicto: 'CUMPLE' | 'NO CUMPLE' | '' = ''
+  if (fck !== null && media28 !== null) {
+    veredicto = media28 >= fck ? 'CUMPLE' : 'NO CUMPLE'
+  }
+
+  return { fck, media28, n28, veredicto }
 }

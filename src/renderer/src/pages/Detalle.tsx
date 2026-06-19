@@ -13,7 +13,10 @@ const TIPO_LABELS: Record<string, string> = {
   albaran_ensayos: 'Albarán de ensayos',
   densidad_in_situ: 'Densidad in situ',
   placa_carga: 'Placa de carga',
-  granulometria: 'Granulometría'
+  granulometria: 'Granulometría',
+  toma_hormigon: 'Albarán de toma',
+  informe_hormigon: 'Informe hormigón',
+  albaran_planta: 'Albarán de planta'
 }
 
 type Tab = 'info' | 'presupuesto' | 'ensayos'

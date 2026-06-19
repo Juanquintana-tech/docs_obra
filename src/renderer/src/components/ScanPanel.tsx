@@ -2,25 +2,24 @@
  * Panel de escaneo de formularios de ensayo.
  * Acepta imágenes (JPG, PNG) y PDFs, llama a Gemini Vision vía IPC
  * y devuelve los datos extraídos al componente padre.
- *
- * Tipos con soporte: densidad_in_situ, albaran_ensayos, placa_carga.
  */
 import { useRef, useState, useCallback, type JSX, type ChangeEvent, type DragEvent } from 'react'
 import { api } from '../lib/api'
 import { Ic } from './Icon'
 
-const SUPPORTED = new Set(['densidad_in_situ', 'albaran_ensayos', 'placa_carga', 'granulometria'])
+const SUPPORTED = new Set(['densidad_in_situ', 'albaran_ensayos', 'placa_carga', 'granulometria', 'toma_hormigon', 'informe_hormigon', 'albaran_planta'])
 
 interface Props {
   tipo: string
-  onResult: (ocr: Record<string, unknown>) => void
+  onResult: (ocr: Record<string, unknown>, conf: Record<string, string>) => void
 }
 
 interface Capture {
   base64: string
   mimeType: string
   isPdf: boolean
-  previewUrl: string | null // null para PDFs
+  fileName: string
+  previewUrl: string | null
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -41,16 +40,14 @@ function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }>
   })
 }
 
-/** Redimensiona imágenes grandes a ≤2048px para reducir tráfico. PDFs se pasan tal cual. */
 async function processFile(file: File): Promise<Capture> {
   const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
 
   if (isPdf) {
     const { base64, mimeType } = await fileToBase64(file)
-    return { base64, mimeType: mimeType || 'application/pdf', isPdf: true, previewUrl: null }
+    return { base64, mimeType: mimeType || 'application/pdf', isPdf: true, fileName: file.name, previewUrl: null }
   }
 
-  // Leer como data URL primero (evita blob URLs que fallan en Electron con contextIsolation)
   const { base64, mimeType } = await fileToBase64(file)
   const dataUrl = `data:${mimeType};base64,${base64}`
 
@@ -60,10 +57,9 @@ async function processFile(file: File): Promise<Capture> {
     img.onload = () => {
       const { naturalWidth: w, naturalHeight: h } = img
       if (w <= MAX_PX && h <= MAX_PX) {
-        resolve({ base64, mimeType, isPdf: false, previewUrl: dataUrl })
+        resolve({ base64, mimeType, isPdf: false, fileName: file.name, previewUrl: dataUrl })
         return
       }
-      // Resize necesario
       const scale = MAX_PX / Math.max(w, h)
       const canvas = document.createElement('canvas')
       canvas.width = Math.round(w * scale)
@@ -73,7 +69,7 @@ async function processFile(file: File): Promise<Capture> {
       const comma = resized.indexOf(',')
       const resizedMime = resized.slice(5, comma).replace(';base64', '')
       const resizedB64 = resized.slice(comma + 1)
-      resolve({ base64: resizedB64, mimeType: resizedMime, isPdf: false, previewUrl: resized })
+      resolve({ base64: resizedB64, mimeType: resizedMime, isPdf: false, fileName: file.name, previewUrl: resized })
     }
     img.onerror = () => reject(new Error('No se pudo cargar la imagen'))
     img.src = dataUrl
@@ -83,19 +79,18 @@ async function processFile(file: File): Promise<Capture> {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
-  // ⚠ Todos los hooks ANTES de cualquier return condicional (Rules of Hooks)
-  const [open, setOpen] = useState(false)
+  const [open, setOpen]       = useState(false)
   const [capture, setCapture] = useState<Capture | null>(null)
   const [scanning, setScanning] = useState(false)
   const [scanError, setScanError] = useState<string | null>(null)
-  const [drag, setDrag] = useState(false)
+  const [drag, setDrag]       = useState(false)
   const [camActive, setCamActive] = useState(false)
+  const [scanConf, setScanConf] = useState<Record<string, string> | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const streamRef = useRef<MediaStream | null>(null)
+  const videoRef     = useRef<HTMLVideoElement>(null)
+  const streamRef    = useRef<MediaStream | null>(null)
 
-  // Ahora sí: si el tipo no está soportado, no renderizar nada
   if (!SUPPORTED.has(tipo)) return null
 
   const loadFile = useCallback(async (file: File) => {
@@ -114,11 +109,10 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
     e.target.value = ''
   }
 
-  function handleDragOver(e: DragEvent): void { e.preventDefault(); setDrag(true) }
-  function handleDragLeave(): void { setDrag(false) }
+  function handleDragOver(e: DragEvent): void  { e.preventDefault(); setDrag(true) }
+  function handleDragLeave(): void             { setDrag(false) }
   function handleDrop(e: DragEvent): void {
-    e.preventDefault()
-    setDrag(false)
+    e.preventDefault(); setDrag(false)
     const file = e.dataTransfer.files[0]
     if (file) loadFile(file)
   }
@@ -131,9 +125,7 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
       })
       streamRef.current = stream
       setCamActive(true)
-      setTimeout(() => {
-        if (videoRef.current) videoRef.current.srcObject = stream
-      }, 50)
+      setTimeout(() => { if (videoRef.current) videoRef.current.srcObject = stream }, 50)
     } catch {
       setScanError('No se pudo acceder a la cámara. Comprueba los permisos.')
     }
@@ -149,14 +141,14 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
     const video = videoRef.current
     if (!video) return
     const canvas = document.createElement('canvas')
-    canvas.width = video.videoWidth
+    canvas.width  = video.videoWidth
     canvas.height = video.videoHeight
     canvas.getContext('2d')!.drawImage(video, 0, 0)
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.88)
-    const comma = dataUrl.indexOf(',')
+    const dataUrl  = canvas.toDataURL('image/jpeg', 0.88)
+    const comma    = dataUrl.indexOf(',')
     const mimeType = dataUrl.slice(5, comma).replace(';base64', '')
-    const base64 = dataUrl.slice(comma + 1)
-    setCapture({ base64, mimeType, isPdf: false, previewUrl: dataUrl })
+    const base64   = dataUrl.slice(comma + 1)
+    setCapture({ base64, mimeType, isPdf: false, fileName: 'captura.jpg', previewUrl: dataUrl })
     stopCamera()
   }
 
@@ -166,9 +158,8 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
     setScanError(null)
     try {
       const result = await api.scanEnsayoFromImage(tipo, capture.base64, capture.mimeType)
-      onResult(result.ocr)
-      // Cerrar y limpiar panel tras éxito
-      setOpen(false)
+      onResult(result.ocr, result.conf ?? {})
+      setScanConf(result.conf ?? {})
       setCapture(null)
     } catch (e: unknown) {
       setScanError(e instanceof Error ? e.message : 'Error al escanear el formulario')
@@ -180,6 +171,7 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
   function reset(): void {
     setCapture(null)
     setScanError(null)
+    setScanConf(null)
     stopCamera()
   }
 
@@ -189,72 +181,158 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
   }
 
   return (
-    <div className="scan-panel" style={{ marginBottom: 14 }}>
-      {/* Cabecera colapsable */}
-      <button className={`scan-toggle${open ? ' open' : ''}`} onClick={toggleOpen}>
-        <Ic.Upload size={15} />
-        <span>Escanear formulario</span>
-        <span className="scan-toggle-chevron">{open ? '▲' : '▼'}</span>
+    <div className="scan-panel">
+
+      {/* ── Cabecera ─────────────────────────────────────────────────────── */}
+      <button className={`scan-header${open ? ' open' : ''}`} onClick={toggleOpen}>
+        <div className="scan-header-icon">
+          <Ic.Upload size={20} />
+        </div>
+        <div className="scan-header-text">
+          <span className="scan-header-title">Importar desde formulario escaneado</span>
+          <span className="scan-header-sub">
+            Sube una foto o PDF — la IA extrae los valores automáticamente
+          </span>
+        </div>
+        <span className="scan-header-chevron">{open ? '▲' : '▼'}</span>
       </button>
 
+      {/* ── Cuerpo expandido ─────────────────────────────────────────────── */}
       {open && (
         <div className="scan-body">
 
-          {/* Zona de selección (sin captura aún) */}
-          {!capture && !camActive && (
-            <div
-              className={`scan-drop-zone${drag ? ' drag-over' : ''}`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*,.pdf"
-                style={{ display: 'none' }}
-                onChange={handleFileChange}
-              />
-              <Ic.Upload size={32} />
-              <p style={{ margin: '8px 0 4px', fontWeight: 600 }}>
-                Arrastra una foto o PDF del formulario aquí
-              </p>
-              <p style={{ margin: '0 0 12px', fontSize: 12, color: 'var(--text-soft)' }}>
-                JPG · PNG · PDF — se redimensiona automáticamente si es muy grande
-              </p>
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>
-                  Seleccionar archivo
-                </button>
-                <button className="btn" onClick={startCamera}>
-                  Usar cámara
-                </button>
+          {/* — Zona de selección — */}
+          {!capture && !camActive && !scanConf && (
+            <div className="scan-main-layout">
+
+              {/* Drop zone */}
+              <div
+                className={`scan-drop-zone${drag ? ' drag-over' : ''}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,.pdf"
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                />
+                <div className="scan-drop-icon">
+                  <Ic.Upload size={36} />
+                </div>
+                <p className="scan-drop-title">Arrastra el formulario aquí</p>
+                <p className="scan-drop-hint">o selecciona un archivo desde tu dispositivo</p>
+                <div className="scan-fmt-badges">
+                  <span className="scan-fmt-badge">JPG</span>
+                  <span className="scan-fmt-badge">PNG</span>
+                  <span className="scan-fmt-badge">PDF</span>
+                </div>
+                <div className="scan-drop-actions">
+                  <button className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>
+                    Seleccionar archivo
+                  </button>
+                  <button className="btn" onClick={startCamera}>
+                    Usar cámara
+                  </button>
+                </div>
+              </div>
+
+              {/* Panel de instrucciones */}
+              <div className="scan-info-panel">
+                <p className="scan-info-title">¿Cómo funciona?</p>
+                <ol className="scan-steps">
+                  <li>Fotografía el formulario de campo o adjunta el PDF</li>
+                  <li>Gemini Vision analiza los valores manuscritos</li>
+                  <li>Los datos se pre-rellenan en el formulario</li>
+                  <li>Revisa y corrige antes de guardar</li>
+                </ol>
+                <div className="scan-tip-box">
+                  <strong>Consejo:</strong> usa buena iluminación y evita sombras sobre los números.
+                </div>
+                <p className="scan-powered">Análisis con Gemini Vision · Google AI</p>
               </div>
             </div>
           )}
 
-          {/* Preview de cámara en vivo */}
-          {camActive && (
-            <div className="scan-camera">
+          {/* — Resultado de confianza OCR — */}
+          {scanConf && !camActive && (() => {
+            const counts = { high: 0, mid: 0, low: 0 }
+            for (const v of Object.values(scanConf)) {
+              if (v === 'high') counts.high++
+              else if (v === 'mid') counts.mid++
+              else if (v === 'low') counts.low++
+            }
+            const total = counts.high + counts.mid + counts.low
+            return (
+              <div className="scan-conf-result">
+                <div className="scan-conf-title">✓ Datos extraídos del formulario</div>
+                {total > 0 && (
+                  <div className="scan-conf-chips">
+                    {counts.high > 0 && (
+                      <span className="scan-conf-chip scan-conf-high">
+                        <span className="scan-conf-dot" />
+                        {counts.high} {counts.high === 1 ? 'campo' : 'campos'} seguros
+                      </span>
+                    )}
+                    {counts.mid > 0 && (
+                      <span className="scan-conf-chip scan-conf-mid">
+                        <span className="scan-conf-dot" />
+                        {counts.mid} {counts.mid === 1 ? 'campo dudoso' : 'campos dudosos'}
+                      </span>
+                    )}
+                    {counts.low > 0 && (
+                      <span className="scan-conf-chip scan-conf-low">
+                        <span className="scan-conf-dot" />
+                        {counts.low} {counts.low === 1 ? 'campo incierto' : 'campos inciertos'}
+                      </span>
+                    )}
+                  </div>
+                )}
+                <p className="scan-conf-hint">
+                  Los campos con fondo coloreado indican la confianza de Gemini.
+                  Revisa especialmente los marcados en <strong>amarillo</strong> y <strong>rojo</strong>.
+                </p>
+                <div className="scan-conf-actions">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => { setScanConf(null); setOpen(false) }}
+                  >
+                    Aceptar y revisar
+                  </button>
+                  <button className="btn" onClick={() => setScanConf(null)}>
+                    Escanear otro
+                  </button>
+                </div>
+              </div>
+            )
+          })()}
+
+          {/* — Vista de cámara — */}
+          {!scanConf && camActive && (
+            <div className="scan-camera-area">
               {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-              <video ref={videoRef} autoPlay playsInline style={{ width: '100%', borderRadius: 8 }} />
-              <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-                <button className="btn btn-primary" onClick={captureCamera}>Capturar</button>
+              <video ref={videoRef} autoPlay playsInline className="scan-camera-video" />
+              <div className="scan-camera-actions">
+                <button className="btn btn-primary" onClick={captureCamera}>
+                  Capturar foto
+                </button>
                 <button className="btn" onClick={stopCamera}>Cancelar</button>
               </div>
             </div>
           )}
 
-          {/* Preview de archivo capturado */}
-          {capture && !camActive && (
+          {/* — Vista previa del archivo seleccionado — */}
+          {capture && !camActive && !scanConf && (
             <div className="scan-preview-area">
               {capture.isPdf ? (
                 <div className="scan-pdf-badge">
-                  <span style={{ fontSize: 36 }}>📄</span>
-                  <span style={{ fontWeight: 600 }}>PDF cargado</span>
-                  <span style={{ fontSize: 12, color: 'var(--text-soft)' }}>
-                    Gemini procesará todas sus páginas
-                  </span>
+                  <span className="scan-pdf-icon">📄</span>
+                  <div className="scan-pdf-info">
+                    <span className="scan-pdf-name">{capture.fileName}</span>
+                    <span className="scan-pdf-sub">PDF · listo para analizar</span>
+                  </div>
                 </div>
               ) : (
                 <img
@@ -263,7 +341,7 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
                   className="scan-preview-img"
                 />
               )}
-              <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+              <div className="scan-preview-actions">
                 <button className="btn btn-primary" onClick={runScan} disabled={scanning}>
                   {scanning
                     ? <><span className="spin" />Extrayendo datos…</>
@@ -274,16 +352,17 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
                   Cambiar archivo
                 </button>
               </div>
+              {scanning && (
+                <p className="scan-scanning-hint">
+                  Gemini está analizando el formulario, puede tardar hasta 2 minutos…
+                </p>
+              )}
             </div>
           )}
 
           {scanError && (
-            <div className="banner banner-error" style={{ marginTop: 10 }}>⚠ {scanError}</div>
+            <div className="banner banner-error" style={{ marginTop: 12 }}>⚠ {scanError}</div>
           )}
-
-          <p className="scan-disclaimer">
-            Los datos extraídos se pre-rellenan para revisión. Comprueba y corrige antes de guardar.
-          </p>
         </div>
       )}
     </div>

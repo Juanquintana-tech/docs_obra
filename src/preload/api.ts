@@ -92,12 +92,13 @@ export const api = {
   exportEnsayoExcel: (ensayoId: number): Promise<string | null> =>
     ipcRenderer.invoke('ensayo:exportExcel', ensayoId),
   /** Extrae datos de un formulario de ensayo a partir de una imagen en base64.
-   *  Devuelve { ocr, tipo } con los campos extraídos listos para mergear. */
+   *  Devuelve { ocr, tipo, conf } con los campos extraídos listos para mergear
+   *  y la confianza de cada campo ("high"|"mid"|"low"). */
   scanEnsayoFromImage: (
     tipo: string,
     imageBase64: string,
     mimeType: string
-  ): Promise<{ ocr: Record<string, unknown>; tipo: string }> =>
+  ): Promise<{ ocr: Record<string, unknown>; tipo: string; conf: Record<string, string> }> =>
     ipcRenderer.invoke('ensayo:scanFromImage', { tipo, imageBase64, mimeType }),
 
   // ── Presupuestos (catálogo y reglas) ──

@@ -1,9 +1,10 @@
 /**
  * Página de Ensayos — lista de informes de campo por obra y editor por tipo.
  * Tipos soportados: densidad_in_situ (ASTM D-6938), placa_carga (NLT-357/98),
- * granulometria de escollera (UNE EN 13383-2) y albaran_ensayos.
+ * granulometria de escollera (UNE EN 13383-2), albaran_ensayos, toma_hormigon.
  */
 import { Fragment, useEffect, useState, useCallback, type JSX } from 'react'
+import { OcrConfCtx, useOcrConf } from '../lib/ocrConf'
 import { useParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { Ic } from '../components/Icon'
@@ -15,7 +16,10 @@ import {
   asientoMedio,
   granulometriaSummary,
   parseMasas,
-  GRANULO_SPEC
+  GRANULO_SPEC,
+  tomaHormigonSummary,
+  cargaToTension,
+  toNum
 } from '../lib/ensayoCalc'
 import type { Ensayo, EnsayoInput, Obra } from '../lib/types'
 import './Ensayos.css'
@@ -33,15 +37,73 @@ const TIPOS: Record<string, { label: string; norma: string }> = {
   },
   placa_carga: { label: 'Ensayo de carga con placa', norma: 'NLT-357/98' },
   granulometria: {
-    label: 'Granulometría de escollera (5-40 kg)',
-    norma: 'UNE EN 13383-2'
+    label: 'Granulometría (Escollera)',
+    norma: 'UNE EN 13383-2 · Clase 5-40 kg'
+  },
+  toma_hormigon: {
+    label: 'Albarán de toma (campo)',
+    norma: 'EHE-08 · UNE-EN 12350'
+  },
+  informe_hormigon: {
+    label: 'Informe de ensayo (hormigón)',
+    norma: 'EHE-08 · UNE-EN 12350 · UNE-EN 12390'
+  },
+  albaran_planta: {
+    label: 'Albarán de planta',
+    norma: 'Registro albarán de entrega central hormigonera'
   }
 }
 
-/** Tipos que tienen informe Word disponible (granulometría aún no). */
-const WORD_TIPOS = new Set(['albaran_ensayos', 'densidad_in_situ', 'placa_carga'])
+/** Agrupación visual de tipos para el selector de nuevo ensayo. */
+const GRUPOS: Array<{
+  id: string
+  label: string
+  desc: string
+  color: string
+  abrev: string
+  tipos: string[]
+  subLabels?: Record<string, string>
+}> = [
+  {
+    id: 'hormigon',
+    label: 'Hormigón',
+    desc: 'Albarán de toma · Informe de ensayo · Albarán de planta',
+    color: 'var(--orange)',
+    abrev: 'H',
+    tipos: ['toma_hormigon', 'informe_hormigon', 'albaran_planta']
+  },
+  {
+    id: 'densidad',
+    label: 'Densidad in situ',
+    desc: 'Albarán de campo · Informe de ensayo',
+    color: 'var(--navy)',
+    abrev: 'D',
+    tipos: ['albaran_ensayos', 'densidad_in_situ'],
+    subLabels: { albaran_ensayos: 'Albarán de campo' }
+  },
+  {
+    id: 'placa',
+    label: 'Placa de carga',
+    desc: 'Albarán de campo · Informe de ensayo',
+    color: 'var(--mid)',
+    abrev: 'P',
+    tipos: ['albaran_ensayos', 'placa_carga'],
+    subLabels: { albaran_ensayos: 'Albarán de campo' }
+  },
+  {
+    id: 'granulometria',
+    label: 'Granulometría (Escollera)',
+    desc: 'UNE EN 13383-2 · Clase 5-40 kg',
+    color: '#0d7280',
+    abrev: 'G',
+    tipos: ['granulometria']
+  }
+]
+
+/** Tipos que tienen informe Word disponible. */
+const WORD_TIPOS = new Set(['albaran_ensayos', 'densidad_in_situ', 'placa_carga', 'toma_hormigon', 'informe_hormigon', 'albaran_planta'])
 /** Tipos con export a Excel. */
-const EXCEL_TIPOS = new Set(['densidad_in_situ', 'placa_carga', 'granulometria'])
+const EXCEL_TIPOS = new Set(['densidad_in_situ', 'placa_carga', 'granulometria', 'informe_hormigon'])
 
 // ── Valores por defecto de presiones de placa ────────────────────────────────
 
@@ -53,6 +115,8 @@ function defaultDensidadDatos(): Record<string, unknown> {
     cabecera: { capa: 'Coronación', n_lote: '1' },
     ensayos: Array.from({ length: 6 }, (_, i) => ({ n: i + 1 })),
     compactacion_min: 100,
+    correccion_densidad: 0,
+    correccion_humedad: 0,
     cond3_cumple: null
   }
 }
@@ -114,6 +178,111 @@ function defaultGranulometriaDatos(): Record<string, unknown> {
   }
 }
 
+function defaultTomaHormigonDatos(): Record<string, unknown> {
+  return {
+    identificacion: {
+      n_albaran_cye: '',
+      obra: '',
+      nte_cliente: '',
+      ref_obra: '',
+      n_trabajo: '',
+      n_ensayo_obra: '',
+      tipo_hormigon: 'HA-25/B/20/IIa',
+      tipo_muestreo: 'Simple',
+      tipo_compactacion: '3×25 Picadas',
+      fecha_toma: '',
+      hora_toma: '',
+      confeccionado_por: '',
+      fecha_recogida: '',
+      hora_recogida: ''
+    },
+    camion: {
+      descripcion_elemento: '',
+      central: '',
+      tipo_planta: '',
+      matricula: '',
+      volumen_m3: '',
+      albaran_central: '',
+      hora_salida: '',
+      hora_llegada: '',
+      t_max_arido: '20',
+      consistencia: 'P',
+      marca_cemento: ''
+    },
+    conos: [
+      { numero: 1, mm: '', tiempo_s: '', observaciones: '' },
+      { numero: 2, mm: '', tiempo_s: '', observaciones: '' }
+    ],
+    asentamiento_media: '',
+    limite_uso: '32',
+    composicion: {
+      tipo_cemento: '',
+      marca_cemento: '',
+      aditivo: '',
+      adiciones: '',
+      contenido_cemento_m3: '',
+      relacion_ac: '',
+      t_amb: '',
+      t_hormigon: '',
+      humedad_pct: ''
+    },
+    probetas: {
+      cantidad: '5',
+      n_cilindricas: '5',
+      n_prismaticas: '0',
+      n_cubicas: '0',
+      tipo: 'Cilíndricas 150×300mm',
+      por_cye: true,
+      fecha_recogida: '',
+      hora_recogida: ''
+    },
+    roturas: [
+      { n_probeta: '1', fecha_rotura: '', edad_dias: '7',  densidad_kg_m3: 'Nominales', carga_maxima_kn: '', tension_mpa: '', ajuste_c_sup: 'a', ajuste_c_inf: 'e' },
+      { n_probeta: '2', fecha_rotura: '', edad_dias: '7',  densidad_kg_m3: 'Nominales', carga_maxima_kn: '', tension_mpa: '', ajuste_c_sup: 'a', ajuste_c_inf: 'e' },
+      { n_probeta: '3', fecha_rotura: '', edad_dias: '28', densidad_kg_m3: 'Nominales', carga_maxima_kn: '', tension_mpa: '', ajuste_c_sup: 'a', ajuste_c_inf: 'e' },
+      { n_probeta: '4', fecha_rotura: '', edad_dias: '28', densidad_kg_m3: 'Nominales', carga_maxima_kn: '', tension_mpa: '', ajuste_c_sup: 'a', ajuste_c_inf: 'e' },
+      { n_probeta: '5', fecha_rotura: '', edad_dias: '28', densidad_kg_m3: 'Nominales', carga_maxima_kn: '', tension_mpa: '', ajuste_c_sup: 'a', ajuste_c_inf: 'e' }
+    ],
+    fck_manual: '',
+    observaciones: '',
+    conservacion_ambiental: true,
+    tipo_traslado: '',
+    tiempo_estancia_obra: '',
+    duracion_traslado: ''
+  }
+}
+
+function defaultAlbaranPlantaDatos(): Record<string, unknown> {
+  return {
+    n_albaran_planta: '',
+    n_serie: '',
+    fecha: '',
+    planta: '',
+    n_albaran_cye: '',
+    cliente: '',
+    obra: '',
+    matricula: '',
+    transportista: '',
+    m3_entregados: '',
+    tipo_hormigon: '',
+    elemento_hormigonado: '',
+    hora_carga: '',
+    hora_llegada: '',
+    hora_inicio_descarga: '',
+    hora_salida_obra: '',
+    tiempo_limite_uso: '',
+    cemento_tipo: '',
+    cemento_kg_m3: '',
+    relacion_ac: '',
+    tolerancia_ac: '',
+    aditivos: '',
+    adiciones: '',
+    t_hormigon: '',
+    cono_mm: '',
+    observaciones: ''
+  }
+}
+
 function defaultPlacaDatos(): Record<string, unknown> {
   return {
     cabecera: {},
@@ -153,6 +322,7 @@ export function Ensayos(): JSX.Element {
   const [ensayos, setEnsayos] = useState<Ensayo[]>([])
   const [editing, setEditing] = useState<Ensayo | null>(null) // null = lista
   const [creating, setCreating] = useState<string | null>(null) // tipo nuevo
+  const [openGroup, setOpenGroup] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [lastPath, setLastPath] = useState<string | null>(null)
 
@@ -282,12 +452,55 @@ export function Ensayos(): JSX.Element {
               </div>
             </div>
 
-            {/* Botones nuevo ensayo */}
-            <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
-              {Object.entries(TIPOS).map(([tipo, meta]) => (
-                <button key={tipo} className="btn btn-primary" onClick={() => setCreating(tipo)}>
-                  <Ic.Plus /> {meta.label}
-                </button>
+            {/* Selector de nuevo ensayo agrupado */}
+            <div className="ensayo-picker">
+              <p className="ensayo-picker-title">Nuevo informe de ensayo</p>
+              <div className="ensayo-grupos">
+                {GRUPOS.map((g) => {
+                  const isOpen = openGroup === g.id
+                  const isSingle = g.tipos.length === 1
+                  return (
+                    <button
+                      key={g.id}
+                      className={`ensayo-grupo-card${isOpen ? ' active' : ''}`}
+                      style={{ '--grupo-color': g.color } as React.CSSProperties}
+                      onClick={() => {
+                        if (isSingle) {
+                          setCreating(g.tipos[0])
+                        } else {
+                          setOpenGroup(isOpen ? null : g.id)
+                        }
+                      }}
+                    >
+                      <div className="ensayo-grupo-abrev">{g.abrev}</div>
+                      <div className="ensayo-grupo-info">
+                        <div className="ensayo-grupo-label">{g.label}</div>
+                        <div className="ensayo-grupo-desc">{g.desc}</div>
+                      </div>
+                      <span className="ensayo-grupo-chevron">
+                        {isSingle ? '→' : isOpen ? '▲' : '▼'}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+              {GRUPOS.filter((g) => g.tipos.length > 1 && openGroup === g.id).map((g) => (
+                <div
+                  key={g.id}
+                  className="ensayo-subtypes-panel"
+                  style={{ '--grupo-color': g.color } as React.CSSProperties}
+                >
+                  {g.tipos.map((tipo) => (
+                    <button
+                      key={tipo}
+                      className="ensayo-subtype-btn"
+                      onClick={() => { setCreating(tipo); setOpenGroup(null) }}
+                    >
+                      <span className="ensayo-subtype-label">{g.subLabels?.[tipo] ?? TIPOS[tipo].label}</span>
+                      <span className="ensayo-subtype-norma">{TIPOS[tipo].norma}</span>
+                    </button>
+                  ))}
+                </div>
               ))}
             </div>
 
@@ -371,7 +584,11 @@ export function Ensayos(): JSX.Element {
         ? defaultAlbaranDatos()
         : tipo === 'granulometria'
           ? defaultGranulometriaDatos()
-          : defaultPlacaDatos()
+          : tipo === 'toma_hormigon' || tipo === 'informe_hormigon'
+            ? defaultTomaHormigonDatos()
+            : tipo === 'albaran_planta'
+              ? defaultAlbaranPlantaDatos()
+              : defaultPlacaDatos()
 
   return (
     <EnsayoEditor
@@ -496,15 +713,15 @@ function EnsayoEditor({
   const [estado, setEstado] = useState<'borrador' | 'completado'>(estadoInit)
   const [busy, setBusy] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
-  const [scanBanner, setScanBanner] = useState<string | null>(null)
+  const [ocrConf, setOcrConf] = useState<Record<string, string>>({})
 
   const meta = TIPOS[tipo]
   const veredicto = computeVeredictoLocal(tipo, datos)
 
   const handleScanResult = useCallback(
-    (ocr: Record<string, unknown>) => {
+    (ocr: Record<string, unknown>, conf: Record<string, string>) => {
       setDatos((prev) => applyOcrResult(tipo, prev, ocr))
-      setScanBanner('Datos extraídos del formulario. Revisa y corrige antes de guardar.')
+      setOcrConf(conf)
     },
     [tipo]
   )
@@ -573,28 +790,21 @@ function EnsayoEditor({
         </div>
       </div>
 
-      {saveError && <div className="banner banner-error">⚠ {saveError}</div>}
-      {scanBanner && (
-        <div className="banner banner-ok" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>✓ {scanBanner}</span>
-          <button
-            className="btn btn-ghost"
-            style={{ padding: '2px 8px', fontSize: 12 }}
-            onClick={() => setScanBanner(null)}
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
       {/* Panel de escaneo de formularios con IA */}
       <ScanPanel tipo={tipo} onResult={handleScanResult} />
 
-      {/* Formulario específico */}
-      {tipo === 'densidad_in_situ' && <DensidadForm datos={datos} onChange={setDatos} />}
-      {tipo === 'placa_carga' && <PlacaForm datos={datos} onChange={setDatos} />}
-      {tipo === 'granulometria' && <GranulometriaForm datos={datos} onChange={setDatos} />}
-      {tipo === 'albaran_ensayos' && <AlbaranForm datos={datos} onChange={setDatos} />}
+      {saveError && <div className="banner banner-error">⚠ {saveError}</div>}
+
+      {/* Formulario específico — envuelto en contexto de confianza OCR */}
+      <OcrConfCtx.Provider value={ocrConf}>
+        {tipo === 'densidad_in_situ' && <DensidadForm datos={datos} onChange={setDatos} />}
+        {tipo === 'placa_carga' && <PlacaForm datos={datos} onChange={setDatos} />}
+        {tipo === 'granulometria' && <GranulometriaForm datos={datos} onChange={setDatos} />}
+        {tipo === 'albaran_ensayos' && <AlbaranForm datos={datos} onChange={setDatos} />}
+        {tipo === 'toma_hormigon' && <TomaHormigonForm datos={datos} onChange={setDatos} showRoturas={false} />}
+        {tipo === 'informe_hormigon' && <TomaHormigonForm datos={datos} onChange={setDatos} showRoturas={true} />}
+        {tipo === 'albaran_planta' && <AlbaranPlantaForm datos={datos} onChange={setDatos} />}
+      </OcrConfCtx.Provider>
 
       <div className="toolbar" style={{ marginTop: 20 }}>
         <button className="btn btn-primary" onClick={handleSave} disabled={busy}>
@@ -694,6 +904,77 @@ function applyOcrResult(
     }
   }
 
+  if (tipo === 'albaran_planta') {
+    const merged: Record<string, unknown> = { ...current }
+    for (const [k, v] of Object.entries(ocr)) {
+      if (v !== null && v !== undefined && v !== '') merged[k] = v
+    }
+    return merged
+  }
+
+  if (tipo === 'toma_hormigon' || tipo === 'informe_hormigon') {
+    type TomaOcr = {
+      identificacion?: Record<string, string | null>
+      camion?: Record<string, string | null>
+      conos?: Array<{ numero?: number; mm?: string | null; tiempo_s?: string | null; observaciones?: string | null }>
+      asentamiento_media?: string | null
+      limite_uso?: string | null
+      composicion?: Record<string, string | null>
+      probetas?: Record<string, string | null | boolean>
+      conservacion_ambiental?: boolean | null
+      tipo_traslado?: string | null
+      roturas?: Array<Record<string, string | null>>
+    }
+    const t = ocr as TomaOcr
+    const merged = { ...current }
+
+    const mergeSection = (key: string, src: Record<string, unknown> | undefined): void => {
+      if (!src) return
+      const existing = (current[key] as Record<string, unknown>) ?? {}
+      const next = { ...existing }
+      for (const [k, v] of Object.entries(src)) {
+        if (v !== null && v !== undefined && v !== '') next[k] = v
+      }
+      merged[key] = next
+    }
+
+    mergeSection('identificacion', t.identificacion as Record<string, unknown> | undefined)
+    mergeSection('camion', t.camion as Record<string, unknown> | undefined)
+    mergeSection('composicion', t.composicion as Record<string, unknown> | undefined)
+    mergeSection('probetas', t.probetas as Record<string, unknown> | undefined)
+
+    if (t.asentamiento_media !== null && t.asentamiento_media !== undefined && t.asentamiento_media !== '')
+      merged.asentamiento_media = t.asentamiento_media
+    if (t.limite_uso !== null && t.limite_uso !== undefined && t.limite_uso !== '')
+      merged.limite_uso = t.limite_uso
+    if ((ocr as Record<string, unknown>).conservacion_ambiental !== null && (ocr as Record<string, unknown>).conservacion_ambiental !== undefined)
+      merged.conservacion_ambiental = (ocr as Record<string, unknown>).conservacion_ambiental
+    if ((ocr as Record<string, unknown>).tipo_traslado !== null && (ocr as Record<string, unknown>).tipo_traslado !== undefined && (ocr as Record<string, unknown>).tipo_traslado !== '')
+      merged.tipo_traslado = (ocr as Record<string, unknown>).tipo_traslado
+
+    if (t.conos && t.conos.length > 0) {
+      const existConos = (current.conos as Record<string, unknown>[]) ?? []
+      merged.conos = t.conos.map((c, i) => ({
+        numero: c.numero ?? i + 1,
+        mm: c.mm ?? existConos[i]?.mm ?? '',
+        tiempo_s: c.tiempo_s ?? existConos[i]?.tiempo_s ?? '',
+        observaciones: c.observaciones ?? existConos[i]?.observaciones ?? ''
+      }))
+    }
+
+    if (t.roturas && t.roturas.length > 0) {
+      merged.roturas = t.roturas.map((r, i) => ({
+        n_probeta: r.n_probeta ?? String(i + 1),
+        fecha_rotura: r.fecha_rotura ?? '',
+        edad_dias: r.edad_dias ?? '',
+        carga_maxima_kn: r.carga_maxima_kn ?? '',
+        tension_mpa: r.tension_mpa ?? ''
+      }))
+    }
+
+    return merged
+  }
+
   return current
 }
 
@@ -706,6 +987,7 @@ function computeVeredictoLocal(tipo: string, datos: Record<string, unknown>): st
     if (tipo === 'densidad_in_situ') return densidadSummary(datos)?.veredicto ?? ''
     if (tipo === 'placa_carga') return placaSummary(datos).veredicto
     if (tipo === 'granulometria') return granulometriaSummary(datos).veredicto
+    if (tipo === 'toma_hormigon' || tipo === 'informe_hormigon') return tomaHormigonSummary(datos).veredicto
   } catch {
     /* silent */
   }
@@ -723,6 +1005,7 @@ function DensidadForm({
   datos: Record<string, unknown>
   onChange: (d: Record<string, unknown>) => void
 }): JSX.Element {
+  const cc = useOcrConf()
   const cab = (datos.cabecera as Record<string, string>) ?? {}
   const ensayos = (datos.ensayos as Record<string, unknown>[]) ?? []
   const compMin = (datos.compactacion_min as number) ?? 100
@@ -733,6 +1016,8 @@ function DensidadForm({
   function setCab(key: string, val: string): void {
     onChange({ ...datos, cabecera: { ...cab, [key]: val } })
   }
+
+  const corrD = parseFloat(String(datos.correccion_densidad ?? 0)) || 0
 
   function setNFilas(n: number): void {
     const newRows = Array.from({ length: n }, (_, i) => ensayos[i] ?? { n: i + 1 })
@@ -753,7 +1038,7 @@ function DensidadForm({
           <div className="field-group">
             <label className="field-label">Orden de trabajo</label>
             <input
-              className="input"
+              className={cc('cabecera.orden_trabajo')}
               value={cab.orden_trabajo ?? ''}
               onChange={(e) => setCab('orden_trabajo', e.target.value)}
             />
@@ -761,7 +1046,7 @@ function DensidadForm({
           <div className="field-group">
             <label className="field-label">Capa</label>
             <input
-              className="input"
+              className={cc('cabecera.capa')}
               value={cab.capa ?? ''}
               onChange={(e) => setCab('capa', e.target.value)}
             />
@@ -769,7 +1054,7 @@ function DensidadForm({
           <div className="field-group">
             <label className="field-label">Nº Lote</label>
             <input
-              className="input"
+              className={cc('cabecera.n_lote')}
               value={cab.n_lote ?? ''}
               onChange={(e) => setCab('n_lote', e.target.value)}
             />
@@ -777,7 +1062,7 @@ function DensidadForm({
           <div className="field-group">
             <label className="field-label">Localización (PK)</label>
             <input
-              className="input"
+              className={cc('cabecera.localizacion')}
               value={cab.localizacion ?? ''}
               onChange={(e) => setCab('localizacion', e.target.value)}
             />
@@ -785,10 +1070,36 @@ function DensidadForm({
           <div className="field-group">
             <label className="field-label">Fecha ensayo</label>
             <input
-              className="input"
+              className={cc('cabecera.fecha_ensayo')}
               value={cab.fecha_ensayo ?? ''}
               onChange={(e) => setCab('fecha_ensayo', e.target.value)}
               placeholder="dd-mm-aaaa"
+            />
+          </div>
+          <div className="field-group">
+            <label className="field-label" title="Offset aditivo sobre D in situ (g/cm³). 0 = sin corrección">Corrección densidad (g/cm³)</label>
+            <input
+              type="number"
+              step={0.001}
+              className="input"
+              style={{ width: 110 }}
+              value={datos.correccion_densidad ?? 0}
+              onChange={(e) =>
+                onChange({ ...datos, correccion_densidad: parseFloat(e.target.value) || 0 })
+              }
+            />
+          </div>
+          <div className="field-group">
+            <label className="field-label" title="Offset aditivo sobre H in situ (%). 0 = sin corrección">Corrección humedad (%)</label>
+            <input
+              type="number"
+              step={0.1}
+              className="input"
+              style={{ width: 110 }}
+              value={datos.correccion_humedad ?? 0}
+              onChange={(e) =>
+                onChange({ ...datos, correccion_humedad: parseFloat(e.target.value) || 0 })
+              }
             />
           </div>
         </div>
@@ -854,7 +1165,7 @@ function DensidadForm({
           {ensayos.map((row, i) => {
             const dm = parseFloat(String(row.d_max ?? '').replace(',', '.'))
             const ds = parseFloat(String(row.d_situ ?? '').replace(',', '.'))
-            const comp = dm > 0 && ds > 0 ? ((ds / dm) * 100).toFixed(1) : null
+            const comp = dm > 0 && ds > 0 ? (((ds + corrD) / dm) * 100).toFixed(1) : null
             const compOk = comp !== null ? parseFloat(comp) >= compMin : null
             return (
               <Fragment key={`row-${i}`}>
@@ -1057,6 +1368,7 @@ function PlacaForm({
   datos: Record<string, unknown>
   onChange: (d: Record<string, unknown>) => void
 }): JSX.Element {
+  const cc = useOcrConf()
   const cab = (datos.cabecera as Record<string, string>) ?? {}
   const ciclo1 = (datos.ciclo1 as Record<string, unknown>[]) ?? []
   const descarga = (datos.descarga as Record<string, unknown>[]) ?? []
@@ -1101,7 +1413,7 @@ function PlacaForm({
           <div className="field-group">
             <label className="field-label">Orden de trabajo</label>
             <input
-              className="input"
+              className={cc('cabecera.orden_trabajo')}
               value={cab.orden_trabajo ?? ''}
               onChange={(e) => setCab('orden_trabajo', e.target.value)}
             />
@@ -1109,7 +1421,7 @@ function PlacaForm({
           <div className="field-group">
             <label className="field-label">P.K.</label>
             <input
-              className="input"
+              className={cc('cabecera.pk')}
               value={cab.pk ?? ''}
               onChange={(e) => setCab('pk', e.target.value)}
             />
@@ -1117,7 +1429,7 @@ function PlacaForm({
           <div className="field-group">
             <label className="field-label">Capa</label>
             <input
-              className="input"
+              className={cc('cabecera.capa')}
               value={cab.capa ?? ''}
               onChange={(e) => setCab('capa', e.target.value)}
             />
@@ -1125,7 +1437,7 @@ function PlacaForm({
           <div className="field-group">
             <label className="field-label">Fecha ensayo</label>
             <input
-              className="input"
+              className={cc('cabecera.fecha_ensayo')}
               value={cab.fecha_ensayo ?? ''}
               onChange={(e) => setCab('fecha_ensayo', e.target.value)}
               placeholder="dd-mm-aaaa"
@@ -1134,7 +1446,7 @@ function PlacaForm({
           <div className="field-group" style={{ maxWidth: 120 }}>
             <label className="field-label">Ø placa (mm)</label>
             <input
-              className="input"
+              className={cc('cabecera.diam_placa')}
               value={cab.diam_placa ?? '300'}
               onChange={(e) =>
                 onChange({
@@ -1227,6 +1539,7 @@ function GranulometriaForm({
   datos: Record<string, unknown>
   onChange: (d: Record<string, unknown>) => void
 }): JSX.Element {
+  const cc = useOcrConf()
   const cab = (datos.cabecera as Record<string, string>) ?? {}
   const setCab = (key: string, val: string): void =>
     onChange({ ...datos, cabecera: { ...cab, [key]: val } })
@@ -1280,7 +1593,7 @@ function GranulometriaForm({
           <div className="field-group" style={{ flex: 2 }}>
             <label className="field-label">Material</label>
             <input
-              className="input"
+              className={cc('cabecera.material')}
               value={cab.material ?? ''}
               onChange={(e) => setCab('material', e.target.value)}
             />
@@ -1288,7 +1601,7 @@ function GranulometriaForm({
           <div className="field-group">
             <label className="field-label">Ref. muestra</label>
             <input
-              className="input"
+              className={cc('cabecera.muestra')}
               value={cab.muestra ?? ''}
               onChange={(e) => setCab('muestra', e.target.value)}
             />
@@ -1296,7 +1609,7 @@ function GranulometriaForm({
           <div className="field-group">
             <label className="field-label">Localización muestra</label>
             <input
-              className="input"
+              className={cc('cabecera.localizacion')}
               value={cab.localizacion ?? ''}
               onChange={(e) => setCab('localizacion', e.target.value)}
             />
@@ -1313,7 +1626,7 @@ function GranulometriaForm({
           <div className="field-group">
             <label className="field-label">Fecha ensayo</label>
             <input
-              className="input"
+              className={cc('cabecera.fecha_ensayo')}
               value={cab.fecha_ensayo ?? ''}
               onChange={(e) => setCab('fecha_ensayo', e.target.value)}
               placeholder="dd-mm-aaaa"
@@ -1489,6 +1802,7 @@ function AlbaranForm({
   datos: Record<string, unknown>
   onChange: (d: Record<string, unknown>) => void
 }): JSX.Element {
+  const cc = useOcrConf()
   function set(key: string, val: unknown): void {
     onChange({ ...datos, [key]: val })
   }
@@ -1518,7 +1832,7 @@ function AlbaranForm({
             <div className="alb-header-field">
               <span className="alb-hf-label">Nº de ensayo (O.T.)</span>
               <input
-                className="input alb-hf-input"
+                className={`${cc('n_ensayo_ot')} alb-hf-input`}
                 value={String(datos.n_ensayo_ot ?? '')}
                 onChange={(e) => set('n_ensayo_ot', e.target.value)}
               />
@@ -1526,7 +1840,7 @@ function AlbaranForm({
             <div className="alb-header-field">
               <span className="alb-hf-label">Fecha de toma</span>
               <input
-                className="input alb-hf-input"
+                className={`${cc('fecha_toma')} alb-hf-input`}
                 value={String(datos.fecha_toma ?? '')}
                 onChange={(e) => set('fecha_toma', e.target.value)}
                 placeholder="dd-mm-aaaa"
@@ -1535,7 +1849,7 @@ function AlbaranForm({
             <div className="alb-header-field">
               <span className="alb-hf-label">Fecha de entrada</span>
               <input
-                className="input alb-hf-input"
+                className={`${cc('fecha_entrada')} alb-hf-input`}
                 value={String(datos.fecha_entrada ?? '')}
                 onChange={(e) => set('fecha_entrada', e.target.value)}
                 placeholder="dd-mm-aaaa"
@@ -1552,7 +1866,7 @@ function AlbaranForm({
           <div className="field-group" style={{ flex: 2 }}>
             <label className="field-label">Título</label>
             <input
-              className="input"
+              className={cc('titulo_obra')}
               value={String(datos.titulo_obra ?? '')}
               onChange={(e) => set('titulo_obra', e.target.value)}
             />
@@ -1560,7 +1874,7 @@ function AlbaranForm({
           <div className="field-group">
             <label className="field-label">Ref. Obra</label>
             <input
-              className="input"
+              className={cc('ref_obra')}
               value={String(datos.ref_obra ?? '')}
               onChange={(e) => set('ref_obra', e.target.value)}
             />
@@ -1577,7 +1891,7 @@ function AlbaranForm({
               <div className="alb-inline-field">
                 <span className="alb-inline-label">Empresa:</span>
                 <input
-                  className="input alb-inline-input"
+                  className={`${cc('empresa')} alb-inline-input`}
                   value={String(datos.empresa ?? '')}
                   onChange={(e) => set('empresa', e.target.value)}
                 />
@@ -1585,7 +1899,7 @@ function AlbaranForm({
               <div className="alb-inline-field">
                 <span className="alb-inline-label">Dirección:</span>
                 <input
-                  className="input alb-inline-input"
+                  className={`${cc('direccion')} alb-inline-input`}
                   value={String(datos.direccion ?? '')}
                   onChange={(e) => set('direccion', e.target.value)}
                 />
@@ -1593,7 +1907,7 @@ function AlbaranForm({
               <div className="alb-inline-field">
                 <span className="alb-inline-label">N.I.F. / C.I.F.:</span>
                 <input
-                  className="input alb-inline-input"
+                  className={`${cc('nif_cif')} alb-inline-input`}
                   value={String(datos.nif_cif ?? '')}
                   onChange={(e) => set('nif_cif', e.target.value)}
                 />
@@ -1601,7 +1915,7 @@ function AlbaranForm({
               <div className="alb-inline-field">
                 <span className="alb-inline-label">Persona de contacto:</span>
                 <input
-                  className="input alb-inline-input"
+                  className={`${cc('persona_contacto')} alb-inline-input`}
                   value={String(datos.persona_contacto ?? '')}
                   onChange={(e) => set('persona_contacto', e.target.value)}
                 />
@@ -1609,7 +1923,7 @@ function AlbaranForm({
               <div className="alb-inline-field">
                 <span className="alb-inline-label">Teléfono / Fax:</span>
                 <input
-                  className="input alb-inline-input"
+                  className={`${cc('telefono_fax')} alb-inline-input`}
                   value={String(datos.telefono_fax ?? '')}
                   onChange={(e) => set('telefono_fax', e.target.value)}
                 />
@@ -1618,7 +1932,7 @@ function AlbaranForm({
             <div className="alb-inline-field" style={{ marginTop: 8 }}>
               <span className="alb-inline-label">Observaciones:</span>
               <input
-                className="input alb-inline-input"
+                className={`${cc('observaciones_cliente')} alb-inline-input`}
                 value={String(datos.observaciones_cliente ?? '')}
                 onChange={(e) => set('observaciones_cliente', e.target.value)}
               />
@@ -1676,7 +1990,7 @@ function AlbaranForm({
             Recogida por CYE en:
           </label>
           <input
-            className="input"
+            className={cc('recogida_por_cye_en')}
             style={{ flex: 1, minWidth: 120 }}
             value={String(datos.recogida_por_cye_en ?? '')}
             onChange={(e) => set('recogida_por_cye_en', e.target.value)}
@@ -1694,7 +2008,7 @@ function AlbaranForm({
 
           <div className="alb-mg-cell">
             <textarea
-              className="input alb-textarea-sm"
+              className={`${cc('material_descripcion')} alb-textarea-sm`}
               rows={3}
               value={String(datos.material_descripcion ?? '')}
               onChange={(e) => set('material_descripcion', e.target.value)}
@@ -1702,7 +2016,7 @@ function AlbaranForm({
           </div>
           <div className="alb-mg-cell">
             <textarea
-              className="input alb-textarea-sm"
+              className={`${cc('localizacion')} alb-textarea-sm`}
               rows={3}
               value={String(datos.localizacion ?? '')}
               onChange={(e) => set('localizacion', e.target.value)}
@@ -1710,7 +2024,7 @@ function AlbaranForm({
           </div>
           <div className="alb-mg-cell">
             <textarea
-              className="input alb-textarea-sm"
+              className={`${cc('otros_datos')} alb-textarea-sm`}
               rows={3}
               value={String(datos.otros_datos ?? '')}
               onChange={(e) => set('otros_datos', e.target.value)}
@@ -1732,7 +2046,7 @@ function AlbaranForm({
           </div>
           <div className="alb-mg-cell">
             <textarea
-              className="input alb-textarea-sm"
+              className={`${cc('cantidad_muestra')} alb-textarea-sm`}
               rows={3}
               value={String(datos.cantidad_muestra ?? '')}
               onChange={(e) => set('cantidad_muestra', e.target.value)}
@@ -1938,6 +2252,639 @@ function AlbaranForm({
               onChange={(e) => set('fecha_informe', e.target.value)}
               placeholder="dd-mm-aaaa"
             />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FORMULARIO TOMA DE HORMIGÓN / PROBETAS
+// ══════════════════════════════════════════════════════════════════════════════
+
+type TomaRow = Record<string, unknown>
+
+function TomaHormigonForm({
+  datos,
+  onChange,
+  showRoturas = true
+}: {
+  datos: Record<string, unknown>
+  onChange: (d: Record<string, unknown>) => void
+  showRoturas?: boolean
+}): JSX.Element {
+  const cc = useOcrConf()
+  const ident = (datos.identificacion as Record<string, unknown>) ?? {}
+  const camion = (datos.camion as Record<string, unknown>) ?? {}
+  const conos = (datos.conos as TomaRow[]) ?? []
+  const comp = (datos.composicion as Record<string, unknown>) ?? {}
+  const prob = (datos.probetas as Record<string, unknown>) ?? {}
+  const roturas = (datos.roturas as TomaRow[]) ?? []
+
+  function setIdent(k: string, v: unknown): void {
+    onChange({ ...datos, identificacion: { ...ident, [k]: v } })
+  }
+  function setCamion(k: string, v: string): void {
+    onChange({ ...datos, camion: { ...camion, [k]: v } })
+  }
+  function setComp(k: string, v: string): void {
+    onChange({ ...datos, composicion: { ...comp, [k]: v } })
+  }
+  function setProb(k: string, v: unknown): void {
+    onChange({ ...datos, probetas: { ...prob, [k]: v } })
+  }
+  function setCono(i: number, k: string, v: string): void {
+    const next = conos.map((c, idx) => (idx === i ? { ...c, [k]: v } : c))
+    onChange({ ...datos, conos: next })
+  }
+  function setRotura(i: number, k: string, v: string): void {
+    const next = roturas.map((r, idx) => {
+      if (idx !== i) return r
+      const updated = { ...r, [k]: v }
+      // Auto-calcular tensión a partir de carga si el tipo es cilíndrica 150mm
+      if (k === 'carga_maxima_kn' && v !== '') {
+        const kn = toNum(v)
+        if (kn !== null && String(prob.tipo ?? '').includes('150')) {
+          updated.tension_mpa = String(cargaToTension(kn)).replace('.', ',')
+        }
+      }
+      return updated
+    })
+    onChange({ ...datos, roturas: next })
+  }
+  function addRotura(): void {
+    onChange({
+      ...datos,
+      roturas: [
+        ...roturas,
+        { n_probeta: String(roturas.length + 1), fecha_rotura: '', edad_dias: '28', densidad_kg_m3: 'Nominales', carga_maxima_kn: '', tension_mpa: '', ajuste_c_sup: 'a', ajuste_c_inf: 'e' }
+      ]
+    })
+  }
+  function removeRotura(i: number): void {
+    onChange({ ...datos, roturas: roturas.filter((_, idx) => idx !== i) })
+  }
+
+  const summary = tomaHormigonSummary(datos)
+
+  return (
+    <div>
+      {/* ── Identificación ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Identificación del ensayo</div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Nº Albarán CYE</label>
+            <input className={cc('identificacion.n_albaran_cye')} value={String(ident.n_albaran_cye ?? '')} onChange={(e) => setIdent('n_albaran_cye', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Nº Trabajo</label>
+            <input className={cc('identificacion.n_trabajo')} value={String(ident.n_trabajo ?? '')} onChange={(e) => setIdent('n_trabajo', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Nº Ensayo en obra</label>
+            <input className={cc('identificacion.n_ensayo_obra')} value={String(ident.n_ensayo_obra ?? '')} onChange={(e) => setIdent('n_ensayo_obra', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Obra</label>
+            <input className={cc('identificacion.obra')} value={String(ident.obra ?? '')} onChange={(e) => setIdent('obra', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">NTE / Cliente</label>
+            <input className={cc('identificacion.nte_cliente')} value={String(ident.nte_cliente ?? '')} onChange={(e) => setIdent('nte_cliente', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Ref. Obra</label>
+            <input className={cc('identificacion.ref_obra')} value={String(ident.ref_obra ?? '')} onChange={(e) => setIdent('ref_obra', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Tipo de hormigón</label>
+            <input className={cc('identificacion.tipo_hormigon')} value={String(ident.tipo_hormigon ?? '')} onChange={(e) => setIdent('tipo_hormigon', e.target.value)} placeholder="HA-25/B/20/IIa" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Tipo de muestreo</label>
+            <select className="select" value={String(ident.tipo_muestreo ?? 'Simple')} onChange={(e) => setIdent('tipo_muestreo', e.target.value)}>
+              <option>Simple</option>
+              <option>Compuesto</option>
+            </select>
+          </div>
+          <div className="field-group">
+            <label className="field-label">Tipo de compactación</label>
+            <input className={cc('identificacion.tipo_compactacion')} value={String(ident.tipo_compactacion ?? '')} onChange={(e) => setIdent('tipo_compactacion', e.target.value)} placeholder="3×25 Picadas" />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Fecha toma</label>
+            <input className={cc('identificacion.fecha_toma')} value={String(ident.fecha_toma ?? '')} onChange={(e) => setIdent('fecha_toma', e.target.value)} placeholder="dd-mm-aaaa" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Hora toma</label>
+            <input className={cc('identificacion.hora_toma')} value={String(ident.hora_toma ?? '')} onChange={(e) => setIdent('hora_toma', e.target.value)} placeholder="hh:mm" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Confeccionado por</label>
+            <input className={cc('identificacion.confeccionado_por')} value={String(ident.confeccionado_por ?? '')} onChange={(e) => setIdent('confeccionado_por', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Fecha recogida</label>
+            <input className={cc('identificacion.fecha_recogida')} value={String(ident.fecha_recogida ?? '')} onChange={(e) => setIdent('fecha_recogida', e.target.value)} placeholder="dd-mm-aaaa" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Hora recogida</label>
+            <input className={cc('identificacion.hora_recogida')} value={String(ident.hora_recogida ?? '')} onChange={(e) => setIdent('hora_recogida', e.target.value)} placeholder="hh:mm" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">fck manual (MPa) — si no está en el tipo</label>
+            <input className="input" value={String(datos.fck_manual ?? '')} onChange={(e) => onChange({ ...datos, fck_manual: e.target.value })} placeholder="Ej: 30" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Datos del camión ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Datos del camión / amasada</div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Descripción del elemento</label>
+            <input className={cc('camion.descripcion_elemento')} value={String(camion.descripcion_elemento ?? '')} onChange={(e) => setCamion('descripcion_elemento', e.target.value)} placeholder="Muro pantalla, forjado, zapata…" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Central / Proveedor</label>
+            <input className={cc('camion.central')} value={String(camion.central ?? '')} onChange={(e) => setCamion('central', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Matrícula</label>
+            <input className={cc('camion.matricula')} value={String(camion.matricula ?? '')} onChange={(e) => setCamion('matricula', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Tipo planta</label>
+            <input className="input" value={String(camion.tipo_planta ?? '')} onChange={(e) => setCamion('tipo_planta', e.target.value)} placeholder="Desconocida" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Volumen (m³)</label>
+            <input className={cc('camion.volumen_m3')} value={String(camion.volumen_m3 ?? '')} onChange={(e) => setCamion('volumen_m3', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Albarán central</label>
+            <input className={cc('camion.albaran_central')} value={String(camion.albaran_central ?? '')} onChange={(e) => setCamion('albaran_central', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">T. máx. árido (mm)</label>
+            <input className={cc('camion.t_max_arido')} value={String(camion.t_max_arido ?? '')} onChange={(e) => setCamion('t_max_arido', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Hora salida central</label>
+            <input className={cc('camion.hora_salida')} value={String(camion.hora_salida ?? '')} onChange={(e) => setCamion('hora_salida', e.target.value)} placeholder="hh:mm" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Hora llegada obra</label>
+            <input className={cc('camion.hora_llegada')} value={String(camion.hora_llegada ?? '')} onChange={(e) => setCamion('hora_llegada', e.target.value)} placeholder="hh:mm" />
+          </div>
+          <div className="field-group" style={{ maxWidth: 150 }}>
+            <label className="field-label">Consistencia</label>
+            <select className="select" value={String(camion.consistencia ?? 'P')} onChange={(e) => setCamion('consistencia', e.target.value)}>
+              <option value="S">S — Seca</option>
+              <option value="P">P — Plástica</option>
+              <option value="B">B — Blanda</option>
+              <option value="F">F — Fluida</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Ensayo de asentamiento (Cono de Abrams) ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Ensayo de asentamiento — Cono de Abrams (UNE-EN 12350-2)</div>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="placa-table">
+            <thead>
+              <tr>
+                <th style={{ width: 60 }}>Cono</th>
+                <th>Asentamiento (mm)</th>
+                <th>Tiempo (s)</th>
+                <th>Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {conos.map((c, i) => (
+                <tr key={i}>
+                  <td style={{ textAlign: 'center', fontWeight: 600 }}>{String(c.numero ?? i + 1)}</td>
+                  <td>
+                    <input className="input placa-input" value={String(c.mm ?? '')} onChange={(e) => setCono(i, 'mm', e.target.value)} placeholder="mm" />
+                  </td>
+                  <td>
+                    <input className="input placa-input" value={String(c.tiempo_s ?? '')} onChange={(e) => setCono(i, 'tiempo_s', e.target.value)} placeholder="s" />
+                  </td>
+                  <td>
+                    <input className="input" value={String(c.observaciones ?? '')} onChange={(e) => setCono(i, 'observaciones', e.target.value)} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="field-row" style={{ marginTop: 10 }}>
+          <div className="field-group" style={{ maxWidth: 200 }}>
+            <label className="field-label">Media asentamiento (mm)</label>
+            <input className={cc('asentamiento_media')} value={String(datos.asentamiento_media ?? '')} onChange={(e) => onChange({ ...datos, asentamiento_media: e.target.value })} />
+          </div>
+          <div className="field-group" style={{ maxWidth: 180 }}>
+            <label className="field-label">Límite de uso (h)</label>
+            <input className={cc('limite_uso')} value={String(datos.limite_uso ?? '')} onChange={(e) => onChange({ ...datos, limite_uso: e.target.value })} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Composición del hormigón ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Composición del hormigón</div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Tipo de cemento</label>
+            <input className={cc('composicion.tipo_cemento')} value={String(comp.tipo_cemento ?? '')} onChange={(e) => setComp('tipo_cemento', e.target.value)} placeholder="CEM I 52,5R…" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Marca cemento</label>
+            <input className="input" value={String(comp.marca_cemento ?? '')} onChange={(e) => setComp('marca_cemento', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Aditivo(s)</label>
+            <input className={cc('composicion.aditivo')} value={String(comp.aditivo ?? '')} onChange={(e) => setComp('aditivo', e.target.value)} />
+          </div>
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Adiciones (humo sílice, cenizas…)</label>
+            <input className="input" value={String(comp.adiciones ?? '')} onChange={(e) => setComp('adiciones', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Contenido cemento (kg/m³)</label>
+            <input className={cc('composicion.contenido_cemento_m3')} value={String(comp.contenido_cemento_m3 ?? '')} onChange={(e) => setComp('contenido_cemento_m3', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Relación a/c</label>
+            <input className={cc('composicion.relacion_ac')} value={String(comp.relacion_ac ?? '')} onChange={(e) => setComp('relacion_ac', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Tª ambiente (°C)</label>
+            <input className={cc('composicion.t_amb')} value={String(comp.t_amb ?? '')} onChange={(e) => setComp('t_amb', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Tª hormigón (°C)</label>
+            <input className={cc('composicion.t_hormigon')} value={String(comp.t_hormigon ?? '')} onChange={(e) => setComp('t_hormigon', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">% Humedad</label>
+            <input className={cc('composicion.humedad_pct')} value={String(comp.humedad_pct ?? '')} onChange={(e) => setComp('humedad_pct', e.target.value)} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Probetas fabricadas ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Probetas fabricadas</div>
+        <div className="field-row">
+          <div className="field-group" style={{ maxWidth: 90 }}>
+            <label className="field-label">Cilíndricas</label>
+            <input className={cc('probetas.n_cilindricas')} value={String(prob.n_cilindricas ?? '')} onChange={(e) => {
+              const v = e.target.value
+              const total = (parseInt(v) || 0) + (parseInt(String(prob.n_prismaticas ?? '0')) || 0) + (parseInt(String(prob.n_cubicas ?? '0')) || 0)
+              onChange({ ...datos, probetas: { ...prob, n_cilindricas: v, cantidad: String(total) } })
+            }} placeholder="Nº" />
+          </div>
+          <div className="field-group" style={{ maxWidth: 90 }}>
+            <label className="field-label">Prismáticas</label>
+            <input className={cc('probetas.n_prismaticas')} value={String(prob.n_prismaticas ?? '')} onChange={(e) => {
+              const v = e.target.value
+              const total = (parseInt(String(prob.n_cilindricas ?? '0')) || 0) + (parseInt(v) || 0) + (parseInt(String(prob.n_cubicas ?? '0')) || 0)
+              onChange({ ...datos, probetas: { ...prob, n_prismaticas: v, cantidad: String(total) } })
+            }} placeholder="Nº" />
+          </div>
+          <div className="field-group" style={{ maxWidth: 90 }}>
+            <label className="field-label">Cúbicas</label>
+            <input className={cc('probetas.n_cubicas')} value={String(prob.n_cubicas ?? '')} onChange={(e) => {
+              const v = e.target.value
+              const total = (parseInt(String(prob.n_cilindricas ?? '0')) || 0) + (parseInt(String(prob.n_prismaticas ?? '0')) || 0) + (parseInt(v) || 0)
+              onChange({ ...datos, probetas: { ...prob, n_cubicas: v, cantidad: String(total) } })
+            }} placeholder="Nº" />
+          </div>
+          <div className="field-group" style={{ maxWidth: 70 }}>
+            <label className="field-label">Total</label>
+            <input className="input" readOnly value={String(prob.cantidad ?? '')} style={{ background: 'var(--bg-soft, #f8f8f8)', color: 'var(--text-soft)' }} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Dimensiones (tipo principal)</label>
+            <select className="select" value={String(prob.tipo ?? 'Cilíndricas 150×300mm')} onChange={(e) => setProb('tipo', e.target.value)}>
+              <option>Cilíndricas 150×300mm</option>
+              <option>Cilíndricas 100×200mm</option>
+              <option>Prismáticas 100×100×400mm</option>
+              <option>Cúbicas 150×150mm</option>
+            </select>
+          </div>
+          <div className="field-group" style={{ maxWidth: 140 }}>
+            <label className="field-label">Por CYE</label>
+            <select className="select" value={prob.por_cye ? 'true' : 'false'} onChange={(e) => setProb('por_cye', e.target.value === 'true')}>
+              <option value="true">Sí</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Fecha recogida en laboratorio</label>
+            <input className={cc('probetas.fecha_recogida')} value={String(prob.fecha_recogida ?? '')} onChange={(e) => setProb('fecha_recogida', e.target.value)} placeholder="dd-mm-aaaa" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Hora recogida</label>
+            <input className={cc('probetas.hora_recogida')} value={String(prob.hora_recogida ?? '')} onChange={(e) => setProb('hora_recogida', e.target.value)} placeholder="hh:mm" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Roturas de probetas (solo informe de laboratorio) ── */}
+      {showRoturas && <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Roturas de probetas (fase laboratorio)</span>
+          <button className="btn btn-sm" onClick={addRotura}>+ Probeta</button>
+        </div>
+
+        {summary.fck !== null && (
+          <div style={{ marginBottom: 10, fontSize: 13, color: 'var(--text-soft)' }}>
+            fck = <strong>{summary.fck} MPa</strong>
+            {summary.n28 > 0 && (
+              <> · Media 28d ({summary.n28} prob.) = <strong>{fmt(summary.media28, 2)} MPa</strong>
+              </>
+            )}
+          </div>
+        )}
+
+        <div style={{ overflowX: 'auto' }}>
+          <table className="placa-table">
+            <thead>
+              <tr>
+                <th style={{ width: 50 }}>Nº</th>
+                <th>Fecha rotura</th>
+                <th style={{ width: 70 }}>Edad (d)</th>
+                <th style={{ width: 130 }}>Densidad (kg/m³)</th>
+                <th>Carga máx. (kN)</th>
+                <th>Tensión (MPa)</th>
+                <th style={{ width: 60 }}>Sup.</th>
+                <th style={{ width: 60 }}>Inf.</th>
+                <th style={{ width: 36 }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {roturas.map((r, i) => {
+                const edad = toNum(r.edad_dias)
+                const is28 = edad !== null && Math.round(edad) === 28
+                const AJUSTE_OPTS = ['a','b','c','d','e']
+                return (
+                  <tr key={i} style={is28 ? { background: 'color-mix(in srgb, var(--accent) 6%, transparent)' } : undefined}>
+                    <td style={{ textAlign: 'center', fontWeight: 600 }}>{String(r.n_probeta ?? i + 1)}</td>
+                    <td><input className="input placa-input" value={String(r.fecha_rotura ?? '')} onChange={(e) => setRotura(i, 'fecha_rotura', e.target.value)} placeholder="dd-mm-aaaa" /></td>
+                    <td><input className="input placa-input" value={String(r.edad_dias ?? '')} onChange={(e) => setRotura(i, 'edad_dias', e.target.value)} placeholder="28" style={{ textAlign: 'center' }} /></td>
+                    <td><input className="input placa-input" value={String(r.densidad_kg_m3 ?? '')} onChange={(e) => setRotura(i, 'densidad_kg_m3', e.target.value)} placeholder="Nominales" /></td>
+                    <td><input className="input placa-input" value={String(r.carga_maxima_kn ?? '')} onChange={(e) => setRotura(i, 'carga_maxima_kn', e.target.value)} placeholder="kN" /></td>
+                    <td><input className="input placa-input" value={String(r.tension_mpa ?? '')} onChange={(e) => setRotura(i, 'tension_mpa', e.target.value)} placeholder="MPa" style={is28 ? { fontWeight: 600 } : undefined} /></td>
+                    <td>
+                      <select className="select" style={{ padding: '2px 4px', fontSize: 12 }} value={String(r.ajuste_c_sup ?? 'a')} onChange={(e) => setRotura(i, 'ajuste_c_sup', e.target.value)}>
+                        {AJUSTE_OPTS.map(o => <option key={o}>{o}</option>)}
+                      </select>
+                    </td>
+                    <td>
+                      <select className="select" style={{ padding: '2px 4px', fontSize: 12 }} value={String(r.ajuste_c_inf ?? 'e')} onChange={(e) => setRotura(i, 'ajuste_c_inf', e.target.value)}>
+                        {AJUSTE_OPTS.map(o => <option key={o}>{o}</option>)}
+                      </select>
+                    </td>
+                    <td><button className="btn btn-danger btn-sm" onClick={() => removeRotura(i)} style={{ padding: '2px 6px' }}>✕</button></td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p style={{ fontSize: 12, color: 'var(--text-soft)', marginTop: 6 }}>
+          Resaltado = 28d (veredicto). Sup./Inf.: a=azufre b=cemento c=pulido d=arena e=moldeada. Tensión auto-calculada al introducir kN (cilíndrica 150mm).
+        </p>
+      </div>}
+
+      {/* ── Observaciones y conservación ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Observaciones y conservación</div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 3 }}>
+            <label className="field-label">Observaciones del ensayo</label>
+            <input className="input" value={String(datos.observaciones ?? '')} onChange={(e) => onChange({ ...datos, observaciones: e.target.value })} placeholder="MUESTRA TOMADA INICIO DESCARGA…" />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group" style={{ maxWidth: 220 }}>
+            <label className="field-label">Conservación ambiental en obra</label>
+            <select className="select" value={datos.conservacion_ambiental === false ? 'false' : 'true'} onChange={(e) => onChange({ ...datos, conservacion_ambiental: e.target.value === 'true' })}>
+              <option value="true">Sí — condiciones de obra</option>
+              <option value="false">No — acondicionado</option>
+            </select>
+          </div>
+          <div className="field-group">
+            <label className="field-label">Tipo de traslado al laboratorio</label>
+            <input className={cc('tipo_traslado')} value={String(datos.tipo_traslado ?? '')} onChange={(e) => onChange({ ...datos, tipo_traslado: e.target.value })} placeholder="Vehículo del laboratorio, cliente…" />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Tiempo estancia en obra</label>
+            <input className="input" value={String(datos.tiempo_estancia_obra ?? '')} onChange={(e) => onChange({ ...datos, tiempo_estancia_obra: e.target.value })} placeholder="25h" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Duración traslado laboratorio</label>
+            <input className="input" value={String(datos.duracion_traslado ?? '')} onChange={(e) => onChange({ ...datos, duracion_traslado: e.target.value })} placeholder="0,5h" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FORMULARIO ALBARÁN DE PLANTA DE HORMIGÓN
+// ══════════════════════════════════════════════════════════════════════════════
+
+function AlbaranPlantaForm({
+  datos,
+  onChange
+}: {
+  datos: Record<string, unknown>
+  onChange: (d: Record<string, unknown>) => void
+}): JSX.Element {
+  const cc = useOcrConf()
+  function set(k: string, v: unknown): void {
+    onChange({ ...datos, [k]: v })
+  }
+  function field(k: string): string { return String(datos[k] ?? '') }
+
+  return (
+    <div>
+      {/* ── Identificación del albarán ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Identificación del albarán</div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Nº Albarán planta</label>
+            <input className={cc('n_albaran_planta')} value={field('n_albaran_planta')} onChange={(e) => set('n_albaran_planta', e.target.value)} placeholder="189016" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Nº Serie / lateral</label>
+            <input className={cc('n_serie')} value={field('n_serie')} onChange={(e) => set('n_serie', e.target.value)} placeholder="0166450" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Fecha</label>
+            <input className={cc('fecha')} value={field('fecha')} onChange={(e) => set('fecha', e.target.value)} placeholder="dd-mm-aaaa" />
+          </div>
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Central / Planta</label>
+            <input className={cc('planta')} value={field('planta')} onChange={(e) => set('planta', e.target.value)} placeholder="Hormigones Laracha — Lamas" />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Ref. Albarán CYE (vinculación)</label>
+            <input className="input" value={field('n_albaran_cye')} onChange={(e) => set('n_albaran_cye', e.target.value)} placeholder="Nº albarán CYE correspondiente" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Cliente y obra ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Cliente y obra</div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Cliente</label>
+            <input className={cc('cliente')} value={field('cliente')} onChange={(e) => set('cliente', e.target.value)} />
+          </div>
+          <div className="field-group" style={{ flex: 3 }}>
+            <label className="field-label">Obra</label>
+            <input className={cc('obra')} value={field('obra')} onChange={(e) => set('obra', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Elemento hormigonado</label>
+            <input className={cc('elemento_hormigonado')} value={field('elemento_hormigonado')} onChange={(e) => set('elemento_hormigonado', e.target.value)} placeholder="Pilotes, zapatas, muros…" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">M³ entregados</label>
+            <input className={cc('m3_entregados')} value={field('m3_entregados')} onChange={(e) => set('m3_entregados', e.target.value)} placeholder="8,0" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Camión y transporte ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Camión y transporte</div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Matrícula</label>
+            <input className={cc('matricula')} value={field('matricula')} onChange={(e) => set('matricula', e.target.value)} />
+          </div>
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Transportista</label>
+            <input className={cc('transportista')} value={field('transportista')} onChange={(e) => set('transportista', e.target.value)} placeholder="Transportes Álvaro Dasal, S.L." />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Hora carga (salida planta)</label>
+            <input className={cc('hora_carga')} value={field('hora_carga')} onChange={(e) => set('hora_carga', e.target.value)} placeholder="hh:mm" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Hora llegada a obra</label>
+            <input className={cc('hora_llegada')} value={field('hora_llegada')} onChange={(e) => set('hora_llegada', e.target.value)} placeholder="hh:mm" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Hora inicio descarga</label>
+            <input className={cc('hora_inicio_descarga')} value={field('hora_inicio_descarga')} onChange={(e) => set('hora_inicio_descarga', e.target.value)} placeholder="hh:mm" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Hora salida de obra</label>
+            <input className={cc('hora_salida_obra')} value={field('hora_salida_obra')} onChange={(e) => set('hora_salida_obra', e.target.value)} placeholder="hh:mm" />
+          </div>
+          <div className="field-group" style={{ maxWidth: 140 }}>
+            <label className="field-label">Límite de uso</label>
+            <input className={cc('tiempo_limite_uso')} value={field('tiempo_limite_uso')} onChange={(e) => set('tiempo_limite_uso', e.target.value)} placeholder="90 min" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Tipo de hormigón y composición ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Tipo de hormigón y composición</div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Tipo de hormigón</label>
+            <input className={cc('tipo_hormigon')} value={field('tipo_hormigon')} onChange={(e) => set('tipo_hormigon', e.target.value)} placeholder="HA-25/B/20/IIa" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Tª hormigón (°C)</label>
+            <input className={cc('t_hormigon')} value={field('t_hormigon')} onChange={(e) => set('t_hormigon', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Cemento (tipo y marca)</label>
+            <input className={cc('cemento_tipo')} value={field('cemento_tipo')} onChange={(e) => set('cemento_tipo', e.target.value)} placeholder="Tudela Veguín (V-L) 42,5 R" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Cemento (kg/m³)</label>
+            <input className={cc('cemento_kg_m3')} value={field('cemento_kg_m3')} onChange={(e) => set('cemento_kg_m3', e.target.value)} placeholder="351" />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Relación a/c</label>
+            <input className={cc('relacion_ac')} value={field('relacion_ac')} onChange={(e) => set('relacion_ac', e.target.value)} placeholder="0,37" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Tolerancia a/c (±)</label>
+            <input className={cc('tolerancia_ac')} value={field('tolerancia_ac')} onChange={(e) => set('tolerancia_ac', e.target.value)} placeholder="0,02" />
+          </div>
+        </div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Aditivo(s) y dosis</label>
+            <input className={cc('aditivos')} value={field('aditivos')} onChange={(e) => set('aditivos', e.target.value)} placeholder="Duramix ECO 339: 1,65 · Conplast M2289: 1,84" />
+          </div>
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Adiciones</label>
+            <input className={cc('adiciones')} value={field('adiciones')} onChange={(e) => set('adiciones', e.target.value)} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Control de recepción ── */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Control de recepción en obra</div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Cono Abrams en recepción (mm)</label>
+            <input className={cc('cono_mm')} value={field('cono_mm')} onChange={(e) => set('cono_mm', e.target.value)} placeholder="mm" />
+          </div>
+          <div className="field-group" style={{ flex: 3 }}>
+            <label className="field-label">Observaciones</label>
+            <input className={cc('observaciones')} value={field('observaciones')} onChange={(e) => set('observaciones', e.target.value)} placeholder="Solicitud de agua adicional, incidencias…" />
           </div>
         </div>
       </div>
