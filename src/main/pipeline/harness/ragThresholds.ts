@@ -12,9 +12,18 @@
  *   · perdidos   = correctos que el umbral dejaría fuera (irían a fallback)
  * El umbral recomendado maximiza F1 entre precisión y recall de los correctos.
  */
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
-import { existsSync } from 'fs'
+
+;(function loadEnv(): void {
+  const p = resolve(process.cwd(), '.env')
+  if (!existsSync(p)) return
+  for (const line of readFileSync(p, 'utf-8').split('\n')) {
+    const [key, ...rest] = line.split('=')
+    const val = rest.join('=').trim().replace(/^["']|["']$/g, '')
+    if (key?.trim() && val && !(key.trim() in process.env)) process.env[key.trim()] = val
+  }
+})()
 import { RagPricer, type EmbeddingsIndexFile } from '../rag/ragPricer'
 import { normalize } from '../rag/normalize'
 import { createEmbeddingsProvider } from '../rag/embeddings'

@@ -5,6 +5,16 @@
  *   npm run rag:compare
  */
 import { readFileSync, existsSync } from 'fs'
+import { resolve } from 'path'
+;(function loadEnv(): void {
+  const p = resolve(process.cwd(), '.env')
+  if (!existsSync(p)) return
+  for (const line of readFileSync(p, 'utf-8').split('\n')) {
+    const [key, ...rest] = line.split('=')
+    const val = rest.join('=').trim().replace(/^["']|["']$/g, '')
+    if (key?.trim() && val && !(key.trim() in process.env)) process.env[key.trim()] = val
+  }
+})()
 import { RagPricer, CATEGORY_CTX, type EmbeddingsIndexFile } from '../rag/ragPricer'
 import { createEmbeddingsProvider } from '../rag/embeddings'
 import { TARIFAS_PATH, KNOWLEDGE_DIR } from './loadKnowledge'

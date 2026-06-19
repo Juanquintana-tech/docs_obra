@@ -9,6 +9,7 @@ import { TfidfIndex } from './tfidf'
 import { normalize } from './normalize'
 import { loadCatalog, type CatalogEntry } from './catalog'
 import { l2normalize } from './minimaxEmbeddings'
+import { extractNormCodes, normBonus } from './normCodes'
 import type { EmbeddingsProvider, RagMatch } from './types'
 
 /** Fichero de índice de embeddings del catálogo (vectores YA normalizados a L2=1). */
@@ -58,6 +59,8 @@ export interface RagPricerOptions {
 export class RagPricer {
   private tfidf = new TfidfIndex()
   private entries: CatalogEntry[] = []
+  /** Normas técnicas precomputadas por entrada (UNE, NLT, ASTM, ISO, EN). */
+  private entryNorms: Set<string>[] = []
   /** Vectores de embedding normalizados, alineados con `entries` (null si falta). */
   private embVecs: (number[] | null)[] = []
   private embLoaded = 0
@@ -77,6 +80,7 @@ export class RagPricer {
   /** Construye el índice a partir de las entradas del catálogo. */
   fit(entries: CatalogEntry[]): void {
     this.entries = entries
+    this.entryNorms = entries.map((e) => extractNormCodes(`${e.categoria} ${e.descripcion}`))
     this.tfidf.fit(entries.map((e) => e.doc))
   }
 
@@ -125,6 +129,7 @@ export class RagPricer {
     const [qvecRaw] = await this.opts.embeddings.embed([query], 'query')
     const qvec = l2normalize(qvecRaw)
 
+    const qNorms = extractNormCodes(query)
     const scored: Array<{ doc: number; score: number }> = []
     for (let i = 0; i < this.entries.length; i++) {
       const ev = this.embVecs[i]
@@ -135,7 +140,9 @@ export class RagPricer {
         emb = Math.max(0, dot) // coseno (vectores normalizados) recortado a [0,1]
       }
       const hybrid = weight * emb + (1 - weight) * tfidfScores[i]
-      if (hybrid > 0) scored.push({ doc: i, score: hybrid })
+      const bonus = normBonus(qNorms, this.entryNorms[i])
+      const final = Math.min(1, hybrid + bonus)
+      if (final > 0) scored.push({ doc: i, score: final })
     }
     scored.sort((a, b) => b.score - a.score)
     return scored.slice(0, n).map(({ doc, score }) => this.toMatch(doc, score))
@@ -166,6 +173,7 @@ export class RagPricer {
     return queries.map((query, qi) => {
       const tfidf = this.tfidf.scoreAll(normalize(query))
       const qv = qvecs?.[qi]
+      const qNorms = extractNormCodes(query)
       let bestDoc = -1
       let bestScore = -1
       for (let i = 0; i < this.entries.length; i++) {
@@ -180,6 +188,7 @@ export class RagPricer {
           }
           score = weight * emb + (1 - weight) * tfidf[i]
         }
+        score = Math.min(1, score + normBonus(qNorms, this.entryNorms[i]))
         if (score > bestScore) {
           bestScore = score
           bestDoc = i

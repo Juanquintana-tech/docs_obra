@@ -5,12 +5,24 @@
  *   npm run rag:build-embeddings
  *
  * RESUMIBLE: guarda tras cada lote y, al relanzarlo, salta los códigos ya hechos.
- * Tolerante al rate limit de MiniMax (el proveedor reintenta con backoff). Si la API
- * acaba fallando, guarda lo conseguido y termina con código 1 para poder reintentar.
- * Requiere MINIMAX_API_KEY (en .env de la raíz).
+ * Si el modelo del índice existente difiere del proveedor actual, lo descarta y
+ * reconstruye desde cero (evita mezclar vectores de modelos distintos).
+ * Requiere GEMINI_API_KEY (en .env de la raíz).
  */
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
+
+// Carga .env antes de cualquier import que lea process.env
+;(function loadEnv(): void {
+  const p = resolve(process.cwd(), '.env')
+  if (!existsSync(p)) return
+  for (const line of readFileSync(p, 'utf-8').split('\n')) {
+    const [key, ...rest] = line.split('=')
+    const val = rest.join('=').trim().replace(/^["']|["']$/g, '')
+    if (key?.trim() && val && !(key.trim() in process.env)) process.env[key.trim()] = val
+  }
+})()
+
 import { loadCatalog } from '../rag/catalog'
 import { l2normalize } from '../rag/minimaxEmbeddings'
 import { createEmbeddingsProvider } from '../rag/embeddings'
@@ -22,12 +34,17 @@ import { TARIFAS_PATH, KNOWLEDGE_DIR } from './loadKnowledge'
 const OUT_PATH = resolve(process.cwd(), 'resources/knowledge/alagal_embeddings.json')
 const PB_PATH = resolve(KNOWLEDGE_DIR, 'price_book.json')
 const PB_OUT_PATH = resolve(KNOWLEDGE_DIR, 'price_book_embeddings.json')
-const CHUNK = 64
+const CHUNK = 100 // Gemini batchEmbedContents: hasta 100 por llamada
 
-function loadExisting(): EmbeddingsIndexFile | null {
+function loadExisting(providerId: string): EmbeddingsIndexFile | null {
   if (!existsSync(OUT_PATH)) return null
   try {
-    return JSON.parse(readFileSync(OUT_PATH, 'utf-8')) as EmbeddingsIndexFile
+    const idx = JSON.parse(readFileSync(OUT_PATH, 'utf-8')) as EmbeddingsIndexFile
+    if (idx.model !== providerId) {
+      console.log(`Modelo cambió (${idx.model} → ${providerId}): descartando índice existente.`)
+      return null
+    }
+    return idx
   } catch {
     return null
   }
@@ -41,7 +58,7 @@ async function main(): Promise<void> {
   await buildPriceBookIndex(provider)
 
   const catalog = await loadCatalog(TARIFAS_PATH)
-  const existing = loadExisting()
+  const existing = loadExisting(provider.id)
   const done = new Map<string, number[]>((existing?.entries ?? []).map((e) => [e.codigo, e.vector]))
   const pending = catalog.filter((e) => !done.has(e.codigo))
 
