@@ -1,9 +1,8 @@
 /**
- * RAG de precios — busca el ensayo más similar en el catálogo ALAGAL.
- *
- * Port de agents/rag_pricer.py a TypeScript. Estrategia actual: TF-IDF char n-gram
- * (3-5). Diseñado como HÍBRIDO: admite un EmbeddingsProvider opcional para combinar
- * similitud semántica con la léxica (se activará en una fase posterior).
+ * Motor de búsqueda RAG de precios en el catálogo ALAGAL.
+ * Modo TF-IDF (siempre) + embeddings opcionales (híbrido).
+ * Fusión: combinación lineal (por defecto) o RRF (opts.useRrf=true).
+ * RRF requiere recalibrar umbrales con `npm run rag:thresholds`.
  */
 import { TfidfIndex } from './tfidf'
 import { normalize } from './normalize'
@@ -12,21 +11,15 @@ import { l2normalize } from './minimaxEmbeddings'
 import { extractNormCodes, normBonus } from './normCodes'
 import type { EmbeddingsProvider, RagMatch } from './types'
 
-/** Fichero de índice de embeddings del catálogo (vectores YA normalizados a L2=1). */
 export interface EmbeddingsIndexFile {
   model: string
   dim: number
   entries: { codigo: string; vector: number[] }[]
 }
 
-/**
- * Peso de la señal de embeddings al combinar con TF-IDF [0,1].
- * Calibrado a 0.3 (npm run rag:thresholds): a 0.5 los embeddings e5 saturaban el
- * score (todo ~0.96–0.99) y los no-match subían hasta ~0.58, dejando el umbral
- * sin margen. A 0.3 se conserva un hueco limpio (match real ≥0.975 vs no-match
- * ≤0.474) manteniendo algo de ayuda semántica para descripciones parafraseadas.
- */
+// Calibrado a 0.3: a 0.5 los embeddings e5-small saturaban (todo ≥0.96).
 export const DEFAULT_EMB_WEIGHT = 0.3
+export const DEFAULT_THRESHOLD = 0.3
 
 export interface PriceResult {
   precio: number | null
@@ -36,62 +29,81 @@ export interface PriceResult {
   source: 'alagal' | 'fallback'
 }
 
-/** Contexto semántico por categoría interna → términos clave (port de CATEGORY_CTX). */
+// Contexto semántico añadido a la query según la categoría del material.
 export const CATEGORY_CTX: Record<string, string> = {
-  HORMIGON: 'hormigon probetas resistencia compresion fabricacion',
+  HORMIGON:           'hormigon probetas resistencia compresion fabricacion',
   ZAHORRA_ARTIFICIAL: 'zahorra granulometria proctor compactacion aridos',
-  TERRAPLEN_RELLENOS: 'terraplen relleno suelos densidad proctor modificado apisonado compactacion',
+  TERRAPLEN_RELLENOS: 'terraplen relleno suelos densidad proctor modificado compactacion',
   SUELO_ESTABILIZADO: 'suelo estabilizado cemento cal tratamiento',
-  MEZCLA_BITUMINOSA: 'mezcla bituminosa asfaltica ligante brea',
-  ESCOLLERA: 'escollera enrocamiento petreos rocas',
-  ACERO: 'acero armadura barra traccion dureza'
+  MEZCLA_BITUMINOSA:  'mezcla bituminosa asfaltica ligante aridos',
+  ESCOLLERA:          'escollera enrocamiento petreos rocas',
+  ACERO:              'acero armadura barra traccion',
+  ACERO_LAMINADO:     'acero laminado estructural perfil traccion charpy s275 s355',
+  MARCAS_VIALES:      'marcas viales señalizacion horizontal retroreflectancia pintura',
+  RIEGO_BITUMINOSO:   'riego bituminoso emulsion imprimacion adherencia dotacion',
+  PILOTES:            'pilotes cimentacion profunda sonic logging integridad',
+  SERVICIO:           'ensayo servicio campo laboratorio sondeo muestra geotecnia'
 }
 
-export const DEFAULT_THRESHOLD = 0.3
+// Palabras clave del campo `categoria` del catálogo ALAGAL por categoría interna.
+// Bonus +0.05 cuando hay coincidencia.
+const CATEGORY_ALAGAL_KEYWORDS: Record<string, string[]> = {
+  HORMIGON:           ['hormigon', 'mortero', 'cemento'],
+  TERRAPLEN_RELLENOS: ['suelo', 'tierra', 'terraplen'],
+  ZAHORRA_ARTIFICIAL: ['zahorra', 'arido', 'firme', 'pavimento'],
+  MEZCLA_BITUMINOSA:  ['bituminosa', 'asfalto', 'firme', 'pavimento'],
+  ESCOLLERA:          ['escollera', 'roca', 'piedra'],
+  ACERO:              ['acero', 'ferralla', 'armadura'],
+  SUELO_ESTABILIZADO: ['suelo', 'estabilizado'],
+  ACERO_LAMINADO:     ['acero', 'metal', 'estructural', 'laminado'],
+  MARCAS_VIALES:      ['marca', 'señalizacion', 'vial', 'pintura'],
+  RIEGO_BITUMINOSO:   ['bituminosa', 'riego', 'ligante', 'emulsion'],
+  PILOTES:            ['pilote', 'cimentacion'],
+  SERVICIO:           ['geotecnia', 'suelo', 'roca', 'sondeo', 'ensayo']
+}
+
+function categoryBonus(queryCategory: string, entryCategoria: string): number {
+  const keywords = CATEGORY_ALAGAL_KEYWORDS[queryCategory]
+  if (!keywords) return 0
+  const cat = entryCategoria.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  return keywords.some((kw) => cat.includes(kw)) ? 0.05 : 0
+}
 
 export interface RagPricerOptions {
-  /** Proveedor de embeddings opcional (híbrido). Si null → solo TF-IDF. */
   embeddings?: EmbeddingsProvider | null
-  /** Peso de la señal de embeddings al combinar [0,1]. El resto va a TF-IDF. */
   embeddingsWeight?: number
+  useRrf?: boolean
 }
 
 export class RagPricer {
   private tfidf = new TfidfIndex()
   private entries: CatalogEntry[] = []
-  /** Normas técnicas precomputadas por entrada (UNE, NLT, ASTM, ISO, EN). */
   private entryNorms: Set<string>[] = []
-  /** Vectores de embedding normalizados, alineados con `entries` (null si falta). */
   private embVecs: (number[] | null)[] = []
   private embLoaded = 0
 
   constructor(private readonly opts: RagPricerOptions = {}) {}
 
-  /** true si el modo híbrido está operativo: hay proveedor para la consulta Y un índice cargado. */
   get usesEmbeddings(): boolean {
     return !!this.opts.embeddings && this.embLoaded > 0
   }
 
-  /** Nº de entradas (ensayos con precio) en el índice. */
   get catalogSize(): number {
     return this.entries.length
   }
 
-  /** Construye el índice a partir de las entradas del catálogo. */
   fit(entries: CatalogEntry[]): void {
     this.entries = entries
     this.entryNorms = entries.map((e) => extractNormCodes(`${e.categoria} ${e.descripcion}`))
     this.tfidf.fit(entries.map((e) => e.doc))
   }
 
-  /** Atajo: carga el catálogo desde un xlsx y construye el índice. */
   static async fromXlsx(xlsxPath: string, opts?: RagPricerOptions): Promise<RagPricer> {
     const pricer = new RagPricer(opts)
     pricer.fit(await loadCatalog(xlsxPath))
     return pricer
   }
 
-  /** Carga el índice de embeddings del catálogo, alineándolo por código con las entradas. */
   loadEmbeddings(index: EmbeddingsIndexFile): void {
     const byCode = new Map(index.entries.map((e) => [e.codigo, e.vector]))
     this.embVecs = this.entries.map((e) => byCode.get(e.codigo) ?? null)
@@ -109,7 +121,6 @@ export class RagPricer {
     }
   }
 
-  /** Devuelve los n ensayos más similares del catálogo (solo TF-IDF, síncrono). */
   findMatches(query: string, n = 5): RagMatch[] {
     if (this.entries.length === 0) return []
     return this.tfidf
@@ -117,10 +128,43 @@ export class RagPricer {
       .map(({ doc, score }) => this.toMatch(doc, score))
   }
 
-  /**
-   * Búsqueda híbrida: combina la similitud semántica (embeddings) con la léxica (TF-IDF).
-   * Si no hay embeddings operativos, cae a TF-IDF puro. `weight` = peso de los embeddings [0,1].
-   */
+  // RRF (K=60, Cormack 2009): combina rankings TF-IDF y emb, normaliza a [0,1].
+  private applyRrf(tfidfScores: number[], embScores: number[], bonuses: number[]): number[] {
+    const n = tfidfScores.length
+    const K = 60
+    const tfidfRank = new Uint32Array(n)
+    const embRank = new Uint32Array(n)
+    Array.from({ length: n }, (_, i) => i)
+      .sort((a, b) => tfidfScores[b] - tfidfScores[a])
+      .forEach((idx, rank) => { tfidfRank[idx] = rank })
+    Array.from({ length: n }, (_, i) => i)
+      .sort((a, b) => embScores[b] - embScores[a])
+      .forEach((idx, rank) => { embRank[idx] = rank })
+    const maxRrf = 2 / K
+    return Array.from({ length: n }, (_, i) => {
+      const rrf = 1 / (K + tfidfRank[i]) + 1 / (K + embRank[i])
+      return Math.min(1, rrf / maxRrf + bonuses[i])
+    })
+  }
+
+  private combineScores(
+    tfidfScores: number[],
+    embScores: number[],
+    bonuses: number[],
+    hasEmb: boolean,
+    weight: number
+  ): number[] {
+    if (!hasEmb) {
+      return this.entries.map((_, i) => Math.min(1, tfidfScores[i] + bonuses[i]))
+    }
+    if (this.opts.useRrf) {
+      return this.applyRrf(tfidfScores, embScores, bonuses)
+    }
+    return this.entries.map((_, i) =>
+      Math.min(1, weight * embScores[i] + (1 - weight) * tfidfScores[i] + bonuses[i])
+    )
+  }
+
   async findMatchesHybrid(query: string, n = 5, weight = DEFAULT_EMB_WEIGHT): Promise<RagMatch[]> {
     if (this.entries.length === 0) return []
     if (!this.usesEmbeddings || !this.opts.embeddings) return this.findMatches(query, n)
@@ -128,38 +172,33 @@ export class RagPricer {
     const tfidfScores = this.tfidf.scoreAll(normalize(query))
     const [qvecRaw] = await this.opts.embeddings.embed([query], 'query')
     const qvec = l2normalize(qvecRaw)
-
     const qNorms = extractNormCodes(query)
-    const scored: Array<{ doc: number; score: number }> = []
-    for (let i = 0; i < this.entries.length; i++) {
+
+    const embScores = this.entries.map((_, i) => {
       const ev = this.embVecs[i]
-      let emb = 0
-      if (ev) {
-        let dot = 0
-        for (let k = 0; k < qvec.length && k < ev.length; k++) dot += qvec[k] * ev[k]
-        emb = Math.max(0, dot) // coseno (vectores normalizados) recortado a [0,1]
-      }
-      const hybrid = weight * emb + (1 - weight) * tfidfScores[i]
-      const bonus = normBonus(qNorms, this.entryNorms[i])
-      const final = Math.min(1, hybrid + bonus)
-      if (final > 0) scored.push({ doc: i, score: final })
-    }
-    scored.sort((a, b) => b.score - a.score)
-    return scored.slice(0, n).map(({ doc, score }) => this.toMatch(doc, score))
+      if (!ev) return 0
+      let dot = 0
+      for (let k = 0; k < qvec.length && k < ev.length; k++) dot += qvec[k] * ev[k]
+      return Math.max(0, dot)
+    })
+    const bonuses = this.entries.map((_, i) => normBonus(qNorms, this.entryNorms[i]))
+    const finalScores = this.combineScores(tfidfScores, embScores, bonuses, true, weight)
+
+    return finalScores
+      .map((score, doc) => ({ doc, score }))
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, n)
+      .map(({ doc, score }) => this.toMatch(doc, score))
   }
 
-  /**
-   * Valora muchos ensayos de una vez (para generar un plan). Si el modo híbrido
-   * está operativo, embebe TODAS las consultas en una sola pasada (eficiente) y
-   * combina con TF-IDF; si no, usa solo TF-IDF. Devuelve un resultado por item,
-   * en el mismo orden. score < threshold → source='fallback', precio=null.
-   */
   async priceMany(
     items: { description: string; category?: string }[],
     threshold = DEFAULT_THRESHOLD,
     weight = DEFAULT_EMB_WEIGHT
   ): Promise<PriceResult[]> {
     if (items.length === 0) return []
+
     const queries = items.map((it) =>
       `${it.description} ${CATEGORY_CTX[it.category ?? ''] ?? ''}`.trim()
     )
@@ -171,77 +210,50 @@ export class RagPricer {
     }
 
     return queries.map((query, qi) => {
-      const tfidf = this.tfidf.scoreAll(normalize(query))
-      const qv = qvecs?.[qi]
+      const tfidfScores = this.tfidf.scoreAll(normalize(query))
+      const qv = qvecs?.[qi] ?? null
+      const qCat = items[qi].category ?? ''
       const qNorms = extractNormCodes(query)
+
+      const embScores = this.entries.map((_, i) => {
+        if (!qv) return 0
+        const ev = this.embVecs[i]
+        if (!ev) return 0
+        let dot = 0
+        for (let k = 0; k < qv.length && k < ev.length; k++) dot += qv[k] * ev[k]
+        return Math.max(0, dot)
+      })
+      const bonuses = this.entries.map((e, i) =>
+        normBonus(qNorms, this.entryNorms[i]) + categoryBonus(qCat, e.categoria)
+      )
+      const finalScores = this.combineScores(tfidfScores, embScores, bonuses, !!qv, weight)
+
       let bestDoc = -1
       let bestScore = -1
-      for (let i = 0; i < this.entries.length; i++) {
-        let score = tfidf[i]
-        if (qv) {
-          const ev = this.embVecs[i]
-          let emb = 0
-          if (ev) {
-            let dot = 0
-            for (let k = 0; k < qv.length && k < ev.length; k++) dot += qv[k] * ev[k]
-            emb = Math.max(0, dot)
-          }
-          score = weight * emb + (1 - weight) * tfidf[i]
-        }
-        score = Math.min(1, score + normBonus(qNorms, this.entryNorms[i]))
-        if (score > bestScore) {
-          bestScore = score
-          bestDoc = i
-        }
+      for (let i = 0; i < finalScores.length; i++) {
+        if (finalScores[i] > bestScore) { bestScore = finalScores[i]; bestDoc = i }
       }
+
       const round = Math.round(bestScore * 10000) / 10000
       if (bestDoc < 0 || bestScore < threshold) {
         return { precio: null, descripcion: '', codigo: '', score: round, source: 'fallback' }
       }
       const e = this.entries[bestDoc]
-      return {
-        precio: e.precio,
-        descripcion: e.descripcion,
-        codigo: e.codigo,
-        score: round,
-        source: 'alagal'
-      }
+      return { precio: e.precio, descripcion: e.descripcion, codigo: e.codigo, score: round, source: 'alagal' }
     })
   }
 
-  /**
-   * Mejor match → { precio, descripcion, score, source }. Si score < threshold,
-   * source='fallback' y precio=null (el planner usa su precio base).
-   */
   getBestPrice(
     testDescription: string,
     category = '',
     threshold = DEFAULT_THRESHOLD
-  ): {
-    precio: number | null
-    descripcion: string
-    codigo: string
-    score: number
-    source: 'alagal' | 'fallback'
-  } {
+  ): { precio: number | null; descripcion: string; codigo: string; score: number; source: 'alagal' | 'fallback' } {
     const ctx = CATEGORY_CTX[category] ?? ''
     const query = `${testDescription} ${ctx}`.trim()
     const [best] = this.findMatches(query, 1)
     if (!best || best.score < threshold) {
-      return {
-        precio: null,
-        descripcion: '',
-        codigo: '',
-        score: best?.score ?? 0,
-        source: 'fallback'
-      }
+      return { precio: null, descripcion: '', codigo: '', score: best?.score ?? 0, source: 'fallback' }
     }
-    return {
-      precio: best.precio,
-      descripcion: best.descripcion,
-      codigo: best.codigo,
-      score: best.score,
-      source: 'alagal'
-    }
+    return { precio: best.precio, descripcion: best.descripcion, codigo: best.codigo, score: best.score, source: 'alagal' }
   }
 }

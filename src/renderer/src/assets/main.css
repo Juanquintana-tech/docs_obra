@@ -506,7 +506,7 @@
   box-shadow: var(--shadow-lg);
 }
 
-/* ── Badge borrador/completado ── */
+/* ── Badge borrador/completado/aprobado ── */
 .badge-borrador {
   background: #fef3c7;
   color: var(--warn);
@@ -514,6 +514,10 @@
 .badge-completado {
   background: #dcfce7;
   color: var(--ok);
+}
+.badge-aprobado {
+  background: #dbeafe;
+  color: #1d4ed8;
 }
 
 /* ── Ingest: zona de texto pegado ── */

@@ -23,9 +23,9 @@ const STAGES = [
 
 const ALLOWED_EXT = ['pdf', 'docx', 'xlsx', 'xls', 'txt']
 
-// Tipos Electron-specific: File expone `path` en el renderer con sandbox:false
-interface ElectronFile extends File {
-  path: string
+// Desde Electron 32, file.path ya no se rellena en drag&drop — usar webUtils.
+function getFilePath(file: File): string {
+  return window.electron?.webUtils?.getPathForFile(file) ?? ''
 }
 
 // ── Componente principal ─────────────────────────────────────────────────────
@@ -141,18 +141,19 @@ export function NuevaObra(): JSX.Element {
   async function handleDrop(e: DragEvent<HTMLDivElement>): Promise<void> {
     e.preventDefault()
     setDragOver(false)
-    const file = e.dataTransfer.files[0] as ElectronFile | undefined
+    const file = e.dataTransfer.files[0]
     if (!file) return
     const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
     if (!ALLOWED_EXT.includes(ext)) {
       setError(`Formato no admitido: .${ext}. Usa PDF, DOCX, XLSX o TXT.`)
       return
     }
-    if (!file.path) {
+    const path = getFilePath(file)
+    if (!path) {
       setError('No se pudo leer la ruta del archivo. Usa el botón «Seleccionar documento».')
       return
     }
-    await doIngest(file.path, file.name)
+    await doIngest(path, file.name)
   }
 
   // ── Reprecio ──────────────────────────────────────────────────────────────

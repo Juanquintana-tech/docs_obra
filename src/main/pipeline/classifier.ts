@@ -6,36 +6,73 @@ import type { Material } from './types'
 import { createLlmProvider, type LlmProvider } from './llm'
 
 const SYSTEM_PROMPT = `Eres un experto en control de calidad de obras de construcción civil en España.
-Tu tarea es analizar el texto de una memoria técnica o presupuesto de obra y extraer todos los
-materiales/unidades de obra que sean SUSCEPTIBLES de ser ensayadas por un laboratorio de control.
+Analiza el texto y extrae las partidas que un laboratorio de CC.CC. tiene que facturar.
 
-Los materiales susceptibles de ensayo son siempre los mismos tipos:
-- Terraplén, rellenos, pedraplén, todo-uno
-- Suelo estabilizado in situ con cemento (S-EST)
-- Zahorra artificial
-- Mezclas bituminosas (AC 32, AC 22, AC 16, BBTM, etc.)
-- Hormigones (HA-XX, HP-XX, HM-XX, hormigón proyectado/gunita) - por tipo → categoría HORMIGON
-- Escollera / enrocamiento
-- Acero para hormigón armado (pasivo/activo)
-- Bulones / micropilotes
+Hay DOS tipos de partidas completamente distintas:
 
-IGNORA (NO son materiales a ensayar — no los incluyas):
-- Unidades de obra de RETIRADA/DEMOLICIÓN: fresado de pavimento (p. ej. "fresado por centímetro de espesor"),
-  demoliciones, levantado, excavación, desbroce, retirada de firme. Son trabajos, no materiales nuevos a ensayar.
-- Señalización, jardinería, mobiliario urbano, instalaciones eléctricas, saneamiento menor.
-- Unidades de medición auxiliares o de abono (p. ej. "por cm de espesor", "m²·cm") que no representan un material colocado.
-IMPORTANTE: solo se ensaya el material NUEVO puesto en obra (terraplén, zahorra, hormigón, mezcla bituminosa colocada,
-escollera, acero…). El fresado retira material existente y NO se ensaya.
+── TIPO A: Material de construcción a ensayar ──────────────────────────────────
+El ítem del presupuesto es un MATERIAL puesto en obra (m³ de terraplén, t de mezcla…).
+El laboratorio generará ensayos según las frecuencias del PG-3.
 
-Devuelve EXCLUSIVAMENTE un JSON array con este formato, sin texto adicional:
+Categorías tipo A:
+  TERRAPLEN_RELLENOS  — terraplén, relleno, pedraplén, todo-uno
+  SUELO_ESTABILIZADO  — suelo estabilizado in situ con cemento o cal (S-EST, SEST, SC, suelo-cemento)
+  ZAHORRA_ARTIFICIAL  — zahorra artificial (ZA), grava-cemento
+  MEZCLA_BITUMINOSA   — mezclas bituminosas terminadas: AC 32, AC 22, AC 16, BBTM, DTS (doble tratamiento superficial)
+  HORMIGON            — hormigones (HA-XX, HP-XX, HM-XX, proyectado/gunita), un ítem por tipo
+  ESCOLLERA           — escollera, enrocamiento
+  ACERO               — acero para hormigón armado (barras corrugadas, malla electrosoldada)
+  ACERO_LAMINADO      — acero estructural laminado (perfiles IPE/HEB/UPN, chapas, S275/S355)
+  MARCAS_VIALES       — marcas viales, señalización horizontal (pintura, termoplástica, retroreflectancia)
+  RIEGO_BITUMINOSO    — riego de imprimación, riego de adherencia, riego de curado (emulsión aplicada en m2)
+  PILOTES             — pilotes, micropilotes, pantallas de pilotes
+  OTRO                — material ensayable que no encaja en ninguna categoría anterior
+
+── TIPO B: Servicio o ensayo directo ───────────────────────────────────────────
+El ítem del presupuesto ES en sí mismo un servicio de laboratorio/campo.
+La cantidad en el BOM = número de veces que se realiza ese servicio.
+El laboratorio simplemente cobra cantidad × precio_unitario, sin generar subensayos.
+
+Categoría tipo B:
+  SERVICIO  — metros de perforación/sondeo, ensayos SPT, toma de muestras, testigos
+              parafinados, tubos piezómetros, movilización de equipos, ensayos
+              presiométricos, georreferenciación, lecturas piezométricas, inspección
+              con videocámara, medición IRI/CRT, desplazamiento de equipo APL/ECODYN,
+              bulones/anclajes (ensayo de arrancamiento), pruebas de estanqueidad,
+              cualquier otro servicio/ensayo que aparece ya con su propia cantidad.
+
+IGNORAR (no incluir):
+- Demoliciones, fresado, levantado, excavación, desbroce, retirada de firme.
+- Señalización vertical, jardinería, mobiliario, instalaciones MEP (salvo si son pruebas).
+- Partidas auxiliares o de abono ("por cm de espesor", "m²·cm").
+- Betún o ligante como materia prima aislada (p.ej. "BETUN MEJORADO 4.326 t", "BETUN MODIFICADO"):
+  el ensayo es sobre la MEZCLA terminada, no sobre el betún en acopio.
+
+── Abreviaturas frecuentes en obras civiles españolas ──────────────────────────
+  ZA / Z.A.  → ZAHORRA_ARTIFICIAL
+  SEST / S-EST / SC (suelo cemento) → SUELO_ESTABILIZADO
+  DTS (doble tratamiento superficial) → MEZCLA_BITUMINOSA
+  AC-22 / AC-16 / BBTM → MEZCLA_BITUMINOSA
+  HA-XX / HP-XX / HM-XX → HORMIGON
+  BULON / BULÓN → SERVICIO (ensayo de arrancamiento)
+  ACERO PRET / ACERO PRETENSAR → ACERO (acero activo para pret.)
+
+── Regla de AGREGACIÓN ─────────────────────────────────────────────────────────
+Si el mismo tipo de material aparece en MÚLTIPLES FILAS (una por estructura, viaducto o
+sección), SUMA todas las cantidades en UN SOLO ítem con la cantidad total.
+Ejemplo: si hay 10 filas "HA-30" con distintas cantidades (una por viaducto), devuelve
+UN solo ítem "HORMIGON HA-30" con la suma de todas las cantidades.
+Excepción: tipos de hormigón DIFERENTES (HA-30 y HP-50) van en ítems separados.
+
+Devuelve EXCLUSIVAMENTE un JSON array (sin texto adicional):
 [
   {
-    "material": "nombre canónico del material",
-    "category": "una de: TERRAPLEN_RELLENOS | ZAHORRA_ARTIFICIAL | HORMIGON | ESCOLLERA | SUELO_ESTABILIZADO | MEZCLA_BITUMINOSA | ACERO | OTRO",
-    "quantity": número en float o null si no se encuentra,
-    "unit": "m3 | m2 | t | ml | ud",
-    "description": "descripción tal como aparece en el documento",
-    "notes": "notas relevantes como tipo de hormigón, localización, etc."
+    "material": "nombre corto canónico",
+    "category": "una de las categorías arriba",
+    "quantity": número float o null,
+    "unit": "m3|m2|t|m|ml|ud",
+    "description": "texto tal como aparece en el documento",
+    "notes": "notas opcionales (tipo hormigón, localización, etc.)"
   }
 ]`
 

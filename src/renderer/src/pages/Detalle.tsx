@@ -6,7 +6,7 @@ import { PlanTable, EditablePlanTable } from '../components/PlanTable'
 import { Ic } from '../components/Icon'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { FormField, DateFormField, InfoRow } from '../components/FormField'
-import type { Obra, PlanRow, ObraInput, Ensayo } from '../lib/types'
+import type { Obra, PlanRow, ObraInput, Ensayo, ProgressRow } from '../lib/types'
 
 // ── Tipos de ensayo ──────────────────────────────────────────────────────────
 const TIPO_LABELS: Record<string, string> = {
@@ -31,6 +31,7 @@ export function Detalle(): JSX.Element {
   const [editingPlan, setEditingPlan] = useState(false)
   const [deletedIds, setDeletedIds] = useState<number[]>([])
   const [ensayos, setEnsayos] = useState<Ensayo[]>([])
+  const [progress, setProgress] = useState<ProgressRow[]>([])
   const [tab, setTab] = useState<Tab>('info')
   const [msg, setMsg] = useState<string | null>(null)
   const [lastExportPath, setLastExportPath] = useState<string | null>(null)
@@ -40,16 +41,18 @@ export function Detalle(): JSX.Element {
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   const reload = useCallback(async (): Promise<void> => {
-    const [o, r, ens] = await Promise.all([
+    const [o, r, ens, prog] = await Promise.all([
       api.getObra(obraId),
       api.getPlanRows(obraId),
-      api.getEnsayos(obraId)
+      api.getEnsayos(obraId),
+      api.getEnsayoProgress(obraId)
     ])
     setObra(o ?? null)
     const testRows = r.filter((x) => x.row_type === 'test')
     setRows(testRows)
     setEditedRows(testRows)
     setEnsayos(ens)
+    setProgress(prog)
   }, [obraId])
 
   useEffect(() => {
@@ -419,6 +422,11 @@ export function Detalle(): JSX.Element {
             </button>
           </div>
 
+          {/* ── Vista de avance: plan vs ejecución (P2) ── */}
+          {progress.length > 0 && (
+            <ProgressView progress={progress} />
+          )}
+
           {ensayos.length === 0 ? (
             <div className="empty">
               Aún no hay informes de campo. Usa <b>Gestionar ensayos</b> para crear el primero.
@@ -432,6 +440,11 @@ export function Detalle(): JSX.Element {
                     <div className="ens-titulo">{e.titulo || '—'}</div>
                     <div className="ens-meta">
                       <span className={`badge badge-${e.estado}`}>{e.estado}</span>
+                      {e.n_expediente && (
+                        <span style={{ fontSize: 11, color: 'var(--text-soft)', fontFamily: 'monospace' }}>
+                          {e.n_expediente}
+                        </span>
+                      )}
                       {e.veredicto && (
                         <span className={e.veredicto === 'CUMPLE' ? 'verdict ok' : e.veredicto === 'NO CUMPLE' ? 'verdict no' : 'verdict'}>
                           {e.veredicto}
@@ -442,7 +455,11 @@ export function Detalle(): JSX.Element {
                       </span>
                     </div>
                   </div>
-                  <button className="btn" style={{ flexShrink: 0 }} onClick={() => navigate('/ensayos/' + obraId)}>
+                  <button
+                    className="btn"
+                    style={{ flexShrink: 0 }}
+                    onClick={() => navigate('/ensayos/' + obraId, { state: { editEnsayoId: e.id } })}
+                  >
                     <Ic.Edit /> Editar
                   </button>
                 </div>
@@ -451,6 +468,114 @@ export function Detalle(): JSX.Element {
           )}
         </>
       )}
+    </div>
+  )
+}
+
+// ── Componente: Vista de avance plan ↔ ejecución (P2) ──────────────────────
+
+function ProgressView({ progress }: { progress: ProgressRow[] }): JSX.Element {
+  const total = progress.length
+  const conEnsayos = progress.filter((r) => r.ensayos_completados > 0).length
+  const pct = total > 0 ? Math.round((conEnsayos / total) * 100) : 0
+
+  // Agrupar por material
+  const byMaterial = new Map<string, ProgressRow[]>()
+  for (const r of progress) {
+    const mat = r.material || '(sin material)'
+    if (!byMaterial.has(mat)) byMaterial.set(mat, [])
+    byMaterial.get(mat)!.push(r)
+  }
+
+  return (
+    <div className="card" style={{ marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <h3 style={{ margin: 0 }}>Avance de ejecución</h3>
+        <span style={{ fontSize: 22, fontWeight: 700, color: pct === 100 ? 'var(--ok)' : 'var(--navy)' }}>
+          {pct} %
+        </span>
+      </div>
+
+      {/* Barra de progreso */}
+      <div style={{ background: 'var(--bg-alt)', borderRadius: 6, height: 10, marginBottom: 10, overflow: 'hidden' }}>
+        <div
+          style={{
+            width: `${pct}%`,
+            height: '100%',
+            background: pct === 100 ? 'var(--ok)' : 'var(--mid)',
+            borderRadius: 6,
+            transition: 'width 0.3s'
+          }}
+        />
+      </div>
+
+      <div style={{ fontSize: 13, color: 'var(--text-soft)', marginBottom: 12 }}>
+        <b style={{ color: 'var(--navy)' }}>{conEnsayos}</b> de{' '}
+        <b style={{ color: 'var(--navy)' }}>{total}</b> ensayos planificados con informe completado
+      </div>
+
+      {/* Tabla por material */}
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: 'var(--bg-alt)' }}>
+              <th style={{ textAlign: 'left', padding: '4px 8px', color: 'var(--text-soft)' }}>Material</th>
+              <th style={{ textAlign: 'left', padding: '4px 8px', color: 'var(--text-soft)' }}>Ensayo</th>
+              <th style={{ textAlign: 'center', padding: '4px 8px', color: 'var(--text-soft)' }}>Planificados</th>
+              <th style={{ textAlign: 'center', padding: '4px 8px', color: 'var(--text-soft)' }}>Vinculados</th>
+              <th style={{ textAlign: 'center', padding: '4px 8px', color: 'var(--text-soft)' }}>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from(byMaterial.entries()).map(([mat, rows]) =>
+              rows.map((r, idx) => (
+                <tr
+                  key={r.plan_row_id}
+                  style={{
+                    borderTop: '1px solid var(--border)',
+                    background: r.ensayos_completados > 0 ? 'rgba(0,150,80,0.04)' : undefined
+                  }}
+                >
+                  {idx === 0 && (
+                    <td
+                      rowSpan={rows.length}
+                      style={{
+                        padding: '4px 8px',
+                        fontWeight: 600,
+                        color: 'var(--navy)',
+                        verticalAlign: 'top',
+                        borderRight: '1px solid var(--border)'
+                      }}
+                    >
+                      {mat}
+                    </td>
+                  )}
+                  <td style={{ padding: '4px 8px' }}>{r.description}</td>
+                  <td style={{ padding: '4px 8px', textAlign: 'center', color: 'var(--text-soft)' }}>
+                    {r.n_tests}
+                  </td>
+                  <td style={{ padding: '4px 8px', textAlign: 'center' }}>
+                    {r.ensayos_total > 0 ? (
+                      <span style={{ fontWeight: 600 }}>{r.ensayos_total}</span>
+                    ) : (
+                      <span style={{ color: 'var(--text-soft)' }}>—</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '4px 8px', textAlign: 'center' }}>
+                    {r.ensayos_completados > 0 ? (
+                      <span className="verdict ok" style={{ fontSize: 11 }}>✓</span>
+                    ) : r.ensayos_total > 0 ? (
+                      <span className="badge badge-borrador" style={{ fontSize: 11 }}>borrador</span>
+                    ) : (
+                      <span style={{ color: 'var(--text-soft)', fontSize: 11 }}>pendiente</span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

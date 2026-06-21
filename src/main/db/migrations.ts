@@ -107,6 +107,39 @@ export const MIGRATIONS: Array<(db: Database) => void> = [
       ALTER TABLE obras ADD COLUMN discount_pct REAL DEFAULT 0;
       UPDATE plan_rows SET unit_price_base = unit_price WHERE unit_price_base IS NULL;
     `)
+  },
+
+  // ── v5 — P2: ciclo plan ↔ ejecución + P3: numeración expediente ───────────
+  // `plan_row_id` vincula cada informe de campo a su línea del plan de ensayos
+  // (enlace débil: ON DELETE SET NULL para que borrar el plan no pierda informes).
+  // `n_expediente` contiene la referencia correlativa del laboratorio (año/NNNN).
+  (db) => {
+    db.exec(`
+      ALTER TABLE ensayos ADD COLUMN plan_row_id INTEGER REFERENCES plan_rows(id) ON DELETE SET NULL;
+      ALTER TABLE ensayos ADD COLUMN n_expediente TEXT DEFAULT '';
+      CREATE INDEX IF NOT EXISTS idx_ensayos_plan_row ON ensayos(plan_row_id);
+    `)
+  },
+
+  // ── v6 — P3: trazabilidad de muestras (cadena de custodia) ───────────────
+  // Tabla muestras enlazada a ensayos; permite registrar origen, localización
+  // y estado de cada muestra analizada por el laboratorio.
+  (db) => {
+    db.exec(`
+      CREATE TABLE muestras (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        ensayo_id    INTEGER NOT NULL REFERENCES ensayos(id) ON DELETE CASCADE,
+        obra_id      INTEGER NOT NULL REFERENCES obras(id)   ON DELETE CASCADE,
+        codigo       TEXT    DEFAULT '',
+        descripcion  TEXT    DEFAULT '',
+        localizacion TEXT    DEFAULT '',
+        fecha_toma   TEXT    DEFAULT '',
+        estado       TEXT    DEFAULT 'pendiente', -- 'pendiente' | 'en_analisis' | 'analizada'
+        created_at   TEXT    DEFAULT (datetime('now','localtime'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_muestras_ensayo ON muestras(ensayo_id);
+      CREATE INDEX IF NOT EXISTS idx_muestras_obra   ON muestras(obra_id);
+    `)
   }
 ]
 

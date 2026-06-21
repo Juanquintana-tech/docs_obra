@@ -38,21 +38,47 @@
 - [x] price_book.json (histórico propio) como prioridad 1 sobre ALAGAL.
 - [x] Umbrales ajustados con harness `rag:thresholds` (PB: 0.55, ALAGAL: 0.45).
 
+**RAG-2 — Mejoras de scoring (2026-06-21):**
+- [x] `reranker.ts`: re-ranker LLM (Gemini Flash) para zona gris [0.35, 0.65].
+      `maybeRerank()` llamado desde `LabPricer.findMatches()` (pantalla validación).
+      Si no hay GEMINI_API_KEY → silencioso, sin re-ranking.
+- [x] RRF (Reciprocal Rank Fusion) implementado en `RagPricer`. Habilitado con
+      `useRrf: true` en `RagPricerOptions`. Por defecto off — requiere re-calibrar
+      umbrales con `npm run rag:thresholds` antes de activar.
+- [x] Category bonus (+0.05) en `priceMany`: compara categoría interna con el
+      campo `categoria` del catálogo ALAGAL.
+- [x] `CATEGORY_CTX` extendido con: ACERO_LAMINADO, MARCAS_VIALES, RIEGO_BITUMINOSO,
+      PILOTES, CAMPANA_GEOTECNICA.
+
+**RAG-3 — Categorías y frecuencias (2026-06-21):**
+- [x] `test_rules.json` TERRAPLEN_RELLENOS: lab → 5.000 m³ (era 10.000, PG-3 Art.330).
+      CBR → 50.000 m³. Densidad in situ → 5.000 m² y tongada.
+- [x] Nuevas categorías en `test_rules.json`: CAMPANA_GEOTECNICA, MARCAS_VIALES,
+      ACERO_LAMINADO, PILOTES, RIEGO_BITUMINOSO.
+- [x] `classifier.ts` SYSTEM_PROMPT: reconoce las 5 nuevas categorías y distingue
+      ACERO (armadura) de ACERO_LAMINADO (perfiles estructurales).
+
 ---
 
 ## Roadmap
 
 ### P2 — Cerrar el ciclo plan ↔ ejecución _(diferenciador LIMS)_
 
-- Vincular cada informe de ensayo a una línea del plan (`plan_row_id` en `ensayos`).
-- Vista de avance por obra: planificados vs ejecutados, % completado, pendientes.
-- El Dashboard ya insinúa "Informes de campo" vs "Planificados"; falta el enlace real.
+- [x] `plan_row_id` en `ensayos` (migración v5). Enlace suave (ON DELETE SET NULL).
+- [x] Vista de avance en Detalle → tab Ensayos: barra %, planificados vs completados, tabla por material.
+- [x] Selector de línea del plan en el editor de ensayos.
+- [x] Bug fix: botón Editar en Detalle navega directamente al ensayo específico (state.editEnsayoId).
+- [ ] Dashboard: KPI "% avance" entre todos los proyectos activos.
 
 ### P3 — Requisitos de acreditación ENAC
 
-- Flujo de firma/aprobación en informes (campos en esquema; falta UI + sello).
-- Numeración correlativa de informes/expediente (año/secuencia), trazable.
-- Trazabilidad de muestras / cadena de custodia: tabla `muestras` enlazada a ensayos.
+- [x] `n_expediente` en `ensayos` (migración v5): campo correlativo AAAA/NNNN.
+- [x] `getNextExpediente(year)`: sugiere el siguiente número libre, el usuario confirma.
+- [x] Botón "Auto" en el editor de ensayos para asignar el siguiente expediente.
+- [x] Estado `aprobado` añadido al flujo borrador → completado → aprobado.
+- [x] Tabla `muestras` (migración v6): cadena de custodia, enlazada a ensayos y obras.
+- [ ] UI para gestionar muestras (crear, listar por ensayo).
+- [ ] Sello/firma en exportación Word de informes aprobados.
 
 ### P4 — Bucle de aprendizaje del precio _(feature #2)_
 

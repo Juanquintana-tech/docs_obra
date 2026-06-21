@@ -5,7 +5,7 @@
  */
 import { Fragment, useEffect, useState, useCallback, type JSX } from 'react'
 import { OcrConfCtx, useOcrConf } from '../lib/ocrConf'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 import { api } from '../lib/api'
 import { Ic } from '../components/Icon'
 import { ScanPanel } from '../components/ScanPanel'
@@ -21,7 +21,7 @@ import {
   cargaToTension,
   toNum
 } from '../lib/ensayoCalc'
-import type { Ensayo, EnsayoInput, Obra } from '../lib/types'
+import type { Ensayo, EnsayoInput, Obra, PlanRow } from '../lib/types'
 import './Ensayos.css'
 
 // ── Tipos de ensayo (espejo de ensayos.ts TIPOS) ─────────────────────────────
@@ -317,9 +317,11 @@ function fmt(v: unknown, dec = 2): string {
 
 export function Ensayos(): JSX.Element {
   const { obraId: obraIdStr } = useParams<{ obraId?: string }>()
+  const location = useLocation()
   const [obras, setObras] = useState<Obra[]>([])
   const [obraId, setObraId] = useState<number | null>(obraIdStr ? Number(obraIdStr) : null)
   const [ensayos, setEnsayos] = useState<Ensayo[]>([])
+  const [planRows, setPlanRows] = useState<PlanRow[]>([])
   const [editing, setEditing] = useState<Ensayo | null>(null) // null = lista
   const [creating, setCreating] = useState<string | null>(null) // tipo nuevo
   const [openGroup, setOpenGroup] = useState<string | null>(null)
@@ -344,9 +346,17 @@ export function Ensayos(): JSX.Element {
   useEffect(() => {
     if (!obraId) return
     let cancelled = false
-    api.getEnsayos(obraId).then(
-      (list) => {
-        if (!cancelled) setEnsayos(list)
+    Promise.all([api.getEnsayos(obraId), api.getPlanRows(obraId)]).then(
+      ([list, rows]) => {
+        if (cancelled) return
+        setEnsayos(list)
+        setPlanRows(rows.filter((r) => r.row_type === 'test'))
+        // Auto-abrir ensayo específico si venimos de Detalle (state.editEnsayoId)
+        const editId = (location.state as { editEnsayoId?: number } | null)?.editEnsayoId
+        if (editId) {
+          const target = list.find((e) => e.id === editId)
+          if (target) setEditing(target)
+        }
       },
       (e) => {
         if (!cancelled) setMsg(`Error al cargar ensayos: ${errorMessage(e)}`)
@@ -355,12 +365,15 @@ export function Ensayos(): JSX.Element {
     return () => {
       cancelled = true
     }
+  // location.state solo se lee en el montaje inicial; no queremos re-disparar
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [obraId])
 
   async function loadEnsayos(id: number): Promise<void> {
     try {
-      const list = await api.getEnsayos(id)
+      const [list, rows] = await Promise.all([api.getEnsayos(id), api.getPlanRows(id)])
       setEnsayos(list)
+      setPlanRows(rows.filter((r) => r.row_type === 'test'))
     } catch (e) {
       setMsg(`Error al cargar ensayos: ${errorMessage(e)}`)
     }
@@ -597,6 +610,9 @@ export function Ensayos(): JSX.Element {
       tituloInit={editing?.titulo ?? ''}
       responsableInit={editing?.responsable ?? ''}
       estadoInit={editing?.estado ?? 'borrador'}
+      planRowIdInit={editing?.plan_row_id ?? null}
+      nExpedienteInit={editing?.n_expediente ?? ''}
+      planRows={planRows}
       onSave={async (input) => {
         if (editing) {
           await api.updateEnsayo(editing.id, input)
@@ -650,6 +666,11 @@ function EnsayoCard({
         <div className="ens-titulo">{ensayo.titulo || '—'}</div>
         <div className="ens-meta">
           <span className={`badge badge-${ensayo.estado}`}>{ensayo.estado}</span>
+          {ensayo.n_expediente && (
+            <span style={{ fontSize: 11, color: 'var(--text-soft)', fontFamily: 'monospace' }}>
+              {ensayo.n_expediente}
+            </span>
+          )}
           {ensayo.veredicto && (
             <span className={verdictClass(ensayo.veredicto)}>{ensayo.veredicto}</span>
           )}
@@ -696,6 +717,9 @@ function EnsayoEditor({
   tituloInit,
   responsableInit,
   estadoInit,
+  planRowIdInit,
+  nExpedienteInit,
+  planRows,
   onSave,
   onCancel
 }: {
@@ -703,14 +727,20 @@ function EnsayoEditor({
   datosInit: Record<string, unknown>
   tituloInit: string
   responsableInit: string
-  estadoInit: 'borrador' | 'completado'
+  estadoInit: 'borrador' | 'completado' | 'aprobado'
+  planRowIdInit?: number | null
+  nExpedienteInit?: string
+  planRows?: PlanRow[]
   onSave: (input: EnsayoInput) => Promise<void>
   onCancel: () => void
 }): JSX.Element {
   const [datos, setDatos] = useState<Record<string, unknown>>(datosInit)
   const [titulo, setTitulo] = useState(tituloInit)
   const [responsable, setResponsable] = useState(responsableInit)
-  const [estado, setEstado] = useState<'borrador' | 'completado'>(estadoInit)
+  const [estado, setEstado] = useState<'borrador' | 'completado' | 'aprobado'>(estadoInit)
+  const [planRowId, setPlanRowId] = useState<number | null>(planRowIdInit ?? null)
+  const [nExpediente, setNExpediente] = useState(nExpedienteInit ?? '')
+  const [loadingExpediente, setLoadingExpediente] = useState(false)
   const [busy, setBusy] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [ocrConf, setOcrConf] = useState<Record<string, string>>({})
@@ -726,11 +756,33 @@ function EnsayoEditor({
     [tipo]
   )
 
+  async function handleAutoExpediente(): Promise<void> {
+    setLoadingExpediente(true)
+    try {
+      const year = new Date().getFullYear()
+      const next = await api.getNextExpediente(year)
+      setNExpediente(next)
+    } catch {
+      /* silent — el usuario puede escribir manualmente */
+    } finally {
+      setLoadingExpediente(false)
+    }
+  }
+
   async function handleSave(): Promise<void> {
     setBusy(true)
     setSaveError(null)
     try {
-      await onSave({ tipo, titulo, responsable, estado, veredicto, datos })
+      await onSave({
+        tipo,
+        titulo,
+        responsable,
+        estado,
+        veredicto,
+        n_expediente: nExpediente,
+        plan_row_id: planRowId,
+        datos
+      })
     } catch (e) {
       setSaveError(errorMessage(e))
     } finally {
@@ -776,17 +828,64 @@ function EnsayoEditor({
               placeholder="Nombre del técnico"
             />
           </div>
-          <div className="field-group" style={{ maxWidth: 160 }}>
+          <div className="field-group" style={{ maxWidth: 170 }}>
             <label className="field-label">Estado</label>
             <select
               className="select"
               value={estado}
-              onChange={(e) => setEstado(e.target.value as 'borrador' | 'completado')}
+              onChange={(e) => setEstado(e.target.value as 'borrador' | 'completado' | 'aprobado')}
             >
               <option value="borrador">Borrador</option>
               <option value="completado">Completado</option>
+              <option value="aprobado">Aprobado</option>
             </select>
           </div>
+        </div>
+        <div className="field-row" style={{ marginTop: 10 }}>
+          {/* Nº expediente (P3 — ENAC) */}
+          <div className="field-group" style={{ maxWidth: 200 }}>
+            <label className="field-label" title="Numeración correlativa del laboratorio (ENAC)">
+              Nº Expediente
+            </label>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <input
+                className="input"
+                style={{ fontFamily: 'monospace' }}
+                value={nExpediente}
+                onChange={(e) => setNExpediente(e.target.value)}
+                placeholder="2026/0001"
+              />
+              <button
+                className="btn"
+                style={{ flexShrink: 0, padding: '4px 10px', fontSize: 12 }}
+                onClick={handleAutoExpediente}
+                disabled={loadingExpediente}
+                title="Asignar el siguiente número libre"
+              >
+                {loadingExpediente ? '…' : 'Auto'}
+              </button>
+            </div>
+          </div>
+          {/* Enlace a línea del plan (P2) */}
+          {planRows && planRows.length > 0 && (
+            <div className="field-group">
+              <label className="field-label" title="Vincular a una línea del plan de control de calidad">
+                Línea del plan
+              </label>
+              <select
+                className="select"
+                value={planRowId ?? ''}
+                onChange={(e) => setPlanRowId(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">— Sin vincular —</option>
+                {planRows.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.material ? `${r.material} · ` : ''}{r.description}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 

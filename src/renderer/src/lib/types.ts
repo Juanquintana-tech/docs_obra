@@ -6,7 +6,8 @@ export type {
   ObraInput,
   Ensayo,
   EnsayoInput,
-  PlanRowPatch
+  PlanRowPatch,
+  ProgressRow
 } from '../../../main/db'
 export type { PlanRowInput, Material } from '../../../main/pipeline/types'
 export type { PriceStrategy } from '../../../main/pipeline/rag/priceBook'

@@ -1,6 +1,8 @@
 /**
  * Genera el plan de ensayos a partir de los materiales clasificados.
- * Port de agents/planner.py — aplica las reglas de test_rules.json.
+ * Dos modos:
+ *   - Tipo A (materials): aplica frecuencias de test_rules.json.
+ *   - Tipo B (SERVICIO): la cantidad del BOM = nº de servicios; precio directo por RAG.
  */
 import type { Material, PlanRowInput } from './types'
 
@@ -107,11 +109,42 @@ export async function generatePlan(
 
   for (const mat of materials) {
     const category = mat.category ?? 'OTRO'
+    const materialName = mat.material || mat.description || ''
+    const quantity = mat.quantity ?? null
+
+    // ── Tipo B: SERVICIO — precio directo, sin derivar subensayos ──────────
+    if (category === 'SERVICIO') {
+      const nTests = Math.max(1, Math.round(quantity ?? 1))
+      const description = mat.description || materialName
+      pending.push({
+        description,
+        category,
+        row: {
+          type: 'test',
+          material: materialName,
+          subcategory: 'Servicio directo',
+          description,
+          measurement: quantity,
+          measurement_unit: mat.unit ?? 'ud',
+          freq_qty: 1,
+          freq_unit: `por ${mat.unit ?? 'ud'}`,
+          n_lots: 1,
+          tests_per_lot: 1,
+          n_tests: nTests,
+          unit_price: 0,
+          total: 0,
+          price_source: 'fallback',
+          rag_score: 0,
+          rag_desc: ''
+        }
+      })
+      continue
+    }
+
+    // ── Tipo A: Material — derivar ensayos por frecuencia (test_rules.json) ─
     const rule = rules[category]
     if (!rule) continue
 
-    const quantity = mat.quantity ?? null
-    const materialName = mat.material || mat.description || ''
     const materialUnit = mat.unit ?? rule.unit ?? ''
 
     for (const test of rule.tests ?? []) {
@@ -121,7 +154,7 @@ export async function generatePlan(
       const description = test.description ?? ''
       const nLots = calculateNLots(quantity, freqUnit, materialUnit)
       const nTests = nLots * freqQty * testsPerLot
-      const baseUnitPrice = coerceFloat(test.unit_price, 0) // fallback si el RAG no acierta
+      const baseUnitPrice = coerceFloat(test.unit_price, 0)
 
       pending.push({
         description,
@@ -132,7 +165,7 @@ export async function generatePlan(
           subcategory: test.subcategory ?? '',
           description,
           measurement: quantity,
-          measurement_unit: mat.unit ?? rule.unit ?? '',
+          measurement_unit: materialUnit,
           freq_qty: freqQty,
           freq_unit: freqUnit,
           n_lots: nLots,

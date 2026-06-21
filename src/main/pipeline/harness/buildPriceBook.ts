@@ -9,12 +9,12 @@
  */
 import { writeFileSync } from 'fs'
 import { resolve } from 'path'
-import { extractBudgetPairs, DEFAULT_BUDGETS_DIR } from './budgetParser'
+import { extractBudgetPairs, DEFAULT_BUDGETS_DIRS } from './budgetParser'
 import { aggregatePriceBook } from '../rag/priceBook'
 
 function main(): void {
-  const base = process.argv[2] ?? DEFAULT_BUDGETS_DIR
-  const pairs = extractBudgetPairs(base)
+  const dirs = process.argv[2] ? [process.argv[2]] : DEFAULT_BUDGETS_DIRS
+  const pairs = extractBudgetPairs(...dirs)
   const entries = aggregatePriceBook(pairs)
 
   const outPath = resolve(process.cwd(), 'resources/knowledge/price_book.json')

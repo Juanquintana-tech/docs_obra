@@ -204,21 +204,7 @@ export function updatePlanRows(obraId: number, patches: PlanRowPatch[]): void {
         total: p.total
       })
     }
-    // Recalcular stats de la obra a partir de las filas actualizadas
-    const agg = db
-      .prepare(
-        `SELECT COALESCE(SUM(total),0)   AS total_importe,
-                COALESCE(SUM(n_tests),0) AS n_ensayos,
-                COUNT(DISTINCT CASE WHEN material!='' THEN material END) AS n_materiales
-         FROM plan_rows WHERE obra_id=? AND row_type='test'`
-      )
-      .get(obraId) as { total_importe: number; n_ensayos: number; n_materiales: number }
-    db.prepare(`UPDATE obras SET total_importe=?, n_ensayos=?, n_materiales=? WHERE id=?`).run(
-      agg.total_importe,
-      agg.n_ensayos,
-      agg.n_materiales,
-      obraId
-    )
+    refreshObraStats(db, obraId)
   })
   tx()
 }
@@ -410,9 +396,13 @@ export interface Ensayo {
   obra_id: number
   tipo: string
   titulo: string
-  estado: 'borrador' | 'completado'
+  estado: 'borrador' | 'completado' | 'aprobado'
   veredicto: string
   responsable: string
+  /** Referencia correlativa del laboratorio (año/NNNN). P3-ENAC. */
+  n_expediente: string
+  /** Línea del plan de ensayos a la que se vincula este informe. P2. */
+  plan_row_id: number | null
   /** JSON parseado — en DB se almacena como TEXT */
   datos: Record<string, unknown>
   created_at: string
@@ -422,9 +412,11 @@ export interface Ensayo {
 export interface EnsayoInput {
   tipo: string
   titulo: string
-  estado: 'borrador' | 'completado'
+  estado: 'borrador' | 'completado' | 'aprobado'
   veredicto: string
   responsable?: string
+  n_expediente?: string
+  plan_row_id?: number | null
   datos: Record<string, unknown>
 }
 
@@ -444,8 +436,12 @@ function parseEnsayo(row: Record<string, unknown>): Ensayo {
 export function saveEnsayo(obraId: number, input: EnsayoInput): number {
   const res = getDb()
     .prepare(
-      `INSERT INTO ensayos (obra_id, tipo, titulo, estado, veredicto, responsable, datos)
-       VALUES (@obra_id, @tipo, @titulo, @estado, @veredicto, @responsable, @datos)`
+      `INSERT INTO ensayos
+         (obra_id, tipo, titulo, estado, veredicto, responsable,
+          n_expediente, plan_row_id, datos)
+       VALUES
+         (@obra_id, @tipo, @titulo, @estado, @veredicto, @responsable,
+          @n_expediente, @plan_row_id, @datos)`
     )
     .run({
       obra_id: obraId,
@@ -454,6 +450,8 @@ export function saveEnsayo(obraId: number, input: EnsayoInput): number {
       estado: input.estado,
       veredicto: input.veredicto,
       responsable: input.responsable ?? '',
+      n_expediente: input.n_expediente ?? '',
+      plan_row_id: input.plan_row_id ?? null,
       datos: JSON.stringify(input.datos)
     })
   return Number(res.lastInsertRowid)
@@ -464,7 +462,8 @@ export function updateEnsayo(ensayoId: number, input: EnsayoInput): void {
     .prepare(
       `UPDATE ensayos
        SET titulo=@titulo, estado=@estado, veredicto=@veredicto,
-           responsable=@responsable, datos=@datos,
+           responsable=@responsable, n_expediente=@n_expediente,
+           plan_row_id=@plan_row_id, datos=@datos,
            updated_at=datetime('now','localtime')
        WHERE id=@id`
     )
@@ -474,6 +473,8 @@ export function updateEnsayo(ensayoId: number, input: EnsayoInput): void {
       estado: input.estado,
       veredicto: input.veredicto,
       responsable: input.responsable ?? '',
+      n_expediente: input.n_expediente ?? '',
+      plan_row_id: input.plan_row_id ?? null,
       datos: JSON.stringify(input.datos)
     })
 }
@@ -505,4 +506,66 @@ export function countEnsayosPorObra(): Record<number, number> {
     .prepare('SELECT obra_id, COUNT(*) AS n FROM ensayos GROUP BY obra_id')
     .all() as { obra_id: number; n: number }[]
   return Object.fromEntries(rows.map((r) => [r.obra_id, r.n]))
+}
+
+// ── P3 — Numeración correlativa de expedientes (ENAC) ──────────────────────
+
+/**
+ * Genera el siguiente número de expediente correlativo para el año dado.
+ * Formato: AAAA/NNNN (e.g. "2026/0001"). Sólo lee la DB — el caller decide si
+ * asignarlo (así no se "consume" un número si el usuario cancela).
+ */
+export function getNextExpediente(year: number): string {
+  const row = getDb()
+    .prepare(
+      `SELECT n_expediente FROM ensayos
+       WHERE n_expediente LIKE ? AND n_expediente != ''
+       ORDER BY n_expediente DESC LIMIT 1`
+    )
+    .get(`${year}/%`) as { n_expediente: string } | undefined
+
+  let seq = 1
+  if (row) {
+    const parts = row.n_expediente.split('/')
+    const n = parseInt(parts[1] ?? '0', 10)
+    if (!isNaN(n) && n >= seq) seq = n + 1
+  }
+  return `${year}/${String(seq).padStart(4, '0')}`
+}
+
+// ── P2 — Progreso de ejecución por obra ────────────────────────────────────
+
+/** Fila de progreso: una línea del plan con los informes asociados. */
+export interface ProgressRow {
+  plan_row_id: number
+  material: string
+  subcategory: string
+  description: string
+  n_tests: number
+  ensayos_total: number
+  ensayos_completados: number
+}
+
+/**
+ * Devuelve las filas del plan de una obra con el número de informes de campo
+ * vinculados (todos y solo los completados/aprobados), para la vista de avance.
+ */
+export function getProgressRows(obraId: number): ProgressRow[] {
+  return getDb()
+    .prepare(
+      `SELECT
+         pr.id           AS plan_row_id,
+         pr.material,
+         pr.subcategory,
+         pr.description,
+         pr.n_tests,
+         COUNT(e.id)     AS ensayos_total,
+         COUNT(CASE WHEN e.estado IN ('completado','aprobado') THEN 1 END) AS ensayos_completados
+       FROM plan_rows pr
+       LEFT JOIN ensayos e ON e.plan_row_id = pr.id
+       WHERE pr.obra_id = ? AND pr.row_type = 'test'
+       GROUP BY pr.id
+       ORDER BY pr.id`
+    )
+    .all(obraId) as ProgressRow[]
 }

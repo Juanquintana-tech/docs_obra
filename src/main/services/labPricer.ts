@@ -1,10 +1,8 @@
 /**
- * Motor de precios del laboratorio. Fuente PRIMARIA: el libro de precios propio
- * (price_book.json, derivado de sus presupuestos). FALLBACK: catálogo ALAGAL.
- * Si ninguno empareja con confianza, deja precio base (lo pone el planner).
- *
- * Estrategia de precio (reciente | mediana | max) configurable; por defecto 'reciente'.
- * Aplica la misma búsqueda híbrida (TF-IDF + embeddings) a ambos corpus.
+ * Motor de precios del laboratorio.
+ * Fuente 1: price_book.json (precios históricos propios, umbral 0.55).
+ * Fuente 2: catálogo ALAGAL (tarifa pública, umbral 0.45).
+ * Fuente 3: precio base de test_rules.json (fallback siempre disponible).
  */
 import { existsSync, readFileSync } from 'fs'
 import { RagPricer, type EmbeddingsIndexFile } from '../pipeline/rag/ragPricer'
@@ -17,16 +15,10 @@ import {
   type PriceBookEntry,
   type PriceStrategy
 } from '../pipeline/rag/priceBook'
+import { GeminiProvider } from '../pipeline/llm/gemini'
+import { maybeRerank } from '../pipeline/rag/reranker'
 
-/**
- * Confianza mínima para aceptar un match del libro de precios / de ALAGAL.
- * Calibrados con `npm run rag:thresholds` en modo híbrido (peso emb. 0.3): los
- * match reales puntúan ≥0.975 y los no-match ≤0.474, así que 0.55 los separa con
- * margen. Por debajo del umbral se cae a ALAGAL y, si no, a precio base del
- * planner — preferible a colar un precio equivocado. ALAGAL (fallback) usa un
- * umbral algo menor pero ya no 0.3 (los embeddings inflaban los no-match).
- */
-const PB_THRESHOLD = 0.55
+const PB_THRESHOLD = 0.50    // calibrado con rag:thresholds (mejor F1; reales ≥0.969, control ≤0.425)
 const ALAGAL_THRESHOLD = 0.45
 
 export interface LabPriceResult {
@@ -34,7 +26,6 @@ export interface LabPriceResult {
   descripcion: string
   score: number
   source: 'pricebook' | 'alagal' | 'fallback'
-  /** rango del libro de precios (solo si source='pricebook') */
   min?: number
   max?: number
 }
@@ -48,33 +39,28 @@ export class LabPricer {
   constructor(
     private readonly priceBookPricer: RagPricer,
     private readonly alagalPricer: RagPricer | null,
-    private readonly pbByCode: Map<string, PriceBookEntry>
+    private readonly pbByCode: Map<string, PriceBookEntry>,
+    private readonly gemini: GeminiProvider | null = null
   ) {}
 
-  /** Valora una lista de ensayos con la estrategia indicada (por defecto 'reciente'). */
   async priceMany(
     items: LabPriceItem[],
     strategy: PriceStrategy = 'reciente'
   ): Promise<LabPriceResult[]> {
     if (items.length === 0) return []
 
-    // 1) Match contra el libro de precios (threshold 0 → siempre devuelve el mejor + score)
     const pbMatches = await this.priceBookPricer.priceMany(items, 0)
 
-    // 2) Items que no superan el umbral del libro → candidatos a ALAGAL
-    const fallbackIdx: number[] = []
-    items.forEach((_, i) => {
-      if ((pbMatches[i]?.score ?? 0) < PB_THRESHOLD) fallbackIdx.push(i)
-    })
+    const fallbackIdx = items
+      .map((_, i) => i)
+      .filter((i) => (pbMatches[i]?.score ?? 0) < PB_THRESHOLD)
+
     const alagalMatches =
       this.alagalPricer && fallbackIdx.length
-        ? await this.alagalPricer.priceMany(
-            fallbackIdx.map((i) => items[i]),
-            ALAGAL_THRESHOLD
-          )
+        ? await this.alagalPricer.priceMany(fallbackIdx.map((i) => items[i]), ALAGAL_THRESHOLD)
         : []
-    const alagalByItem = new Map<number, (typeof alagalMatches)[number]>()
-    fallbackIdx.forEach((idx, k) => alagalByItem.set(idx, alagalMatches[k]))
+
+    const alagalByItem = new Map(fallbackIdx.map((idx, k) => [idx, alagalMatches[k]]))
 
     return items.map((_, i) => {
       const pb = pbMatches[i]
@@ -92,29 +78,21 @@ export class LabPricer {
         }
       }
       const al = alagalByItem.get(i)
-      if (al && al.precio != null) {
+      if (al?.precio != null) {
         return { precio: al.precio, descripcion: al.descripcion, score: al.score, source: 'alagal' }
       }
       return { precio: null, descripcion: '', score: pb?.score ?? 0, source: 'fallback' }
     })
   }
 
-  get hasPriceBook(): boolean {
-    return this.priceBookPricer.catalogSize > 0
-  }
+  get hasPriceBook(): boolean { return this.priceBookPricer.catalogSize > 0 }
+  get size(): number { return this.priceBookPricer.catalogSize }
+  get usesEmbeddings(): boolean { return this.priceBookPricer.usesEmbeddings }
 
-  /** Nº de ensayos en el libro de precios (para estado de la UI). */
-  get size(): number {
-    return this.priceBookPricer.catalogSize
-  }
-
-  get usesEmbeddings(): boolean {
-    return this.priceBookPricer.usesEmbeddings
-  }
-
-  /** Matches del libro de precios para una consulta (pantalla de validación). */
-  findMatches(query: string, n = 8): Promise<import('../pipeline/rag/types').RagMatch[]> {
-    return this.priceBookPricer.findMatchesHybrid(query, n)
+  async findMatches(query: string, n = 8): Promise<import('../pipeline/rag/types').RagMatch[]> {
+    const matches = await this.priceBookPricer.findMatchesHybrid(query, n)
+    if (this.gemini) return maybeRerank(query, matches, this.gemini)
+    return matches
   }
 }
 
@@ -125,21 +103,11 @@ export interface LabPricerPaths {
   alagalEmbeddingsPath: string
 }
 
-/**
- * Construye el LabPricer cargando libro de precios + ALAGAL y sus embeddings
- * pre-computados (vectores del catálogo persistidos en JSON).
- *
- * `provider` es el proveedor de embeddings para las CONSULTAS en tiempo real
- * (híbrido). En el proceso main de Electron pásale UtilityEmbeddingsProvider
- * (la inferencia ONNX vive en un UtilityProcess; ver embeddingsWorker.ts). Si es
- * null → TF-IDF puro. Los harness (tsx) lo dejan en null o usan
- * createEmbeddingsProvider() directamente.
- */
 export async function buildLabPricer(
   paths: LabPricerPaths,
-  provider: EmbeddingsProvider | null = null
+  provider: EmbeddingsProvider | null = null,
+  geminiApiKey?: string
 ): Promise<LabPricer> {
-  // ── Libro de precios (primario) ──
   const pbEntries = existsSync(paths.priceBookPath) ? loadPriceBook(paths.priceBookPath) : []
   const pbByCode = new Map(pbEntries.map((e) => [e.codigo, e]))
   const pbCatalog: CatalogEntry[] = pbEntries.map((e) => ({
@@ -157,7 +125,6 @@ export async function buildLabPricer(
     )
   }
 
-  // ── ALAGAL (fallback) ──
   let alagalPricer: RagPricer | null = null
   try {
     alagalPricer = await RagPricer.fromXlsx(paths.alagalXlsxPath, { embeddings: provider })
@@ -170,5 +137,8 @@ export async function buildLabPricer(
     alagalPricer = null
   }
 
-  return new LabPricer(priceBookPricer, alagalPricer, pbByCode)
+  const apiKey = geminiApiKey ?? process.env.GEMINI_API_KEY
+  const gemini = apiKey ? new GeminiProvider({ apiKey }) : null
+
+  return new LabPricer(priceBookPricer, alagalPricer, pbByCode, gemini)
 }

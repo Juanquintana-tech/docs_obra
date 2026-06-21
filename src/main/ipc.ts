@@ -164,6 +164,8 @@ export function registerIpc(): void {
   )
   ipcMain.handle('ensayo:delete', (_e, ensayoId: number) => db.deleteEnsayo(ensayoId))
   ipcMain.handle('ensayo:countPerObra', () => db.countEnsayosPorObra())
+  ipcMain.handle('ensayo:nextExpediente', (_e, year: number) => db.getNextExpediente(year))
+  ipcMain.handle('ensayo:getProgress', (_e, obraId: number) => db.getProgressRows(obraId))
 
   ipcMain.handle(
     'ensayo:scanFromImage',

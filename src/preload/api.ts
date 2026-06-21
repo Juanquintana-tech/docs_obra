@@ -14,7 +14,8 @@ import type {
   EnsayoInput,
   PlanRowPatch,
   NewPlanRowData,
-  PlanEdits
+  PlanEdits,
+  ProgressRow
 } from '../main/db'
 import type { PlanRowInput, Material } from '../main/pipeline/types'
 import type { IngestResult, RagStatus } from '../main/services/pipeline'
@@ -91,6 +92,12 @@ export const api = {
     ipcRenderer.invoke('ensayo:exportWord', ensayoId),
   exportEnsayoExcel: (ensayoId: number): Promise<string | null> =>
     ipcRenderer.invoke('ensayo:exportExcel', ensayoId),
+  /** Devuelve el siguiente n_expediente libre para el año dado (no lo reserva). */
+  getNextExpediente: (year: number): Promise<string> =>
+    ipcRenderer.invoke('ensayo:nextExpediente', year),
+  /** Vista de avance: filas del plan con recuento de informes vinculados. */
+  getEnsayoProgress: (obraId: number): Promise<ProgressRow[]> =>
+    ipcRenderer.invoke('ensayo:getProgress', obraId),
   /** Extrae datos de un formulario de ensayo a partir de una imagen en base64.
    *  Devuelve { ocr, tipo, conf } con los campos extraídos listos para mergear
    *  y la confianza de cada campo ("high"|"mid"|"low"). */
