@@ -49,6 +49,7 @@
     "react-router-dom": "^7.18.0",
     "sharp": "^0.32.6",
     "unpdf": "^1.6.2",
+    "word-extractor": "^1.0.4",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

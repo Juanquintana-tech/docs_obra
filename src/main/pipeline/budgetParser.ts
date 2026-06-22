@@ -480,6 +480,12 @@ export async function parseBudget(
     const { value } = await mammoth.extractRawText({ path })
     text = value.trim()
     format = 'docx'
+  } else if (ext === '.doc') {
+    const WordExtractor = (await import('word-extractor')).default
+    const extractor = new WordExtractor()
+    const doc = await extractor.extract(path)
+    text = doc.getBody().trim()
+    format = 'doc'
   } else {
     text = (await readFile(path, 'utf-8')).trim()
     format = 'txt'

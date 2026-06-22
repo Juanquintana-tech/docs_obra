@@ -26,7 +26,7 @@ const IMP_STAGES = [
   { id: 1, label: 'Extrayendo partidas con IA', pctEnd: 96 },
 ] as const
 
-const ALLOWED_EXT = ['pdf', 'docx', 'xlsx', 'xls', 'txt']
+const ALLOWED_EXT = ['pdf', 'docx', 'doc', 'xlsx', 'xls', 'txt']
 
 function getFilePath(file: File): string {
   return window.electron?.webUtils?.getPathForFile(file) ?? ''
@@ -330,7 +330,7 @@ export function NuevaObra(): JSX.Element {
           >
             <div className="drop-icon">{dragOver ? <Ic.Folder size={52} /> : <Ic.Upload size={52} />}</div>
             <div className="drop-title">{dragOver ? 'Suelta el archivo para analizar' : 'Arrastra o haz clic para subir'}</div>
-            <div className="drop-sub">{dragOver ? '' : 'PDF, DOCX, XLSX, XLS o TXT — memoria, totalizados o mediciones'}</div>
+            <div className="drop-sub">{dragOver ? '' : 'PDF, DOCX, DOC, XLSX, XLS o TXT — memoria, totalizados o mediciones'}</div>
             <div className="format-chips">
               {['PDF', 'DOCX', 'XLSX', 'XLS', 'TXT'].map((f) => <span key={f} className="format-chip">{f}</span>)}
             </div>
@@ -398,7 +398,7 @@ export function NuevaObra(): JSX.Element {
               <div className="drop-icon">{dragOver ? <Ic.Folder size={52} /> : <Ic.Upload size={52} />}</div>
               <div className="drop-title">{dragOver ? 'Suelta el presupuesto' : 'Arrastra o haz clic para seleccionar'}</div>
               <div className="drop-sub">
-                {dragOver ? '' : 'Presupuesto de laboratorio en PDF, Word o Excel (XLSX, XLS)'}
+                {dragOver ? '' : 'Presupuesto de laboratorio en PDF, Word (DOCX, DOC) o Excel (XLSX, XLS)'}
               </div>
               <div className="format-chips">
                 {['PDF', 'DOCX', 'XLSX', 'XLS'].map((f) => <span key={f} className="format-chip">{f}</span>)}
