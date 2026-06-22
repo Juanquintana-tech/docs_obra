@@ -121,7 +121,7 @@ export const MIGRATIONS: Array<(db: Database) => void> = [
     `)
   },
 
-  // ── v6 — P3: trazabilidad de muestras (cadena de custodia) ───────────────
+  // ── v6 — P3: trazabilidad de muestras (cadena de custodia) ──────────────
   // Tabla muestras enlazada a ensayos; permite registrar origen, localización
   // y estado de cada muestra analizada por el laboratorio.
   (db) => {
@@ -140,6 +140,11 @@ export const MIGRATIONS: Array<(db: Database) => void> = [
       CREATE INDEX IF NOT EXISTS idx_muestras_ensayo ON muestras(ensayo_id);
       CREATE INDEX IF NOT EXISTS idx_muestras_obra   ON muestras(obra_id);
     `)
+  },
+
+  // ── v7 — trazabilidad del precio: nº de presupuestos históricos por fila ─
+  (db) => {
+    db.exec(`ALTER TABLE plan_rows ADD COLUMN price_n INTEGER;`)
   }
 ]
 

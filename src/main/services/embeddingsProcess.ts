@@ -106,10 +106,17 @@ export class UtilityEmbeddingsProvider implements EmbeddingsProvider {
 
   async embed(texts: string[], kind: EmbedKind = 'doc'): Promise<number[][]> {
     if (texts.length === 0) return []
-    await this.ensureChild()
+    try {
+      await this.ensureChild()
+    } catch (e) {
+      // El worker no está disponible (módulo no instalado, crash ONNX, etc.).
+      // Devolvemos vectores nulos → RagPricer degrada a TF-IDF solo.
+      console.warn('[embeddings] no disponible, usando solo TF-IDF:', (e as Error).message)
+      return texts.map(() => new Array(DIM).fill(0))
+    }
     // El worker pudo morir o cerrarse (dispose) durante el await de arriba.
     const child = this.child
-    if (!child) throw new Error('el worker de embeddings no está disponible')
+    if (!child) return texts.map(() => new Array(DIM).fill(0))
     const id = this.nextId++
     return new Promise<number[][]>((resolve, reject) => {
       const timer = setTimeout(() => {

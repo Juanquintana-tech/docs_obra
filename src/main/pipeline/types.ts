@@ -35,4 +35,6 @@ export interface PlanRowInput {
   /** rango de precio del libro de precios (si la fuente es 'pricebook') */
   price_min?: number | null
   price_max?: number | null
+  /** nº de presupuestos históricos en los que aparece este ensayo */
+  price_n?: number | null
 }

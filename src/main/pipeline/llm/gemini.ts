@@ -35,11 +35,18 @@ export class GeminiProvider implements LlmProvider {
   }
 
   async chat(system: string, user: string, opts: ChatOptions = {}): Promise<string> {
-    const { maxTokens = 4096, timeoutMs = 60_000, tag = 'gemini' } = opts
+    const { maxTokens = 8192, timeoutMs = 60_000, tag = 'gemini' } = opts
     const body = {
       system_instruction: { parts: [{ text: system }] },
       contents: [{ role: 'user', parts: [{ text: user }] }],
-      generationConfig: { temperature: 0.0, maxOutputTokens: maxTokens }
+      generationConfig: {
+        temperature: 0.0,
+        maxOutputTokens: maxTokens,
+        // Desactiva el razonamiento interno (thinking) de Gemini 2.5:
+        // sin esto el presupuesto de tokens se consume internamente y la
+        // respuesta real queda truncada.
+        thinkingConfig: { thinkingBudget: 0 }
+      }
     }
     return this._call(this.model, body, timeoutMs, tag)
   }

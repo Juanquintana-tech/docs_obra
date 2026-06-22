@@ -68,7 +68,7 @@ export interface IngestResult {
 /** PDF/Word/Excel → texto → (obra, materiales) → plan valorado con la estrategia dada. */
 export async function ingestDocument(
   path: string,
-  strategy: PriceStrategy = 'reciente'
+  strategy: PriceStrategy = 'mediana'
 ): Promise<IngestResult> {
   const { text, format, needsOcr } = await extractDocument(path)
   const [obraInfo, materials] = await Promise.all([extractObraInfo(text), classifyMaterials(text)])
@@ -91,7 +91,7 @@ export async function ingestDocument(
 /** Texto plano pegado directamente por el usuario → (obra, materiales) → plan valorado. */
 export async function ingestText(
   text: string,
-  strategy: PriceStrategy = 'reciente'
+  strategy: PriceStrategy = 'mediana'
 ): Promise<IngestResult> {
   const [obraInfo, materials] = await Promise.all([extractObraInfo(text), classifyMaterials(text)])
   const [rules, pricer] = await Promise.all([getRules(), getPricer()])

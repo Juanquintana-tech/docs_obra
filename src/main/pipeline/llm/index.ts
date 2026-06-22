@@ -6,6 +6,7 @@
  */
 import { type ChatOptions, type LlmProvider, LlmError } from './types'
 import { MiniMaxProvider } from './minimax'
+import { GeminiProvider } from './gemini'
 
 export { type LlmProvider, type ChatOptions, type VisionOptions, LlmError } from './types'
 export { MiniMaxProvider } from './minimax'
@@ -37,8 +38,11 @@ export class FallbackProvider implements LlmProvider {
   }
 }
 
-/** Proveedor por defecto del classifier. Hoy: MiniMax. */
+/** Proveedor por defecto del classifier. Gemini si hay clave, MiniMax como fallback. */
 export function createLlmProvider(): LlmProvider {
+  const geminiKey = process.env.GEMINI_API_KEY
+  if (geminiKey && geminiKey !== 'tu_clave_aqui') {
+    return new FallbackProvider([new GeminiProvider({ apiKey: geminiKey }), new MiniMaxProvider()])
+  }
   return new MiniMaxProvider()
-  // Futuro: new FallbackProvider([new ClaudeProvider(), new MiniMaxProvider()])
 }

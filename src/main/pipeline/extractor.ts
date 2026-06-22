@@ -75,21 +75,61 @@ async function extractDocx(path: string): Promise<ExtractResult> {
   return { text: value.trim(), format: 'docx', totalPages: 0, method: 'native', needsOcr: false }
 }
 
+/** Unidades de medida habituales en obra civil española. */
+const UNITS_RE = /^(m3|m²|m2|m³|ml|m\b|t\b|kg|ud|uds?|l)\s+/i
+
+/**
+ * Normaliza una fila de tabla de medición donde el primer campo puede ser
+ * "UNIDAD descripción" (p.ej. "m3 terraplén") y el segundo la cantidad.
+ * Transforma a "CANTIDAD UNIDAD descripción" para que el LLM lo reconozca.
+ * Las columnas adicionales (lotes, muestras) se descartan si son solo números.
+ */
+function normalizeXlsxRow(cells: string[]): string {
+  if (cells.length < 2) return cells.join('\t')
+  const first = cells[0].trim()
+  const unitMatch = first.match(UNITS_RE)
+  if (!unitMatch) return cells.join('\t')
+  const unit = unitMatch[1]
+  const desc = first.slice(unitMatch[0].length).trim()
+  const qty = cells[1].trim()
+  if (!qty || isNaN(Number(qty.replace(',', '.')))) return cells.join('\t')
+  // Conserva la descripción extendida si la hay en columnas posteriores (texto, no números)
+  const extra = cells
+    .slice(2)
+    .filter((c) => isNaN(Number(c.replace(',', '.'))) && c.trim().length > 2)
+    .join('; ')
+  return extra
+    ? `${qty} ${unit} ${desc} (${extra})`
+    : `${qty} ${unit} ${desc}`
+}
+
 async function extractXlsx(path: string): Promise<ExtractResult> {
   const ExcelJS = (await import('exceljs')).default
   const wb = new ExcelJS.Workbook()
   await wb.xlsx.readFile(path)
   const lines: string[] = []
+  const seen = new Set<string>()
   wb.eachSheet((ws) => {
-    lines.push(`# ${ws.name}`)
+    const sheetLines: string[] = []
     ws.eachRow((row) => {
       const cells: string[] = []
       row.eachCell({ includeEmpty: false }, (cell) => {
         const t = cellText(cell.value)
         if (t) cells.push(t)
       })
-      if (cells.length) lines.push(cells.join('\t'))
+      if (!cells.length) return
+      // Colapsar celdas fusionadas (mismo valor repetido en N columnas)
+      const unique = [...new Set(cells)]
+      const deduped = unique.length === 1 ? unique : cells
+      const raw = deduped.join('\t')
+      if (seen.has(raw)) return
+      seen.add(raw)
+      sheetLines.push(normalizeXlsxRow(deduped))
     })
+    if (sheetLines.length) {
+      lines.push(`# ${ws.name}`)
+      lines.push(...sheetLines)
+    }
   })
   return {
     text: lines.join('\n').trim(),
@@ -102,21 +142,31 @@ async function extractXlsx(path: string): Promise<ExtractResult> {
 
 /** Lee .xls binario legacy (BIFF) con SheetJS. Mismo formato de salida que extractXlsx. */
 async function extractXlsLegacy(path: string): Promise<ExtractResult> {
-  // xlsx (SheetJS) es CommonJS: con el import dinámico, los export viven bajo .default.
   const mod = await import('xlsx')
   const XLSX = (mod as unknown as { default?: typeof mod }).default ?? mod
   const wb = XLSX.readFile(path, { cellDates: true })
   const lines: string[] = []
+  const seen = new Set<string>()
   for (const name of wb.SheetNames) {
     const ws = wb.Sheets[name]
     if (!ws) continue
-    lines.push(`# ${name}`)
+    const sheetLines: string[] = []
     const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, blankrows: false })
     for (const row of rows) {
       const cells = (row as unknown[])
         .map((c) => (c == null ? '' : String(c).trim()))
         .filter(Boolean)
-      if (cells.length) lines.push(cells.join('\t'))
+      if (!cells.length) continue
+      const unique = [...new Set(cells)]
+      const deduped = unique.length === 1 ? unique : cells
+      const raw = deduped.join('\t')
+      if (seen.has(raw)) continue
+      seen.add(raw)
+      sheetLines.push(normalizeXlsxRow(deduped))
+    }
+    if (sheetLines.length) {
+      lines.push(`# ${name}`)
+      lines.push(...sheetLines)
     }
   }
   return {

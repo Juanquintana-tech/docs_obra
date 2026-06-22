@@ -249,6 +249,10 @@
   background: #f1f5f9;
   color: var(--text-soft);
 }
+.badge-pricebook {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
 .badge-alagal {
   background: #dcfce7;
   color: var(--ok);

@@ -18,8 +18,10 @@ import {
 import { GeminiProvider } from '../pipeline/llm/gemini'
 import { maybeRerank } from '../pipeline/rag/reranker'
 
-const PB_THRESHOLD = 0.50    // calibrado con rag:thresholds (mejor F1; reales ≥0.969, control ≤0.425)
-const ALAGAL_THRESHOLD = 0.45
+// Calibrado con rag:thresholds: matches reales puntúan ~0.49–0.56, controles ≤0.354.
+// El hueco está en ~0.40, no en 0.50 (el 0.50 anterior dejaba matches correctos caer a ALAGAL).
+const PB_THRESHOLD = 0.40
+const ALAGAL_THRESHOLD = 0.35
 
 export interface LabPriceResult {
   precio: number | null
@@ -28,6 +30,8 @@ export interface LabPriceResult {
   source: 'pricebook' | 'alagal' | 'fallback'
   min?: number
   max?: number
+  /** Nº de presupuestos históricos en los que aparece este ensayo. */
+  n?: number
 }
 
 export interface LabPriceItem {
@@ -45,7 +49,7 @@ export class LabPricer {
 
   async priceMany(
     items: LabPriceItem[],
-    strategy: PriceStrategy = 'reciente'
+    strategy: PriceStrategy = 'mediana'
   ): Promise<LabPriceResult[]> {
     if (items.length === 0) return []
 
@@ -73,7 +77,8 @@ export class LabPricer {
             score: pb.score,
             source: 'pricebook',
             min: entry.min,
-            max: entry.max
+            max: entry.max,
+            n: entry.n
           }
         }
       }

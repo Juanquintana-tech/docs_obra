@@ -73,7 +73,12 @@ export class MiniMaxProvider implements LlmProvider {
       return stripMdFences(choices[0]?.message?.content ?? '')
     } catch (e) {
       if (e instanceof LlmError) throw e
-      throw new LlmError(`${tag}: petición fallida`, this.id, e)
+      const isAbort = e instanceof Error && e.name === 'AbortError'
+      const cause = e instanceof Error ? e.message : String(e)
+      const msg = isAbort
+        ? `${tag}: tiempo de espera agotado (>${Math.round(timeoutMs / 1000)} s)`
+        : `${tag}: petición fallida — ${cause}`
+      throw new LlmError(msg, this.id, e)
     } finally {
       clearTimeout(timer)
     }

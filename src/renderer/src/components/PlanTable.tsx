@@ -16,6 +16,9 @@ export interface PlanTableRow {
   total?: number | null
   price_source?: string
   rag_score?: number
+  price_min?: number | null
+  price_max?: number | null
+  price_n?: number | null
 }
 
 // ── Tipos para el modo edición ────────────────────────────────────────────────
@@ -46,7 +49,31 @@ function fromStr(s: string): number {
 }
 
 /** Insignia de confianza de la IA por fila (feature diferenciadora #1). */
-function Confidence({ source, score }: { source?: string; score?: number }): JSX.Element {
+function Confidence({
+  source,
+  score,
+  min,
+  max,
+  n
+}: {
+  source?: string
+  score?: number
+  min?: number | null
+  max?: number | null
+  n?: number | null
+}): JSX.Element {
+  if (source === 'pricebook') {
+    const pct = score != null ? `${(score * 100).toFixed(0)}%` : ''
+    const range =
+      min != null && max != null && min !== max ? `€${min}–€${max}` : min != null ? `€${min}` : ''
+    const nLabel = n != null ? `${n} presupuesto${n !== 1 ? 's' : ''}` : ''
+    const tooltip = [range, nLabel, pct ? `similitud ${pct}` : ''].filter(Boolean).join(' · ')
+    return (
+      <span className="badge badge-pricebook" title={tooltip}>
+        ● Histórico {pct}
+      </span>
+    )
+  }
   if (source === 'alagal') {
     return (
       <span
@@ -235,7 +262,15 @@ function PlanTableInner({
           <td className="num">{num(r.n_tests)}</td>
           <td className="num">{eur(r.unit_price)}</td>
           <td className="num">{eur(r.total)}</td>
-          <td><Confidence source={r.price_source} score={r.rag_score} /></td>
+          <td>
+            <Confidence
+              source={r.price_source}
+              score={r.rag_score}
+              min={(r as PlanTableRow).price_min}
+              max={(r as PlanTableRow).price_max}
+              n={(r as PlanTableRow).price_n}
+            />
+          </td>
         </tr>
       )
     } else {
@@ -291,7 +326,15 @@ function PlanTableInner({
             />
           </td>
           <td className="num plan-total-cell">{eur(e.total)}</td>
-          <td><Confidence source={r.price_source} score={r.rag_score} /></td>
+          <td>
+            <Confidence
+              source={r.price_source}
+              score={r.rag_score}
+              min={(r as EditableRow & PlanTableRow).price_min}
+              max={(r as EditableRow & PlanTableRow).price_max}
+              n={(r as EditableRow & PlanTableRow).price_n}
+            />
+          </td>
           {onDelete && (
             <td style={{ width: 36, padding: '0 6px' }}>
               <button

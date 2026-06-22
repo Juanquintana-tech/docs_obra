@@ -50,12 +50,25 @@ IGNORAR (no incluir):
 
 ── Abreviaturas frecuentes en obras civiles españolas ──────────────────────────
   ZA / Z.A.  → ZAHORRA_ARTIFICIAL
-  SEST / S-EST / SC (suelo cemento) → SUELO_ESTABILIZADO
+  SEST / S-EST / SC / GC (suelo cemento/grava cemento) → SUELO_ESTABILIZADO
   DTS (doble tratamiento superficial) → MEZCLA_BITUMINOSA
   AC-22 / AC-16 / BBTM → MEZCLA_BITUMINOSA
-  HA-XX / HP-XX / HM-XX → HORMIGON
+  HA-XX / HP-XX / HM-XX / C20/25 / C25/30 / C30/37 / C40/50 → HORMIGON
   BULON / BULÓN → SERVICIO (ensayo de arrancamiento)
-  ACERO PRET / ACERO PRETENSAR → ACERO (acero activo para pret.)
+  ACERO PRET / ACERO PRETENSAR / Y1860 → ACERO (acero activo para pret.)
+  B500S / B500SD → ACERO (barras corrugadas pasivas)
+  acero estructural / S275 / S355 / IPE / HEB → ACERO_LAMINADO
+  horm. proyectado / gunita → HORMIGON
+  micropilote / micropilotes → PILOTES
+
+── Formato tabular (planes de control, totalizados) ────────────────────────────
+El documento puede ser una tabla con columnas separadas por tabuladores.
+El primer campo puede contener "CANTIDAD UNIDAD descripción" ya normalizado,
+o bien solo una descripción de sección (E-1A, E-18, Pasarela, Rampa…) — IGNORAR esas cabeceras.
+Columnas adicionales con números (lotes, muestras) o texto de control → IGNORAR.
+Extrae solo los materiales con cantidad numérica clara.
+Agrupa por tipo: si hay varios tipos de hormigón (C25/30, C30/37, C40/50) en una misma obra,
+agrúpalos en un único ítem HORMIGON con la suma de todas las cantidades.
 
 ── Regla de AGREGACIÓN ─────────────────────────────────────────────────────────
 Si el mismo tipo de material aparece en MÚLTIPLES FILAS (una por estructura, viaducto o
@@ -132,7 +145,7 @@ export async function classifyMaterials(
   const raw = await provider.chat(
     SYSTEM_PROMPT,
     `Analiza este texto y extrae los materiales susceptibles de ensayo:\n\n${pdfText.slice(0, 50000)}`,
-    { maxTokens: 4096, timeoutMs: 120_000, tag: 'classify_materials' }
+    { maxTokens: 8192, timeoutMs: 120_000, tag: 'classify_materials' }
   )
   const parsed = parseJsonLoose<unknown>(raw)
   if (!Array.isArray(parsed)) return []

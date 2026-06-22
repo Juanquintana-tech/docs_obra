@@ -16,6 +16,7 @@ export interface PriceQuote {
   source: string
   min?: number | null
   max?: number | null
+  n?: number | null
 }
 
 /** Función de valoración por lotes; la estrategia/fuente la encapsula el caller. */
@@ -196,6 +197,7 @@ export async function generatePlan(
         p.row.rag_desc = r.descripcion
         p.row.price_min = r.min ?? null
         p.row.price_max = r.max ?? null
+        p.row.price_n = r.n ?? null
       }
       p.row.rag_score = Math.round(r.score * 1000) / 1000
     })

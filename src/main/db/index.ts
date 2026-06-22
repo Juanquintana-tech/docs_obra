@@ -41,9 +41,12 @@ export interface PlanRow {
   n_tests: number
   unit_price: number
   total: number
-  price_source: 'alagal' | 'fallback'
+  price_source: 'pricebook' | 'alagal' | 'fallback'
   rag_score: number
   rag_desc: string
+  price_min: number | null
+  price_max: number | null
+  price_n: number | null
 }
 
 export interface ObraInput {
@@ -95,11 +98,11 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
     `INSERT INTO plan_rows
        (obra_id, row_type, material, subcategory, description, measurement,
         measurement_unit, freq_qty, freq_unit, n_lots, tests_per_lot, n_tests,
-        unit_price, total, price_source, rag_score, rag_desc)
+        unit_price, total, price_source, rag_score, rag_desc, price_min, price_max, price_n)
      VALUES
        (@obra_id, @row_type, @material, @subcategory, @description, @measurement,
         @measurement_unit, @freq_qty, @freq_unit, @n_lots, @tests_per_lot, @n_tests,
-        @unit_price, @total, @price_source, @rag_score, @rag_desc)`
+        @unit_price, @total, @price_source, @rag_score, @rag_desc, @price_min, @price_max, @price_n)`
   )
 
   const tx = db.transaction(() => {
@@ -113,7 +116,7 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
       n_ensayos: nEnsayos,
       n_materiales: nMateriales,
       responsable: info.responsable ?? '',
-      price_strategy: info.price_strategy ?? 'reciente'
+      price_strategy: info.price_strategy ?? 'mediana'
     })
     const obraId = Number(res.lastInsertRowid)
 
@@ -137,7 +140,10 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
         total: row.total ?? 0,
         price_source: row.price_source ?? 'fallback',
         rag_score: row.rag_score ?? 0,
-        rag_desc: row.rag_desc ?? ''
+        rag_desc: row.rag_desc ?? '',
+        price_min: row.price_min ?? null,
+        price_max: row.price_max ?? null,
+        price_n: row.price_n ?? null
       })
     }
     return obraId

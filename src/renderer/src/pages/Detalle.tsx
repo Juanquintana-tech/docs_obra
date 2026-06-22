@@ -383,7 +383,10 @@ export function Detalle(): JSX.Element {
                     total: 0,
                     price_source: 'fallback',
                     rag_score: 0,
-                    rag_desc: ''
+                    rag_desc: '',
+                    price_min: null,
+                    price_max: null,
+                    price_n: null
                   })
                   return next
                 })
