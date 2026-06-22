@@ -278,9 +278,13 @@ function extractRowsFromMatrix(rows: RawRow[]): {
 
 // ── LLM — solo para obras/PDF/Word ────────────────────────────────────────────
 
-const OBRA_INFO_PROMPT = `Eres un asistente especializado en documentación de obras.
-Analiza el texto e intenta extraer datos administrativos de la obra.
-Devuelve SOLO este JSON (sin texto adicional):
+const OBRA_INFO_PROMPT = `Eres un asistente especializado en documentación de obras de construcción.
+Busca en el texto los datos administrativos de la obra. Las etiquetas habituales son:
+  "OBRA:", "Descripción:", "Proyecto:", "CLAVE:", "Denominación:" → campo "obra"
+  "CLIENTE:", "PETICIONARIO:", "Promotor:", "Propiedad:", "U.T.E." → campo "cliente"
+  "REF. LABORATORIO:", "Referencia:", "Expediente:", "Nº Oferta:", "Ref.:", "P/" → campo "ref_doc"
+  "MUNICIPIO:", "T.M.", "Término Municipal:", "Localidad:", "Provincia:" → campo "municipio"
+Si un campo no aparece, devuelve cadena vacía. Devuelve SOLO este JSON (sin texto adicional):
 {"obra":"","cliente":"","ref_doc":"","municipio":""}`
 
 async function extractObraFromText(text: string): Promise<{
@@ -430,8 +434,14 @@ export async function parseBudget(
 
     const { plan: extracted, introLines } = extractRowsFromMatrix(rawRows)
 
-    // Info de la obra desde las primeras líneas (si las hay)
-    const obraInfo = await extractObraFromText(introLines.join('\n'))
+    // Info de la obra: combinar intro + cualquier línea del sheet con keywords de obra.
+    // Los Excel de presupuesto a veces tienen el nombre de la obra en celdas dispersas
+    // (no necesariamente antes de la tabla) o directamente no lo incluyen.
+    const obraKeywordLines = rawRows
+      .map((r) => r.filter(Boolean).join(' '))
+      .filter((line) => /\b(obra|proyecto|clave|peticion|municipio|t\.m\b|ref\.?\s*lab|cliente|promotor)/i.test(line))
+    const obraSearchText = [...new Set([...introLines, ...obraKeywordLines])].join('\n')
+    const obraInfo = await extractObraFromText(obraSearchText)
     if (!obraInfo.ref_doc) obraInfo.ref_doc = refFromFilename
 
     const plan: PlanRowInput[] = extracted.map((r) => ({
