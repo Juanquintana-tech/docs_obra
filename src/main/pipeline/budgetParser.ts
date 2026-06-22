@@ -1,14 +1,15 @@
 /**
  * Parser de presupuestos existentes de laboratorio.
- * A diferencia del pipeline normal (raw doc → LLM classify → planner → RAG),
- * aquí el documento YA ES un presupuesto valorado: extraemos las filas directamente
- * sin aplicar reglas de frecuencia ni repricing.
  *
- * Soporta: XLSX, XLS, DOCX, PDF, TXT
- * Para Excel multi-hoja: expone listSheets() para que el renderer muestre un selector.
+ * EXCEL (xlsx/xls): extracción PROGRAMÁTICA — lee celdas directamente, detecta
+ *   cabeceras de sección por repetición, y mapea columnas por cabecera de tabla.
+ *   No necesita LLM para los datos; solo lo usa para extraer info de la obra.
+ *
+ * PDF / DOCX / TXT: extracción por LLM con prompt permisivo (las tablas en PDF
+ *   no tienen estructura programática fiable).
  */
 import { readFile } from 'fs/promises'
-import { extname } from 'path'
+import { extname, basename } from 'path'
 import { createLlmProvider } from './llm'
 import type { PlanRowInput } from './types'
 
@@ -25,74 +26,21 @@ export interface BudgetImportResult {
   meta: { format: string; chars: number; sheetName: string | null; rowCount: number }
 }
 
-// ── Prompt del LLM ─────────────────────────────────────────────────────────────
+// ── Utilidades numéricas ───────────────────────────────────────────────────────
 
-const SYSTEM_PROMPT = `Eres un extractor de presupuestos de laboratorio de control de calidad de obras en España.
-El documento es un presupuesto VALORADO: cada fila ya tiene descripción, número de ensayos y precio.
-Tu tarea es extraer las filas de ensayo tal como aparecen, SIN generar nuevos ensayos ni aplicar frecuencias.
-
-── Identificar cabeceras de sección ─────────────────────────────────────────────
-Una fila es cabecera de sección cuando:
-- El mismo texto aparece repetido en varias columnas (celdas fusionadas en Excel)
-- O es texto en mayúsculas sin precio ni cantidad (ej: "1.- CIMENTACIÓN Y ESTRUCTURA", "ENSAYOS DE CARACTERIZACIÓN")
-- O aparece como encabezado numerado seguido de subpartidas
-Usa esa cabecera como campo "material" para los ensayos que le siguen hasta la siguiente cabecera.
-
-── Filas a IGNORAR ──────────────────────────────────────────────────────────────
-- Cabeceras de columna: "ENSAYO", "MUESTREO", "UDS.", "PRECIO UNITARIO €", "IMPORTE €", "Ud", "Nº"
-- Filas de total, subtotal, suma: contienen palabras como "TOTAL", "SUBTOTAL", "IVA", "BASE IMPONIBLE", "SUMA"
-- Filas vacías o con solo números de página
-- Filas de firma, datos del laboratorio, logos
-
-── Extracción de datos ───────────────────────────────────────────────────────────
-Para cada fila de ensayo:
-  material    → sección/capítulo actual (actualizar al encontrar nueva cabecera)
-  description → descripción completa del ensayo / servicio
-  n_tests     → número de unidades/ensayos (columna "UDS.", "Nº", cantidad; si no aparece, usa 1)
-  unit_price  → precio unitario en € (número; null si no aparece o es 0)
-  total       → importe total en € (número; si no aparece, calcula n_tests × unit_price)
-  notes       → muestreo, normativa, acreditación (ENAC), o cualquier nota relevante (puede ser vacío)
-
-── Datos de la obra ─────────────────────────────────────────────────────────────
-Busca en el encabezado, pie de página o portada del documento:
-  obra     → nombre de la obra o proyecto
-  cliente  → empresa cliente / promotora
-  ref_doc  → número de presupuesto (P-XXXX, 0XXX.XX, ref. expediente)
-  municipio → localización de la obra
-
-Devuelve EXCLUSIVAMENTE este JSON (sin texto adicional):
-{
-  "obra": "...",
-  "cliente": "...",
-  "ref_doc": "...",
-  "municipio": "...",
-  "rows": [
-    {
-      "material": "nombre de la sección",
-      "description": "descripción del ensayo",
-      "n_tests": 3,
-      "unit_price": 90.0,
-      "total": 270.0,
-      "notes": ""
-    }
-  ]
-}`
-
-// ── Parseo tolerante de JSON ───────────────────────────────────────────────────
-
-function parseJsonLoose<T>(raw: string): T | null {
-  try {
-    return JSON.parse(raw) as T
-  } catch {
-    const m = raw.match(/\{[\s\S]*\}/)
-    if (m) {
-      try { return JSON.parse(m[0]) as T } catch { return null }
-    }
-    return null
-  }
+/** Parsea número en formato español ("1.234,56" → 1234.56). */
+function parseNum(s: string): number | null {
+  if (!s || !s.trim()) return null
+  const cleaned = s.trim().replace(/[€\s%]/g, '').replace(/\./g, '').replace(',', '.')
+  const n = parseFloat(cleaned)
+  return isNaN(n) ? null : n
 }
 
-// ── Extracción de texto por hoja (preserva estructura tabular) ─────────────────
+function isNumStr(s: string): boolean {
+  return parseNum(s) !== null
+}
+
+// ── Utilidades de celda ExcelJS ────────────────────────────────────────────────
 
 function cellText(value: unknown): string {
   if (value == null) return ''
@@ -101,63 +49,304 @@ function cellText(value: unknown): string {
   if (value instanceof Date) return value.toISOString().slice(0, 10)
   if (typeof value === 'object') {
     const v = value as Record<string, unknown>
-    if (Array.isArray(v.richText)) {
+    if (Array.isArray(v.richText))
       return (v.richText as Array<{ text: string }>).map((t) => t.text).join('').trim()
-    }
     if ('result' in v) return String(v.result ?? '').trim()
     if ('text' in v) return String(v.text ?? '').trim()
   }
   return ''
 }
 
-async function readXlsxSheet(path: string, sheetName?: string | null): Promise<string> {
+// ── Lectura de hojas como matriz de celdas ─────────────────────────────────────
+
+type RawRow = string[] // valores de celda (puede incluir vacíos si includeEmpty=true)
+
+async function readXlsxRows(path: string, sheetName?: string | null): Promise<RawRow[]> {
   const ExcelJS = (await import('exceljs')).default
   const wb = new ExcelJS.Workbook()
   await wb.xlsx.readFile(path)
+  const ws = sheetName ? (wb.getWorksheet(sheetName) ?? wb.worksheets[0]) : wb.worksheets[0]
+  if (!ws) return []
 
-  const ws = sheetName ? wb.getWorksheet(sheetName) ?? wb.worksheets[0] : wb.worksheets[0]
-  if (!ws) return ''
-
-  const lines: string[] = [`## ${ws.name}`]
+  const rows: RawRow[] = []
   ws.eachRow((row) => {
+    // Leer todas las celdas, incluyendo vacías, hasta la última columna con valor
+    const maxCol = ws.columnCount || 8
     const cells: string[] = []
-    row.eachCell({ includeEmpty: false }, (cell) => {
-      const t = cellText(cell.value)
-      if (t) cells.push(t)
-    })
-    if (!cells.length) return
-    const unique = [...new Set(cells)]
-    // Detectar celdas fusionadas: si todos son iguales → fila de cabecera de sección
-    const line = unique.length === 1 ? `[SECCIÓN] ${unique[0]}` : cells.join('\t')
-    lines.push(line)
+    for (let ci = 1; ci <= maxCol; ci++) {
+      cells.push(cellText(row.getCell(ci).value))
+    }
+    // Recortar celdas vacías al final
+    while (cells.length > 0 && !cells[cells.length - 1]) cells.pop()
+    rows.push(cells)
   })
-  return lines.join('\n')
+  return rows
 }
 
-async function readXlsSheet(path: string, sheetName?: string | null): Promise<string> {
+async function readXlsRows(path: string, sheetName?: string | null): Promise<RawRow[]> {
   const mod = await import('xlsx')
   const XLSX = (mod as unknown as { default?: typeof mod }).default ?? mod
   const wb = XLSX.readFile(path, { cellDates: true })
-
   const targetName = sheetName ?? wb.SheetNames[0]
   const ws = wb.Sheets[targetName]
-  if (!ws) return ''
+  if (!ws) return []
+  const raw = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, blankrows: false, defval: '' })
+  return raw.map((row) => (row as unknown[]).map((c) => (c == null ? '' : String(c).trim())))
+}
 
-  const lines: string[] = [`## ${targetName}`]
-  const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, blankrows: false })
-  for (const row of rows) {
-    const cells = (row as unknown[]).map((c) => (c == null ? '' : String(c).trim())).filter(Boolean)
-    if (!cells.length) continue
-    const unique = [...new Set(cells)]
-    const line = unique.length === 1 ? `[SECCIÓN] ${unique[0]}` : cells.join('\t')
-    lines.push(line)
+// ── Detección de tipos de fila ─────────────────────────────────────────────────
+
+function isSkipRow(cells: string[]): boolean {
+  const joined = cells.join(' ').toLowerCase().replace(/\./g, '')
+  return /\b(total|subtotal|iva|base imponible|suma\b|tope\b|presupuesto total)/.test(joined)
+}
+
+/**
+ * Fila de cabecera de SECCIÓN: todas las celdas no vacías tienen el mismo valor.
+ * Ej: ["1.- CIMENTACIÓN", "1.- CIMENTACIÓN", "1.- CIMENTACIÓN", ...]
+ */
+function detectSectionHeader(cells: string[]): string | null {
+  const nonEmpty = cells.filter((c) => c.length > 0)
+  if (nonEmpty.length < 2) return null
+  const unique = new Set(nonEmpty)
+  return unique.size === 1 ? nonEmpty[0] : null
+}
+
+/**
+ * Fila de cabecera de TABLA: contiene algún indicador de descripción y alguno de precio.
+ */
+function isTableHeader(cells: string[]): boolean {
+  const joined = cells.join(' ').toLowerCase()
+  return (
+    /ensayo|descripci[oó]n|prueba|concepto/.test(joined) &&
+    /precio|importe|coste|euros?|€/.test(joined)
+  )
+}
+
+/**
+ * Fila de SUB-MATERIAL: col 0 tiene un nombre de material, el resto está vacío
+ * o repite el mismo valor (medición fusionada). No tiene precio real.
+ * Ej: ["Acero corrugado B 500 S", "", "", "", "", ""]
+ * Ej: ["Cimentación HA-30", "65 m3", "65 m3", "65 m3", "65 m3", "65 m3"]
+ */
+function detectSubMaterial(cells: string[]): string | null {
+  if (!cells[0] || cells[0].length < 3) return null
+  const rest = cells.slice(1).filter((c) => c.length > 0)
+  // Sin otras celdas → solo etiqueta de material
+  if (rest.length === 0) return cells[0]
+  // Todas las demás celdas repiten el mismo valor → medición fusionada (p.ej. "42 m3")
+  // IMPORTANTE: comprobar esto ANTES de parseNum para evitar que "42 m3" se interprete
+  // como numérico y se clasifique erróneamente como fila de ensayo.
+  const unique = new Set(rest)
+  if (unique.size === 1) return cells[0]
+  // Sin números en cols de precio → también sub-material
+  const numericCols = cells.slice(3, 6).filter((c) => c.length > 0)
+  if (!numericCols.some(isNumStr)) return cells[0]
+  return null
+}
+
+// ── Detección de columnas desde la fila de cabecera ───────────────────────────
+
+interface ColMap {
+  desc: number    // columna de descripción del ensayo
+  ntests: number  // columna de UDS. / nº ensayos
+  price: number   // columna PRECIO UNITARIO
+  total: number   // columna IMPORTE
+}
+
+function detectColMap(headerCells: string[]): ColMap {
+  let desc = 0, ntests = -1, price = -1, total = -1
+
+  headerCells.forEach((h, i) => {
+    const lower = h.toLowerCase().trim()
+    if (/ensayo|descripci[oó]n|concepto|normativa/.test(lower)) desc = i
+    else if (/uds?\.?\s*$|^n\.?\s*(ens|ud)|^n[uú]m|^medici[oó]n|^cantidad/.test(lower)) ntests = i
+    else if (/precio unitario/.test(lower)) price = i
+    else if (/^importe|total/.test(lower)) total = i
+  })
+
+  // Fallback: si no detectamos por nombre, usar posiciones por defecto.
+  // Estructura típica: col0=desc, col1=muestreo, col2=base, col3=UDS, col4=PRECIO, col5=IMPORTE.
+  // Importante: asegurar que price ≠ ntests para evitar que una columna "UDS." en col4
+  // haga coincidir ambos índices y multiplique cantidades como si fueran precios.
+  if (ntests === -1) ntests = Math.min(3, headerCells.length - 1)
+  if (price === -1) {
+    price = Math.min(4, headerCells.length - 1)
+    if (price === ntests) price = ntests + 1
   }
-  return lines.join('\n')
+  if (total === -1) {
+    total = Math.min(5, headerCells.length - 1)
+    if (total === price || total === ntests) total = Math.max(price, ntests) + 1
+  }
+
+  return { desc, ntests, price, total }
+}
+
+// ── Extracción programática desde matriz de celdas ───────────────────────────
+
+function extractRowsFromMatrix(rows: RawRow[]): {
+  plan: Omit<PlanRowInput, 'price_source' | 'rag_score' | 'rag_desc'>[]
+  introLines: string[]
+} {
+  // 1. Encontrar fila de cabecera de tabla
+  const headerIdx = rows.findIndex(isTableHeader)
+  const colMap = headerIdx >= 0 ? detectColMap(rows[headerIdx]) : { desc: 0, ntests: 3, price: 4, total: 5 }
+
+  // Líneas anteriores a la cabecera → posible info de la obra
+  const introLines = rows.slice(0, Math.max(0, headerIdx))
+    .map((r) => r.filter(Boolean).join(' '))
+    .filter(Boolean)
+
+  const plan: Omit<PlanRowInput, 'price_source' | 'rag_score' | 'rag_desc'>[] = []
+  let currentMaterial = 'General'
+  let currentSubMaterial = ''
+
+  const dataRows = rows.slice(headerIdx + 1)
+
+  for (const row of dataRows) {
+    if (row.length === 0 || row.every((c) => !c)) continue
+    if (isSkipRow(row)) continue
+
+    // ¿Cabecera de sección?
+    const section = detectSectionHeader(row)
+    if (section) {
+      // Limpiar numeración inicial tipo "1.- " o "1) "
+      currentMaterial = section.replace(/^\d+[\.\-\)]\s*/, '').trim()
+      currentSubMaterial = ''
+      continue
+    }
+
+    // ¿Sub-material (material sin precio)?
+    const subMat = detectSubMaterial(row)
+    if (subMat) {
+      currentSubMaterial = subMat
+      continue
+    }
+
+    // ¿Fila de ensayo? Necesita descripción y precio
+    const desc = row[colMap.desc]?.trim()
+    if (!desc || desc.length < 3) continue
+
+    const nTests = parseNum(row[colMap.ntests] ?? '')
+    const unitPrice = parseNum(row[colMap.price] ?? '')
+    const total = parseNum(row[colMap.total] ?? '')
+
+    // Fila de subtotal de sección: hay total pero no precio unitario ni nº ensayos
+    // Ej: ["", "", "", "MOVIMIENTO DE TIERRAS", "", "3807"]
+    if (unitPrice === null && nTests === null && total !== null) {
+      currentMaterial = desc.replace(/^\d+[\.\-\)]\s*/, '').trim()
+      currentSubMaterial = ''
+      continue
+    }
+
+    // Si no hay ningún número de precio, no es una fila de ensayo
+    if (unitPrice === null && total === null) {
+      // Podría ser otro sub-material sin medición
+      if (row.slice(1).every((c) => !c || !isNumStr(c))) {
+        currentSubMaterial = desc
+      }
+      continue
+    }
+
+    const resolvedN = nTests ?? (unitPrice && total ? Math.round(total / unitPrice) : 1)
+    const resolvedPrice = unitPrice ?? (total && resolvedN ? total / resolvedN : 0)
+    const resolvedTotal = total ?? resolvedN * resolvedPrice
+
+    const material = currentSubMaterial
+      ? `${currentMaterial} — ${currentSubMaterial}`
+      : currentMaterial
+
+    plan.push({
+      type: 'test',
+      material,
+      subcategory: '',
+      description: desc,
+      measurement: resolvedN,
+      measurement_unit: 'ud',
+      freq_qty: 1,
+      freq_unit: 'por ud',
+      n_lots: 1,
+      tests_per_lot: 1,
+      n_tests: resolvedN,
+      unit_price: resolvedPrice,
+      total: resolvedTotal,
+    })
+  }
+
+  return { plan, introLines }
+}
+
+// ── LLM — solo para obras/PDF/Word ────────────────────────────────────────────
+
+const OBRA_INFO_PROMPT = `Eres un asistente especializado en documentación de obras.
+Analiza el texto e intenta extraer datos administrativos de la obra.
+Devuelve SOLO este JSON (sin texto adicional):
+{"obra":"","cliente":"","ref_doc":"","municipio":""}`
+
+async function extractObraFromText(text: string): Promise<{
+  obra: string; cliente: string; ref_doc: string; municipio: string
+}> {
+  if (!text.trim()) return { obra: '', cliente: '', ref_doc: '', municipio: '' }
+  try {
+    const provider = createLlmProvider()
+    const raw = await provider.chat(
+      OBRA_INFO_PROMPT,
+      `Texto del documento:\n${text.slice(0, 3000)}`,
+      { maxTokens: 256, timeoutMs: 30_000, tag: 'budget_obra_info' }
+    )
+    const m = raw.match(/\{[\s\S]*\}/)
+    if (m) return JSON.parse(m[0])
+  } catch { /* devuelve vacío */ }
+  return { obra: '', cliente: '', ref_doc: '', municipio: '' }
+}
+
+// ── Prompt LLM para PDF/Word ───────────────────────────────────────────────────
+
+const PDF_SYSTEM_PROMPT = `Eres un extractor de presupuestos de laboratorio de control de calidad.
+Extrae TODAS las filas de ensayo o servicio que aparezcan en el documento.
+
+REGLA FUNDAMENTAL: incluye TODA fila que tenga descripción de ensayo y precio.
+Solo omite: cabeceras de columna ("ENSAYO", "UDS.", "PRECIO UNITARIO €", "IMPORTE €"),
+totales/IVA, y líneas completamente vacías.
+
+Para cada sección/capítulo detectada, úsala como campo "material".
+Si no hay sección clara, usa "General".
+
+Devuelve EXCLUSIVAMENTE este JSON (sin texto fuera del JSON):
+{
+  "obra":"","cliente":"","ref_doc":"","municipio":"",
+  "rows":[
+    {"material":"nombre sección","description":"descripción ensayo","n_tests":1,"unit_price":90.0,"total":90.0}
+  ]
+}`
+
+async function parsePdfBudget(text: string, format: string): Promise<{
+  obra: { obra: string; cliente: string; ref_doc: string; municipio: string }
+  rows: Array<{ material?: string; description?: string; n_tests?: number; unit_price?: number | null; total?: number | null }>
+}> {
+  const provider = createLlmProvider()
+  const raw = await provider.chat(
+    PDF_SYSTEM_PROMPT,
+    `Extrae TODAS las partidas de este presupuesto de laboratorio:\n\n${text.slice(0, 60_000)}`,
+    { maxTokens: 16_384, timeoutMs: 180_000, tag: 'parse_budget_pdf' }
+  )
+
+  const m = raw.match(/\{[\s\S]*\}/)
+  if (!m) return { obra: { obra: '', cliente: '', ref_doc: '', municipio: '' }, rows: [] }
+  try {
+    const parsed = JSON.parse(m[0])
+    return {
+      obra: { obra: parsed.obra ?? '', cliente: parsed.cliente ?? '', ref_doc: parsed.ref_doc ?? '', municipio: parsed.municipio ?? '' },
+      rows: Array.isArray(parsed.rows) ? parsed.rows : []
+    }
+  } catch {
+    return { obra: { obra: '', cliente: '', ref_doc: '', municipio: '' }, rows: [] }
+  }
 }
 
 // ── API pública ────────────────────────────────────────────────────────────────
 
-/** Lista las hojas de un Excel. Devuelve [] para formatos no-Excel. */
+/** Lista las hojas de un Excel (devuelve [] para no-Excel). */
 export async function listSheets(path: string): Promise<BudgetSheet[]> {
   const ext = extname(path).toLowerCase()
   try {
@@ -171,82 +360,17 @@ export async function listSheets(path: string): Promise<BudgetSheet[]> {
       const mod = await import('xlsx')
       const XLSX = (mod as unknown as { default?: typeof mod }).default ?? mod
       const wb = XLSX.readFile(path, { bookSheets: true })
-      return wb.SheetNames.map((name) => {
-        const ws = wb.Sheets[name]
-        const rows = ws ? XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1 }) : []
-        return { name, rowCount: rows.length }
-      })
+      return wb.SheetNames.map((name) => ({ name, rowCount: 0 }))
     }
-  } catch {
-    // Si falla la lectura, tratamos como no-Excel
-  }
+  } catch { /* no-op */ }
   return []
 }
 
-/** Extrae el texto de un documento de presupuesto (opcionalmente de una hoja concreta). */
-async function extractBudgetText(
-  path: string,
-  sheetName?: string | null
-): Promise<{ text: string; format: string }> {
-  const ext = extname(path).toLowerCase()
-
-  if (ext === '.xlsx' || ext === '.xlsm') {
-    return { text: await readXlsxSheet(path, sheetName), format: 'xlsx' }
-  }
-  if (ext === '.xls') {
-    return { text: await readXlsSheet(path, sheetName), format: 'xls' }
-  }
-  if (ext === '.pdf') {
-    const { extractText, getDocumentProxy } = await import('unpdf')
-    const buffer = new Uint8Array(await readFile(path))
-    const pdf = await getDocumentProxy(buffer)
-    const { text } = await extractText(pdf, { mergePages: true })
-    return { text: text ?? '', format: 'pdf' }
-  }
-  if (ext === '.docx') {
-    const mammoth = await import('mammoth')
-    const { value } = await mammoth.extractRawText({ path })
-    return { text: value.trim(), format: 'docx' }
-  }
-  // TXT / CSV
-  return { text: (await readFile(path, 'utf-8')).trim(), format: 'txt' }
-}
-
-interface LlmBudgetRow {
-  material?: string
-  description?: string
-  n_tests?: number
-  unit_price?: number | null
-  total?: number | null
-  notes?: string
-}
-
-interface LlmBudgetResponse {
-  obra?: string
-  cliente?: string
-  ref_doc?: string
-  municipio?: string
-  rows?: LlmBudgetRow[]
-}
-
-/** Parsea un presupuesto existente y devuelve filas de plan listas para guardar. */
-export async function parseBudget(
-  path: string,
-  sheetName?: string | null
-): Promise<BudgetImportResult> {
-  const { text, format } = await extractBudgetText(path, sheetName)
-
-  const provider = createLlmProvider()
-  const raw = await provider.chat(
-    SYSTEM_PROMPT,
-    `Extrae las partidas de este presupuesto de laboratorio:\n\n${text.slice(0, 60_000)}`,
-    { maxTokens: 8192, timeoutMs: 120_000, tag: 'parse_budget' }
-  )
-
-  const parsed = parseJsonLoose<LlmBudgetResponse>(raw)
-  const rows = parsed?.rows ?? []
-
-  const plan: PlanRowInput[] = rows
+function rowsToplanRows(
+  rows: Array<{ material?: string; description?: string; n_tests?: number; unit_price?: number | null; total?: number | null }>,
+  notes = ''
+): PlanRowInput[] {
+  return rows
     .filter((r) => r.description && r.description.trim().length > 2)
     .map((r) => {
       const nTests = Math.max(1, Math.round(r.n_tests ?? 1))
@@ -254,9 +378,9 @@ export async function parseBudget(
       const total = r.total ?? nTests * unitPrice
       return {
         type: 'test' as const,
-        material: r.material ?? 'Sin clasificar',
+        material: r.material ?? 'General',
         subcategory: '',
-        description: (r.description ?? '').trim(),
+        description: r.description!.trim(),
         measurement: nTests,
         measurement_unit: 'ud',
         freq_qty: 1,
@@ -268,23 +392,80 @@ export async function parseBudget(
         total,
         price_source: 'importado',
         rag_score: 1,
-        rag_desc: r.notes ?? 'Importado desde presupuesto original'
+        rag_desc: notes
       }
     })
+}
+
+/** Parsea un presupuesto existente y devuelve filas de plan listas para guardar. */
+export async function parseBudget(
+  path: string,
+  sheetName?: string | null
+): Promise<BudgetImportResult> {
+  const ext = extname(path).toLowerCase()
+  const refFromFilename = basename(path, ext).replace(/\s+/g, '-')
+
+  // ── EXCEL: extracción programática ──────────────────────────────────────
+  if (ext === '.xlsx' || ext === '.xlsm' || ext === '.xls') {
+    const rawRows = ext === '.xls'
+      ? await readXlsRows(path, sheetName)
+      : await readXlsxRows(path, sheetName)
+
+    const { plan: extracted, introLines } = extractRowsFromMatrix(rawRows)
+
+    // Info de la obra desde las primeras líneas (si las hay)
+    const obraInfo = await extractObraFromText(introLines.join('\n'))
+    if (!obraInfo.ref_doc) obraInfo.ref_doc = refFromFilename
+
+    const plan: PlanRowInput[] = extracted.map((r) => ({
+      ...r,
+      price_source: 'importado',
+      rag_score: 1,
+      rag_desc: 'Importado desde presupuesto original'
+    }))
+
+    const chars = rawRows.flat().join('').length
+    return {
+      obra: obraInfo,
+      plan,
+      meta: {
+        format: ext.slice(1),
+        chars,
+        sheetName: sheetName ?? null,
+        rowCount: plan.length
+      }
+    }
+  }
+
+  // ── PDF / DOCX / TXT: extracción por LLM ─────────────────────────────────
+  let text = ''
+  let format = 'txt'
+
+  if (ext === '.pdf') {
+    const { extractText, getDocumentProxy } = await import('unpdf')
+    const buffer = new Uint8Array(await readFile(path))
+    const pdf = await getDocumentProxy(buffer)
+    const result = await extractText(pdf, { mergePages: true })
+    text = result.text ?? ''
+    format = 'pdf'
+  } else if (ext === '.docx') {
+    const mammoth = await import('mammoth')
+    const { value } = await mammoth.extractRawText({ path })
+    text = value.trim()
+    format = 'docx'
+  } else {
+    text = (await readFile(path, 'utf-8')).trim()
+    format = 'txt'
+  }
+
+  const { obra, rows } = await parsePdfBudget(text, format)
+  if (!obra.ref_doc) obra.ref_doc = refFromFilename
+
+  const plan = rowsToplanRows(rows, 'Importado desde presupuesto original')
 
   return {
-    obra: {
-      obra: parsed?.obra ?? '',
-      cliente: parsed?.cliente ?? '',
-      ref_doc: parsed?.ref_doc ?? '',
-      municipio: parsed?.municipio ?? ''
-    },
+    obra,
     plan,
-    meta: {
-      format,
-      chars: text.length,
-      sheetName: sheetName ?? null,
-      rowCount: plan.length
-    }
+    meta: { format, chars: text.length, sheetName: null, rowCount: plan.length }
   }
 }
