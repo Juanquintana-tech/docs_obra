@@ -18,7 +18,9 @@ import {
   ragStatus,
   ragFindMatches,
   buildEnsayoWord,
-  buildEnsayoExcel
+  buildEnsayoExcel,
+  listBudgetSheets,
+  parseBudgetDocument
 } from './services/pipeline'
 import { loadCatalog } from './pipeline/rag/catalog'
 import { scanEnsayo } from './pipeline/ocr/ensayoOcr'
@@ -120,6 +122,13 @@ export function registerIpc(): void {
   )
   ipcMain.handle('db:savePlanEdits', (_e, obraId: number, edits: PlanEdits) =>
     db.savePlanEdits(obraId, edits)
+  )
+
+  // ── Importación de presupuestos ──
+  ipcMain.handle('budget:listSheets', (_e, path: string) => listBudgetSheets(path))
+  ipcMain.handle(
+    'budget:parse',
+    (_e, path: string, sheetName?: string | null) => parseBudgetDocument(path, sheetName)
   )
 
   // ── Ingesta ──

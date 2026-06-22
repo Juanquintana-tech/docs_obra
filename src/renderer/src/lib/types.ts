@@ -11,6 +11,6 @@ export type {
 } from '../../../main/db'
 export type { PlanRowInput, Material } from '../../../main/pipeline/types'
 export type { PriceStrategy } from '../../../main/pipeline/rag/priceBook'
-export type { IngestResult, RagStatus } from '../../../main/services/pipeline'
+export type { IngestResult, RagStatus, BudgetSheet, BudgetImportResult } from '../../../main/services/pipeline'
 export type { RagMatch } from '../../../main/pipeline/rag/types'
 export type { PickedDocument } from '../../../preload/api'

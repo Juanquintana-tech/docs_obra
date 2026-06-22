@@ -8,7 +8,7 @@
  */
 import { readFileSync } from 'fs'
 
-export type PriceStrategy = 'reciente' | 'mediana' | 'max'
+export type PriceStrategy = 'reciente' | 'mediana' | 'max' | 'importado'
 export const DEFAULT_STRATEGY: PriceStrategy = 'reciente'
 
 export interface PriceBookEntry {

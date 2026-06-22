@@ -5,7 +5,7 @@ import { PlanTable } from '../components/PlanTable'
 import { Ic } from '../components/Icon'
 import { FormField, DateFormField } from '../components/FormField'
 import { errorMessage } from '../lib/errors'
-import type { IngestResult, PlanRowInput, PriceStrategy } from '../lib/types'
+import type { IngestResult, PlanRowInput, PriceStrategy, BudgetSheet, BudgetImportResult } from '../lib/types'
 
 // ── Constantes ───────────────────────────────────────────────────────────────
 
@@ -15,112 +15,138 @@ const STRATEGY_LABELS: Record<PriceStrategy, string> = {
   max: 'Precio máximo'
 }
 
-const STAGES = [
+const GEN_STAGES = [
   { id: 0, label: 'Extrayendo texto del documento', pctEnd: 18 },
   { id: 1, label: 'Clasificando materiales con IA', pctEnd: 78 },
   { id: 2, label: 'Valorando ensayos con RAG', pctEnd: 96 },
 ] as const
 
+const IMP_STAGES = [
+  { id: 0, label: 'Leyendo fichero', pctEnd: 20 },
+  { id: 1, label: 'Extrayendo partidas con IA', pctEnd: 96 },
+] as const
+
 const ALLOWED_EXT = ['pdf', 'docx', 'xlsx', 'xls', 'txt']
 
-// Desde Electron 32, file.path ya no se rellena en drag&drop — usar webUtils.
 function getFilePath(file: File): string {
   return window.electron?.webUtils?.getPathForFile(file) ?? ''
 }
 
-// ── Componente principal ─────────────────────────────────────────────────────
+// ── Tipos ─────────────────────────────────────────────────────────────────────
 
-type Phase = 'idle' | 'ingesting' | 'review' | 'saving'
+type Mode = 'generate' | 'import'
+
+// Fases compartidas entre modos (review/saving) + específicas por modo
+type GenPhase = 'idle' | 'ingesting' | 'review' | 'saving'
+type ImpPhase = 'idle' | 'reading' | 'sheet-select' | 'parsing' | 'review' | 'saving'
+
+// ── Componente principal ─────────────────────────────────────────────────────
 
 export function NuevaObra(): JSX.Element {
   const navigate = useNavigate()
-  const [phase, setPhase] = useState<Phase>('idle')
+  const [mode, setMode] = useState<Mode>('generate')
+
+  // ── Estado modo "Generar" ─────────────────────────────────────────────────
+  const [genPhase, setGenPhase] = useState<GenPhase>('idle')
+  const [genResult, setGenResult] = useState<IngestResult | null>(null)
+  const [strategy, setStrategy] = useState<PriceStrategy>('reciente')
+  const [repricing, setRepricing] = useState(false)
+  const [pastedText, setPastedText] = useState('')
+  const repriceSeq = useRef(0)
+
+  // ── Estado modo "Importar" ────────────────────────────────────────────────
+  const [impPhase, setImpPhase] = useState<ImpPhase>('idle')
+  const [impResult, setImpResult] = useState<BudgetImportResult | null>(null)
+  const [sheets, setSheets] = useState<BudgetSheet[]>([])
+  const [selectedSheet, setSelectedSheet] = useState<string | null>(null)
+  const [pendingPath, setPendingPath] = useState<string>('')
+
+  // ── Estado compartido ─────────────────────────────────────────────────────
   const [error, setError] = useState<string | null>(null)
   const [fileName, setFileName] = useState('')
-  const [result, setResult] = useState<IngestResult | null>(null)
   const [dragOver, setDragOver] = useState(false)
-
-  // Progreso simulado (0-100)
   const [progress, setProgress] = useState(0)
   const [elapsed, setElapsed] = useState(0)
 
-  // Campos editables de la obra
+  // Campos del formulario de la obra
   const [obra, setObra] = useState('')
   const [cliente, setCliente] = useState('')
   const [refLab, setRefLab] = useState('')
   const [fecha, setFecha] = useState('')
   const [responsable, setResponsable] = useState('')
-  const [strategy, setStrategy] = useState<PriceStrategy>('reciente')
-  const [repricing, setRepricing] = useState(false)
-  const [pastedText, setPastedText] = useState('')
-  // Secuencia de reprecio: descarta respuestas de cambios de estrategia superados.
-  const repriceSeq = useRef(0)
 
   // ── Progreso simulado ─────────────────────────────────────────────────────
+  const isProcessing = genPhase === 'ingesting' || impPhase === 'parsing'
   useEffect(() => {
-    if (phase !== 'ingesting') return
+    if (!isProcessing) return
+    const isImport = impPhase === 'parsing'
     const t0 = Date.now()
+    setProgress(0)
     const id = setInterval(() => {
       const secs = (Date.now() - t0) / 1000
       setElapsed(Math.floor(secs))
       setProgress((prev) => {
-        // Fase 0 (0-1.5s → 0-18%): extracción de texto, rápida
-        // Fase 1 (1.5-22s → 18-78%): llamadas LLM, lenta
-        // Fase 2 (22-27s → 78-96%): RAG + plan, media
-        const target =
-          secs < 1.5 ? (secs / 1.5) * 18 :
-          secs < 22  ? 18 + ((secs - 1.5) / 20.5) * 60 :
-          secs < 27  ? 78 + ((secs - 22) / 5) * 18 :
-          96
+        const target = isImport
+          ? secs < 2 ? (secs / 2) * 20 : 20 + ((secs - 2) / 25) * 76
+          : secs < 1.5 ? (secs / 1.5) * 18
+          : secs < 22  ? 18 + ((secs - 1.5) / 20.5) * 60
+          : secs < 27  ? 78 + ((secs - 22) / 5) * 18
+          : 96
         return Math.min(96, Math.max(prev, target))
       })
     }, 400)
     return () => clearInterval(id)
-  }, [phase])
+  }, [isProcessing, impPhase])
 
-  // ── Lógica de ingesta ─────────────────────────────────────────────────────
-  const doIngest = useCallback(async (path: string, name: string): Promise<void> => {
+  // ── Cambio de modo: resetear estado del otro ──────────────────────────────
+  function switchMode(next: Mode): void {
+    setMode(next)
     setError(null)
-    setFileName(name)
-    setProgress(0)
-    setElapsed(0)
-    setPhase('ingesting')
+    setDragOver(false)
+    if (next === 'generate') {
+      setImpPhase('idle'); setImpResult(null); setSheets([]); setSelectedSheet(null)
+    } else {
+      setGenPhase('idle'); setGenResult(null)
+    }
+    setObra(''); setCliente(''); setRefLab(''); setFecha(''); setResponsable('')
+  }
+
+  // ── Helpers de archivos ───────────────────────────────────────────────────
+  function checkExt(name: string): boolean {
+    const ext = name.split('.').pop()?.toLowerCase() ?? ''
+    if (!ALLOWED_EXT.includes(ext)) {
+      setError(`Formato no admitido: .${ext}. Usa PDF, DOCX, XLSX, XLS o TXT.`)
+      return false
+    }
+    return true
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // MODO GENERAR
+  // ══════════════════════════════════════════════════════════════════════════
+
+  const doIngest = useCallback(async (path: string, name: string): Promise<void> => {
+    setError(null); setFileName(name); setElapsed(0); setGenPhase('ingesting')
     try {
       const r = await api.ingestDocument(path, strategy)
       setProgress(100)
-      // Breve pausa para que la barra llegue al 100% antes de cambiar de pantalla
       await new Promise((res) => setTimeout(res, 350))
-      setResult(r)
-      setObra(r.obra.obra)
-      setCliente(r.obra.cliente)
-      setRefLab(r.obra.ref_doc)
-      setPhase('review')
-    } catch (e) {
-      setError(errorMessage(e))
-      setPhase('idle')
-    }
+      setGenResult(r)
+      setObra(r.obra.obra); setCliente(r.obra.cliente); setRefLab(r.obra.ref_doc)
+      setGenPhase('review')
+    } catch (e) { setError(errorMessage(e)); setGenPhase('idle') }
   }, [strategy])
 
   const doIngestText = useCallback(async (text: string): Promise<void> => {
-    setError(null)
-    setFileName('Texto pegado')
-    setProgress(0)
-    setElapsed(0)
-    setPhase('ingesting')
+    setError(null); setFileName('Texto pegado'); setElapsed(0); setGenPhase('ingesting')
     try {
       const r = await api.ingestText(text, strategy)
       setProgress(100)
       await new Promise((res) => setTimeout(res, 350))
-      setResult(r)
-      setObra(r.obra.obra)
-      setCliente(r.obra.cliente)
-      setRefLab(r.obra.ref_doc)
-      setPastedText('')
-      setPhase('review')
-    } catch (e) {
-      setError(errorMessage(e))
-      setPhase('idle')
-    }
+      setGenResult(r)
+      setObra(r.obra.obra); setCliente(r.obra.cliente); setRefLab(r.obra.ref_doc)
+      setPastedText(''); setGenPhase('review')
+    } catch (e) { setError(errorMessage(e)); setGenPhase('idle') }
   }, [strategy])
 
   async function pickAndIngest(): Promise<void> {
@@ -129,43 +155,15 @@ export function NuevaObra(): JSX.Element {
     await doIngest(picked.path, picked.name)
   }
 
-  // ── Drag & Drop ───────────────────────────────────────────────────────────
-  function handleDragOver(e: DragEvent<HTMLDivElement>): void {
-    e.preventDefault()
-    setDragOver(true)
-  }
-  function handleDragLeave(e: DragEvent<HTMLDivElement>): void {
-    // Solo desactivar si el puntero sale del contenedor raíz
-    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false)
-  }
-  async function handleDrop(e: DragEvent<HTMLDivElement>): Promise<void> {
-    e.preventDefault()
-    setDragOver(false)
-    const file = e.dataTransfer.files[0]
-    if (!file) return
-    const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
-    if (!ALLOWED_EXT.includes(ext)) {
-      setError(`Formato no admitido: .${ext}. Usa PDF, DOCX, XLSX o TXT.`)
-      return
-    }
-    const path = getFilePath(file)
-    if (!path) {
-      setError('No se pudo leer la ruta del archivo. Usa el botón «Seleccionar documento».')
-      return
-    }
-    await doIngest(path, file.name)
-  }
-
-  // ── Reprecio ──────────────────────────────────────────────────────────────
   async function changeStrategy(next: PriceStrategy): Promise<void> {
     setStrategy(next)
-    if (!result) return
+    if (!genResult) return
     const seq = ++repriceSeq.current
     setRepricing(true)
     try {
-      const plan = await api.repricePlan(result.materials, next)
-      if (seq !== repriceSeq.current) return // llegó un cambio de estrategia más reciente
-      setResult({ ...result, plan, strategy: next })
+      const plan = await api.repricePlan(genResult.materials, next)
+      if (seq !== repriceSeq.current) return
+      setGenResult({ ...genResult, plan, strategy: next })
     } catch (e) {
       if (seq === repriceSeq.current) setError(errorMessage(e))
     } finally {
@@ -173,49 +171,153 @@ export function NuevaObra(): JSX.Element {
     }
   }
 
-  // ── Guardado ──────────────────────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════════
+  // MODO IMPORTAR
+  // ══════════════════════════════════════════════════════════════════════════
+
+  async function startImport(path: string, name: string): Promise<void> {
+    setError(null); setFileName(name); setImpPhase('reading')
+    try {
+      const sheetList = await api.listBudgetSheets(path)
+      setPendingPath(path)
+      if (sheetList.length > 1) {
+        setSheets(sheetList)
+        setSelectedSheet(sheetList[0].name)
+        setImpPhase('sheet-select')
+      } else {
+        setSheets(sheetList)
+        await doParseBudget(path, sheetList[0]?.name ?? null)
+      }
+    } catch (e) { setError(errorMessage(e)); setImpPhase('idle') }
+  }
+
+  async function doParseBudget(path: string, sheetName: string | null): Promise<void> {
+    setImpPhase('parsing'); setElapsed(0)
+    try {
+      const r = await api.parseBudget(path, sheetName)
+      setProgress(100)
+      await new Promise((res) => setTimeout(res, 350))
+      setImpResult(r)
+      setObra(r.obra.obra); setCliente(r.obra.cliente); setRefLab(r.obra.ref_doc)
+      setImpPhase('review')
+    } catch (e) { setError(errorMessage(e)); setImpPhase('idle') }
+  }
+
+  async function pickAndImport(): Promise<void> {
+    const picked = await api.pickDocument()
+    if (!picked) return
+    await startImport(picked.path, picked.name)
+  }
+
+  // ── Drag & Drop (compartido) ──────────────────────────────────────────────
+  function handleDragOver(e: DragEvent<HTMLDivElement>): void {
+    e.preventDefault(); setDragOver(true)
+  }
+  function handleDragLeave(e: DragEvent<HTMLDivElement>): void {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false)
+  }
+  async function handleDrop(e: DragEvent<HTMLDivElement>): Promise<void> {
+    e.preventDefault(); setDragOver(false)
+    const file = e.dataTransfer.files[0]
+    if (!file || !checkExt(file.name)) return
+    const path = getFilePath(file)
+    if (!path) {
+      setError('No se pudo leer la ruta. Usa el botón «Seleccionar archivo».')
+      return
+    }
+    if (mode === 'generate') await doIngest(path, file.name)
+    else await startImport(path, file.name)
+  }
+
+  // ── Guardado (compartido) ─────────────────────────────────────────────────
   async function save(): Promise<void> {
-    if (!result) return
-    setPhase('saving')
+    const plan = mode === 'generate' ? genResult?.plan : impResult?.plan
+    if (!plan) return
+    const phase = mode === 'generate' ? genPhase : impPhase
+    if (phase === 'saving') return
+
+    if (mode === 'generate') setGenPhase('saving')
+    else setImpPhase('saving')
+
     try {
       const id = await api.saveObra(
-        { obra, cliente, ref_lab: refLab, fecha, responsable, coef_baja: 1, price_strategy: strategy },
-        result.plan as PlanRowInput[]
+        {
+          obra, cliente, ref_lab: refLab, fecha, responsable,
+          coef_baja: 1,
+          price_strategy: mode === 'import' ? 'importado' : strategy
+        },
+        plan as PlanRowInput[]
       )
       navigate('/detalle/' + id)
     } catch (e) {
       setError(errorMessage(e))
-      setPhase('review')
+      if (mode === 'generate') setGenPhase('review')
+      else setImpPhase('review')
     }
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
-  const currentStage = progress < STAGES[0].pctEnd ? 0 : progress < STAGES[1].pctEnd ? 1 : 2
+  // ── Helpers de render ─────────────────────────────────────────────────────
+  const isSaving = genPhase === 'saving' || impPhase === 'saving'
+  const isReview = (mode === 'generate' && genPhase === 'review') ||
+                   (mode === 'import' && impPhase === 'review')
 
+  const currentPlan = mode === 'generate' ? genResult?.plan : impResult?.plan
+
+  const genCurrentStage =
+    progress < GEN_STAGES[0].pctEnd ? 0 : progress < GEN_STAGES[1].pctEnd ? 1 : 2
+  const impCurrentStage = progress < IMP_STAGES[0].pctEnd ? 0 : 1
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div>
       <div className="page-head">
         <div>
           <h1>Nuevo Proyecto</h1>
-          <p>Sube la memoria o presupuesto (PDF, Word o Excel) para generar el plan de ensayos</p>
+          <p>
+            {mode === 'generate'
+              ? 'Sube la memoria o totalizados para generar el plan de ensayos con IA'
+              : 'Importa un presupuesto existente para crear un proyecto a partir de él'}
+          </p>
         </div>
       </div>
+
+      {/* ── Selector de modo ── */}
+      {(genPhase === 'idle' || impPhase === 'idle') && !isReview && (
+        <div className="mode-tabs" style={{ display: 'flex', gap: 0, marginBottom: 20, borderBottom: '2px solid var(--border)' }}>
+          {(['generate', 'import'] as Mode[]).map((m) => (
+            <button
+              key={m}
+              onClick={() => switchMode(m)}
+              style={{
+                padding: '10px 22px',
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                fontWeight: mode === m ? 700 : 400,
+                color: mode === m ? 'var(--accent)' : 'var(--text-soft)',
+                borderBottom: mode === m ? '2px solid var(--accent)' : '2px solid transparent',
+                marginBottom: -2,
+                fontSize: 14,
+                transition: 'all 0.15s'
+              }}
+            >
+              {m === 'generate' ? '✦ Generar plan con IA' : '📥 Importar presupuesto existente'}
+            </button>
+          ))}
+        </div>
+      )}
 
       {error && (
         <div className="banner banner-error" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>⚠ {error}</span>
-          <button
-            className="btn btn-ghost"
-            style={{ padding: '2px 8px', fontSize: 12, color: 'var(--danger)' }}
-            onClick={() => setError(null)}
-          >
-            ✕
-          </button>
+          <button className="btn btn-ghost" style={{ padding: '2px 8px', fontSize: 12, color: 'var(--danger)' }} onClick={() => setError(null)}>✕</button>
         </div>
       )}
 
-      {/* ── Zona de carga (idle) ── */}
-      {phase === 'idle' && (
+      {/* ════════════════════════════════════════════════════════════
+          MODO GENERAR — IDLE
+          ════════════════════════════════════════════════════════════ */}
+      {mode === 'generate' && genPhase === 'idle' && (
         <>
           <div
             className={`ingest-zone${dragOver ? ' drag-over' : ''}`}
@@ -223,105 +325,173 @@ export function NuevaObra(): JSX.Element {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            role="button"
-            tabIndex={0}
+            role="button" tabIndex={0}
             onKeyDown={(e) => e.key === 'Enter' && pickAndIngest()}
           >
-            <div className="drop-icon">
-              {dragOver ? <Ic.Folder size={52} /> : <Ic.Upload size={52} />}
-            </div>
-            <div className="drop-title">
-              {dragOver ? 'Suelta el archivo para analizar' : 'Arrastra o haz clic para subir'}
-            </div>
-            <div className="drop-sub">
-              {dragOver ? '' : 'PDF, DOCX, XLSX, XLS o TXT — memoria, presupuesto o mediciones'}
-            </div>
+            <div className="drop-icon">{dragOver ? <Ic.Folder size={52} /> : <Ic.Upload size={52} />}</div>
+            <div className="drop-title">{dragOver ? 'Suelta el archivo para analizar' : 'Arrastra o haz clic para subir'}</div>
+            <div className="drop-sub">{dragOver ? '' : 'PDF, DOCX, XLSX, XLS o TXT — memoria, totalizados o mediciones'}</div>
             <div className="format-chips">
-              {['PDF', 'DOCX', 'XLSX', 'XLS', 'TXT'].map((f) => (
-                <span key={f} className="format-chip">{f}</span>
-              ))}
+              {['PDF', 'DOCX', 'XLSX', 'XLS', 'TXT'].map((f) => <span key={f} className="format-chip">{f}</span>)}
             </div>
           </div>
 
-        {/* ── Texto pegado ── */}
-        <div className="paste-zone">
-          <div className="paste-zone-label">
-            <span>¿Lo tienes en texto plano? Pégalo aquí directamente</span>
-            {pastedText && (
-              <button className="btn btn-ghost" style={{ fontSize: 11, padding: '2px 8px' }} onClick={() => setPastedText('')}>
-                Limpiar
-              </button>
+          <div className="paste-zone">
+            <div className="paste-zone-label">
+              <span>¿Lo tienes en texto plano? Pégalo aquí directamente</span>
+              {pastedText && (
+                <button className="btn btn-ghost" style={{ fontSize: 11, padding: '2px 8px' }} onClick={() => setPastedText('')}>Limpiar</button>
+              )}
+            </div>
+            <textarea
+              className="paste-textarea"
+              placeholder="Pega aquí el contenido: partidas de presupuesto, mediciones, descripción del proyecto…"
+              value={pastedText}
+              onChange={(e) => setPastedText(e.target.value)}
+              rows={6}
+            />
+            {pastedText.trim().length > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                <span style={{ fontSize: 12, color: 'var(--text-soft)' }}>{pastedText.trim().length.toLocaleString('es-ES')} caracteres</span>
+                <button className="btn btn-primary" onClick={() => doIngestText(pastedText.trim())}>Analizar texto</button>
+              </div>
             )}
           </div>
-          <textarea
-            className="paste-textarea"
-            placeholder="Pega aquí el contenido: partidas de presupuesto, mediciones, descripción del proyecto…"
-            value={pastedText}
-            onChange={(e) => setPastedText(e.target.value)}
-            rows={6}
-          />
-          {pastedText.trim().length > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-              <span style={{ fontSize: 12, color: 'var(--text-soft)' }}>
-                {pastedText.trim().length.toLocaleString('es-ES')} caracteres
-              </span>
-              <button
-                className="btn btn-primary"
-                onClick={() => doIngestText(pastedText.trim())}
-              >
-                Analizar texto
-              </button>
-            </div>
-          )}
-        </div>
         </>
       )}
 
-      {/* ── Panel de análisis (ingesting) ── */}
-      {phase === 'ingesting' && (
-        <div className="ingest-panel">
-          <div className="ingest-panel-header">
-            <div className="ingest-file-name">📄 {fileName}</div>
-            <div className="ingest-file-sub">Analizando con inteligencia artificial…</div>
-          </div>
+      {/* ════════════════════════════════════════════════════════════
+          MODO GENERAR — INGESTING
+          ════════════════════════════════════════════════════════════ */}
+      {mode === 'generate' && genPhase === 'ingesting' && (
+        <ProcessingPanel
+          fileName={fileName}
+          progress={progress}
+          elapsed={elapsed}
+          stages={GEN_STAGES as unknown as Stage[]}
+          currentStage={genCurrentStage}
+        />
+      )}
 
-          {/* Barra de progreso */}
-          <div className="progress-track">
-            <div className="progress-fill" style={{ width: `${progress}%` }} />
-          </div>
-          <div className="progress-label">{Math.round(progress)}%</div>
+      {/* ════════════════════════════════════════════════════════════
+          MODO IMPORTAR — IDLE / READING
+          ════════════════════════════════════════════════════════════ */}
+      {mode === 'import' && (impPhase === 'idle' || impPhase === 'reading') && (
+        <div
+          className={`ingest-zone${dragOver ? ' drag-over' : ''}`}
+          onClick={impPhase === 'idle' ? pickAndImport : undefined}
+          onDragOver={impPhase === 'idle' ? handleDragOver : undefined}
+          onDragLeave={impPhase === 'idle' ? handleDragLeave : undefined}
+          onDrop={impPhase === 'idle' ? handleDrop : undefined}
+          role="button" tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && impPhase === 'idle' && pickAndImport()}
+          style={{ cursor: impPhase === 'reading' ? 'wait' : 'pointer' }}
+        >
+          {impPhase === 'reading' ? (
+            <>
+              <div className="drop-icon" style={{ opacity: 0.5 }}><Ic.Folder size={52} /></div>
+              <div className="drop-title">Leyendo {fileName}…</div>
+              <div className="drop-sub">Detectando hojas del fichero</div>
+            </>
+          ) : (
+            <>
+              <div className="drop-icon">{dragOver ? <Ic.Folder size={52} /> : <Ic.Upload size={52} />}</div>
+              <div className="drop-title">{dragOver ? 'Suelta el presupuesto' : 'Arrastra o haz clic para seleccionar'}</div>
+              <div className="drop-sub">
+                {dragOver ? '' : 'Presupuesto de laboratorio en PDF, Word o Excel (XLSX, XLS)'}
+              </div>
+              <div className="format-chips">
+                {['PDF', 'DOCX', 'XLSX', 'XLS'].map((f) => <span key={f} className="format-chip">{f}</span>)}
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
-          {/* Etapas */}
-          <div className="stage-list">
-            {STAGES.map((s) => {
-              const state =
-                currentStage > s.id ? 'stage-done' :
-                currentStage === s.id ? 'stage-active' :
-                'stage-pending'
-              const isDone = currentStage > s.id
-              const isActive = currentStage === s.id
-              return (
-                <div key={s.id} className={`stage-row ${state}`}>
-                  <span className="stage-bullet">
-                    {isDone ? '✓' : isActive ? '●' : String(s.id + 1)}
-                  </span>
-                  <span>{s.label}</span>
+      {/* ════════════════════════════════════════════════════════════
+          MODO IMPORTAR — SELECCIÓN DE HOJA
+          ════════════════════════════════════════════════════════════ */}
+      {mode === 'import' && impPhase === 'sheet-select' && (
+        <div className="card">
+          <div style={{ marginBottom: 16 }}>
+            <h3 style={{ marginBottom: 4 }}>Selecciona la hoja del presupuesto</h3>
+            <p style={{ fontSize: 13, color: 'var(--text-soft)', margin: 0 }}>
+              El archivo <strong>{fileName}</strong> tiene varias hojas. Elige cuál contiene el presupuesto a importar.
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+            {sheets.map((s) => (
+              <label
+                key={s.name}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '12px 16px',
+                  borderRadius: 8,
+                  border: `2px solid ${selectedSheet === s.name ? 'var(--accent)' : 'var(--border)'}`,
+                  background: selectedSheet === s.name ? 'var(--accent-bg, #f0f7ff)' : 'var(--bg-card)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s'
+                }}
+              >
+                <input
+                  type="radio"
+                  name="sheet"
+                  value={s.name}
+                  checked={selectedSheet === s.name}
+                  onChange={() => setSelectedSheet(s.name)}
+                  style={{ accentColor: 'var(--accent)' }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, fontSize: 14 }}>{s.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-soft)' }}>{s.rowCount} filas</div>
                 </div>
-              )
-            })}
+                {selectedSheet === s.name && (
+                  <span style={{ color: 'var(--accent)', fontSize: 18 }}>✓</span>
+                )}
+              </label>
+            ))}
           </div>
-
-          <div className="ingest-elapsed">
-            <span className="dot" />
-            Procesando · {elapsed}s transcurridos
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+            <button className="btn" onClick={() => { setImpPhase('idle'); setSheets([]) }}>← Volver</button>
+            <button
+              className="btn btn-primary"
+              disabled={!selectedSheet}
+              onClick={() => selectedSheet && doParseBudget(pendingPath, selectedSheet)}
+            >
+              Importar esta hoja →
+            </button>
           </div>
         </div>
       )}
 
-      {/* ── Revisión y guardado ── */}
-      {(phase === 'review' || phase === 'saving') && result && (
+      {/* ════════════════════════════════════════════════════════════
+          MODO IMPORTAR — PARSING (progreso)
+          ════════════════════════════════════════════════════════════ */}
+      {mode === 'import' && impPhase === 'parsing' && (
+        <ProcessingPanel
+          fileName={fileName}
+          progress={progress}
+          elapsed={elapsed}
+          stages={IMP_STAGES as unknown as Stage[]}
+          currentStage={impCurrentStage}
+          subtitle="Extrayendo partidas del presupuesto…"
+        />
+      )}
+
+      {/* ════════════════════════════════════════════════════════════
+          REVISIÓN (compartida entre modos)
+          ════════════════════════════════════════════════════════════ */}
+      {isReview && currentPlan && (
         <>
-          {result.meta.needsOcr && (
+          {/* Banner diferenciador */}
+          {mode === 'import' && (
+            <div className="banner banner-warn" style={{ background: '#f0f7ff', borderColor: 'var(--accent)', color: 'var(--accent)' }}>
+              📥 Presupuesto importado — los precios provienen del documento original. Puedes editarlos en el detalle del proyecto.
+            </div>
+          )}
+          {mode === 'generate' && genResult?.meta.needsOcr && (
             <div className="banner banner-warn">
               ⚠ El documento parece escaneado. El texto extraído puede ser escaso y afectar a la calidad del análisis.
             </div>
@@ -332,9 +502,13 @@ export function NuevaObra(): JSX.Element {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
               <h3>Datos del proyecto</h3>
               <div className="meta-chips">
-                <span className="meta-chip"><b>{result.materials.length}</b> materiales</span>
-                <span className="meta-chip"><b>{result.plan.length}</b> líneas de ensayo</span>
-                <span className="meta-chip">{result.meta.format.toUpperCase()} · {fmtChars(result.meta.chars)}</span>
+                <span className="meta-chip"><b>{currentPlan.length}</b> líneas de ensayo</span>
+                {mode === 'generate' && genResult && (
+                  <span className="meta-chip">{genResult.meta.format.toUpperCase()} · {fmtChars(genResult.meta.chars)}</span>
+                )}
+                {mode === 'import' && impResult && (
+                  <span className="meta-chip">{impResult.meta.format.toUpperCase()}{impResult.meta.sheetName ? ` · ${impResult.meta.sheetName}` : ''}</span>
+                )}
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -351,48 +525,48 @@ export function NuevaObra(): JSX.Element {
             )}
           </div>
 
-          {/* Cabecera del plan con selector de estrategia */}
-          <div
-            className="row"
-            style={{ justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}
-          >
-            <h3>Plan de ensayos valorado</h3>
-            <div className="field" style={{ marginBottom: 0, minWidth: 240 }}>
-              <label>Estrategia de precio{repricing ? ' · recalculando…' : ''}</label>
-              <select
-                className="select"
-                value={strategy}
-                disabled={repricing}
-                onChange={(e) => changeStrategy(e.target.value as PriceStrategy)}
-                title="Precio aplicado desde el histórico de presupuestos del laboratorio"
-              >
-                {(Object.keys(STRATEGY_LABELS) as PriceStrategy[]).map((s) => (
-                  <option key={s} value={s}>{STRATEGY_LABELS[s]}</option>
-                ))}
-              </select>
-            </div>
+          {/* Cabecera del plan */}
+          <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
+            <h3>{mode === 'import' ? 'Partidas importadas' : 'Plan de ensayos valorado'}</h3>
+            {mode === 'generate' && (
+              <div className="field" style={{ marginBottom: 0, minWidth: 240 }}>
+                <label>Estrategia de precio{repricing ? ' · recalculando…' : ''}</label>
+                <select
+                  className="select"
+                  value={strategy}
+                  disabled={repricing}
+                  onChange={(e) => changeStrategy(e.target.value as PriceStrategy)}
+                >
+                  {(Object.keys(STRATEGY_LABELS) as PriceStrategy[]).map((s) => (
+                    <option key={s} value={s}>{STRATEGY_LABELS[s]}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
-          <PlanTable rows={result.plan} />
+          <PlanTable rows={currentPlan} />
 
           <div className="toolbar" style={{ marginTop: 20, justifyContent: 'flex-end' }}>
             <button
               className="btn"
-              onClick={() => { setPhase('idle'); setResult(null) }}
-              disabled={phase === 'saving'}
+              onClick={() => {
+                if (mode === 'generate') { setGenPhase('idle'); setGenResult(null) }
+                else { setImpPhase('idle'); setImpResult(null) }
+                setObra(''); setCliente(''); setRefLab('')
+              }}
+              disabled={isSaving}
             >
               ← Volver
             </button>
             <button
               className="btn btn-primary"
               onClick={save}
-              disabled={phase === 'saving' || !obra.trim()}
+              disabled={isSaving || !obra.trim()}
             >
-              {phase === 'saving' ? (
-                <><span className="spinner" /> Guardando…</>
-              ) : (
-                <><Ic.Save /> Guardar proyecto</>
-              )}
+              {isSaving
+                ? <><span className="spinner" /> Guardando…</>
+                : <><Ic.Save /> Guardar proyecto</>}
             </button>
           </div>
         </>
@@ -401,7 +575,52 @@ export function NuevaObra(): JSX.Element {
   )
 }
 
-// ── Utilidades ───────────────────────────────────────────────────────────────
+// ── Subcomponentes ────────────────────────────────────────────────────────────
+
+interface Stage { id: number; label: string; pctEnd: number }
+
+function ProcessingPanel({
+  fileName, progress, elapsed, stages, currentStage, subtitle
+}: {
+  fileName: string
+  progress: number
+  elapsed: number
+  stages: Stage[]
+  currentStage: number
+  subtitle?: string
+}): JSX.Element {
+  return (
+    <div className="ingest-panel">
+      <div className="ingest-panel-header">
+        <div className="ingest-file-name">📄 {fileName}</div>
+        <div className="ingest-file-sub">{subtitle ?? 'Analizando con inteligencia artificial…'}</div>
+      </div>
+      <div className="progress-track">
+        <div className="progress-fill" style={{ width: `${progress}%` }} />
+      </div>
+      <div className="progress-label">{Math.round(progress)}%</div>
+      <div className="stage-list">
+        {stages.map((s) => {
+          const isDone = currentStage > s.id
+          const isActive = currentStage === s.id
+          const state = isDone ? 'stage-done' : isActive ? 'stage-active' : 'stage-pending'
+          return (
+            <div key={s.id} className={`stage-row ${state}`}>
+              <span className="stage-bullet">{isDone ? '✓' : isActive ? '●' : String(s.id + 1)}</span>
+              <span>{s.label}</span>
+            </div>
+          )
+        })}
+      </div>
+      <div className="ingest-elapsed">
+        <span className="dot" />
+        Procesando · {elapsed}s transcurridos
+      </div>
+    </div>
+  )
+}
+
+// ── Utilidades ────────────────────────────────────────────────────────────────
 
 function fmtChars(n: number): string {
   if (n >= 1000) return `${Math.round(n / 1000)}k chars`

@@ -18,7 +18,7 @@ import type {
   ProgressRow
 } from '../main/db'
 import type { PlanRowInput, Material } from '../main/pipeline/types'
-import type { IngestResult, RagStatus } from '../main/services/pipeline'
+import type { IngestResult, RagStatus, BudgetSheet, BudgetImportResult } from '../main/services/pipeline'
 import type { RagMatch } from '../main/pipeline/rag/types'
 import type { CatalogEntry } from '../main/pipeline/rag/catalog'
 import type { Rules } from '../main/pipeline/planner'
@@ -107,6 +107,12 @@ export const api = {
     mimeType: string
   ): Promise<{ ocr: Record<string, unknown>; tipo: string; conf: Record<string, string> }> =>
     ipcRenderer.invoke('ensayo:scanFromImage', { tipo, imageBase64, mimeType }),
+
+  // ── Importación de presupuestos existentes ──
+  listBudgetSheets: (path: string): Promise<BudgetSheet[]> =>
+    ipcRenderer.invoke('budget:listSheets', path),
+  parseBudget: (path: string, sheetName?: string | null): Promise<BudgetImportResult> =>
+    ipcRenderer.invoke('budget:parse', path, sheetName),
 
   // ── Presupuestos (catálogo y reglas) ──
   getCatalog: (): Promise<CatalogEntry[]> => ipcRenderer.invoke('presup:getCatalog'),

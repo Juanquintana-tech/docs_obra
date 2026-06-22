@@ -6,6 +6,7 @@ import { readFile } from 'fs/promises'
 import { extractDocument } from '../pipeline/extractor'
 import { classifyMaterials, extractObraInfo } from '../pipeline/classifier'
 import { generatePlan, type Material, type Rules } from '../pipeline/planner'
+import { listSheets, parseBudget, type BudgetSheet, type BudgetImportResult } from '../pipeline/budgetParser'
 import { CATEGORY_CTX } from '../pipeline/rag/ragPricer'
 import type { RagMatch } from '../pipeline/rag/types'
 import type { PriceStrategy } from '../pipeline/rag/priceBook'
@@ -177,4 +178,21 @@ export async function buildEnsayoExcel(ensayo: Ensayo, obra: Obra): Promise<Buff
 /** Invalida el cache de reglas para que se relean en el próximo presupuesto. */
 export function invalidateRulesCache(): void {
   _rules = null
+}
+
+// ── Importación de presupuestos existentes ───────────────────────────────────
+
+export type { BudgetSheet, BudgetImportResult }
+
+/** Devuelve la lista de hojas de un Excel. [] para PDF/Word/TXT. */
+export async function listBudgetSheets(path: string): Promise<BudgetSheet[]> {
+  return listSheets(path)
+}
+
+/** Parsea un presupuesto existente y devuelve las filas del plan directamente. */
+export async function parseBudgetDocument(
+  path: string,
+  sheetName?: string | null
+): Promise<BudgetImportResult> {
+  return parseBudget(path, sheetName)
 }
