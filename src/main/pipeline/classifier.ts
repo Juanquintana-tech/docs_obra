@@ -26,6 +26,11 @@ Categorías tipo A:
   MARCAS_VIALES       — marcas viales, señalización horizontal (pintura, termoplástica, retroreflectancia)
   RIEGO_BITUMINOSO    — riego de imprimación, riego de adherencia, riego de curado (emulsión aplicada en m2)
   PILOTES             — pilotes, micropilotes, pantallas de pilotes
+  BULON               — bulones de anclaje pasivo, barras de anclaje en taludes, soil-nails
+                        (la cantidad es la longitud total en metros; se generará 1 ensayo de
+                        arrancamiento por cada 50 m de bulon instalado)
+  ACERO_ACTIVO        — acero para pretensado/postensado: torones Y1860, cordones, barras de
+                        pretensar, acero activo en general
   OTRO                — material ensayable que no encaja en ninguna categoría anterior
 
 ── TIPO B: Servicio o ensayo directo ───────────────────────────────────────────
@@ -38,8 +43,8 @@ Categoría tipo B:
               parafinados, tubos piezómetros, movilización de equipos, ensayos
               presiométricos, georreferenciación, lecturas piezométricas, inspección
               con videocámara, medición IRI/CRT, desplazamiento de equipo APL/ECODYN,
-              bulones/anclajes (ensayo de arrancamiento), pruebas de estanqueidad,
-              cualquier otro servicio/ensayo que aparece ya con su propia cantidad.
+              pruebas de estanqueidad, cualquier otro servicio/ensayo que aparece ya
+              con su propia cantidad unitaria (no metros de material instalado).
 
 IGNORAR (no incluir):
 - Demoliciones, fresado, levantado, excavación, desbroce, retirada de firme.
@@ -48,23 +53,14 @@ IGNORAR (no incluir):
 - Betún o ligante como materia prima aislada (p.ej. "BETUN MEJORADO 4.326 t", "BETUN MODIFICADO"):
   el ensayo es sobre la MEZCLA terminada, no sobre el betún en acopio.
 
-── Normalización de unidades ────────────────────────────────────────────────
-Para ACERO y ACERO_LAMINADO: devuelve SIEMPRE la cantidad en toneladas (t).
-  Si el documento muestra kg (explícito o por magnitud), divide entre 1000.
-  Ejemplos: "ACERO | 48639405 | kg" → quantity=48639.4, unit="t"
-            "ACERO | 61379773.998 | kg" → quantity=61379.8, unit="t"
-Para TERRAPLEN_RELLENOS, ZAHORRA_ARTIFICIAL, SUELO_ESTABILIZADO, HORMIGON:
-  usa m3. Si el documento muestra kg o t, convierte a m3 solo si hay densidad
-  implícita clara; si no, mantén la unidad original.
-
 ── Abreviaturas frecuentes en obras civiles españolas ──────────────────────────
   ZA / Z.A.  → ZAHORRA_ARTIFICIAL
   SEST / S-EST / SC / GC (suelo cemento/grava cemento) → SUELO_ESTABILIZADO
   DTS (doble tratamiento superficial) → MEZCLA_BITUMINOSA
   AC-22 / AC-16 / BBTM → MEZCLA_BITUMINOSA
   HA-XX / HP-XX / HM-XX / C20/25 / C25/30 / C30/37 / C40/50 → HORMIGON
-  BULON / BULÓN → SERVICIO (ensayo de arrancamiento)
-  ACERO PRET / ACERO PRETENSAR / Y1860 → ACERO (acero activo para pret.)
+  BULON / BULÓN / soil nail / anclaje pasivo → BULON (cantidad en metros totales instalados)
+  ACERO PRET / ACERO PRETENSAR / Y1860 / torones / cordones → ACERO_ACTIVO
   B500S / B500SD → ACERO (barras corrugadas pasivas)
   acero estructural / S275 / S355 / IPE / HEB → ACERO_LAMINADO
   horm. proyectado / gunita → HORMIGON

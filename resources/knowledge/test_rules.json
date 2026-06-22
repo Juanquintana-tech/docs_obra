@@ -14,7 +14,7 @@
         "description": "Granulometría de suelos por tamizado UNE 103101:95",
         "subcategory": "Caracterización",
         "freq_qty": 1,
-        "freq_unit": "5.000 m3",
+        "freq_unit": "10.000 m3",
         "tests_per_lot": 1,
         "unit_price": 35
       },
@@ -22,7 +22,7 @@
         "description": "Límites de Atterberg UNE 103103:94 y 103014:93",
         "subcategory": "Caracterización",
         "freq_qty": 1,
-        "freq_unit": "5.000 m3",
+        "freq_unit": "10.000 m3",
         "tests_per_lot": 1,
         "unit_price": 40
       },
@@ -30,7 +30,7 @@
         "description": "Proctor Modificado UNE 103501:94",
         "subcategory": "Caracterización",
         "freq_qty": 1,
-        "freq_unit": "5.000 m3",
+        "freq_unit": "10.000 m3",
         "tests_per_lot": 1,
         "unit_price": 55
       },
@@ -46,7 +46,7 @@
         "description": "Ensayo de hinchamiento libre en edómetro UNE 103601:96",
         "subcategory": "Caracterización",
         "freq_qty": 1,
-        "freq_unit": "5.000 m3",
+        "freq_unit": "10.000 m3",
         "tests_per_lot": 1,
         "unit_price": 60
       },
@@ -54,7 +54,7 @@
         "description": "Contenido de materia orgánica en suelos UNE 103204:93",
         "subcategory": "Caracterización",
         "freq_qty": 1,
-        "freq_unit": "5.000 m3",
+        "freq_unit": "10.000 m3",
         "tests_per_lot": 1,
         "unit_price": 30
       },
@@ -62,7 +62,7 @@
         "description": "Contenido de sales solubles en suelos NLT 114-99",
         "subcategory": "Caracterización",
         "freq_qty": 1,
-        "freq_unit": "5.000 m3",
+        "freq_unit": "10.000 m3",
         "tests_per_lot": 1,
         "unit_price": 40
       },
@@ -70,7 +70,7 @@
         "description": "Contenido de yesos en suelos NLT 115-99",
         "subcategory": "Caracterización",
         "freq_qty": 1,
-        "freq_unit": "5.000 m3",
+        "freq_unit": "10.000 m3",
         "tests_per_lot": 1,
         "unit_price": 40
       },
@@ -640,6 +640,47 @@
         "freq_unit": "Inicio y cambio de suministro",
         "tests_per_lot": 1,
         "unit_price": 55
+      }
+    ]
+  },
+  "ACERO_ACTIVO": {
+    "keywords": [
+      "acero activo",
+      "acero pretensar",
+      "acero pretensado",
+      "acero de pretensar",
+      "torones",
+      "Y1860"
+    ],
+    "unit": "t",
+    "tests": [
+      {
+        "description": "Determinación de características geométricas y mecánicas de acero activo para pretensado UNE EN ISO 6892-1",
+        "subcategory": "Recepción",
+        "freq_qty": 1,
+        "freq_unit": "20 t",
+        "tests_per_lot": 1,
+        "unit_price": 120
+      }
+    ]
+  },
+  "BULON": {
+    "keywords": [
+      "bulon",
+      "bulón",
+      "bulones",
+      "anclaje pasivo",
+      "barra anclaje"
+    ],
+    "unit": "m",
+    "tests": [
+      {
+        "description": "Ensayo de arrancamiento hasta la carga de servicio. Mínimo por destajo",
+        "subcategory": "Arrancamiento",
+        "freq_qty": 1,
+        "freq_unit": "50 m",
+        "tests_per_lot": 1,
+        "unit_price": 250
       }
     ]
   }
