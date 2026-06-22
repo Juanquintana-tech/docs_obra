@@ -502,6 +502,7 @@ export function NuevaObra(): JSX.Element {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
               <h3>Datos del proyecto</h3>
               <div className="meta-chips">
+                {fileName && <span className="meta-chip">📄 {fileName}</span>}
                 <span className="meta-chip"><b>{currentPlan.length}</b> líneas de ensayo</span>
                 {mode === 'generate' && genResult && (
                   <span className="meta-chip">{genResult.meta.format.toUpperCase()} · {fmtChars(genResult.meta.chars)}</span>

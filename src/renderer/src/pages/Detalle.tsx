@@ -425,11 +425,6 @@ export function Detalle(): JSX.Element {
             </button>
           </div>
 
-          {/* ── Vista de avance: plan vs ejecución (P2) ── */}
-          {progress.length > 0 && (
-            <ProgressView progress={progress} />
-          )}
-
           {ensayos.length === 0 ? (
             <div className="empty">
               Aún no hay informes de campo. Usa <b>Gestionar ensayos</b> para crear el primero.
@@ -468,6 +463,11 @@ export function Detalle(): JSX.Element {
                 </div>
               ))}
             </div>
+          )}
+
+          {/* ── Vista de avance: plan vs ejecución (P2) ── */}
+          {progress.length > 0 && (
+            <ProgressView progress={progress} />
           )}
         </>
       )}

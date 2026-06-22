@@ -335,11 +335,17 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
                   </div>
                 </div>
               ) : (
-                <img
-                  src={capture.previewUrl!}
-                  alt="Formulario a escanear"
-                  className="scan-preview-img"
-                />
+                <div className="scan-img-wrap">
+                  <img
+                    src={capture.previewUrl!}
+                    alt="Formulario a escanear"
+                    className="scan-preview-img"
+                  />
+                  <div className="scan-img-name">
+                    <span>🖼</span>
+                    <span>{capture.fileName}</span>
+                  </div>
+                </div>
               )}
               <div className="scan-preview-actions">
                 <button className="btn btn-primary" onClick={runScan} disabled={scanning}>

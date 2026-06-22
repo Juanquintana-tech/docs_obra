@@ -439,82 +439,93 @@ export function Ensayos(): JSX.Element {
 
         {obraId && obra && (
           <>
-            {/* KPIs */}
-            <div className="kpis" style={{ marginBottom: 20 }}>
-              <div className="kpi">
-                <div className="label">Informes registrados</div>
-                <div className="value">{ensayos.length}</div>
+            {/* Summary bar */}
+            <div className="ensayo-summary-bar">
+              <div className="esb-total">
+                <span className="esb-num">{ensayos.length}</span>
+                <span className="esb-lbl">informes</span>
               </div>
-              <div className="kpi">
-                <div className="label">Completados</div>
-                <div className="value">
-                  {ensayos.filter((e) => e.estado === 'completado').length}
+              <div className="esb-sep" />
+              <div className="esb-completion">
+                <div className="esb-cmp-header">
+                  <span className="esb-lbl">Completados</span>
+                  <span className="esb-fraction">
+                    {ensayos.filter((e) => e.estado === 'completado').length} / {ensayos.length}
+                  </span>
+                </div>
+                <div className="esb-bar-track">
+                  <div
+                    className="esb-bar-fill"
+                    style={{
+                      width: `${ensayos.length ? Math.round((ensayos.filter((e) => e.estado === 'completado').length / ensayos.length) * 100) : 0}%`
+                    }}
+                  />
                 </div>
               </div>
-              <div className="kpi">
-                <div className="label">CUMPLEN</div>
-                <div className="value ok-text">
-                  {ensayos.filter((e) => e.veredicto === 'CUMPLE').length}
-                </div>
+              <div className="esb-sep" />
+              <div className="esb-verdict esb-verdict-ok">
+                <span className="esb-num">{ensayos.filter((e) => e.veredicto === 'CUMPLE').length}</span>
+                <span className="esb-lbl">Cumplen</span>
               </div>
-              <div className="kpi">
-                <div className="label">NO CUMPLEN</div>
-                <div className="value danger-text">
-                  {ensayos.filter((e) => e.veredicto === 'NO CUMPLE').length}
-                </div>
+              <div className="esb-verdict esb-verdict-fail">
+                <span className="esb-num">{ensayos.filter((e) => e.veredicto === 'NO CUMPLE').length}</span>
+                <span className="esb-lbl">No cumplen</span>
               </div>
             </div>
 
             {/* Selector de nuevo ensayo agrupado */}
             <div className="ensayo-picker">
               <p className="ensayo-picker-title">Nuevo informe de ensayo</p>
-              <div className="ensayo-grupos">
-                {GRUPOS.map((g) => {
-                  const isOpen = openGroup === g.id
-                  const isSingle = g.tipos.length === 1
-                  return (
-                    <button
-                      key={g.id}
-                      className={`ensayo-grupo-card${isOpen ? ' active' : ''}`}
-                      style={{ '--grupo-color': g.color } as React.CSSProperties}
-                      onClick={() => {
-                        if (isSingle) {
-                          setCreating(g.tipos[0])
-                        } else {
-                          setOpenGroup(isOpen ? null : g.id)
-                        }
-                      }}
-                    >
-                      <div className="ensayo-grupo-abrev">{g.abrev}</div>
-                      <div className="ensayo-grupo-info">
-                        <div className="ensayo-grupo-label">{g.label}</div>
-                        <div className="ensayo-grupo-desc">{g.desc}</div>
-                      </div>
-                      <span className="ensayo-grupo-chevron">
-                        {isSingle ? '→' : isOpen ? '▲' : '▼'}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
-              {GRUPOS.filter((g) => g.tipos.length > 1 && openGroup === g.id).map((g) => (
-                <div
-                  key={g.id}
-                  className="ensayo-subtypes-panel"
-                  style={{ '--grupo-color': g.color } as React.CSSProperties}
-                >
-                  {g.tipos.map((tipo) => (
-                    <button
-                      key={tipo}
-                      className="ensayo-subtype-btn"
-                      onClick={() => { setCreating(tipo); setOpenGroup(null) }}
-                    >
-                      <span className="ensayo-subtype-label">{g.subLabels?.[tipo] ?? TIPOS[tipo].label}</span>
-                      <span className="ensayo-subtype-norma">{TIPOS[tipo].norma}</span>
-                    </button>
-                  ))}
+              <div className="ensayo-picker-layout">
+                <div className="ensayo-grupos">
+                  {GRUPOS.map((g) => {
+                    const isOpen = openGroup === g.id
+                    const isSingle = g.tipos.length === 1
+                    return (
+                      <button
+                        key={g.id}
+                        className={`ensayo-grupo-card${isOpen ? ' active' : ''}`}
+                        style={{ '--grupo-color': g.color } as React.CSSProperties}
+                        onClick={() => {
+                          if (isSingle) {
+                            setCreating(g.tipos[0])
+                          } else {
+                            setOpenGroup(isOpen ? null : g.id)
+                          }
+                        }}
+                      >
+                        <div className="ensayo-grupo-abrev">{g.abrev}</div>
+                        <div className="ensayo-grupo-info">
+                          <div className="ensayo-grupo-label">{g.label}</div>
+                          <div className="ensayo-grupo-desc">{g.desc}</div>
+                        </div>
+                        <span className="ensayo-grupo-chevron">
+                          {isSingle ? '→' : '▶'}
+                        </span>
+                      </button>
+                    )
+                  })}
                 </div>
-              ))}
+                {GRUPOS.filter((g) => g.tipos.length > 1 && openGroup === g.id).map((g) => (
+                  <div
+                    key={g.id}
+                    className="ensayo-subtypes-panel"
+                    style={{ '--grupo-color': g.color } as React.CSSProperties}
+                  >
+                    <p className="ensayo-subtypes-title">{g.label}</p>
+                    {g.tipos.map((tipo) => (
+                      <button
+                        key={tipo}
+                        className="ensayo-subtype-btn"
+                        onClick={() => { setCreating(tipo); setOpenGroup(null) }}
+                      >
+                        <span className="ensayo-subtype-label">{g.subLabels?.[tipo] ?? TIPOS[tipo].label}</span>
+                        <span className="ensayo-subtype-norma">{TIPOS[tipo].norma}</span>
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Lista de informes */}
@@ -797,8 +808,23 @@ function EnsayoEditor({
           <button className="btn btn-ghost" onClick={onCancel} style={{ marginBottom: 10 }}>
             ← Volver
           </button>
-          <h1>{meta?.label ?? tipo}</h1>
-          <p style={{ color: 'var(--text-soft)', fontSize: 13 }}>{meta?.norma}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 112 }}>
+            <h1 style={{ margin: 0 }}>{meta?.label ?? tipo}</h1>
+            <div className="estado-toggle-wrap">
+              <span className="estado-toggle-label">Estado</span>
+              <button
+                className={`estado-toggle estado-toggle-${estado}`}
+                onClick={() => {
+                  const order: Array<'borrador' | 'completado' | 'aprobado'> = ['borrador', 'completado', 'aprobado']
+                  setEstado(order[(order.indexOf(estado) + 1) % order.length])
+                }}
+              >
+                {estado === 'borrador' ? '○ Borrador' : estado === 'completado' ? '● Completado' : '✓ Aprobado'}
+              </button>
+              <span className="estado-toggle-hint">Clic para cambiar</span>
+            </div>
+          </div>
+          <p style={{ color: 'var(--text-soft)', fontSize: 13, marginTop: 4 }}>{meta?.norma}</p>
         </div>
         {veredicto && (
           <span className={verdictClass(veredicto)} style={{ fontSize: 18, padding: '8px 22px' }}>
@@ -827,18 +853,6 @@ function EnsayoEditor({
               onChange={(e) => setResponsable(e.target.value)}
               placeholder="Nombre del técnico"
             />
-          </div>
-          <div className="field-group" style={{ maxWidth: 170 }}>
-            <label className="field-label">Estado</label>
-            <select
-              className="select"
-              value={estado}
-              onChange={(e) => setEstado(e.target.value as 'borrador' | 'completado' | 'aprobado')}
-            >
-              <option value="borrador">Borrador</option>
-              <option value="completado">Completado</option>
-              <option value="aprobado">Aprobado</option>
-            </select>
           </div>
         </div>
         <div className="field-row" style={{ marginTop: 10 }}>
@@ -1402,13 +1416,15 @@ function PlacaTable({
   section,
   title,
   setFila,
-  amCalc
+  amCalc,
+  keyPressures
 }: {
   filas: Record<string, unknown>[]
   section: 'ciclo1' | 'descarga' | 'ciclo2'
   title: string
   setFila: (section: 'ciclo1' | 'descarga' | 'ciclo2', i: number, key: string, val: string) => void
   amCalc: (r: Record<string, unknown>) => string
+  keyPressures?: number[]
 }): JSX.Element {
   return (
     <div style={{ marginBottom: 16 }}>
@@ -1424,8 +1440,10 @@ function PlacaTable({
           </tr>
         </thead>
         <tbody>
-          {filas.map((r, i) => (
-            <tr key={i}>
+          {filas.map((r, i) => {
+            const isKey = keyPressures?.some((p) => Math.abs((toNum(r.presion) ?? -1) - p) < 1e-6) ?? false
+            return (
+            <tr key={i} className={isKey ? 'placa-ev-row' : undefined}>
               <td className="placa-presion">{fmt(r.presion, 2)}</td>
               <td>
                 <input
@@ -1453,7 +1471,8 @@ function PlacaTable({
               </td>
               <td className="placa-am">{amCalc(r)}</td>
             </tr>
-          ))}
+            )
+          })}
         </tbody>
       </table>
     </div>
@@ -1577,6 +1596,7 @@ function PlacaForm({
           title="1º Ciclo de carga"
           setFila={setFila}
           amCalc={amCalc}
+          keyPressures={[0.15, 0.35]}
         />
         {descarga.length > 0 && (
           <PlacaTable
@@ -1593,6 +1613,7 @@ function PlacaForm({
           title="2º Ciclo de carga"
           setFila={setFila}
           amCalc={amCalc}
+          keyPressures={[0.15, 0.35]}
         />
       </div>
 
@@ -1605,12 +1626,18 @@ function PlacaForm({
               <td>Ev1 (MPa) — módulo 1er ciclo</td>
               <td colSpan={2} style={{ fontWeight: 700 }}>
                 {ev1str}
+                {summary.ev1 === null && (
+                  <span className="placa-ev-hint">introduce datos en las filas resaltadas (0,15 y 0,35 MPa)</span>
+                )}
               </td>
             </tr>
             <tr>
               <td>Ev2 (MPa) — módulo 2º ciclo</td>
               <td colSpan={2} style={{ fontWeight: 700 }}>
                 {ev2str}
+                {summary.ev2 === null && (
+                  <span className="placa-ev-hint">introduce datos en las filas resaltadas (0,15 y 0,35 MPa)</span>
+                )}
               </td>
             </tr>
             <tr className={ratioOk === true ? 'cond-ok' : ratioOk === false ? 'cond-no' : ''}>

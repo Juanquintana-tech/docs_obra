@@ -293,6 +293,25 @@
   color: var(--mid);
   background: #f0f5ff;
 }
+/* Filas clave para el cálculo Ev (0,15 y 0,35 MPa) */
+.placa-ev-row td {
+  background: #f0f6ff;
+}
+.placa-ev-row .placa-presion {
+  background: #dbeafe;
+  border-left: 3px solid var(--mid);
+}
+.placa-ev-row .placa-am {
+  background: #dbeafe;
+}
+.placa-ev-hint {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-soft);
+  margin-top: 2px;
+  opacity: 0.85;
+}
 
 /* ── Granulometría: lista de masas ──────────────────────────── */
 .granulo-grid {

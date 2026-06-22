@@ -50,6 +50,7 @@
   padding: 9px 12px;
   border-radius: 8px;
   font-size: 14px;
+  font-weight: 700;
 }
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.08);
@@ -1083,6 +1084,12 @@
   align-items: flex-start;
   gap: 12px;
 }
+.scan-img-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
 .scan-preview-img {
   max-width: 100%;
   max-height: 300px;
@@ -1090,6 +1097,22 @@
   border-radius: 8px;
   border: 1px solid var(--border);
   box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.scan-img-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-soft);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 10px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .scan-pdf-badge {
   display: flex;
@@ -1143,6 +1166,132 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Ensayo group picker ─────────────────────────────────────────────────── */
+/* ── Estado toggle (botón de estado junto al título del editor) ────────────── */
+.estado-toggle-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.estado-toggle-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-soft);
+}
+.estado-toggle-hint {
+  font-size: 10px;
+  color: var(--text-soft);
+  opacity: 0.7;
+}
+.estado-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  border: none;
+  transition: filter 0.13s, transform 0.08s;
+  user-select: none;
+  flex-shrink: 0;
+}
+.estado-toggle:hover { filter: brightness(1.1); }
+.estado-toggle:active { transform: scale(0.96); }
+.estado-toggle-borrador {
+  background: #e2e8f0;
+  color: #475569;
+}
+.estado-toggle-completado {
+  background: var(--navy);
+  color: #fff;
+}
+.estado-toggle-aprobado {
+  background: #15803d;
+  color: #fff;
+}
+
+/* ── Ensayos: summary bar ──────────────────────────────────────────────────── */
+.ensayo-summary-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 22px;
+  margin-bottom: 20px;
+}
+.esb-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 40px;
+}
+.esb-num {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1;
+}
+.esb-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-soft);
+  margin-top: 3px;
+}
+.esb-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.esb-completion {
+  flex: 1;
+  min-width: 140px;
+}
+.esb-cmp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 7px;
+}
+.esb-fraction {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.esb-bar-track {
+  height: 5px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.esb-bar-fill {
+  height: 100%;
+  background: var(--navy);
+  border-radius: 99px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 0;
+}
+.esb-verdict {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 58px;
+}
+.esb-verdict-ok .esb-num { color: var(--ok); }
+.esb-verdict-fail .esb-num { color: var(--danger); }
+
+/* ── Ensayos: picker ───────────────────────────────────────────────────────── */
 .ensayo-picker {
   margin-bottom: 22px;
 }
@@ -1152,18 +1301,26 @@
   color: var(--text-soft);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin: 0 0 8px;
+  margin: 0 0 10px;
+}
+.ensayo-picker-layout {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
 }
 .ensayo-grupos {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 6px;
+  width: 248px;
+  flex-shrink: 0;
 }
 .ensayo-grupo-card {
-  flex: 1;
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 12px 14px;
+  padding: 10px 13px;
   border: 1.5px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
@@ -1179,16 +1336,16 @@
 }
 .ensayo-grupo-card.active {
   border-color: var(--grupo-color, var(--navy));
-  background: color-mix(in srgb, var(--grupo-color, var(--navy)) 7%, var(--surface));
-  box-shadow: 0 2px 10px rgba(0,0,0,0.09);
+  background: color-mix(in srgb, var(--grupo-color, var(--navy)) 8%, var(--surface));
+  box-shadow: inset 3px 0 0 var(--grupo-color, var(--navy)), 0 2px 8px rgba(0,0,0,0.06);
 }
 .ensayo-grupo-abrev {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 9px;
   background: color-mix(in srgb, var(--grupo-color, var(--navy)) 14%, transparent);
   color: var(--grupo-color, var(--navy));
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -1200,7 +1357,7 @@
   min-width: 0;
 }
 .ensayo-grupo-label {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text);
   line-height: 1.2;
@@ -1214,35 +1371,43 @@
   text-overflow: ellipsis;
 }
 .ensayo-grupo-chevron {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text-soft);
   flex-shrink: 0;
-  transition: transform 0.18s;
+  transition: color 0.15s;
 }
 .ensayo-grupo-card.active .ensayo-grupo-chevron {
   color: var(--grupo-color, var(--navy));
 }
 
-/* Panel de sub-tipos (expandido) */
+/* Panel de sub-tipos (lateral derecho) */
 .ensayo-subtypes-panel {
-  margin-top: 8px;
+  flex-shrink: 0;
   padding: 12px;
   border: 1.5px solid var(--grupo-color, var(--navy));
   border-radius: 10px;
   background: color-mix(in srgb, var(--grupo-color, var(--navy)) 3%, var(--surface));
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  animation: subtypes-in 0.14s ease;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 230px;
+  animation: subtypes-in 0.15s ease;
+}
+.ensayo-subtypes-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--grupo-color, var(--navy));
+  margin: 0 0 2px;
 }
 @keyframes subtypes-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 .ensayo-subtype-btn {
-  flex: 1;
-  min-width: 160px;
-  padding: 11px 15px;
+  width: 100%;
+  padding: 11px 14px;
   border: 1.5px solid var(--border);
   border-radius: 8px;
   background: var(--surface);

@@ -57,7 +57,7 @@ export class GeminiProvider implements LlmProvider {
     imageBase64: string,
     opts: VisionOptions = {}
   ): Promise<string> {
-    const { maxTokens = 4096, timeoutMs = 240_000, tag = 'gemini-vision', mimeType = 'image/jpeg' } = opts
+    const { maxTokens = 4096, timeoutMs = 120_000, tag = 'gemini-vision', mimeType = 'image/jpeg' } = opts
     const body = {
       system_instruction: { parts: [{ text: system }] },
       contents: [
@@ -72,7 +72,10 @@ export class GeminiProvider implements LlmProvider {
       generationConfig: {
         temperature: 0.0,
         maxOutputTokens: maxTokens,
-        response_mime_type: 'application/json'
+        response_mime_type: 'application/json',
+        // Sin esto, Gemini 2.5 Flash dedica tiempo a razonamiento interno
+        // antes de responder, haciendo las llamadas de visión muy lentas.
+        thinkingConfig: { thinkingBudget: 0 }
       }
     }
     return this._call(this.model, body, timeoutMs, tag)
@@ -111,11 +114,15 @@ export class GeminiProvider implements LlmProvider {
         const msg = data.error.message ?? 'error desconocido'
         // Fallback si la respuesta indica modelo no encontrado
         if (model !== GEMINI_FALLBACK_MODEL && /model.*not.*found|not.*found.*model/i.test(msg)) {
+          clearTimeout(timer)
           return this._call(GEMINI_FALLBACK_MODEL, body, timeoutMs, tag)
         }
         throw new LlmError(`${tag}: ${msg}`, this.id)
       }
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+      // Con thinking activo Gemini devuelve el razonamiento en parts[0] (thought:true)
+      // y la respuesta real en un part posterior. Tomamos el primer part sin thought.
+      const parts = data.candidates?.[0]?.content?.parts ?? []
+      const text = (parts.find((p: { thought?: boolean; text?: string }) => !p.thought)?.text) ?? parts[0]?.text ?? ''
       return stripMdFences(text)
     } catch (e) {
       if (e instanceof LlmError) throw e
