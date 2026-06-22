@@ -302,21 +302,38 @@ async function extractObraFromText(text: string): Promise<{
 
 // ── Prompt LLM para PDF/Word ───────────────────────────────────────────────────
 
-const PDF_SYSTEM_PROMPT = `Eres un extractor de presupuestos de laboratorio de control de calidad.
-Extrae TODAS las filas de ensayo o servicio que aparezcan en el documento.
+const PDF_SYSTEM_PROMPT = `Eres un extractor de presupuestos de laboratorio de control de calidad en obras de construcción.
 
-REGLA FUNDAMENTAL: incluye TODA fila que tenga descripción de ensayo y precio.
-Solo omite: cabeceras de columna ("ENSAYO", "UDS.", "PRECIO UNITARIO €", "IMPORTE €"),
-totales/IVA, y líneas completamente vacías.
+Las tablas tienen este formato de columnas (de izquierda a derecha):
+  MEDICIÓN | FRECUENCIA/MÍNIMO | Ud | DESCRIPCIÓN DEL ENSAYO | PRECIO UNITARIO € | TOTAL €
 
-Para cada sección/capítulo detectada, úsala como campo "material".
+REGLAS DE EXTRACCIÓN POR FILA:
+- description: el texto largo del ensayo (columna DESCRIPCIÓN, con nombre del ensayo y norma UNE/NLT)
+- n_tests: el PRIMER número de la fila = columna MEDICIÓN (entero o decimal, ej: 2, 5, 75, 2054)
+  * ATENCIÓN: este número está al inicio de la fila, ANTES de la descripción
+  * NO es el precio unitario (que va al final)
+- unit_price: el PENÚLTIMO número de la fila = columna PRECIO UNITARIO
+- total: el ÚLTIMO número de la fila = columna TOTAL/IMPORTE (≈ n_tests × unit_price)
+
+EJEMPLO CORRECTO:
+  Fila: "2,00 | 1/10 lotes | Ud | Densidad por el método de la arena... | 9,00 | 18,00"
+  → n_tests=2, unit_price=9.0, total=18.0   (porque 2 × 9 = 18 ✓)
+  INCORRECTO sería: n_tests=9, unit_price=18 (confundir precio con cantidad)
+
+VERIFICACIÓN: n_tests × unit_price debe aproximarse al total. Si no cuadra, reasigna.
+
+Para el campo "material": usa la última cabecera de sección/capítulo que apareció en el texto
+(línea en negrita o mayúsculas sin precio, ej: "MOVIMIENTO DE TIERRAS", "FIRMES Y PAVIMENTOS").
 Si no hay sección clara, usa "General".
+
+INCLUYE todas las filas con descripción de ensayo/servicio y precio unitario.
+OMITE SOLO: cabeceras de columna, filas de TOTAL/SUBTOTAL/IVA/BASE IMPONIBLE, líneas vacías.
 
 Devuelve EXCLUSIVAMENTE este JSON (sin texto fuera del JSON):
 {
   "obra":"","cliente":"","ref_doc":"","municipio":"",
   "rows":[
-    {"material":"nombre sección","description":"descripción ensayo","n_tests":1,"unit_price":90.0,"total":90.0}
+    {"material":"nombre sección","description":"descripción ensayo","n_tests":2,"unit_price":9.0,"total":18.0}
   ]
 }`
 
