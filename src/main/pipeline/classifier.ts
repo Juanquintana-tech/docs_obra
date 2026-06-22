@@ -48,6 +48,15 @@ IGNORAR (no incluir):
 - Betún o ligante como materia prima aislada (p.ej. "BETUN MEJORADO 4.326 t", "BETUN MODIFICADO"):
   el ensayo es sobre la MEZCLA terminada, no sobre el betún en acopio.
 
+── Normalización de unidades ────────────────────────────────────────────────
+Para ACERO y ACERO_LAMINADO: devuelve SIEMPRE la cantidad en toneladas (t).
+  Si el documento muestra kg (explícito o por magnitud), divide entre 1000.
+  Ejemplos: "ACERO | 48639405 | kg" → quantity=48639.4, unit="t"
+            "ACERO | 61379773.998 | kg" → quantity=61379.8, unit="t"
+Para TERRAPLEN_RELLENOS, ZAHORRA_ARTIFICIAL, SUELO_ESTABILIZADO, HORMIGON:
+  usa m3. Si el documento muestra kg o t, convierte a m3 solo si hay densidad
+  implícita clara; si no, mantén la unidad original.
+
 ── Abreviaturas frecuentes en obras civiles españolas ──────────────────────────
   ZA / Z.A.  → ZAHORRA_ARTIFICIAL
   SEST / S-EST / SC / GC (suelo cemento/grava cemento) → SUELO_ESTABILIZADO

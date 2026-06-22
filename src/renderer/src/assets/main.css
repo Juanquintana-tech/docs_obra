@@ -585,8 +585,8 @@
   background: #f0f5ff;
 }
 .ingest-zone.drag-over {
-  border-color: var(--orange);
-  background: #fff7ed;
+  border-color: #16a34a;
+  background: #f0fdf4;
 }
 .drop-icon {
   color: var(--mid);
@@ -594,7 +594,7 @@
   transition: opacity 0.15s;
 }
 .ingest-zone.drag-over .drop-icon {
-  color: var(--orange);
+  color: #16a34a;
   opacity: 1;
 }
 .drop-title {
