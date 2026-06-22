@@ -146,14 +146,31 @@ export async function generatePlan(
     const rule = rules[category]
     if (!rule) continue
 
-    const materialUnit = mat.unit ?? rule.unit ?? ''
+    // rule.unit es la unidad canónica de esa categoría; si el LLM devolvió
+    // la unidad del documento (ej. "kg" para acero), la usamos para display
+    // pero normalizamos la cantidad para el cálculo de frecuencias.
+    const displayUnit = mat.unit ?? rule.unit ?? ''
+    const ruleUnit = normUnit(rule.unit ?? displayUnit)
 
     for (const test of rule.tests ?? []) {
       const freqUnit = test.freq_unit ?? ''
       const freqQty = coerceInt(test.freq_qty, 1)
       const testsPerLot = coerceInt(test.tests_per_lot, 1)
       const description = test.description ?? ''
-      const nLots = calculateNLots(quantity, freqUnit, materialUnit)
+
+      // Convierte la cantidad a la unidad canónica de la regla antes de calcular
+      // lotes. Así si el LLM devuelve "kg" pero la regla trabaja en "t", no hay
+      // mismatch y no se dividen 61M entre 40 como si fueran toneladas.
+      let calcQty = quantity
+      const matU = normUnit(displayUnit)
+      if (calcQty != null && matU !== ruleUnit) {
+        if (matU === 'kg' && ruleUnit === 't') calcQty = calcQty / 1000
+        else if (matU === 't' && ruleUnit === 'kg') calcQty = calcQty * 1000
+        // Para incompatibilidades de dimensión (kg↔m3, t↔m3): no hay conversión
+        // fiable sin densidad; ignoramos la unidad del LLM y usamos la canónica.
+      }
+
+      const nLots = calculateNLots(calcQty, freqUnit, ruleUnit || displayUnit)
       const nTests = nLots * freqQty * testsPerLot
       const baseUnitPrice = coerceFloat(test.unit_price, 0)
 
@@ -165,8 +182,8 @@ export async function generatePlan(
           material: materialName,
           subcategory: test.subcategory ?? '',
           description,
-          measurement: quantity,
-          measurement_unit: materialUnit,
+          measurement: calcQty,
+          measurement_unit: ruleUnit || displayUnit,
           freq_qty: freqQty,
           freq_unit: freqUnit,
           n_lots: nLots,
