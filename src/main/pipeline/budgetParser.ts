@@ -484,7 +484,13 @@ export async function parseBudget(
     const WordExtractor = (await import('word-extractor')).default
     const extractor = new WordExtractor()
     const doc = await extractor.extract(path)
-    text = doc.getBody().trim()
+    // Las tablas de .doc usan \t como separador de columnas y \t\t como fin de fila.
+    // Convertimos a un formato legible antes de enviarlo al LLM.
+    text = doc.getBody()
+      .replace(/\t{2,}/g, '\n')   // doble tab → salto de fila
+      .replace(/\t/g, ' | ')      // tab simple → separador de columna
+      .replace(/\n{3,}/g, '\n\n') // colapsar líneas vacías excesivas
+      .trim()
     format = 'doc'
   } else {
     text = (await readFile(path, 'utf-8')).trim()
