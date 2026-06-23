@@ -18,15 +18,27 @@ function avatarColor(id: number): string {
   return AVATAR_COLORS[id % AVATAR_COLORS.length]
 }
 
+type SortBy = 'reciente' | 'nombre' | 'importe' | 'ensayos'
+
+function sortObras(obras: Obra[], by: SortBy): Obra[] {
+  return [...obras].sort((a, b) => {
+    if (by === 'nombre') return a.obra.localeCompare(b.obra, 'es')
+    if (by === 'importe') return (b.total_importe ?? 0) - (a.total_importe ?? 0)
+    if (by === 'ensayos') return (b.n_ensayos ?? 0) - (a.n_ensayos ?? 0)
+    return b.id - a.id // reciente: mayor id primero
+  })
+}
+
 export function Dashboard(): JSX.Element {
   const navigate = useNavigate()
   const [stats, setStats] = useState<GlobalStats | null>(null)
   const [recent, setRecent] = useState<Obra[] | null>(null)
   const [counts, setCounts] = useState<Record<number, number>>({})
+  const [sortBy, setSortBy] = useState<SortBy>('reciente')
 
   useEffect(() => {
     api.getGlobalStats().then(setStats)
-    api.getObras('activa').then((o) => setRecent(o.slice(0, 6)))
+    api.getObras().then(setRecent)
     api.countEnsayosPorObra().then(setCounts)
   }, [])
 
@@ -65,10 +77,24 @@ export function Dashboard(): JSX.Element {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '20px 0 14px' }}>
-        <h2>Últimos proyectos activos</h2>
-        <button className="btn btn-primary" onClick={() => navigate('/nueva')}>
-          <Ic.NuevoProyecto /> Nuevo Proyecto
-        </button>
+        <h2>Proyectos</h2>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {(['reciente', 'nombre', 'importe', 'ensayos'] as SortBy[]).map((opt) => (
+              <button
+                key={opt}
+                className={'btn' + (sortBy === opt ? ' btn-primary' : '')}
+                style={{ fontSize: 12, padding: '4px 10px' }}
+                onClick={() => setSortBy(opt)}
+              >
+                {opt === 'reciente' ? 'Más reciente' : opt === 'nombre' ? 'Nombre' : opt === 'importe' ? 'Importe' : 'Ensayos'}
+              </button>
+            ))}
+          </div>
+          <button className="btn btn-primary" onClick={() => navigate('/nueva')}>
+            <Ic.NuevoProyecto /> Nuevo Proyecto
+          </button>
+        </div>
       </div>
       {recent === null ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -80,7 +106,7 @@ export function Dashboard(): JSX.Element {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {recent.map((o) => (
+          {sortObras(recent, sortBy).map((o) => (
             <div
               key={o.id}
               className="obra-row"
@@ -108,8 +134,13 @@ export function Dashboard(): JSX.Element {
                 >
                   {o.obra || '(sin nombre)'}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-soft)', marginTop: 2 }}>
-                  {o.cliente || '—'} · Ref. {o.ref_lab || '—'}
+                <div style={{ fontSize: 12, color: 'var(--text-soft)', marginTop: 2, display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span>{o.cliente || '—'} · Ref. {o.ref_lab || '—'}</span>
+                  {o.status === 'archivada' && (
+                    <span style={{ fontSize: 11, background: 'var(--border)', color: 'var(--text-soft)', borderRadius: 4, padding: '1px 6px' }}>
+                      archivada
+                    </span>
+                  )}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 20, fontSize: 13, flexShrink: 0 }}>

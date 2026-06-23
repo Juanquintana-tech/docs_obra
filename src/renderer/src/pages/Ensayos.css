@@ -189,6 +189,7 @@
 }
 .dens-input {
   width: 100%;
+  box-sizing: border-box;
   border: 1px solid var(--border);
   border-radius: 5px;
   padding: 4px 6px;
@@ -549,6 +550,12 @@
   border-radius: 6px;
   padding: 10px 12px;
   min-width: 170px;
+}
+
+/* Badge de veredicto dentro de las cards de la lista — misma altura que .badge */
+.ens-meta .verdict {
+  font-size: 11px;
+  padding: 3px 10px;
 }
 
 /* ── Radón ── */

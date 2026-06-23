@@ -355,6 +355,10 @@
   color: var(--orange);
   border-color: var(--orange);
 }
+.plan-input-desc {
+  text-align: left;
+  min-width: 140px;
+}
 .plan-total-cell {
   font-weight: 700;
   color: var(--navy);

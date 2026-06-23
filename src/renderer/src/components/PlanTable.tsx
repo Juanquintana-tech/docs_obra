@@ -27,6 +27,7 @@ export interface PlanTableRow {
 export type EditableRow = PlanRow
 
 interface EditState {
+  description: string
   measurement: string
   n_lots: string
   tests_per_lot: string
@@ -160,6 +161,7 @@ function PlanTableInner({
     for (const r of rows as EditableRow[]) {
       if (r.row_type !== 'test') continue
       m[r.id] = {
+        description: r.description ?? '',
         measurement: toStr(r.measurement),
         n_lots: toStr(r.n_lots),
         tests_per_lot: toStr(r.tests_per_lot),
@@ -220,6 +222,7 @@ function PlanTableInner({
       if (!e) return r
       return {
         ...r,
+        description: e.description,
         measurement: parseNullable(e.measurement),
         n_lots: parseNullable(e.n_lots),
         tests_per_lot: parseNullable(e.tests_per_lot),
@@ -296,7 +299,14 @@ function PlanTableInner({
 
       trs.push(
         <tr key={`r-${i}`} className={totalOk ? '' : 'row-warn'}>
-          <td style={{ fontSize: 12 }}>{r.description}</td>
+          <td>
+            <input
+              className="plan-input plan-input-desc"
+              value={e.description}
+              onChange={(ev) => setField(er.id, 'description', ev.target.value)}
+              title="Descripción"
+            />
+          </td>
           <td>
             <input
               className="plan-input"

@@ -81,28 +81,29 @@ const GRUPOS: Array<{
   {
     id: 'densidad',
     label: 'Densidad in situ',
-    desc: 'Albarán de campo · Informe de ensayo',
+    desc: 'Albarán · Informe de ensayo',
     color: 'var(--navy)',
     abrev: 'D',
     tipos: ['albaran_ensayos', 'densidad_in_situ'],
-    subLabels: { albaran_ensayos: 'Albarán de campo' }
+    subLabels: { albaran_ensayos: 'Albarán' }
   },
   {
     id: 'placa',
     label: 'Placa de carga',
-    desc: 'Albarán de campo · Informe de ensayo',
+    desc: 'Albarán · Informe de ensayo',
     color: 'var(--mid)',
     abrev: 'P',
     tipos: ['albaran_ensayos', 'placa_carga'],
-    subLabels: { albaran_ensayos: 'Albarán de campo' }
+    subLabels: { albaran_ensayos: 'Albarán' }
   },
   {
     id: 'granulometria',
     label: 'Granulometría (Escollera)',
-    desc: 'UNE EN 13383-2 · Clase 5-40 kg',
+    desc: 'Albarán · Informe de ensayo',
     color: '#0d7280',
     abrev: 'G',
-    tipos: ['granulometria']
+    tipos: ['albaran_ensayos', 'granulometria'],
+    subLabels: { albaran_ensayos: 'Albarán', granulometria: 'Informe Granulometría' }
   },
   {
     id: 'radon',
@@ -196,11 +197,13 @@ function defaultTomaHormigonDatos(): Record<string, unknown> {
   return {
     identificacion: {
       n_albaran_cye: '',
+      sub_obra: '',
       obra: '',
       nte_cliente: '',
       ref_obra: '',
       n_trabajo: '',
       n_ensayo_obra: '',
+      lote: '',
       tipo_hormigon: 'HA-25/B/20/IIa',
       tipo_muestreo: 'Simple',
       tipo_compactacion: '3×25 Picadas',
@@ -220,12 +223,11 @@ function defaultTomaHormigonDatos(): Record<string, unknown> {
       hora_salida: '',
       hora_llegada: '',
       t_max_arido: '20',
-      consistencia: 'P',
-      marca_cemento: ''
+      consistencia: 'P'
     },
     conos: [
-      { numero: 1, mm: '', tiempo_s: '', observaciones: '' },
-      { numero: 2, mm: '', tiempo_s: '', observaciones: '' }
+      { numero: 1, mm: '', tiempo_s: '', tipo_asentamiento: 'Simétrico', observaciones: '' },
+      { numero: 2, mm: '', tiempo_s: '', tipo_asentamiento: 'Simétrico', observaciones: '' }
     ],
     asentamiento_media: '',
     limite_uso: '32',
@@ -283,8 +285,11 @@ function defaultAlbaranPlantaDatos(): Record<string, unknown> {
     hora_carga: '',
     hora_llegada: '',
     hora_inicio_descarga: '',
+    hora_fin_descarga: '',
     hora_salida_obra: '',
     tiempo_limite_uso: '',
+    distancia_km: '',
+    descarga_segura: true,
     cemento_tipo: '',
     cemento_kg_m3: '',
     relacion_ac: '',
@@ -292,6 +297,10 @@ function defaultAlbaranPlantaDatos(): Record<string, unknown> {
     aditivos: '',
     adiciones: '',
     t_hormigon: '',
+    tipo_elemento: '',
+    ctrl_entrega_acta: false,
+    ctrl_cono: false,
+    ctrl_recinto_probetas: false,
     cono_mm: '',
     observaciones: ''
   }
@@ -1120,6 +1129,7 @@ function applyOcrResult(
         numero: c.numero ?? i + 1,
         mm: c.mm ?? existConos[i]?.mm ?? '',
         tiempo_s: c.tiempo_s ?? existConos[i]?.tiempo_s ?? '',
+        tipo_asentamiento: (c as Record<string, unknown>).tipo_asentamiento ?? existConos[i]?.tipo_asentamiento ?? 'Simétrico',
         observaciones: c.observaciones ?? existConos[i]?.observaciones ?? ''
       }))
     }
@@ -2511,9 +2521,15 @@ function TomaHormigonForm({
         <div className="sec-label">Identificación del ensayo</div>
         <div className="field-row">
           <div className="field-group">
-            <label className="field-label">Nº Albarán CYE</label>
+            <label className="field-label">{showRoturas ? 'Ref. Ensayo CYE' : 'Nº Albarán CYE'}</label>
             <input className={cc('identificacion.n_albaran_cye')} value={String(ident.n_albaran_cye ?? '')} onChange={(e) => setIdent('n_albaran_cye', e.target.value)} />
           </div>
+          {showRoturas && (
+            <div className="field-group">
+              <label className="field-label">Sub Obra</label>
+              <input className={cc('identificacion.sub_obra')} value={String(ident.sub_obra ?? '')} onChange={(e) => setIdent('sub_obra', e.target.value)} placeholder="CAZ, Viaducto…" />
+            </div>
+          )}
           <div className="field-group">
             <label className="field-label">Nº Trabajo</label>
             <input className={cc('identificacion.n_trabajo')} value={String(ident.n_trabajo ?? '')} onChange={(e) => setIdent('n_trabajo', e.target.value)} />
@@ -2521,6 +2537,10 @@ function TomaHormigonForm({
           <div className="field-group">
             <label className="field-label">Nº Ensayo en obra</label>
             <input className={cc('identificacion.n_ensayo_obra')} value={String(ident.n_ensayo_obra ?? '')} onChange={(e) => setIdent('n_ensayo_obra', e.target.value)} />
+          </div>
+          <div className="field-group" style={{ maxWidth: 90 }}>
+            <label className="field-label">Lote</label>
+            <input className={cc('identificacion.lote')} value={String(ident.lote ?? '')} onChange={(e) => setIdent('lote', e.target.value)} placeholder="1" />
           </div>
         </div>
         <div className="field-row">
@@ -2546,6 +2566,7 @@ function TomaHormigonForm({
             <label className="field-label">Tipo de muestreo</label>
             <select className="select" value={String(ident.tipo_muestreo ?? 'Simple')} onChange={(e) => setIdent('tipo_muestreo', e.target.value)}>
               <option>Simple</option>
+              <option>Puntual</option>
               <option>Compuesto</option>
             </select>
           </div>
@@ -2621,7 +2642,7 @@ function TomaHormigonForm({
         </div>
         <div className="field-row">
           <div className="field-group">
-            <label className="field-label">Hora salida central</label>
+            <label className="field-label">{showRoturas ? 'Hora fabricación' : 'Hora salida central'}</label>
             <input className={cc('camion.hora_salida')} value={String(camion.hora_salida ?? '')} onChange={(e) => setCamion('hora_salida', e.target.value)} placeholder="hh:mm" />
           </div>
           <div className="field-group">
@@ -2650,6 +2671,7 @@ function TomaHormigonForm({
                 <th style={{ width: 60 }}>Cono</th>
                 <th>Asentamiento (mm)</th>
                 <th>Tiempo (s)</th>
+                <th>Tipo asentamiento</th>
                 <th>Observaciones</th>
               </tr>
             </thead>
@@ -2664,7 +2686,15 @@ function TomaHormigonForm({
                     <input className="input placa-input" value={String(c.tiempo_s ?? '')} onChange={(e) => setCono(i, 'tiempo_s', e.target.value)} placeholder="s" />
                   </td>
                   <td>
-                    <input className="input" value={String(c.observaciones ?? '')} onChange={(e) => setCono(i, 'observaciones', e.target.value)} />
+                    <select className="select" style={{ padding: '2px 4px', fontSize: 12 }} value={String(c.tipo_asentamiento ?? 'Simétrico')} onChange={(e) => setCono(i, 'tipo_asentamiento', e.target.value)}>
+                      <option>Simétrico</option>
+                      <option>Asimétrico</option>
+                      <option>Derrumbe</option>
+                      <option>Cizallamiento</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input className="input placa-input" value={String(c.observaciones ?? '')} onChange={(e) => setCono(i, 'observaciones', e.target.value)} />
                   </td>
                 </tr>
               ))}
@@ -2962,6 +2992,18 @@ function AlbaranPlantaForm({
             <input className={cc('elemento_hormigonado')} value={field('elemento_hormigonado')} onChange={(e) => set('elemento_hormigonado', e.target.value)} placeholder="Pilotes, zapatas, muros…" />
           </div>
           <div className="field-group">
+            <label className="field-label">Tipo elemento</label>
+            <select className="select" value={field('tipo_elemento')} onChange={(e) => set('tipo_elemento', e.target.value)}>
+              <option value="">— Sin especificar —</option>
+              <option>Zapatas</option>
+              <option>Placa</option>
+              <option>Pilares</option>
+              <option>Muros</option>
+              <option>Pilotes</option>
+              <option>Otros</option>
+            </select>
+          </div>
+          <div className="field-group" style={{ maxWidth: 100 }}>
             <label className="field-label">M³ entregados</label>
             <input className={cc('m3_entregados')} value={field('m3_entregados')} onChange={(e) => set('m3_entregados', e.target.value)} placeholder="8,0" />
           </div>
@@ -2995,13 +3037,27 @@ function AlbaranPlantaForm({
             <input className={cc('hora_inicio_descarga')} value={field('hora_inicio_descarga')} onChange={(e) => set('hora_inicio_descarga', e.target.value)} placeholder="hh:mm" />
           </div>
           <div className="field-group">
+            <label className="field-label">Hora fin descarga</label>
+            <input className={cc('hora_fin_descarga')} value={field('hora_fin_descarga')} onChange={(e) => set('hora_fin_descarga', e.target.value)} placeholder="hh:mm" />
+          </div>
+          <div className="field-group">
             <label className="field-label">Hora salida de obra</label>
             <input className={cc('hora_salida_obra')} value={field('hora_salida_obra')} onChange={(e) => set('hora_salida_obra', e.target.value)} placeholder="hh:mm" />
           </div>
-          <div className="field-group" style={{ maxWidth: 140 }}>
+          <div className="field-group" style={{ maxWidth: 120 }}>
             <label className="field-label">Límite de uso</label>
             <input className={cc('tiempo_limite_uso')} value={field('tiempo_limite_uso')} onChange={(e) => set('tiempo_limite_uso', e.target.value)} placeholder="90 min" />
           </div>
+          <div className="field-group" style={{ maxWidth: 90 }}>
+            <label className="field-label">Distancia (km)</label>
+            <input className={cc('distancia_km')} value={field('distancia_km')} onChange={(e) => set('distancia_km', e.target.value)} placeholder="0" />
+          </div>
+        </div>
+        <div className="field-row" style={{ alignItems: 'center', gap: 20 }}>
+          <label style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+            <input type="checkbox" checked={datos.descarga_segura !== false} onChange={(e) => set('descarga_segura', e.target.checked)} />
+            Descarga segura
+          </label>
         </div>
       </div>
 
@@ -3062,6 +3118,20 @@ function AlbaranPlantaForm({
             <label className="field-label">Observaciones</label>
             <input className={cc('observaciones')} value={field('observaciones')} onChange={(e) => set('observaciones', e.target.value)} placeholder="Solicitud de agua adicional, incidencias…" />
           </div>
+        </div>
+        <div className="field-row" style={{ alignItems: 'center', gap: 24, marginTop: 8 }}>
+          <label style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+            <input type="checkbox" checked={!!datos.ctrl_entrega_acta} onChange={(e) => set('ctrl_entrega_acta', e.target.checked)} />
+            Entrega acta
+          </label>
+          <label style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+            <input type="checkbox" checked={!!datos.ctrl_cono} onChange={(e) => set('ctrl_cono', e.target.checked)} />
+            Cono realizado
+          </label>
+          <label style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+            <input type="checkbox" checked={!!datos.ctrl_recinto_probetas} onChange={(e) => set('ctrl_recinto_probetas', e.target.checked)} />
+            Existe recinto para probetas
+          </label>
         </div>
       </div>
     </div>
