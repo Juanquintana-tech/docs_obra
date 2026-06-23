@@ -6,6 +6,7 @@ import { Proyectos } from './pages/Proyectos'
 import { NuevaObra } from './pages/NuevaObra'
 import { Detalle } from './pages/Detalle'
 import { Ensayos } from './pages/Ensayos'
+import { Radon } from './pages/Radon'
 import { Presupuestos } from './pages/Presupuestos'
 import { ValidacionRag } from './pages/ValidacionRag'
 
@@ -22,6 +23,7 @@ function App(): JSX.Element {
             <Route path="/detalle/:obraId" element={<Detalle />} />
             <Route path="/ensayos" element={<Ensayos />} />
             <Route path="/ensayos/:obraId" element={<Ensayos />} />
+            <Route path="/radon" element={<Radon />} />
             <Route path="/presupuestos" element={<Presupuestos />} />
             <Route path="/validacion" element={<ValidacionRag />} />
           </Routes>

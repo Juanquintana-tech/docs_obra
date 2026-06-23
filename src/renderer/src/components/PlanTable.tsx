@@ -48,6 +48,14 @@ function fromStr(s: string): number {
   return isNaN(n) ? 0 : n
 }
 
+/** Parsea un string a número o null si el campo está vacío. */
+function parseNullable(s: string): number | null {
+  const t = s.trim()
+  if (!t) return null
+  const n = parseFloat(t.replace(',', '.'))
+  return isNaN(n) ? null : n
+}
+
 /** Insignia de confianza de la IA por fila (feature diferenciadora #1). */
 function Confidence({
   source,
@@ -95,9 +103,11 @@ function Confidence({
 
 interface Props {
   rows: PlanTableRow[]
+  ivaRate?: number
 }
 interface EditableProps {
   rows: EditableRow[]
+  ivaRate?: number
   /** Callback que recibe las filas modificadas cuando se hace Recalcular o Guardar */
   onChange: (rows: EditableRow[]) => void
   onDelete?: (id: number) => void
@@ -105,12 +115,12 @@ interface EditableProps {
 }
 
 /** Tabla de solo lectura (modo normal). */
-export function PlanTable({ rows }: Props): JSX.Element {
-  return <PlanTableInner rows={rows} editable={false} onChangeEditable={() => {}} />
+export function PlanTable({ rows, ivaRate }: Props): JSX.Element {
+  return <PlanTableInner rows={rows} editable={false} onChangeEditable={() => {}} ivaRate={ivaRate} />
 }
 
 /** Tabla editable (modo edición en Detalle). */
-export function EditablePlanTable({ rows, onChange, onDelete, onAdd }: EditableProps): JSX.Element {
+export function EditablePlanTable({ rows, ivaRate, onChange, onDelete, onAdd }: EditableProps): JSX.Element {
   return (
     <PlanTableInner
       rows={rows}
@@ -118,6 +128,7 @@ export function EditablePlanTable({ rows, onChange, onDelete, onAdd }: EditableP
       onChangeEditable={onChange}
       onDelete={onDelete}
       onAdd={onAdd}
+      ivaRate={ivaRate}
     />
   )
 }
@@ -129,13 +140,15 @@ function PlanTableInner({
   editable,
   onChangeEditable,
   onDelete,
-  onAdd
+  onAdd,
+  ivaRate = IVA_RATE
 }: {
   rows: PlanTableRow[]
   editable: boolean
   onChangeEditable: (rows: EditableRow[]) => void
   onDelete?: (id: number) => void
   onAdd?: (sectionStartIdx: number) => void
+  ivaRate?: number
 }): JSX.Element {
   // Estado de edición: map de id → campos editados
   const [edits, setEdits] = useState<Record<number, EditState>>({})
@@ -163,17 +176,19 @@ function PlanTableInner({
     Object.keys(edits).length === 0 ? baseEdits : edits
 
   function setField(id: number, field: keyof Omit<EditState, 'total'>, val: string): void {
-    setEdits((prev) => {
-      const cur = prev[id] ?? activeEdits[id]
-      const next = { ...cur, [field]: val }
-      // Recalcular total al cambiar n_tests o unit_price
-      if (field === 'n_tests' || field === 'unit_price') {
-        const nTests = fromStr(field === 'n_tests' ? val : next.n_tests)
-        const uPrice = fromStr(field === 'unit_price' ? val : next.unit_price)
-        next.total = Math.round(nTests * uPrice * 100) / 100
-      }
-      return { ...prev, [id]: next }
-    })
+    // Tomar el estado actual (editado o base) para la fila
+    const cur = activeEdits[id] ?? baseEdits[id]
+    if (!cur) return
+    const next: EditState = { ...cur, [field]: val }
+    if (field === 'n_tests' || field === 'unit_price') {
+      const nTests = fromStr(field === 'n_tests' ? val : next.n_tests)
+      const uPrice = fromStr(field === 'unit_price' ? val : next.unit_price)
+      next.total = Math.round(nTests * uPrice * 100) / 100
+    }
+    // Construir el nuevo estado completo y propagar inmediatamente al padre
+    const newEdits = { ...activeEdits, [id]: next }
+    setEdits(newEdits)
+    propagate(newEdits)
   }
 
   /** Recalcula n_tests = n_lots × tests_per_lot para todas las filas y actualiza totales. */
@@ -205,9 +220,9 @@ function PlanTableInner({
       if (!e) return r
       return {
         ...r,
-        measurement: fromStr(e.measurement) || r.measurement,
-        n_lots: fromStr(e.n_lots) || r.n_lots,
-        tests_per_lot: fromStr(e.tests_per_lot) || r.tests_per_lot,
+        measurement: parseNullable(e.measurement),
+        n_lots: parseNullable(e.n_lots),
+        tests_per_lot: parseNullable(e.tests_per_lot),
         n_tests: fromStr(e.n_tests),
         unit_price: fromStr(e.unit_price),
         total: e.total
@@ -318,10 +333,7 @@ function PlanTableInner({
             <input
               className="plan-input plan-input-price"
               value={e.unit_price}
-              onChange={(ev) => {
-                setField(er.id, 'unit_price', ev.target.value)
-                propagate({ ...activeEdits, [er.id]: { ...e, unit_price: ev.target.value, total: fromStr(e.n_tests) * fromStr(ev.target.value) } })
-              }}
+              onChange={(ev) => setField(er.id, 'unit_price', ev.target.value)}
               title="€/ud"
             />
           </td>
@@ -395,12 +407,12 @@ function PlanTableInner({
       </table>
       <div className="plan-total">
         <span className="muted">
-          IVA (21%): <b>{eur(total * IVA_RATE)}</b>
+          IVA ({(ivaRate * 100).toFixed(0)}%): <b>{eur(total * ivaRate)}</b>
         </span>
         <span>
           Sin IVA: <b>{eur(total)}</b>
         </span>
-        <span className="grand">Total: {eur(total * (1 + IVA_RATE))}</span>
+        <span className="grand">Total: {eur(total * (1 + ivaRate))}</span>
       </div>
     </>
   )

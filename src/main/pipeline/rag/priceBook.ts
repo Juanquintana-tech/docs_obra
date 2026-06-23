@@ -4,11 +4,12 @@
  *   · reciente: precio del presupuesto más reciente (POR DEFECTO)
  *   · mediana:  mediana de todos los presupuestos
  *   · max:      precio máximo (oferta conservadora)
+ *   · min:      precio mínimo histórico (oferta competitiva)
  * Además se conserva el rango [min, max] para mostrarlo en la UI.
  */
 import { readFileSync } from 'fs'
 
-export type PriceStrategy = 'reciente' | 'mediana' | 'max' | 'importado'
+export type PriceStrategy = 'reciente' | 'mediana' | 'max' | 'min' | 'importado'
 export const DEFAULT_STRATEGY: PriceStrategy = 'reciente'
 
 export interface PriceBookEntry {
@@ -37,7 +38,10 @@ export function normalizeDesc(s: string): string {
 
 /** Precio según la estrategia. */
 export function priceForStrategy(e: PriceBookEntry, strategy: PriceStrategy): number {
-  return strategy === 'mediana' ? e.mediana : strategy === 'max' ? e.max : e.reciente
+  if (strategy === 'mediana') return e.mediana
+  if (strategy === 'max') return e.max
+  if (strategy === 'min') return e.min
+  return e.reciente
 }
 
 interface RawPair {

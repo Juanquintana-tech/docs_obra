@@ -2,11 +2,16 @@
  * Registro de handlers IPC. Único punto donde el renderer toca el backend.
  * Todos los payloads son objetos planos serializables.
  */
-import { ipcMain, dialog, BrowserWindow, shell } from 'electron'
-import { writeFile, readFile } from 'fs/promises'
-import { basename } from 'path'
+import { ipcMain, dialog, BrowserWindow, shell, app } from 'electron'
+import { writeFile, readFile, copyFile, mkdir, rm } from 'fs/promises'
+import { basename, dirname, join, extname } from 'path'
+import { execFile } from 'child_process'
+import { promisify } from 'util'
+
+const execFileAsync = promisify(execFile)
 import * as db from './db'
 import type { PlanRow, ObraInput, EnsayoInput, PlanRowPatch, NewPlanRowData, PlanEdits } from './db'
+import { writableKnowledgePath } from './paths'
 import type { PlanRowInput } from './pipeline/types'
 import type { ObraInfo } from './pipeline/formatter'
 import {
@@ -49,6 +54,15 @@ function toPlanInput(rows: PlanRow[]): PlanRowInput[] {
     rag_score: r.rag_score,
     rag_desc: r.rag_desc
   }))
+}
+
+function emptyObra(): db.Obra {
+  return {
+    id: 0, obra: '', cliente: '', ref_lab: '', fecha: '',
+    coef_baja: 1, total_importe: 0, n_ensayos: 0, n_materiales: 0,
+    responsable: '', price_strategy: 'reciente', iva_rate: 0.21,
+    discount_pct: 0, created_at: '', status: 'activa'
+  }
 }
 
 function obraToInfo(o: db.Obra): ObraInfo {
@@ -116,6 +130,9 @@ export function registerIpc(): void {
   ipcMain.handle('db:updatePlanRows', (_e, obraId: number, patches: PlanRowPatch[]) =>
     db.updatePlanRows(obraId, patches)
   )
+  ipcMain.handle('db:applyDiscount', (_e, obraId: number, discountPct: number) =>
+    db.applyDiscount(obraId, discountPct)
+  )
   ipcMain.handle('db:deletePlanRow', (_e, rowId: number) => db.deletePlanRow(rowId))
   ipcMain.handle('db:addPlanRow', (_e, obraId: number, data: NewPlanRowData) =>
     db.addPlanRow(obraId, data)
@@ -133,8 +150,8 @@ export function registerIpc(): void {
 
   // ── Ingesta ──
   ipcMain.handle('ingest:pickDocument', async () => {
-    const win = BrowserWindow.getFocusedWindow() ?? undefined
-    const { canceled, filePaths } = await dialog.showOpenDialog(win!, {
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    const { canceled, filePaths } = await dialog.showOpenDialog(win, {
       properties: ['openFile'],
       filters: [{ name: 'Documentos', extensions: ['pdf', 'docx', 'xlsx', 'xls', 'txt'] }]
     })
@@ -162,10 +179,10 @@ export function registerIpc(): void {
   )
 
   // ── Ensayos (informes de campo) ──
-  ipcMain.handle('ensayo:getAll', (_e, obraId: number, tipo?: string) =>
+  ipcMain.handle('ensayo:getAll', (_e, obraId: number | null, tipo?: string) =>
     db.getEnsayos(obraId, tipo)
   )
-  ipcMain.handle('ensayo:save', (_e, obraId: number, input: EnsayoInput) =>
+  ipcMain.handle('ensayo:save', (_e, obraId: number | null, input: EnsayoInput) =>
     db.saveEnsayo(obraId, input)
   )
   ipcMain.handle('ensayo:update', (_e, ensayoId: number, input: EnsayoInput) =>
@@ -185,31 +202,130 @@ export function registerIpc(): void {
   ipcMain.handle('ensayo:exportWord', async (_e, ensayoId: number) => {
     const ensayo = db.getEnsayo(ensayoId)
     if (!ensayo) throw new Error(`Ensayo ${ensayoId} no encontrado`)
-    const obra = db.getObra(ensayo.obra_id)
-    if (!obra) throw new Error(`Obra ${ensayo.obra_id} no encontrada`)
+    const obra = ensayo.obra_id != null ? db.getObra(ensayo.obra_id) : null
+    if (ensayo.obra_id != null && !obra) throw new Error(`Obra ${ensayo.obra_id} no encontrada`)
     const safe = (ensayo.titulo || ensayo.tipo).replace(/[^\w-]+/g, '_').slice(0, 60)
-    return saveWithDialog(`Informe_${safe}.docx`, 'docx', () => buildEnsayoWord(ensayo, obra))
+    return saveWithDialog(`Informe_${safe}.docx`, 'docx', () => buildEnsayoWord(ensayo, obra ?? emptyObra()))
   })
 
   ipcMain.handle('ensayo:exportExcel', async (_e, ensayoId: number) => {
     const ensayo = db.getEnsayo(ensayoId)
     if (!ensayo) throw new Error(`Ensayo ${ensayoId} no encontrado`)
-    const obra = db.getObra(ensayo.obra_id)
-    if (!obra) throw new Error(`Obra ${ensayo.obra_id} no encontrada`)
+    const obra = ensayo.obra_id != null ? db.getObra(ensayo.obra_id) : null
+    if (ensayo.obra_id != null && !obra) throw new Error(`Obra ${ensayo.obra_id} no encontrada`)
     const safe = (ensayo.titulo || ensayo.tipo).replace(/[^\w-]+/g, '_').slice(0, 60)
-    return saveWithDialog(`Informe_${safe}.xlsx`, 'xlsx', () => buildEnsayoExcel(ensayo, obra))
+    return saveWithDialog(`Informe_${safe}.xlsx`, 'xlsx', () => buildEnsayoExcel(ensayo, obra ?? emptyObra()))
+  })
+
+  // ── Importación JSON del bot de radón ──
+  ipcMain.handle('radon:importJson', async () => {
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+      properties: ['openFile'],
+      filters: [
+        { name: 'Datos radón (JSON o ZIP)', extensions: ['json', 'zip'] },
+        { name: 'JSON radón', extensions: ['json'] },
+        { name: 'ZIP radón', extensions: ['zip'] }
+      ],
+      title: 'Importar datos del bot de radón'
+    })
+    if (canceled || filePaths.length === 0) return null
+
+    const pickedPath = filePaths[0]
+    const ts = Date.now()
+    let jsonPath = pickedPath
+    let tempExtractDir: string | null = null
+
+    // Si es ZIP: extraer a userData/radon-fotos/{ts}/extracted/ y localizar el JSON dentro
+    if (extname(pickedPath).toLowerCase() === '.zip') {
+      tempExtractDir = join(app.getPath('userData'), 'radon-fotos', String(ts), 'extracted')
+      await mkdir(tempExtractDir, { recursive: true })
+      try {
+        await execFileAsync('unzip', ['-o', pickedPath, '-d', tempExtractDir])
+      } catch (e) {
+        await rm(tempExtractDir, { recursive: true, force: true })
+        throw new Error(`No se pudo extraer el ZIP: ${String(e)}`)
+      }
+      // Buscar radon_data.json en el directorio extraído (puede estar en subdirectorio)
+      const { stdout } = await execFileAsync('find', [tempExtractDir, '-name', 'radon_data.json', '-maxdepth', '3'])
+      const found = stdout.trim().split('\n').filter(Boolean)[0]
+      if (!found) {
+        await rm(tempExtractDir, { recursive: true, force: true })
+        throw new Error('No se encontró radon_data.json dentro del ZIP.')
+      }
+      jsonPath = found
+    }
+
+    const raw = await readFile(jsonPath, 'utf-8')
+    const data = JSON.parse(raw)
+
+    if (data.version !== 1 || data.tipo !== 'radon_trazas') {
+      if (tempExtractDir) await rm(tempExtractDir, { recursive: true, force: true })
+      throw new Error('El archivo no es un JSON de radón válido (version=1, tipo=radon_trazas).')
+    }
+
+    // Copiar fotos desde fotos/ junto al JSON → userData/radon-fotos/{ts}/
+    const fotosDir = join(dirname(jsonPath), 'fotos')
+    const destDir = join(app.getPath('userData'), 'radon-fotos', String(ts))
+    const fotoMap: Record<string, string> = {}
+
+    for (const det of (data.detectores ?? []) as { foto_filename?: string | null }[]) {
+      if (!det.foto_filename) continue
+      const src = join(fotosDir, det.foto_filename)
+      const dest = join(destDir, det.foto_filename)
+      try {
+        await mkdir(destDir, { recursive: true })
+        await copyFile(src, dest)
+        fotoMap[det.foto_filename] = dest
+      } catch {
+        // Foto no disponible — se ignora
+      }
+    }
+
+    // Limpiar directorio de extracción temporal (las fotos ya están copiadas a destDir)
+    if (tempExtractDir) await rm(tempExtractDir, { recursive: true, force: true })
+
+    return { data, fotoMap }
+  })
+
+  // ── Fotos de radón: adjuntar manualmente y abrir ──
+  ipcMain.handle('radon:pickPhoto', async () => {
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+      properties: ['openFile'],
+      filters: [{ name: 'Imágenes', extensions: ['jpg', 'jpeg', 'png', 'heic', 'webp'] }],
+      title: 'Adjuntar foto del detector'
+    })
+    if (canceled || filePaths.length === 0) return null
+    // Copiar a userData/radon-fotos/manual/ para tener ruta persistente
+    const src = filePaths[0]
+    const destDir = join(app.getPath('userData'), 'radon-fotos', 'manual')
+    await mkdir(destDir, { recursive: true })
+    const destName = `${Date.now()}_${basename(src)}`
+    const dest = join(destDir, destName)
+    await copyFile(src, dest)
+    return dest
+  })
+
+  ipcMain.handle('radon:openPhoto', (_e, path: string) => {
+    if (path) shell.openPath(path)
   })
 
   // ── Presupuestos (catálogo y reglas) ──
   ipcMain.handle('presup:getCatalog', () => loadCatalog(knowledgePath('tarifas_alagal.xlsx')))
   ipcMain.handle('presup:getRules', async () => {
-    const raw = await readFile(knowledgePath('test_rules.json'), 'utf-8')
+    const raw = await readFile(writableKnowledgePath('test_rules.json'), 'utf-8')
     return JSON.parse(raw) as Rules
   })
   ipcMain.handle('presup:saveRules', async (_e, rules: Rules) => {
-    await writeFile(knowledgePath('test_rules.json'), JSON.stringify(rules, null, 2), 'utf-8')
-    // Invalidar el cache del pipeline para que el próximo presupuesto use las reglas nuevas
-    // Se importa aquí para evitar ciclos (el pipeline lo carga lazy)
+    if (typeof rules !== 'object' || rules === null || Array.isArray(rules)) {
+      throw new Error('Estructura de reglas inválida')
+    }
+    await writeFile(
+      writableKnowledgePath('test_rules.json'),
+      JSON.stringify(rules, null, 2),
+      'utf-8'
+    )
     const { invalidateRulesCache } = await import('./services/pipeline')
     invalidateRulesCache()
   })

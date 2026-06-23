@@ -315,7 +315,7 @@ function dataRow(r: RowCalc): TableRow {
   ]})
 }
 
-function emptyDataRow(idx: number): TableRow {
+function emptyDataRow(_idx: number): TableRow {
   return new TableRow({ children: DW.map((w) =>
     cell({ text: '', widthTw: w, size: 14, color: 'CCCCCC' })
   )})
@@ -465,7 +465,7 @@ function especificacionRows(calc: ReturnType<typeof computeDensidad>): TableRow[
 }
 
 function medicionesTable(datos: Record<string, unknown>): Table {
-  const calc = computeDensidad(datos as DensidadInput)
+  const calc = computeDensidad(datos as unknown as DensidadInput)
   const rows: TableRow[] = [...buildHeaderRows()]
 
   // Filas de datos
@@ -688,8 +688,7 @@ export async function fillDensidadWord(ensayo: Ensayo, obra: Obra, logoPath: str
           width: { size: CONTENT_TW, type: WidthType.DXA },
           borders: {
             top: thinBorder.top, bottom: noBorder.bottom,
-            left: noBorder.left, right: noBorder.right,
-            insideH: noBorder.top, insideV: noBorder.left
+            left: noBorder.left, right: noBorder.right
           },
           rows: [new TableRow({ children: [
             new TableCell({
@@ -698,7 +697,7 @@ export async function fillDensidadWord(ensayo: Ensayo, obra: Obra, logoPath: str
               children: [new Paragraph({
                 spacing: { before: 40, after: 0 },
                 children: [new TextRun({
-                  text: [toStr(obra.cliente), toStr(obra.municipio)].filter(Boolean).join('  —  Dirección: '),
+                  text: toStr(obra.cliente),
                   size: 14, font: 'Calibri', color: '555555'
                 })]
               })]

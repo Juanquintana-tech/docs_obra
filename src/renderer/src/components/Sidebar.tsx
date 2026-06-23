@@ -27,6 +27,7 @@ const NAV: NavDef[] = [
     section: 'Laboratorio',
     items: [
       { path: '/ensayos', label: 'Ensayos', ico: <Ic.Ensayos /> },
+      { path: '/radon', label: 'Radón', ico: <Ic.Radon /> },
       { path: '/presupuestos', label: 'Presupuestos', ico: <Ic.Presupuestos /> }
     ]
   }

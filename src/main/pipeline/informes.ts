@@ -14,6 +14,7 @@ import { fillPlacaWord } from './formatter/placaWordTemplate'
 import { fillDensidadWord } from './formatter/densidadWordTemplate'
 import { fillAlbaranWord } from './formatter/albaranWordTemplate'
 import { fillAlbaranPlantaWord } from './formatter/albaranPlantaWordTemplate'
+import { fillRadonWord } from './formatter/radonWordTemplate'
 import type { Ensayo, Obra } from '../db'
 import {
   type DensidadInput,
@@ -26,9 +27,7 @@ import {
 export async function generateInformeWord(
   ensayo: Ensayo,
   obra: Obra,
-  logoPath: string,
-  excelTemplatePath: string,
-  placaTemplatePath?: string
+  logoPath: string
 ): Promise<Buffer> {
   if (ensayo.tipo === 'densidad_in_situ')
     return fillDensidadWord(ensayo, obra, logoPath)
@@ -42,6 +41,8 @@ export async function generateInformeWord(
     return fillAlbaranWord(ensayo, obra, logoPath)
   if (ensayo.tipo === 'albaran_planta')
     return fillAlbaranPlantaWord(ensayo, obra, logoPath)
+  if (ensayo.tipo === 'radon_trazas')
+    return fillRadonWord(ensayo, obra, logoPath)
   throw new Error(`Tipo de ensayo no soportado: ${ensayo.tipo}`)
 }
 

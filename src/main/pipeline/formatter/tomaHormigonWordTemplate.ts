@@ -18,7 +18,6 @@ import {
   Table,
   TableRow,
   TableCell,
-  TableBorders,
   ImageRun,
   AlignmentType,
   VerticalAlign,
@@ -126,7 +125,7 @@ function fieldRow(pairs: Array<{ label: string; value: string }>, widths: number
 }
 
 /** Genera la tabla "DATOS DEL ALBARÁN DE LA CUBA DE HORMIGÓN". */
-function datosAlbaranTable(datos: Record<string, unknown>, obra: Obra): Table {
+function datosAlbaranTable(datos: Record<string, unknown>, _obra: Obra): Table {
   const ident = (datos.identificacion as Record<string, unknown>) ?? {}
   const camion = (datos.camion as Record<string, unknown>) ?? {}
   const comp = (datos.composicion as Record<string, unknown>) ?? {}
@@ -134,7 +133,6 @@ function datosAlbaranTable(datos: Record<string, unknown>, obra: Obra): Table {
   // Anchuras relativas (DXA = twentieths of a point); total ≈ 9360 (16cm body width A4)
   const W = [1400, 2000, 1400, 2000, 1400, 2000] // 3 pares por fila
   const W2 = [1400, 3000, 1400, 3000]             // 2 pares por fila
-  const W1 = [2000, 7360]                          // 1 par ancho
 
   return new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
@@ -200,7 +198,7 @@ function tomaHormigonTable(datos: Record<string, unknown>, responsable: string):
   const camion = (datos.camion as Record<string, unknown>) ?? {}
   const comp = (datos.composicion as Record<string, unknown>) ?? {}
   const conos = (datos.conos as Record<string, unknown>[]) ?? []
-  const prob = (datos.probetas as Record<string, unknown>) ?? {}
+  const _prob = (datos.probetas as Record<string, unknown>) ?? {}
 
   const cono1mm = toStr(conos[0]?.mm)
   const cono2mm = toStr(conos[1]?.mm)
@@ -210,7 +208,6 @@ function tomaHormigonTable(datos: Record<string, unknown>, responsable: string):
 
   const W = [1400, 2000, 1400, 2000, 1400, 2000]
   const W2 = [1400, 3000, 1400, 3000]
-  const W1 = [2000, 7360]
 
   return new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
@@ -218,7 +215,7 @@ function tomaHormigonTable(datos: Record<string, unknown>, responsable: string):
     rows: [
       sectionHeaderRow(`TOMA DE HORMIGÓN         Operador: ${responsable || toStr(ident.confeccionado_por)}`, 6),
       fieldRow([
-        { label: 'Probetas:', value: buildProbetasStr(prob) },
+        { label: 'Probetas:', value: buildProbetasStr(_prob) },
         { label: 'Hora toma:', value: toStr(ident.hora_toma) },
         { label: 'Tª amb. °C:', value: toStr(comp.t_amb) }
       ], W),
@@ -253,7 +250,7 @@ function tomaHormigonTable(datos: Record<string, unknown>, responsable: string):
       }),
       fieldRow([
         { label: 'Tipo Muestreo:', value: toStr(ident.tipo_muestreo) },
-        { label: 'Fecha recogida:', value: toStr(prob.fecha_recogida || ident.fecha_recogida) }
+        { label: 'Fecha recogida:', value: toStr(_prob.fecha_recogida || ident.fecha_recogida) }
       ], W2),
       new TableRow({
         children: [
@@ -328,11 +325,11 @@ function calcMediasPorEdad(roturas: Record<string, unknown>[]): Map<number, stri
 /** Genera la tabla de resultados de compresión. */
 function resultadosTable(datos: Record<string, unknown>): Table {
   const roturas = (datos.roturas as Record<string, unknown>[]) ?? []
-  const prob = (datos.probetas as Record<string, unknown>) ?? {}
+  const _prob = (datos.probetas as Record<string, unknown>) ?? {}
   const ident = (datos.identificacion as Record<string, unknown>) ?? {}
 
   // Parsear Ø y H del tipo de probeta ("Cilíndricas 150×300mm" → 150, 300)
-  const tipoMatch = String(prob.tipo ?? '').match(/(\d+)[×x](\d+)/)
+  const tipoMatch = String(_prob.tipo ?? '').match(/(\d+)[×x](\d+)/)
   const diam = tipoMatch ? tipoMatch[1] : '150'
   const altura = tipoMatch ? tipoMatch[2] : '300'
 
@@ -345,7 +342,6 @@ function resultadosTable(datos: Record<string, unknown>): Table {
   const fck = fckManual ?? fckFromTipo
 
   // Cabeceras
-  const COL_W = [500, 1100, 700, 500, 500, 1000, 1000, 1000, 900, 800, 800]
   const makeHeaderCell = (text: string, rowSpan?: number, colSpan?: number): TableCell =>
     new TableCell({
       rowSpan, columnSpan: colSpan,
@@ -488,7 +484,6 @@ export async function fillTomaHormigonWord(
 ): Promise<Buffer> {
   const datos = ensayo.datos as Record<string, unknown>
   const ident = (datos.identificacion as Record<string, unknown>) ?? {}
-  const prob = (datos.probetas as Record<string, unknown>) ?? {}
 
   // Logo
   const logoBuf = readFileSync(logoPath)
@@ -535,7 +530,7 @@ export async function fillTomaHormigonWord(
                           new ImageRun({
                             data: logoBuf,
                             transformation: { width: 110, height: 35 },
-                            type: 'jpeg'
+                            type: 'jpg'
                           })
                         ]
                       })
@@ -716,7 +711,7 @@ export async function fillTomaHormigonWord(
                     borders: noBorder,
                     children: [
                       new Paragraph({ children: [new TextRun({ text: `Cliente: ${toStr(obra.cliente) || ''}`, bold: true, size: 15 })], spacing: { before: 40, after: 20 } }),
-                      new Paragraph({ children: [new TextRun({ text: toStr(obra.direccion ?? ''), size: 14, color: GRAY_TEXT })], spacing: { before: 0, after: 20 } }),
+                      new Paragraph({ children: [new TextRun({ text: toStr(obra.ref_lab ?? ''), size: 14, color: GRAY_TEXT })], spacing: { before: 0, after: 20 } }),
                       new Paragraph({ children: [new TextRun({ text: 'Envío de copias a:', size: 14, color: GRAY_TEXT })], spacing: { before: 0, after: 0 } })
                     ]
                   })

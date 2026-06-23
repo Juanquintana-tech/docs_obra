@@ -57,6 +57,8 @@ export const api = {
     ipcRenderer.invoke('db:addPlanRow', obraId, data),
   savePlanEdits: (obraId: number, edits: PlanEdits): Promise<void> =>
     ipcRenderer.invoke('db:savePlanEdits', obraId, edits),
+  applyDiscount: (obraId: number, discountPct: number): Promise<void> =>
+    ipcRenderer.invoke('db:applyDiscount', obraId, discountPct),
 
   // ── Ingesta ──
   pickDocument: (): Promise<PickedDocument | null> => ipcRenderer.invoke('ingest:pickDocument'),
@@ -79,9 +81,9 @@ export const api = {
     ipcRenderer.invoke('rag:findMatches', query, category, n),
 
   // ── Ensayos (informes de campo) ──
-  getEnsayos: (obraId: number, tipo?: string): Promise<Ensayo[]> =>
+  getEnsayos: (obraId: number | null, tipo?: string): Promise<Ensayo[]> =>
     ipcRenderer.invoke('ensayo:getAll', obraId, tipo),
-  saveEnsayo: (obraId: number, input: EnsayoInput): Promise<number> =>
+  saveEnsayo: (obraId: number | null, input: EnsayoInput): Promise<number> =>
     ipcRenderer.invoke('ensayo:save', obraId, input),
   updateEnsayo: (ensayoId: number, input: EnsayoInput): Promise<void> =>
     ipcRenderer.invoke('ensayo:update', ensayoId, input),
@@ -113,6 +115,12 @@ export const api = {
     ipcRenderer.invoke('budget:listSheets', path),
   parseBudget: (path: string, sheetName?: string | null): Promise<BudgetImportResult> =>
     ipcRenderer.invoke('budget:parse', path, sheetName),
+
+  // ── Importación JSON / ZIP del bot de radón ──
+  importRadonJson: (): Promise<{ data: unknown; fotoMap: Record<string, string> } | null> =>
+    ipcRenderer.invoke('radon:importJson'),
+  pickRadonPhoto: (): Promise<string | null> => ipcRenderer.invoke('radon:pickPhoto'),
+  openRadonPhoto: (path: string): Promise<void> => ipcRenderer.invoke('radon:openPhoto', path),
 
   // ── Presupuestos (catálogo y reglas) ──
   getCatalog: (): Promise<CatalogEntry[]> => ipcRenderer.invoke('presup:getCatalog'),

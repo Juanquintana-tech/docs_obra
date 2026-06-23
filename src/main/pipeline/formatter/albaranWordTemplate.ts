@@ -23,23 +23,21 @@ import {
   VerticalMergeType,
   PageOrientation
 } from 'docx'
+import type { ITableCellBorders } from 'docx'
 import type { Ensayo, Obra } from '../../db'
 
 // ── Geometría ─────────────────────────────────────────────────────────────────
 const MARGIN_TW  = convertMillimetersToTwip(15)
 const CONTENT_TW = 11906 - MARGIN_TW * 2              // ≈ 10200 twips (portrait)
-const LAND_TW    = 16838 - MARGIN_TW * 2              // ≈ 15138 twips (landscape)
 const PX_PER_MM  = 96 / 25.4
 
 // ── Bordes ────────────────────────────────────────────────────────────────────
-const N = { style: BorderStyle.NONE,   size: 0, color: 'FFFFFF' } as const
-const T = { style: BorderStyle.SINGLE, size: 4, color: '000000' } as const
-const G = { style: BorderStyle.SINGLE, size: 4, color: 'AAAAAA' } as const
+const N = { style: BorderStyle.NONE,   size: 0, color: 'FFFFFF' }
+const T = { style: BorderStyle.SINGLE, size: 4, color: '000000' }
+const G = { style: BorderStyle.SINGLE, size: 4, color: 'AAAAAA' }
 
 const bAll  = { top: T, bottom: T, left: T, right: T }
 const bNone = { top: N, bottom: N, left: N, right: N }
-const bTop  = { top: T, bottom: N, left: N, right: N }
-const bBot  = { top: N, bottom: T, left: N, right: N }
 const bGray = { top: G, bottom: G, left: G, right: G }
 
 // ── Texto ─────────────────────────────────────────────────────────────────────
@@ -65,17 +63,19 @@ const chk = (on: boolean, text: string, sz = 8): TextRun[] =>
 // ── Párrafos ──────────────────────────────────────────────────────────────────
 const sp = (bef = 20, aft = 20) => ({ before: bef, after: aft })
 
-const p = (runs: TextRun[], align = AlignmentType.LEFT, spacing = sp()): Paragraph =>
+type AlignmentVal = (typeof AlignmentType)[keyof typeof AlignmentType]
+
+const p = (runs: TextRun[], align: AlignmentVal = AlignmentType.LEFT, spacing = sp()): Paragraph =>
   new Paragraph({ alignment: align, spacing, children: runs })
 
 const pBlank = (): Paragraph => new Paragraph({ spacing: sp(10, 10), children: [tx('')] })
 
 // ── Celdas ────────────────────────────────────────────────────────────────────
 interface CellOpts {
-  borders?: typeof bAll
+  borders?: ITableCellBorders
   span?: number
   shade?: string
-  align?: typeof AlignmentType[keyof typeof AlignmentType]
+  align?: AlignmentVal
   vMerge?: 'restart' | 'continue'
   vAlign?: 'top' | 'center' | 'bottom'
   spacing?: ReturnType<typeof sp>
@@ -193,8 +193,8 @@ export async function fillAlbaranWord(
       new TableCell({
         width: { size: W1[0], type: WidthType.DXA },
         borders: bAll, verticalMerge: VerticalMergeType.RESTART, verticalAlign: 'center',
-        children: [p([new ImageRun({ type: 'jpg', data: logoBuf, transformation: { width: logoColPx, height: logoHpx } })],
-          AlignmentType.CENTER, sp(40, 40))]
+        children: [new Paragraph({ alignment: AlignmentType.CENTER, spacing: sp(40, 40),
+          children: [new ImageRun({ type: 'jpg', data: logoBuf, transformation: { width: logoColPx, height: logoHpx } })] })]
       }),
       new TableCell({
         width: { size: W1[1], type: WidthType.DXA },
@@ -393,7 +393,6 @@ export async function fillAlbaranWord(
   // Anchuras: [900, 2000, 1700, 1600, 2000, 1900, 1600, 3438] = 15138
 
   const WD = [900, 2000, 1700, 1600, 2000, 1900, 1600, 3438] as const
-  const WD_TOTAL = WD.reduce((a, b) => a + b, 0)  // 15138
 
   const DATA_ROWS = 20
   const hdrShade = 'D9D9D9'
@@ -410,9 +409,8 @@ export async function fillAlbaranWord(
         width: { size: WH2[0], type: WidthType.DXA },
         borders: bNone,
         verticalAlign: 'center',
-        children: [p([
-          new ImageRun({ type: 'jpg', data: logoBuf, transformation: { width: logoPage2Px, height: logo2Hpx } })
-        ], AlignmentType.LEFT, sp(10, 10))]
+        children: [new Paragraph({ alignment: AlignmentType.LEFT, spacing: sp(10, 10),
+          children: [new ImageRun({ type: 'jpg', data: logoBuf, transformation: { width: logoPage2Px, height: logo2Hpx } })] })]
       }),
       tc(WH2[1], [], {
         borders: bNone, vAlign: 'center',

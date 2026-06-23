@@ -550,3 +550,28 @@
   padding: 10px 12px;
   min-width: 170px;
 }
+
+/* ── Radón ── */
+.radon-row-extraviado {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+.radon-row-extraviado input,
+.radon-row-extraviado select {
+  background: #e2e8f0;
+  color: #94a3b8;
+}
+.radon-row-saturado {
+  background: #fff7ed;
+}
+.radon-row-saturado input,
+.radon-row-saturado select {
+  background: #ffedd5;
+}
+.radon-row-excede {
+  background: #fefce8;
+}
+.radon-row-excede input,
+.radon-row-excede select {
+  background: #fef9c3;
+}

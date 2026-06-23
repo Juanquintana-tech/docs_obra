@@ -37,6 +37,12 @@ export const TIPOS: Record<string, TipoMeta> = {
     label: 'Granulometría de escollera (5-40 kg)',
     norma: 'UNE EN 13383-2',
     tituloInforme: 'ARMOUR STONE QUALITY CONTROL TESTS — UNE EN 13383-2'
+  },
+  radon_trazas: {
+    label: 'Concentración de radón (trazas CR-39)',
+    norma: 'ISO 11665-4 · IS-47 CSN · PE-CYE-39',
+    tituloInforme:
+      'INFORME DE ENSAYO — INSTALACIÓN DE DETECTORES Y POSTERIOR MEDIDA DE LA CONCENTRACIÓN DE RADÓN EN AIRE INTERIOR'
   }
 }
 
@@ -376,6 +382,108 @@ const between = (v: number, [lo, hi]: readonly [number, number] | number[]): boo
 export function parseMasasList(raw: unknown): number[] {
   const items = Array.isArray(raw) ? raw : String(raw ?? '').split(/[\s,;\n]+/)
   return items.map(toFloat).filter((m): m is number => m !== null)
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CONCENTRACIÓN DE RADÓN EN AIRE INTERIOR  (ISO 11665-4 / IS-47 CSN / PE-CYE-39)
+// ══════════════════════════════════════════════════════════════════════════════
+
+export interface RadonMetadata {
+  fecha_inicio?: string
+  fecha_fin?: string
+  duracion_dias?: number | null
+  fecha_procesado_inicio?: string
+  fecha_procesado_fin?: string
+  error_fabricante_pct?: number
+  umbral_decision?: number    // Bq/m³
+  limite_deteccion?: number   // Bq/m³
+  nivel_referencia?: number   // Bq/m³ (por defecto 300, Art. 72 RD 1029/2022)
+  instalacion_cye?: boolean
+  norma?: string
+}
+
+export interface RadonLote {
+  id: string
+  fecha_inicio: string
+  fecha_fin: string
+  duracion_dias: number | null
+}
+
+export interface RadonDetector {
+  n: number
+  codigo: string
+  lote?: string
+  edificio?: string
+  planta?: string
+  ubicacion?: string
+  extraviado?: boolean
+  saturado?: boolean       // exposición > rango del equipo; RAC real desconocida pero >1.000 Bq/m³
+  exposicion?: number | null   // kBq·h/m²
+  u_exposicion?: number | null // incertidumbre expandida k=2
+  rac?: number | null          // Bq/m³
+  u_rac?: number | null        // incertidumbre expandida k=2
+  plano_id?: string
+  foto_path?: string | null
+}
+
+export interface RadonInput {
+  metadata?: RadonMetadata
+  lotes?: RadonLote[]
+  detectores?: RadonDetector[]
+}
+
+export interface RadonResult {
+  n_total: number
+  n_extraviados: number
+  n_saturados: number
+  n_validos: number
+  n_exceden: number
+  rac_min: number | null
+  rac_max: number | null
+  rac_media: number | null
+  nivel_referencia: number
+  veredicto: 'CUMPLE' | 'NO CUMPLE' | ''
+}
+
+export function computeRadon(input: RadonInput): RadonResult {
+  const nivel = input.metadata?.nivel_referencia ?? 300
+  const detectores = input.detectores ?? []
+
+  const n_total = detectores.length
+  const extraviados = detectores.filter((d) => d.extraviado)
+  const saturados = detectores.filter((d) => !d.extraviado && d.saturado)
+  const validos = detectores.filter(
+    (d) => !d.extraviado && !d.saturado && d.rac !== null && d.rac !== undefined
+  )
+
+  const racs = validos
+    .map((d) => (typeof d.rac === 'number' ? d.rac : null))
+    .filter((r): r is number => r !== null)
+  const n_exceden = racs.filter((r) => r > nivel).length + saturados.length
+
+  const rac_min = racs.length ? Math.min(...racs) : null
+  const rac_max = racs.length ? Math.max(...racs) : null
+  const rac_media = racs.length
+    ? Math.round(racs.reduce((a, b) => a + b, 0) / racs.length)
+    : null
+
+  let veredicto: 'CUMPLE' | 'NO CUMPLE' | '' = ''
+  if (validos.length > 0 || saturados.length > 0) {
+    veredicto = n_exceden > 0 ? 'NO CUMPLE' : 'CUMPLE'
+  }
+
+  return {
+    n_total,
+    n_extraviados: extraviados.length,
+    n_saturados: saturados.length,
+    n_validos: validos.length,
+    n_exceden,
+    rac_min,
+    rac_max,
+    rac_media,
+    nivel_referencia: nivel,
+    veredicto
+  }
 }
 
 export function computeGranulometria(input: GranulometriaInput): GranulometriaResult {

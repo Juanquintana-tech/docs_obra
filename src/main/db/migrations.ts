@@ -145,6 +145,36 @@ export const MIGRATIONS: Array<(db: Database) => void> = [
   // ── v7 — trazabilidad del precio: nº de presupuestos históricos por fila ─
   (db) => {
     db.exec(`ALTER TABLE plan_rows ADD COLUMN price_n INTEGER;`)
+  },
+
+  // ── v8 — ensayos independientes de obra (radón standalone) ───────────────
+  // SQLite no permite ALTER COLUMN, así que se recrear la tabla conservando datos.
+  // El cambio: obra_id pasa de INTEGER NOT NULL a INTEGER NULL.
+  (db) => {
+    db.exec(`
+      CREATE TABLE ensayos_v8 (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        obra_id     INTEGER REFERENCES obras(id) ON DELETE CASCADE,
+        tipo        TEXT    NOT NULL,
+        titulo      TEXT    DEFAULT '',
+        estado      TEXT    DEFAULT 'borrador',
+        veredicto   TEXT    DEFAULT '',
+        responsable TEXT    DEFAULT '',
+        datos       TEXT    NOT NULL DEFAULT '{}',
+        created_at  TEXT    DEFAULT (datetime('now','localtime')),
+        updated_at  TEXT    DEFAULT (datetime('now','localtime')),
+        plan_row_id INTEGER REFERENCES plan_rows(id) ON DELETE SET NULL,
+        n_expediente TEXT   DEFAULT ''
+      );
+      INSERT INTO ensayos_v8 SELECT
+        id, obra_id, tipo, titulo, estado, veredicto, responsable,
+        datos, created_at, updated_at, plan_row_id, n_expediente
+      FROM ensayos;
+      DROP TABLE ensayos;
+      ALTER TABLE ensayos_v8 RENAME TO ensayos;
+      CREATE INDEX idx_ensayos_obra     ON ensayos(obra_id);
+      CREATE INDEX idx_ensayos_plan_row ON ensayos(plan_row_id);
+    `)
   }
 ]
 

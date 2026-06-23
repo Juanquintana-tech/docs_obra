@@ -303,3 +303,59 @@ export function tomaHormigonSummary(datos: Record<string, unknown>): TomaHormigo
 
   return { fck, media28, n28, veredicto }
 }
+
+// ── Concentración de radón (ISO 11665-4 / IS-47 CSN) ─────────────────────────
+
+export interface RadonSummary {
+  n_total: number
+  n_extraviados: number
+  n_saturados: number
+  n_validos: number
+  n_exceden: number
+  rac_min: number | null
+  rac_max: number | null
+  rac_media: number | null
+  nivel_referencia: number
+  veredicto: 'CUMPLE' | 'NO CUMPLE' | ''
+}
+
+export function radonSummary(datos: Record<string, unknown>): RadonSummary | null {
+  const metadata = (datos.metadata as Record<string, unknown>) ?? {}
+  const detectores = (datos.detectores as Record<string, unknown>[]) ?? []
+  const nivel = toNum(metadata.nivel_referencia) ?? 300
+
+  if (detectores.length === 0) return null
+
+  const extraviados = detectores.filter((d) => d.extraviado)
+  const saturados = detectores.filter((d) => !d.extraviado && d.saturado)
+  const validos = detectores.filter(
+    (d) => !d.extraviado && !d.saturado && d.rac !== null && d.rac !== undefined && d.rac !== ''
+  )
+
+  const racs = validos.map((d) => toNum(d.rac)).filter((r): r is number => r !== null)
+  const n_exceden = racs.filter((r) => r > nivel).length + saturados.length
+
+  const rac_min = racs.length ? Math.min(...racs) : null
+  const rac_max = racs.length ? Math.max(...racs) : null
+  const rac_media = racs.length
+    ? Math.round(racs.reduce((a, b) => a + b, 0) / racs.length)
+    : null
+
+  let veredicto: 'CUMPLE' | 'NO CUMPLE' | '' = ''
+  if (validos.length > 0 || saturados.length > 0) {
+    veredicto = n_exceden > 0 ? 'NO CUMPLE' : 'CUMPLE'
+  }
+
+  return {
+    n_total: detectores.length,
+    n_extraviados: extraviados.length,
+    n_saturados: saturados.length,
+    n_validos: validos.length,
+    n_exceden,
+    rac_min,
+    rac_max,
+    rac_media,
+    nivel_referencia: nivel,
+    veredicto
+  }
+}

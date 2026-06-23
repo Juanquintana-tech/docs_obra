@@ -21,6 +21,8 @@ export interface Obra {
   n_materiales: number
   responsable: string
   price_strategy: string
+  iva_rate: number
+  discount_pct: number
   created_at: string
   status: 'activa' | 'archivada'
 }
@@ -57,6 +59,8 @@ export interface ObraInput {
   coef_baja?: number
   responsable?: string
   price_strategy?: PriceStrategy
+  iva_rate?: number
+  discount_pct?: number
 }
 
 // ── Conexión (singleton) ────────────────────────────────────────────────────
@@ -98,11 +102,11 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
     `INSERT INTO plan_rows
        (obra_id, row_type, material, subcategory, description, measurement,
         measurement_unit, freq_qty, freq_unit, n_lots, tests_per_lot, n_tests,
-        unit_price, total, price_source, rag_score, rag_desc, price_min, price_max, price_n)
+        unit_price, unit_price_base, total, price_source, rag_score, rag_desc, price_min, price_max, price_n)
      VALUES
        (@obra_id, @row_type, @material, @subcategory, @description, @measurement,
         @measurement_unit, @freq_qty, @freq_unit, @n_lots, @tests_per_lot, @n_tests,
-        @unit_price, @total, @price_source, @rag_score, @rag_desc, @price_min, @price_max, @price_n)`
+        @unit_price, @unit_price, @total, @price_source, @rag_score, @rag_desc, @price_min, @price_max, @price_n)`
   )
 
   const tx = db.transaction(() => {
@@ -159,7 +163,8 @@ export function updateObraInfo(obraId: number, info: ObraInput): void {
   getDb()
     .prepare(
       `UPDATE obras SET obra=@obra, cliente=@cliente, ref_lab=@ref_lab,
-       fecha=@fecha, responsable=@responsable WHERE id=@id`
+       fecha=@fecha, responsable=@responsable, iva_rate=@iva_rate,
+       discount_pct=@discount_pct WHERE id=@id`
     )
     .run({
       id: obraId,
@@ -167,7 +172,9 @@ export function updateObraInfo(obraId: number, info: ObraInput): void {
       cliente: info.cliente ?? '',
       ref_lab: info.ref_lab ?? '',
       fecha: info.fecha ?? '',
-      responsable: info.responsable ?? ''
+      responsable: info.responsable ?? '',
+      iva_rate: info.iva_rate ?? 0.21,
+      discount_pct: info.discount_pct ?? 0
     })
 }
 
@@ -233,8 +240,10 @@ export function deletePlanRow(rowId: number): void {
   const db = getDb()
   const row = db.prepare('SELECT obra_id FROM plan_rows WHERE id=?').get(rowId) as { obra_id: number } | undefined
   if (!row) return
-  db.prepare('DELETE FROM plan_rows WHERE id=?').run(rowId)
-  refreshObraStats(db, row.obra_id)
+  db.transaction(() => {
+    db.prepare('DELETE FROM plan_rows WHERE id=?').run(rowId)
+    refreshObraStats(db, row.obra_id)
+  })()
 }
 
 export interface NewPlanRowData {
@@ -249,20 +258,25 @@ export function addPlanRow(obraId: number, data: NewPlanRowData): number {
   const db = getDb()
   const nTests = data.n_tests ?? 0
   const unitPrice = data.unit_price ?? 0
-  const result = db
-    .prepare(
-      `INSERT INTO plan_rows
-         (obra_id, row_type, material, subcategory, description,
-          measurement, measurement_unit, freq_qty, freq_unit,
-          n_lots, tests_per_lot, n_tests, unit_price, total,
-          price_source, rag_score, rag_desc)
-       VALUES (?, 'test', ?, ?, ?, NULL, '', NULL, '',
-               NULL, NULL, ?, ?, ?, 'fallback', 0, '')`
-    )
-    .run(obraId, data.material ?? '', data.subcategory ?? '', data.description ?? '',
-         nTests, unitPrice, Math.round(nTests * unitPrice * 100) / 100)
-  refreshObraStats(db, obraId)
-  return result.lastInsertRowid as number
+  const total = Math.round(nTests * unitPrice * 100) / 100
+  let newId!: number
+  db.transaction(() => {
+    const result = db
+      .prepare(
+        `INSERT INTO plan_rows
+           (obra_id, row_type, material, subcategory, description,
+            measurement, measurement_unit, freq_qty, freq_unit,
+            n_lots, tests_per_lot, n_tests, unit_price, unit_price_base, total,
+            price_source, rag_score, rag_desc)
+         VALUES (?, 'test', ?, ?, ?, NULL, '', NULL, '',
+                 NULL, NULL, ?, ?, ?, ?, 'fallback', 0, '')`
+      )
+      .run(obraId, data.material ?? '', data.subcategory ?? '', data.description ?? '',
+           nTests, unitPrice, unitPrice, total)
+    newId = result.lastInsertRowid as number
+    refreshObraStats(db, obraId)
+  })()
+  return newId
 }
 export interface PlanEdits {
   deletes: number[]
@@ -282,10 +296,10 @@ export function savePlanEdits(obraId: number, edits: PlanEdits): void {
     `INSERT INTO plan_rows
        (obra_id, row_type, material, subcategory, description,
         measurement, measurement_unit, freq_qty, freq_unit,
-        n_lots, tests_per_lot, n_tests, unit_price, total,
+        n_lots, tests_per_lot, n_tests, unit_price, unit_price_base, total,
         price_source, rag_score, rag_desc)
      VALUES (?, 'test', ?, ?, ?, NULL, '', NULL, '',
-             NULL, NULL, ?, ?, ?, 'fallback', 0, '')`
+             NULL, NULL, ?, ?, ?, ?, 'fallback', 0, '')`
   )
   const updateStmt = db.prepare(
     `UPDATE plan_rows
@@ -307,6 +321,7 @@ export function savePlanEdits(obraId: number, edits: PlanEdits): void {
         row.description ?? '',
         nTests,
         unitPrice,
+        unitPrice,
         Math.round(nTests * unitPrice * 100) / 100
       )
     }
@@ -323,6 +338,26 @@ export function savePlanEdits(obraId: number, edits: PlanEdits): void {
       })
     }
 
+    refreshObraStats(db, obraId)
+  })()
+}
+
+/**
+ * Aplica un descuento porcentual a todas las filas de ensayo de la obra.
+ * Recalcula unit_price desde unit_price_base (sin acumular descuentos anteriores)
+ * y actualiza discount_pct en la obra. Operación atómica.
+ */
+export function applyDiscount(obraId: number, discountPct: number): void {
+  const db = getDb()
+  db.transaction(() => {
+    db.prepare(
+      `UPDATE plan_rows
+       SET unit_price = ROUND(COALESCE(unit_price_base, unit_price) * (1.0 - @disc / 100.0), 4),
+           total      = ROUND(n_tests * ROUND(COALESCE(unit_price_base, unit_price) * (1.0 - @disc / 100.0), 4), 2)
+       WHERE obra_id = @obra_id AND row_type = 'test'`
+    ).run({ disc: discountPct, obra_id: obraId })
+    db.prepare(`UPDATE obras SET discount_pct = @disc WHERE id = @obra_id`)
+      .run({ disc: discountPct, obra_id: obraId })
     refreshObraStats(db, obraId)
   })()
 }
@@ -399,7 +434,7 @@ export function savePriceCorrection(c: PriceCorrectionInput): number {
 // ── Ensayos (informes de campo) ───────────────────────────────────────────────
 export interface Ensayo {
   id: number
-  obra_id: number
+  obra_id: number | null
   tipo: string
   titulo: string
   estado: 'borrador' | 'completado' | 'aprobado'
@@ -439,7 +474,7 @@ function parseEnsayo(row: Record<string, unknown>): Ensayo {
   }
 }
 
-export function saveEnsayo(obraId: number, input: EnsayoInput): number {
+export function saveEnsayo(obraId: number | null, input: EnsayoInput): number {
   const res = getDb()
     .prepare(
       `INSERT INTO ensayos
@@ -489,13 +524,18 @@ export function deleteEnsayo(ensayoId: number): void {
   getDb().prepare('DELETE FROM ensayos WHERE id=?').run(ensayoId)
 }
 
-export function getEnsayos(obraId: number, tipo?: string): Ensayo[] {
+export function getEnsayos(obraId: number | null, tipo?: string): Ensayo[] {
   const db = getDb()
-  const rows = tipo
-    ? db
-        .prepare('SELECT * FROM ensayos WHERE obra_id=? AND tipo=? ORDER BY created_at DESC')
-        .all(obraId, tipo)
-    : db.prepare('SELECT * FROM ensayos WHERE obra_id=? ORDER BY created_at DESC').all(obraId)
+  let rows: unknown[]
+  if (obraId === null) {
+    rows = tipo
+      ? db.prepare('SELECT * FROM ensayos WHERE obra_id IS NULL AND tipo=? ORDER BY created_at DESC').all(tipo)
+      : db.prepare('SELECT * FROM ensayos WHERE obra_id IS NULL ORDER BY created_at DESC').all()
+  } else {
+    rows = tipo
+      ? db.prepare('SELECT * FROM ensayos WHERE obra_id=? AND tipo=? ORDER BY created_at DESC').all(obraId, tipo)
+      : db.prepare('SELECT * FROM ensayos WHERE obra_id=? ORDER BY created_at DESC').all(obraId)
+  }
   return (rows as Record<string, unknown>[]).map(parseEnsayo)
 }
 

@@ -8,6 +8,7 @@ import { OcrConfCtx, useOcrConf } from '../lib/ocrConf'
 import { useParams, useLocation } from 'react-router-dom'
 import { api } from '../lib/api'
 import { Ic } from '../components/Icon'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 import { ScanPanel } from '../components/ScanPanel'
 import { errorMessage } from '../lib/errors'
 import {
@@ -19,7 +20,8 @@ import {
   GRANULO_SPEC,
   tomaHormigonSummary,
   cargaToTension,
-  toNum
+  toNum,
+  radonSummary
 } from '../lib/ensayoCalc'
 import type { Ensayo, EnsayoInput, Obra, PlanRow } from '../lib/types'
 import './Ensayos.css'
@@ -51,6 +53,10 @@ const TIPOS: Record<string, { label: string; norma: string }> = {
   albaran_planta: {
     label: 'Albarán de planta',
     norma: 'Registro albarán de entrega central hormigonera'
+  },
+  radon_trazas: {
+    label: 'Concentración de radón (trazas CR-39)',
+    norma: 'ISO 11665-4 · IS-47 CSN · PE-CYE-39'
   }
 }
 
@@ -97,11 +103,19 @@ const GRUPOS: Array<{
     color: '#0d7280',
     abrev: 'G',
     tipos: ['granulometria']
+  },
+  {
+    id: 'radon',
+    label: 'Radón (trazas CR-39)',
+    desc: 'ISO 11665-4 · IS-47 CSN — Exposición pasiva, lectura microscópica',
+    color: '#6B21A8',
+    abrev: 'Rn',
+    tipos: ['radon_trazas']
   }
 ]
 
 /** Tipos que tienen informe Word disponible. */
-const WORD_TIPOS = new Set(['albaran_ensayos', 'densidad_in_situ', 'placa_carga', 'toma_hormigon', 'informe_hormigon', 'albaran_planta'])
+export const WORD_TIPOS = new Set(['albaran_ensayos', 'densidad_in_situ', 'placa_carga', 'toma_hormigon', 'informe_hormigon', 'albaran_planta', 'radon_trazas'])
 /** Tipos con export a Excel. */
 const EXCEL_TIPOS = new Set(['densidad_in_situ', 'placa_carga', 'granulometria', 'informe_hormigon'])
 
@@ -283,6 +297,26 @@ function defaultAlbaranPlantaDatos(): Record<string, unknown> {
   }
 }
 
+export function defaultRadonDatos(): Record<string, unknown> {
+  return {
+    metadata: {
+      fecha_inicio: '',
+      fecha_fin: '',
+      duracion_dias: null,
+      fecha_procesado_inicio: '',
+      fecha_procesado_fin: '',
+      error_fabricante_pct: 7,
+      umbral_decision: 3,
+      limite_deteccion: 7,
+      nivel_referencia: 300,
+      instalacion_cye: true,
+      norma: 'IS-47 CSN + PE-CYE-39 (ISO 11665-4)'
+    },
+    lotes: [],
+    detectores: []
+  }
+}
+
 function defaultPlacaDatos(): Record<string, unknown> {
   return {
     cabecera: {},
@@ -300,7 +334,7 @@ function defaultPlacaDatos(): Record<string, unknown> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function verdictClass(v: string): string {
+export function verdictClass(v: string): string {
   if (v === 'CUMPLE') return 'verdict ok'
   if (v === 'NO CUMPLE') return 'verdict no'
   return 'verdict'
@@ -327,6 +361,7 @@ export function Ensayos(): JSX.Element {
   const [openGroup, setOpenGroup] = useState<string | null>(null)
   const [msg, setMsg] = useState<string | null>(null)
   const [lastPath, setLastPath] = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -540,17 +575,7 @@ export function Ensayos(): JSX.Element {
                     key={e.id}
                     ensayo={e}
                     onEdit={() => setEditing(e)}
-                    onDelete={async () => {
-                      if (!confirm('¿Eliminar este informe?')) return
-                      try {
-                        await api.deleteEnsayo(e.id)
-                        await loadEnsayos(obraId)
-                        setLastPath(null)
-                        setMsg('Informe eliminado.')
-                      } catch (err) {
-                        setMsg(`Error al eliminar: ${errorMessage(err)}`)
-                      }
-                    }}
+                    onDelete={() => setConfirmDeleteId(e.id)}
                     onExportWord={
                       WORD_TIPOS.has(e.tipo)
                         ? async () => {
@@ -593,6 +618,27 @@ export function Ensayos(): JSX.Element {
         )}
 
         {!obraId && <div className="empty">Selecciona un proyecto para ver sus ensayos.</div>}
+
+        {confirmDeleteId !== null && (
+          <ConfirmDialog
+            title="Eliminar informe"
+            message="¿Eliminar este informe de ensayo? Esta acción no se puede deshacer."
+            confirmLabel="Sí, eliminar"
+            onConfirm={async () => {
+              const id = confirmDeleteId
+              setConfirmDeleteId(null)
+              try {
+                await api.deleteEnsayo(id)
+                if (obraId) await loadEnsayos(obraId)
+                setLastPath(null)
+                setMsg('Informe eliminado.')
+              } catch (err) {
+                setMsg(`Error al eliminar: ${errorMessage(err)}`)
+              }
+            }}
+            onCancel={() => setConfirmDeleteId(null)}
+          />
+        )}
       </div>
     )
   }
@@ -612,7 +658,9 @@ export function Ensayos(): JSX.Element {
             ? defaultTomaHormigonDatos()
             : tipo === 'albaran_planta'
               ? defaultAlbaranPlantaDatos()
-              : defaultPlacaDatos()
+              : tipo === 'radon_trazas'
+                ? defaultRadonDatos()
+                : defaultPlacaDatos()
 
   return (
     <EnsayoEditor
@@ -645,7 +693,7 @@ export function Ensayos(): JSX.Element {
 
 // ── Tarjeta de informe en la lista ────────────────────────────────────────────
 
-function EnsayoCard({
+export function EnsayoCard({
   ensayo,
   onEdit,
   onDelete,
@@ -722,7 +770,7 @@ function EnsayoCard({
 
 // ── Editor de informe ─────────────────────────────────────────────────────────
 
-function EnsayoEditor({
+export function EnsayoEditor({
   tipo,
   datosInit,
   tituloInit,
@@ -808,7 +856,7 @@ function EnsayoEditor({
           <button className="btn btn-ghost" onClick={onCancel} style={{ marginBottom: 10 }}>
             ← Volver
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 112 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
             <h1 style={{ margin: 0 }}>{meta?.label ?? tipo}</h1>
             <div className="estado-toggle-wrap">
               <span className="estado-toggle-label">Estado</span>
@@ -917,6 +965,7 @@ function EnsayoEditor({
         {tipo === 'toma_hormigon' && <TomaHormigonForm datos={datos} onChange={setDatos} showRoturas={false} />}
         {tipo === 'informe_hormigon' && <TomaHormigonForm datos={datos} onChange={setDatos} showRoturas={true} />}
         {tipo === 'albaran_planta' && <AlbaranPlantaForm datos={datos} onChange={setDatos} />}
+        {tipo === 'radon_trazas' && <RadonForm datos={datos} onChange={setDatos} />}
       </OcrConfCtx.Provider>
 
       <div className="toolbar" style={{ marginTop: 20 }}>
@@ -1101,6 +1150,7 @@ function computeVeredictoLocal(tipo: string, datos: Record<string, unknown>): st
     if (tipo === 'placa_carga') return placaSummary(datos).veredicto
     if (tipo === 'granulometria') return granulometriaSummary(datos).veredicto
     if (tipo === 'toma_hormigon' || tipo === 'informe_hormigon') return tomaHormigonSummary(datos).veredicto
+    if (tipo === 'radon_trazas') return radonSummary(datos)?.veredicto ?? ''
   } catch {
     /* silent */
   }
@@ -3014,6 +3064,488 @@ function AlbaranPlantaForm({
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FORMULARIO RADÓN (ISO 11665-4 / IS-47 CSN)
+// ══════════════════════════════════════════════════════════════════════════════
+
+const PLANTA_OPCIONES = ['Planta -2', 'Planta -1', 'Planta 0', 'Planta 1', 'Planta 2', 'Cubierta', 'Otro']
+
+function emptyDetector(n: number): Record<string, unknown> {
+  return {
+    n,
+    codigo: '',
+    lote: '',
+    edificio: '',
+    planta: 'Planta 0',
+    ubicacion: '',
+    extraviado: false,
+    saturado: false,
+    exposicion: '',
+    u_exposicion: '',
+    rac: '',
+    u_rac: ''
+  }
+}
+
+function RadonForm({
+  datos,
+  onChange
+}: {
+  datos: Record<string, unknown>
+  onChange: (d: Record<string, unknown>) => void
+}): JSX.Element {
+  const meta = (datos.metadata as Record<string, unknown>) ?? {}
+  const lotes = (datos.lotes as Record<string, unknown>[]) ?? []
+  const detectores = (datos.detectores as Record<string, unknown>[]) ?? []
+  const [bulkN, setBulkN] = useState(5)
+  const [importMsg, setImportMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const nivelRef = (toNum(meta.nivel_referencia) ?? 300)
+  const usaLotes = lotes.length > 0
+
+  async function handleImportJson(): Promise<void> {
+    setImportMsg(null)
+    try {
+      const result = await api.importRadonJson()
+      if (!result) return // usuario canceló
+
+      const { data, fotoMap } = result as {
+        data: {
+          metadata: Record<string, unknown>
+          detectores: Record<string, unknown>[]
+        }
+        fotoMap: Record<string, string>
+      }
+
+      // Merge metadata: rellena solo los campos vacíos del form actual
+      const botMeta = data.metadata ?? {}
+      const newMeta: Record<string, unknown> = { ...meta }
+      if (!newMeta.fecha_inicio && botMeta.fecha_instalacion) newMeta.fecha_inicio = botMeta.fecha_instalacion
+      if (!newMeta.instalacion_cye) newMeta.instalacion_cye = botMeta.instalacion_cye
+
+      // Merge detectores: añade los del bot conservando resultados (rac, etc.) si ya existían
+      const existing = [...detectores] as Record<string, unknown>[]
+      const botDets = (data.detectores ?? []) as Record<string, unknown>[]
+      const merged: Record<string, unknown>[] = botDets.map((bd) => {
+        // Busca detector existente por codigo o por número
+        const prev = existing.find(
+          (e) => (bd.codigo && e.codigo === bd.codigo) || e.n === bd.n
+        ) ?? {}
+        const fotoPath = bd.foto_filename ? (fotoMap[String(bd.foto_filename)] ?? null) : null
+        return {
+          ...emptyDetector(Number(bd.n) || 1),
+          ...prev,             // preserva resultados ya introducidos
+          n: bd.n,
+          codigo: bd.codigo ?? prev.codigo ?? '',
+          edificio: bd.edificio ?? prev.edificio ?? '',
+          planta: bd.planta ?? prev.planta ?? 'Planta 0',
+          ubicacion: bd.ubicacion ?? prev.ubicacion ?? '',
+          extraviado: bd.extraviado ?? prev.extraviado ?? false,
+          foto_path: fotoPath ?? prev.foto_path ?? null
+        }
+      })
+
+      onChange({ ...datos, metadata: newMeta, detectores: merged })
+      const nFotos = Object.keys(fotoMap).length
+      setImportMsg({
+        ok: true,
+        text: `Importados ${merged.length} detectores` + (nFotos > 0 ? ` y ${nFotos} foto(s).` : ' (sin fotos encontradas).')
+      })
+    } catch (e) {
+      setImportMsg({ ok: false, text: `Error al importar: ${String(e)}` })
+    }
+  }
+
+  function setMeta(key: string, val: unknown): void {
+    onChange({ ...datos, metadata: { ...meta, [key]: val } })
+  }
+
+  function addDetector(): void {
+    onChange({ ...datos, detectores: [...detectores, emptyDetector(detectores.length + 1)] })
+  }
+
+  function addBulk(): void {
+    const newOnes = Array.from({ length: bulkN }, (_, i) => emptyDetector(detectores.length + i + 1))
+    onChange({ ...datos, detectores: [...detectores, ...newOnes] })
+  }
+
+  function removeDetector(i: number): void {
+    const next = detectores.filter((_, idx) => idx !== i).map((d, idx) => ({ ...(d as Record<string, unknown>), n: idx + 1 }))
+    onChange({ ...datos, detectores: next })
+  }
+
+  function setDet(i: number, key: string, val: unknown): void {
+    const next = detectores.map((d, idx) => idx === i ? { ...(d as Record<string, unknown>), [key]: val } : d)
+    onChange({ ...datos, detectores: next })
+  }
+
+  function addLote(): void {
+    const id = String.fromCharCode(65 + lotes.length) // A, B, C…
+    onChange({ ...datos, lotes: [...lotes, { id, fecha_inicio: '', fecha_fin: '', duracion_dias: null }] })
+  }
+
+  function setLote(i: number, key: string, val: unknown): void {
+    const next = lotes.map((l, idx) => idx === i ? { ...(l as Record<string, unknown>), [key]: val } : l)
+    onChange({ ...datos, lotes: next })
+  }
+
+  function removeLote(i: number): void {
+    onChange({ ...datos, lotes: lotes.filter((_, idx) => idx !== i) })
+  }
+
+  const summary = radonSummary(datos)
+
+  function detRowClass(d: Record<string, unknown>): string {
+    if (d.extraviado) return 'radon-row-extraviado'
+    if (d.saturado) return 'radon-row-saturado'
+    const r = toNum(d.rac)
+    if (r !== null && r > nivelRef) return 'radon-row-excede'
+    return ''
+  }
+
+  return (
+    <div>
+      {/* Metadatos de exposición */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="sec-label">Datos de la exposición</div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Fecha inicio</label>
+            <input className="input" type="date" value={String(meta.fecha_inicio ?? '')} onChange={(e) => setMeta('fecha_inicio', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Fecha fin</label>
+            <input className="input" type="date" value={String(meta.fecha_fin ?? '')} onChange={(e) => setMeta('fecha_fin', e.target.value)} />
+          </div>
+          <div className="field-group" style={{ maxWidth: 120 }}>
+            <label className="field-label">Duración (días)</label>
+            <input className="input" type="number" min={1} value={String(meta.duracion_dias ?? '')} onChange={(e) => setMeta('duracion_dias', e.target.value ? Number(e.target.value) : null)} placeholder="auto" />
+          </div>
+          <div className="field-group" style={{ maxWidth: 140 }}>
+            <label className="field-label">Instalación</label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+              <input type="checkbox" checked={Boolean(meta.instalacion_cye)} onChange={(e) => setMeta('instalacion_cye', e.target.checked)} />
+              <span style={{ fontSize: 13 }}>Por CYE</span>
+            </label>
+          </div>
+        </div>
+        <div className="field-row" style={{ marginTop: 10 }}>
+          <div className="field-group">
+            <label className="field-label">Fecha inicio procesado</label>
+            <input className="input" type="date" value={String(meta.fecha_procesado_inicio ?? '')} onChange={(e) => setMeta('fecha_procesado_inicio', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Fecha fin procesado</label>
+            <input className="input" type="date" value={String(meta.fecha_procesado_fin ?? '')} onChange={(e) => setMeta('fecha_procesado_fin', e.target.value)} />
+          </div>
+          <div className="field-group" style={{ maxWidth: 130 }}>
+            <label className="field-label">Error fab. (%)</label>
+            <input className="input" type="number" step={0.1} value={String(meta.error_fabricante_pct ?? 7)} onChange={(e) => setMeta('error_fabricante_pct', parseFloat(e.target.value) || 7)} />
+          </div>
+          <div className="field-group" style={{ maxWidth: 130 }}>
+            <label className="field-label">Umbral decisión (Bq/m³)</label>
+            <input className="input" type="number" value={String(meta.umbral_decision ?? 3)} onChange={(e) => setMeta('umbral_decision', Number(e.target.value))} />
+          </div>
+          <div className="field-group" style={{ maxWidth: 130 }}>
+            <label className="field-label">Límite detección (Bq/m³)</label>
+            <input className="input" type="number" value={String(meta.limite_deteccion ?? 7)} onChange={(e) => setMeta('limite_deteccion', Number(e.target.value))} />
+          </div>
+          <div className="field-group" style={{ maxWidth: 150 }}>
+            <label className="field-label">Nivel referencia (Bq/m³)</label>
+            <input className="input" type="number" value={String(meta.nivel_referencia ?? 300)} onChange={(e) => setMeta('nivel_referencia', Number(e.target.value))} />
+          </div>
+        </div>
+        <div className="field-row" style={{ marginTop: 10 }}>
+          <div className="field-group" style={{ flex: 3 }}>
+            <label className="field-label">Norma / procedimiento</label>
+            <input className="input" value={String(meta.norma ?? '')} onChange={(e) => setMeta('norma', e.target.value)} placeholder="IS-47 CSN + PE-CYE-39 (ISO 11665-4)" />
+          </div>
+        </div>
+      </div>
+
+      {/* Lotes (opcional — para campañas con distintos periodos) */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: usaLotes ? 12 : 0 }}>
+          <div className="sec-label" style={{ marginBottom: 0 }}>Lotes de exposición <span style={{ fontWeight: 400, color: 'var(--text-soft)', fontSize: 12 }}>(opcional — si los detectores tuvieron periodos distintos)</span></div>
+          <button className="btn" style={{ fontSize: 12 }} onClick={addLote}>+ Añadir lote</button>
+        </div>
+        {usaLotes && (
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr>
+                {['Id', 'Fecha inicio', 'Fecha fin', 'Días', ''].map((h) => (
+                  <th key={h} style={{ textAlign: 'left', padding: '4px 8px', color: 'var(--text-soft)', fontWeight: 600 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {lotes.map((l, i) => {
+                const lot = l as Record<string, unknown>
+                return (
+                  <tr key={i}>
+                    <td style={{ padding: '3px 6px' }}><input className="input" style={{ width: 40, textAlign: 'center' }} value={String(lot.id ?? '')} onChange={(e) => setLote(i, 'id', e.target.value)} /></td>
+                    <td style={{ padding: '3px 6px' }}><input className="input" type="date" value={String(lot.fecha_inicio ?? '')} onChange={(e) => setLote(i, 'fecha_inicio', e.target.value)} /></td>
+                    <td style={{ padding: '3px 6px' }}><input className="input" type="date" value={String(lot.fecha_fin ?? '')} onChange={(e) => setLote(i, 'fecha_fin', e.target.value)} /></td>
+                    <td style={{ padding: '3px 6px' }}><input className="input" type="number" style={{ width: 70 }} value={String(lot.duracion_dias ?? '')} onChange={(e) => setLote(i, 'duracion_dias', e.target.value ? Number(e.target.value) : null)} placeholder="auto" /></td>
+                    <td style={{ padding: '3px 6px' }}><button className="btn btn-danger" style={{ padding: '2px 8px', fontSize: 12 }} onClick={() => removeLote(i)}><Ic.Trash /></button></td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Tabla de detectores */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+          <div className="sec-label" style={{ marginBottom: 0 }}>Detectores ({detectores.length})</div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <button className="btn" onClick={handleImportJson} style={{ background: 'var(--color-purple, #6B21A8)', color: '#fff', borderColor: 'transparent' }}>
+              📥 Importar desde bot
+            </button>
+            <span style={{ fontSize: 13, color: 'var(--text-soft)' }}>Añadir:</span>
+            <input
+              type="number" min={1} max={100}
+              className="input" style={{ width: 60 }}
+              value={bulkN}
+              onChange={(e) => setBulkN(Math.max(1, parseInt(e.target.value) || 1))}
+            />
+            <button className="btn" onClick={addBulk}>+ {bulkN} filas</button>
+            <button className="btn" onClick={addDetector}>+ 1</button>
+          </div>
+        </div>
+        {importMsg && (
+          <div style={{
+            padding: '6px 10px', borderRadius: 6, marginBottom: 10, fontSize: 13,
+            background: importMsg.ok ? 'var(--color-success-bg, #d1fae5)' : 'var(--color-danger-bg, #fee2e2)',
+            color: importMsg.ok ? 'var(--color-success, #065f46)' : 'var(--color-danger, #991b1b)'
+          }}>
+            {importMsg.text}
+            <button onClick={() => setImportMsg(null)} style={{ marginLeft: 10, background: 'none', border: 'none', cursor: 'pointer', opacity: 0.6 }}>✕</button>
+          </div>
+        )}
+
+        {detectores.length === 0 ? (
+          <div className="empty" style={{ padding: '20px 0' }}>Aún no hay detectores. Usa los botones de arriba para añadir filas.</div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: 'var(--bg-card-alt, #f4f6f9)' }}>
+                  {['Nº', 'Código', ...(usaLotes ? ['Lote'] : []), 'Edificio', 'Planta', 'Ubicación', 'Extr.', 'Sat.', 'Exp. kBq·h/m²', '±u exp.', 'RAC Bq/m³', '±u RAC', 'Foto', ''].map((h) => (
+                    <th key={h} style={{ padding: '5px 6px', textAlign: 'left', fontWeight: 600, color: 'var(--text-soft)', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border)' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {detectores.map((d, i) => {
+                  const det = d as Record<string, unknown>
+                  const extraviado = Boolean(det.extraviado)
+                  const saturado = Boolean(det.saturado)
+                  const disabled = extraviado || saturado
+                  return (
+                    <tr key={i} className={detRowClass(det)} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '3px 6px', color: 'var(--text-soft)', width: 30 }}>{i + 1}</td>
+                      <td style={{ padding: '3px 4px' }}>
+                        <input
+                          className="input" style={{ width: 72, fontFamily: 'monospace', fontSize: 12 }}
+                          value={String(det.codigo ?? '')}
+                          onChange={(e) => setDet(i, 'codigo', e.target.value)}
+                          placeholder="GJ0000"
+                        />
+                      </td>
+                      {usaLotes && (
+                        <td style={{ padding: '3px 4px' }}>
+                          <select
+                            className="select" style={{ width: 56, fontSize: 12 }}
+                            value={String(det.lote ?? '')}
+                            onChange={(e) => setDet(i, 'lote', e.target.value)}
+                          >
+                            <option value="">—</option>
+                            {lotes.map((l) => {
+                              const lot = l as Record<string, unknown>
+                              return <option key={String(lot.id)} value={String(lot.id)}>{String(lot.id)}</option>
+                            })}
+                          </select>
+                        </td>
+                      )}
+                      <td style={{ padding: '3px 4px' }}>
+                        <input
+                          className="input" style={{ width: 100, fontSize: 12 }}
+                          value={String(det.edificio ?? '')}
+                          onChange={(e) => setDet(i, 'edificio', e.target.value)}
+                          placeholder="Pabellón…"
+                        />
+                      </td>
+                      <td style={{ padding: '3px 4px' }}>
+                        <select
+                          className="select" style={{ width: 90, fontSize: 12 }}
+                          value={String(det.planta ?? 'Planta 0')}
+                          onChange={(e) => setDet(i, 'planta', e.target.value)}
+                        >
+                          {PLANTA_OPCIONES.map((p) => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                      </td>
+                      <td style={{ padding: '3px 4px' }}>
+                        <input
+                          className="input" style={{ minWidth: 130, fontSize: 12 }}
+                          value={String(det.ubicacion ?? '')}
+                          onChange={(e) => setDet(i, 'ubicacion', e.target.value)}
+                          placeholder="Zona entrada, estantería…"
+                        />
+                      </td>
+                      <td style={{ padding: '3px 6px', textAlign: 'center' }}>
+                        <input
+                          type="checkbox" checked={extraviado}
+                          onChange={(e) => setDet(i, 'extraviado', e.target.checked)}
+                          title="Detector extraviado (sin resultado)"
+                        />
+                      </td>
+                      <td style={{ padding: '3px 6px', textAlign: 'center' }}>
+                        <input
+                          type="checkbox" checked={saturado} disabled={extraviado}
+                          onChange={(e) => setDet(i, 'saturado', e.target.checked)}
+                          title="Detector saturado (>rango, RAC >1.000 Bq/m³)"
+                        />
+                      </td>
+                      <td style={{ padding: '3px 4px' }}>
+                        <input
+                          className="input" style={{ width: 80 }} type="number" step={1} disabled={disabled}
+                          value={disabled ? '' : String(det.exposicion ?? '')}
+                          onChange={(e) => setDet(i, 'exposicion', e.target.value === '' ? '' : Number(e.target.value))}
+                          placeholder="—"
+                        />
+                      </td>
+                      <td style={{ padding: '3px 4px' }}>
+                        <input
+                          className="input" style={{ width: 60 }} type="number" step={1} disabled={disabled}
+                          value={disabled ? '' : String(det.u_exposicion ?? '')}
+                          onChange={(e) => setDet(i, 'u_exposicion', e.target.value === '' ? '' : Number(e.target.value))}
+                          placeholder="±"
+                        />
+                      </td>
+                      <td style={{ padding: '3px 4px' }}>
+                        <input
+                          className="input" style={{ width: 70, fontWeight: 700 }} type="number" step={1} disabled={disabled}
+                          value={disabled ? '' : String(det.rac ?? '')}
+                          onChange={(e) => setDet(i, 'rac', e.target.value === '' ? '' : Number(e.target.value))}
+                          placeholder="—"
+                        />
+                      </td>
+                      <td style={{ padding: '3px 4px' }}>
+                        <input
+                          className="input" style={{ width: 55 }} type="number" step={1} disabled={disabled}
+                          value={disabled ? '' : String(det.u_rac ?? '')}
+                          onChange={(e) => setDet(i, 'u_rac', e.target.value === '' ? '' : Number(e.target.value))}
+                          placeholder="±"
+                        />
+                      </td>
+                      <td style={{ padding: '3px 4px', width: 52 }}>
+                        {det.foto_path ? (
+                          <div style={{ position: 'relative', display: 'inline-block' }}>
+                            <img
+                              src={`file://${det.foto_path}`}
+                              alt={`Det. ${i + 1}`}
+                              style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 4, cursor: 'pointer', border: '1px solid var(--border)' }}
+                              onClick={() => api.openRadonPhoto(String(det.foto_path))}
+                              title="Clic para abrir"
+                            />
+                            <button
+                              onClick={() => setDet(i, 'foto_path', null)}
+                              style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, borderRadius: '50%', background: 'var(--color-danger, #dc2626)', border: 'none', color: '#fff', fontSize: 9, lineHeight: '14px', cursor: 'pointer', padding: 0 }}
+                              title="Quitar foto"
+                            >✕</button>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn"
+                            style={{ padding: '2px 5px', fontSize: 11 }}
+                            title="Adjuntar foto"
+                            onClick={async () => {
+                              const path = await api.pickRadonPhoto()
+                              if (path) setDet(i, 'foto_path', path)
+                            }}
+                          >📎</button>
+                        )}
+                      </td>
+                      <td style={{ padding: '3px 4px' }}>
+                        <button className="btn btn-danger" style={{ padding: '2px 6px', fontSize: 11 }} onClick={() => removeDetector(i)} title="Eliminar fila">
+                          <Ic.Trash />
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {detectores.length > 0 && (
+          <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-soft)', display: 'flex', gap: 16 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><span style={{ width: 12, height: 12, background: '#e2e8f0', borderRadius: 2, display: 'inline-block' }} /> Extraviado</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><span style={{ width: 12, height: 12, background: '#fed7aa', borderRadius: 2, display: 'inline-block' }} /> Saturado (&gt;rango)</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><span style={{ width: 12, height: 12, background: '#fef08a', borderRadius: 2, display: 'inline-block' }} /> Excede {nivelRef} Bq/m³</span>
+          </div>
+        )}
+      </div>
+
+      {/* Resumen */}
+      {summary && (
+        <div className="card">
+          <div className="sec-label">Resumen de resultados</div>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+            <table style={{ borderCollapse: 'collapse', fontSize: 13 }}>
+              <tbody>
+                <tr>
+                  <td style={{ padding: '3px 16px 3px 0', color: 'var(--text-soft)' }}>Total detectores</td>
+                  <td style={{ fontWeight: 700 }}>{summary.n_total}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '3px 16px 3px 0', color: 'var(--text-soft)' }}>Extraviados</td>
+                  <td>{summary.n_extraviados}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '3px 16px 3px 0', color: 'var(--text-soft)' }}>Saturados (&gt;rango)</td>
+                  <td style={{ color: summary.n_saturados > 0 ? '#ea580c' : undefined }}>{summary.n_saturados}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '3px 16px 3px 0', color: 'var(--text-soft)' }}>Con resultado válido</td>
+                  <td>{summary.n_validos}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '3px 16px 3px 0', color: 'var(--text-soft)' }}>Exceden {summary.nivel_referencia} Bq/m³</td>
+                  <td style={{ color: summary.n_exceden > 0 ? '#dc2626' : '#16a34a', fontWeight: 700 }}>{summary.n_exceden}</td>
+                </tr>
+              </tbody>
+            </table>
+            <table style={{ borderCollapse: 'collapse', fontSize: 13 }}>
+              <tbody>
+                <tr>
+                  <td style={{ padding: '3px 16px 3px 0', color: 'var(--text-soft)' }}>RAC mínima</td>
+                  <td style={{ fontWeight: 700 }}>{summary.rac_min !== null ? `${summary.rac_min} Bq/m³` : '—'}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '3px 16px 3px 0', color: 'var(--text-soft)' }}>RAC máxima</td>
+                  <td style={{ fontWeight: 700, color: summary.rac_max !== null && summary.rac_max > nivelRef ? '#dc2626' : undefined }}>{summary.rac_max !== null ? `${summary.rac_max} Bq/m³` : '—'}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '3px 16px 3px 0', color: 'var(--text-soft)' }}>RAC media</td>
+                  <td style={{ fontWeight: 700 }}>{summary.rac_media !== null ? `${summary.rac_media} Bq/m³` : '—'}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '3px 16px 3px 0', color: 'var(--text-soft)' }}>Nivel de referencia</td>
+                  <td>{summary.nivel_referencia} Bq/m³ (Art. 72 RD 1029/2022)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

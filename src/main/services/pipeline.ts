@@ -16,7 +16,7 @@ import { generateExcel, generateWord, type ObraInfo } from '../pipeline/formatte
 import { generateInformeWord, generateInformeExcel } from '../pipeline/informes'
 import type { PlanRowInput } from '../pipeline/types'
 import type { Ensayo, Obra } from '../db'
-import { knowledgePath, templatePath } from '../paths'
+import { knowledgePath, writableKnowledgePath, templatePath } from '../paths'
 
 let _rules: Rules | null = null
 let _pricer: LabPricer | null = null
@@ -32,7 +32,7 @@ export function disposePipeline(): void {
 
 async function getRules(): Promise<Rules> {
   if (_rules) return _rules
-  _rules = JSON.parse(await readFile(knowledgePath('test_rules.json'), 'utf-8')) as Rules
+  _rules = JSON.parse(await readFile(writableKnowledgePath('test_rules.json'), 'utf-8')) as Rules
   return _rules
 }
 
@@ -149,18 +149,12 @@ export async function buildExcel(plan: PlanRowInput[], obra: ObraInfo): Promise<
   return generateExcel(plan, obra)
 }
 
-export function buildWord(plan: PlanRowInput[], obra: ObraInfo): Buffer {
+export async function buildWord(plan: PlanRowInput[], obra: ObraInfo): Promise<Buffer> {
   return generateWord(plan, obra, templatePath('presupuesto_plantilla.docx'))
 }
 
 export async function buildEnsayoWord(ensayo: Ensayo, obra: Obra): Promise<Buffer> {
-  return generateInformeWord(
-    ensayo,
-    obra,
-    templatePath('membrete_cye.jpeg'),
-    templatePath('plantilla_densidad_in_situ.xlsx'),
-    templatePath('plantilla_placa_carga.xlsx')
-  )
+  return generateInformeWord(ensayo, obra, templatePath('membrete_cye.jpeg'))
 }
 
 export async function buildEnsayoExcel(ensayo: Ensayo, obra: Obra): Promise<Buffer> {

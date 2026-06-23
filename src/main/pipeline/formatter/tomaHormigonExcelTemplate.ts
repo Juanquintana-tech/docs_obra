@@ -76,7 +76,7 @@ function fillAlbaranSheet(ws: ExcelJS.Worksheet, datos: Record<string, unknown>,
 
   // Obra / cliente
   const addMetaRow = (label: string, value: string): void => {
-    const r = ws.getRow(row++)
+    ws.getRow(row++)
     ws.mergeCells(`A${row - 1}:B${row - 1}`)
     const lc = ws.getCell(`A${row - 1}`)
     lc.value = label
@@ -97,18 +97,18 @@ function fillAlbaranSheet(ws: ExcelJS.Worksheet, datos: Record<string, unknown>,
 
   // Sección helper
   const secHeader = (label: string): void => {
-    const r = ws.getRow(row++)
+    ws.getRow(row++)
     ws.mergeCells(`A${row - 1}:H${row - 1}`)
     const c = ws.getCell(`A${row - 1}`)
     c.value = label
     c.font = { bold: true, size: 10, color: { argb: 'FFFFFFFF' } }
     c.fill = navyFill()
     c.alignment = { horizontal: 'left', indent: 1 }
-    r.height = 18
+    ws.getRow(row - 1).height = 18
   }
 
   const field2 = (label: string, value: string, label2?: string, value2?: string): void => {
-    const r = ws.getRow(row++)
+    ws.getRow(row++)
     ws.mergeCells(`A${row - 1}:B${row - 1}`)
     const lc = ws.getCell(`A${row - 1}`)
     lc.value = label; lc.font = { bold: true, size: 9 }; lc.fill = lightFill(); lc.border = allThin
@@ -286,5 +286,5 @@ export async function fillTomaHormigonTemplate(
   const wsRoturas = wb.addWorksheet('Roturas')
   fillRoturasSheet(wsRoturas, datos, obra)
 
-  return (await wb.xlsx.writeBuffer()) as Buffer
+  return Buffer.from(await wb.xlsx.writeBuffer())
 }

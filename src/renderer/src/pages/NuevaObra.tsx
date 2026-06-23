@@ -12,7 +12,8 @@ import type { IngestResult, PlanRowInput, PriceStrategy, BudgetSheet, BudgetImpo
 const STRATEGY_LABELS: Record<PriceStrategy, string> = {
   reciente: 'Precio más reciente',
   mediana: 'Precio mediano',
-  max: 'Precio máximo'
+  max: 'Precio máximo',
+  min: 'Precio mínimo'
 }
 
 const GEN_STAGES = [
@@ -244,7 +245,7 @@ export function NuevaObra(): JSX.Element {
         {
           obra, cliente, ref_lab: refLab, fecha, responsable,
           coef_baja: 1,
-          price_strategy: mode === 'import' ? 'importado' : strategy
+          price_strategy: mode === 'import' ? undefined : strategy
         },
         plan as PlanRowInput[]
       )

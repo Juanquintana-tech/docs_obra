@@ -86,6 +86,16 @@ export const Ic = {
     </>
   ),
 
+  // Átomo estilizado: núcleo + 3 órbitas — icono de radón
+  Radon: mk(
+    <>
+      <circle cx="12" cy="12" r="2" />
+      <ellipse cx="12" cy="12" rx="10" ry="4" />
+      <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)" />
+      <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)" />
+    </>
+  ),
+
   // ── Acciones ────────────────────────────────────────────────────────────────
   Download: mk(
     <>

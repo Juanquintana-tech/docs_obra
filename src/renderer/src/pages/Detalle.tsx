@@ -38,6 +38,7 @@ export function Detalle(): JSX.Element {
   const [busy, setBusy] = useState(false)
   const [editingInfo, setEditingInfo] = useState(false)
   const [infoForm, setInfoForm] = useState<ObraInput | null>(null)
+  const [prevDiscount, setPrevDiscount] = useState(0)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   const reload = useCallback(async (): Promise<void> => {
@@ -133,13 +134,17 @@ export function Detalle(): JSX.Element {
   // ── Info ──────────────────────────────────────────────────────────────────
   function openInfoEdit(): void {
     if (!obra) return
+    const discount = obra.discount_pct ?? 0
     setInfoForm({
       obra: obra.obra,
       cliente: obra.cliente,
       ref_lab: obra.ref_lab,
       fecha: obra.fecha,
-      responsable: obra.responsable
+      responsable: obra.responsable,
+      iva_rate: obra.iva_rate ?? 0.21,
+      discount_pct: discount
     })
+    setPrevDiscount(discount)
     setEditingInfo(true)
     setMsg(null)
   }
@@ -149,6 +154,10 @@ export function Detalle(): JSX.Element {
     setBusy(true)
     try {
       await api.updateObraInfo(obraId, infoForm)
+      const newDiscount = infoForm.discount_pct ?? 0
+      if (newDiscount !== prevDiscount) {
+        await api.applyDiscount(obraId, newDiscount)
+      }
       setEditingInfo(false)
       await reload()
     } catch (e) {
@@ -288,6 +297,8 @@ export function Detalle(): JSX.Element {
                 <InfoRow label="Ref. Laboratorio" value={obra.ref_lab} />
                 <InfoRow label="Fecha del plan" value={obra.fecha} />
                 <InfoRow label="Responsable" value={obra.responsable} />
+                <InfoRow label="IVA" value={`${((obra.iva_rate ?? 0.21) * 100).toFixed(0)} %`} />
+                <InfoRow label="Descuento" value={`${(obra.discount_pct ?? 0).toFixed(1)} %`} />
               </div>
 
             </div>
@@ -304,6 +315,35 @@ export function Detalle(): JSX.Element {
                   <FormField label="Ref. Laboratorio" value={infoForm.ref_lab ?? ''} onChange={(v) => setInfoForm({ ...infoForm, ref_lab: v })} />
                   <DateFormField label="Fecha del plan" value={infoForm.fecha ?? ''} onChange={(v) => setInfoForm({ ...infoForm, fecha: v })} />
                   <FormField label="Responsable" value={infoForm.responsable ?? ''} onChange={(v) => setInfoForm({ ...infoForm, responsable: v })} />
+                  <div className="field">
+                    <label className="field-label" title="Tipo impositivo aplicado al total del presupuesto">IVA (%)</label>
+                    <input
+                      type="number"
+                      className="input"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={((infoForm.iva_rate ?? 0.21) * 100).toFixed(0)}
+                      onChange={(e) => setInfoForm({ ...infoForm, iva_rate: (parseFloat(e.target.value) || 0) / 100 })}
+                    />
+                  </div>
+                  <div className="field">
+                    <label className="field-label" title="Descuento aplicado al precio de lista de todos los ensayos. Al guardar recalcula el plan.">Descuento (%)</label>
+                    <input
+                      type="number"
+                      className="input"
+                      min={0}
+                      max={100}
+                      step={0.1}
+                      value={infoForm.discount_pct ?? 0}
+                      onChange={(e) => setInfoForm({ ...infoForm, discount_pct: parseFloat(e.target.value) || 0 })}
+                    />
+                    {(infoForm.discount_pct ?? 0) !== prevDiscount && (
+                      <span style={{ fontSize: 11, color: 'var(--mid)', marginTop: 2 }}>
+                        Al guardar se recalcularán los precios del plan
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="toolbar" style={{ marginTop: 10, justifyContent: 'flex-end' }}>
                   <button className="btn" onClick={() => setEditingInfo(false)} disabled={busy}>Cancelar</button>
@@ -349,6 +389,7 @@ export function Detalle(): JSX.Element {
           {editingPlan ? (
             <EditablePlanTable
               rows={editedRows}
+              ivaRate={obra.iva_rate ?? 0.21}
               onChange={setEditedRows}
               onDelete={(id) => {
                 setDeletedIds((prev) => [...prev, id])
@@ -393,7 +434,7 @@ export function Detalle(): JSX.Element {
               }}
             />
           ) : (
-            <PlanTable rows={rows} />
+            <PlanTable rows={rows} ivaRate={obra.iva_rate ?? 0.21} />
           )}
         </>
       )}

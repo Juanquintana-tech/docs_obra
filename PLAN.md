@@ -101,6 +101,33 @@ La app mejora con el uso. La tabla DB ya existe; falta cablear la captura en la 
 
 ---
 
+## Análisis de diferencias P-0618 (CYE) vs Plan App — pendiente revisar
+
+> Análisis realizado 2026-06-23 comparando `P-0618-2018 CYE A54 ARZUA.xlsx` (€1.314.272, 219 líneas)
+> con `Plan_MELIDE_ARZUA.xlsx` generado por la App (€1.496.730, 124 líneas). Diferencia: +€182.458 (+13,9%).
+
+### Causas identificadas (NO corregidas todavía)
+
+1. **Precios unitarios** — la App usa `price_book` (mediana/máximo/mínimo) vs tarifa interna CYE.
+   Divergencias conocidas: Proctor Modificado App €60 vs CYE €55; Desgaste Los Ángeles App €60 vs CYE €54;
+   Fórmula trabajo MBC App €86 vs CYE €185. Impacto pequeño (~€5-10k neto). Pendiente: revisar
+   si ajustar `price_book.json` con precios reales de CYE.
+
+2. **Número de lotes/ensayos calculado** — la App lee cantidades distintas del documento por capas/materiales.
+   MBC genera filas por cada tipo de capa → multiplica "Análisis gran. áridos recuperados" (~€100k extra).
+   RELLENO: App 431 uds vs CYE 440 (diferencia de cantidad de partida: 4.304.081 vs ~4.400.000 m³).
+
+3. **Catálogo de ensayos diferente** — causa dominante (~€178k de los €182k totales):
+   - **Solo en App:** Fabricación 3 probetas suelo estabilizado €276k; Extracción testigo MBC ~€205k;
+     Ensayo carga placa NLT-357 ~€115k; Hormigón probetas (múltiples tipos) ~€121k; CROSS HOLE €61k.
+   - **Solo en CYE:** 219 líneas vs 124 App — CYE desglosa por tramo/sección; la App agrupa por categoría.
+     Muchas partidas CYE sin equivalente en `test_rules.json` o con descripciones que no matchean.
+
+4. **Granularidad de agrupación** — CYE hace una fila por tramo de obra; la App hace una fila
+   por categoría de material a nivel global. Esto puede generar exceso de lotes en mezclas bituminosas.
+
+---
+
 ## Deuda técnica
 
 - `unit_price_base` / `discount_pct` (migración v4): campos en DB pero descuento no recalculado en `updatePlanRows`.
