@@ -75,6 +75,8 @@ export function NuevaObra(): JSX.Element {
   const [refLab, setRefLab] = useState('')
   const [fecha, setFecha] = useState('')
   const [responsable, setResponsable] = useState('')
+  const [ivaRate, setIvaRate] = useState(21)
+  const [discountPct, setDiscountPct] = useState(0)
 
   // ── Progreso simulado ─────────────────────────────────────────────────────
   const isProcessing = genPhase === 'ingesting' || impPhase === 'parsing'
@@ -110,6 +112,7 @@ export function NuevaObra(): JSX.Element {
       setGenPhase('idle'); setGenResult(null)
     }
     setObra(''); setCliente(''); setRefLab(''); setFecha(''); setResponsable('')
+    setIvaRate(21); setDiscountPct(0)
   }
 
   // ── Helpers de archivos ───────────────────────────────────────────────────
@@ -245,10 +248,13 @@ export function NuevaObra(): JSX.Element {
         {
           obra, cliente, ref_lab: refLab, fecha, responsable,
           coef_baja: 1,
-          price_strategy: mode === 'import' ? undefined : strategy
+          price_strategy: mode === 'import' ? undefined : strategy,
+          iva_rate: ivaRate / 100,
+          discount_pct: discountPct
         },
         plan as PlanRowInput[]
       )
+      if (discountPct > 0) await api.applyDiscount(id, discountPct)
       navigate('/detalle/' + id)
     } catch (e) {
       setError(errorMessage(e))
@@ -519,6 +525,31 @@ export function NuevaObra(): JSX.Element {
               <FormField label="Ref. Laboratorio" value={refLab} onChange={setRefLab} />
               <DateFormField label="Fecha del plan" value={fecha} onChange={setFecha} />
               <FormField label="Responsable" value={responsable} onChange={setResponsable} />
+              <div className="field">
+                <label>IVA (%)</label>
+                <input
+                  type="number"
+                  className="input"
+                  min={0} max={100} step={1}
+                  value={ivaRate}
+                  onChange={(e) => setIvaRate(Math.max(0, Math.min(100, Number(e.target.value))))}
+                />
+              </div>
+              <div className="field">
+                <label>Descuento (%)</label>
+                <input
+                  type="number"
+                  className="input"
+                  min={0} max={100} step={0.1}
+                  value={discountPct}
+                  onChange={(e) => setDiscountPct(Math.max(0, Math.min(100, Number(e.target.value))))}
+                />
+                {discountPct > 0 && (
+                  <p style={{ fontSize: 11, color: 'var(--text-soft)', marginTop: 3, marginBottom: 0 }}>
+                    Se aplicará al guardar
+                  </p>
+                )}
+              </div>
             </div>
             {!obra.trim() && (
               <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>
@@ -555,7 +586,7 @@ export function NuevaObra(): JSX.Element {
               onClick={() => {
                 if (mode === 'generate') { setGenPhase('idle'); setGenResult(null) }
                 else { setImpPhase('idle'); setImpResult(null) }
-                setObra(''); setCliente(''); setRefLab('')
+                setObra(''); setCliente(''); setRefLab(''); setIvaRate(21); setDiscountPct(0)
               }}
               disabled={isSaving}
             >

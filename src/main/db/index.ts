@@ -94,9 +94,11 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
 
   const insertObra = db.prepare(
     `INSERT INTO obras (obra, cliente, ref_lab, fecha, coef_baja, total_importe,
-                        n_ensayos, n_materiales, responsable, price_strategy)
+                        n_ensayos, n_materiales, responsable, price_strategy,
+                        iva_rate, discount_pct)
      VALUES (@obra, @cliente, @ref_lab, @fecha, @coef_baja, @total_importe,
-             @n_ensayos, @n_materiales, @responsable, @price_strategy)`
+             @n_ensayos, @n_materiales, @responsable, @price_strategy,
+             @iva_rate, @discount_pct)`
   )
   const insertRow = db.prepare(
     `INSERT INTO plan_rows
@@ -120,7 +122,9 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
       n_ensayos: nEnsayos,
       n_materiales: nMateriales,
       responsable: info.responsable ?? '',
-      price_strategy: info.price_strategy ?? 'mediana'
+      price_strategy: info.price_strategy ?? 'mediana',
+      iva_rate: info.iva_rate ?? 0.21,
+      discount_pct: info.discount_pct ?? 0
     })
     const obraId = Number(res.lastInsertRowid)
 
