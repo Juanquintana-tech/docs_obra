@@ -40,6 +40,9 @@ export function Detalle(): JSX.Element {
   const [infoForm, setInfoForm] = useState<ObraInput | null>(null)
   const [prevDiscount, setPrevDiscount] = useState(0)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [editingCondiciones, setEditingCondiciones] = useState(false)
+  const [ivaInput, setIvaInput] = useState(21)
+  const [discountInput, setDiscountInput] = useState(0)
 
   const reload = useCallback(async (): Promise<void> => {
     const [o, r, ens, prog] = await Promise.all([
@@ -159,6 +162,36 @@ export function Detalle(): JSX.Element {
         await api.applyDiscount(obraId, newDiscount)
       }
       setEditingInfo(false)
+      await reload()
+    } catch (e) {
+      setMsg(`Error al guardar: ${e instanceof Error ? e.message : String(e)}`)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function openCondicionesEdit(): void {
+    if (!obra) return
+    setIvaInput((obra.iva_rate ?? 0.21) * 100)
+    setDiscountInput(obra.discount_pct ?? 0)
+    setEditingCondiciones(true)
+    setMsg(null)
+  }
+
+  async function saveCondiciones(): Promise<void> {
+    if (!obra) return
+    setBusy(true)
+    try {
+      const prevD = obra.discount_pct ?? 0
+      const newIva = ivaInput / 100
+      const newDiscount = discountInput
+      await api.updateObraInfo(obraId, {
+        obra: obra.obra, cliente: obra.cliente, ref_lab: obra.ref_lab,
+        fecha: obra.fecha, responsable: obra.responsable,
+        iva_rate: newIva, discount_pct: newDiscount
+      })
+      if (newDiscount !== prevD) await api.applyDiscount(obraId, newDiscount)
+      setEditingCondiciones(false)
       await reload()
     } catch (e) {
       setMsg(`Error al guardar: ${e instanceof Error ? e.message : String(e)}`)
@@ -385,6 +418,50 @@ export function Detalle(): JSX.Element {
               </>
             )}
           </div>
+
+          {/* ── Condiciones económicas ── */}
+          {!editingCondiciones ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, marginBottom: 14, fontSize: 13 }}>
+              <span style={{ color: 'var(--text-soft)' }}>IVA:</span>
+              <strong>{((obra.iva_rate ?? 0.21) * 100).toFixed(0)} %</strong>
+              <span style={{ color: 'var(--border)' }}>|</span>
+              <span style={{ color: 'var(--text-soft)' }}>Descuento:</span>
+              <strong>{(obra.discount_pct ?? 0).toFixed(1)} %</strong>
+              <span style={{ flex: 1 }} />
+              <button className="btn btn-ghost" style={{ padding: '3px 10px', fontSize: 12 }} onClick={openCondicionesEdit} disabled={busy || editingPlan}>
+                <Ic.Edit /> Editar
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--accent)', borderRadius: 8, marginBottom: 14, fontSize: 13, flexWrap: 'wrap' }}>
+              <div className="field" style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ whiteSpace: 'nowrap', color: 'var(--text-soft)' }}>IVA (%)</label>
+                <input type="number" className="input" min={0} max={100} step={1}
+                  value={ivaInput}
+                  onChange={(e) => setIvaInput(Math.max(0, Math.min(100, Number(e.target.value))))}
+                  style={{ width: 80 }}
+                />
+              </div>
+              <div className="field" style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ whiteSpace: 'nowrap', color: 'var(--text-soft)' }}>Descuento (%)</label>
+                <input type="number" className="input" min={0} max={100} step={0.1}
+                  value={discountInput}
+                  onChange={(e) => setDiscountInput(Math.max(0, Math.min(100, Number(e.target.value))))}
+                  style={{ width: 80 }}
+                />
+              </div>
+              {discountInput !== (obra.discount_pct ?? 0) && (
+                <span style={{ fontSize: 11, color: 'var(--text-soft)' }}>Recalculará todos los precios del plan</span>
+              )}
+              <span style={{ flex: 1 }} />
+              <button className="btn btn-primary" style={{ padding: '4px 14px', fontSize: 12 }} onClick={saveCondiciones} disabled={busy}>
+                {busy ? 'Guardando…' : <><Ic.Save /> Guardar</>}
+              </button>
+              <button className="btn btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setEditingCondiciones(false)} disabled={busy}>
+                Cancelar
+              </button>
+            </div>
+          )}
 
           {editingPlan ? (
             <EditablePlanTable
