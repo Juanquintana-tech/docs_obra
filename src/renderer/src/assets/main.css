@@ -1,4 +1,5 @@
 @import './base.css';
+@import './utilities.css';
 
 /* ── Layout ── */
 .app {
@@ -7,7 +8,7 @@
 }
 .sidebar {
   width: var(--sidebar-w);
-  background: var(--navy);
+  background: linear-gradient(180deg, var(--navy) 0%, var(--navy-700) 100%);
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -20,7 +21,9 @@
   font-size: 22px;
   font-weight: 800;
   letter-spacing: 1px;
-  padding: 6px 10px 2px;
+  padding: 6px 10px 14px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 .sidebar .brand small {
   display: block;
@@ -51,6 +54,7 @@
   border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.08);
@@ -59,6 +63,7 @@
   background: var(--orange);
   color: #fff;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(227, 108, 9, 0.35);
 }
 .nav-item .ico {
   width: 18px;
@@ -115,6 +120,9 @@
 .btn:hover {
   border-color: var(--mid);
 }
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -123,6 +131,7 @@
   background: var(--orange);
   border-color: var(--orange);
   color: #fff;
+  box-shadow: 0 1px 2px rgba(227, 108, 9, 0.3);
 }
 .btn-primary:hover {
   background: #c95e06;
@@ -208,6 +217,7 @@
   font-weight: 800;
   color: var(--navy);
   margin-top: 4px;
+  font-variant-numeric: tabular-nums;
 }
 
 .card-title {
@@ -281,6 +291,9 @@
   letter-spacing: 0.4px;
   padding: 10px 10px;
   text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 .plan-table thead th:first-child {
   text-align: left;
@@ -372,6 +385,7 @@
   gap: 28px;
   margin-top: 14px;
   font-size: 15px;
+  font-variant-numeric: tabular-nums;
 }
 .plan-total .grand {
   font-weight: 800;
@@ -473,6 +487,7 @@
   font-weight: 800;
   color: var(--mid);
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 .stat-lbl {
   font-size: 9px;

@@ -1,0 +1,85 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   Utilidades reutilizables
+   Sustituyen patrones repetidos de estilos en línea (layout, espaciado, cifras).
+   Pensadas para migrar gradualmente los `style={...}` de los componentes.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Layout vertical / horizontal */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.cluster {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.cluster-lg {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.section-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Rejillas de formulario */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+@media (max-width: 720px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Inputs estrechos (campos numéricos en línea y en tablas) */
+.input-narrow {
+  width: 72px;
+  text-align: right;
+}
+.input-table {
+  width: 70px;
+  padding: 4px 8px;
+  font-size: var(--text-sm);
+  text-align: right;
+}
+
+/* Cifras tabulares: importes, resultados de ensayo, contadores */
+.num,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+.mono {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Helpers de espaciado puntuales */
+.mt-2 {
+  margin-top: var(--space-2);
+}
+.mt-4 {
+  margin-top: var(--space-4);
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}
