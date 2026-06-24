@@ -91,8 +91,6 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
   const videoRef     = useRef<HTMLVideoElement>(null)
   const streamRef    = useRef<MediaStream | null>(null)
 
-  if (!SUPPORTED.has(tipo)) return null
-
   const loadFile = useCallback(async (file: File) => {
     setScanError(null)
     try {
@@ -102,6 +100,9 @@ export function ScanPanel({ tipo, onResult }: Props): JSX.Element | null {
       setScanError(e instanceof Error ? e.message : 'Error al cargar el archivo')
     }
   }, [])
+
+  // Tras declarar todos los hooks: si el tipo no admite escaneo, no renderiza nada.
+  if (!SUPPORTED.has(tipo)) return null
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>): void {
     const file = e.target.files?.[0]

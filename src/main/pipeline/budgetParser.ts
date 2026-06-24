@@ -341,7 +341,7 @@ Devuelve EXCLUSIVAMENTE este JSON (sin texto fuera del JSON):
   ]
 }`
 
-async function parsePdfBudget(text: string, format: string): Promise<{
+async function parsePdfBudget(text: string): Promise<{
   obra: { obra: string; cliente: string; ref_doc: string; municipio: string }
   rows: Array<{ material?: string; description?: string; n_tests?: number; unit_price?: number | null; total?: number | null }>
 }> {
@@ -497,7 +497,7 @@ export async function parseBudget(
     format = 'txt'
   }
 
-  const { obra, rows } = await parsePdfBudget(text, format)
+  const { obra, rows } = await parsePdfBudget(text)
   if (!obra.ref_doc) obra.ref_doc = refFromFilename
 
   const plan = rowsToplanRows(rows, 'Importado desde presupuesto original')

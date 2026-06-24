@@ -1256,7 +1256,7 @@ function DensidadForm({
               step={0.001}
               className="input"
               style={{ width: 110 }}
-              value={datos.correccion_densidad ?? 0}
+              value={Number(datos.correccion_densidad ?? 0)}
               onChange={(e) =>
                 onChange({ ...datos, correccion_densidad: parseFloat(e.target.value) || 0 })
               }
@@ -1269,7 +1269,7 @@ function DensidadForm({
               step={0.1}
               className="input"
               style={{ width: 110 }}
-              value={datos.correccion_humedad ?? 0}
+              value={Number(datos.correccion_humedad ?? 0)}
               onChange={(e) =>
                 onChange({ ...datos, correccion_humedad: parseFloat(e.target.value) || 0 })
               }

@@ -1,15 +1,9 @@
 import { useState, useEffect } from 'react'
 import type { JSX } from 'react'
 import { api } from '../lib/api'
-import type { Ensayo, EnsayoInput } from '../../../../../main/db'
+import type { Ensayo, EnsayoInput } from '../lib/types'
 import { Ic } from '../components/Icon'
-import {
-  EnsayoCard,
-  EnsayoEditor,
-  defaultRadonDatos,
-  WORD_TIPOS,
-  verdictClass
-} from './Ensayos'
+import { EnsayoCard, EnsayoEditor, defaultRadonDatos, WORD_TIPOS } from './Ensayos'
 
 function errorMessage(e: unknown): string {
   return e instanceof Error ? e.message : String(e)

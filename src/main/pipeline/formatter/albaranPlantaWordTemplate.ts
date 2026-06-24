@@ -12,7 +12,6 @@ import {
   Table,
   TableRow,
   TableCell,
-  TableBorders,
   ImageRun,
   AlignmentType,
   VerticalAlign,
@@ -189,7 +188,7 @@ export async function fillAlbaranPlantaWord(
               width: { size: 2200, type: WidthType.DXA },
               borders: noBorder,
               verticalAlign: VerticalAlign.CENTER,
-              children: [new Paragraph({ children: [new ImageRun({ data: logoBuf, transformation: { width: 110, height: 35 }, type: 'jpeg' })] })]
+              children: [new Paragraph({ children: [new ImageRun({ data: logoBuf, transformation: { width: 110, height: 35 }, type: 'jpg' })] })]
             }),
             new TableCell({
               borders: {

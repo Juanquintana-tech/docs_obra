@@ -13,8 +13,14 @@ const STRATEGY_LABELS: Record<PriceStrategy, string> = {
   reciente: 'Precio más reciente',
   mediana: 'Precio mediano',
   max: 'Precio máximo',
-  min: 'Precio mínimo'
+  min: 'Precio mínimo',
+  importado: 'Precio importado'
 }
+
+// Estrategias seleccionables por el usuario (excluye 'importado', interna del flujo de importación).
+const SELECTABLE_STRATEGIES = (Object.keys(STRATEGY_LABELS) as PriceStrategy[]).filter(
+  (s) => s !== 'importado'
+)
 
 const GEN_STAGES = [
   { id: 0, label: 'Extrayendo texto del documento', pctEnd: 18 },
@@ -570,7 +576,7 @@ export function NuevaObra(): JSX.Element {
                   disabled={repricing}
                   onChange={(e) => changeStrategy(e.target.value as PriceStrategy)}
                 >
-                  {(Object.keys(STRATEGY_LABELS) as PriceStrategy[]).map((s) => (
+                  {SELECTABLE_STRATEGIES.map((s) => (
                     <option key={s} value={s}>{STRATEGY_LABELS[s]}</option>
                   ))}
                 </select>

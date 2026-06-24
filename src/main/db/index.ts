@@ -15,6 +15,9 @@ export interface Obra {
   cliente: string
   ref_lab: string
   fecha: string
+  /** Opcionales: aún no persistidos en BD (usados por plantillas Word; hoy quedan vacíos). */
+  direccion?: string
+  municipio?: string
   coef_baja: number
   total_importe: number
   n_ensayos: number

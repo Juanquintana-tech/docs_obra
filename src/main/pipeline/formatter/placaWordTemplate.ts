@@ -569,8 +569,8 @@ export async function fillPlacaWord(ensayo: Ensayo, obra: Obra, logoPath: string
               bottom: noBorder.bottom,
               left: noBorder.left,
               right: noBorder.right,
-              insideH: noBorder.top,
-              insideV: noBorder.left
+              insideHorizontal: noBorder.top,
+              insideVertical: noBorder.left
             },
             rows: [
               new TableRow({

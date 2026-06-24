@@ -18,7 +18,6 @@ import { resolve } from 'path'
 import { RagPricer, CATEGORY_CTX, type EmbeddingsIndexFile } from '../rag/ragPricer'
 import { createEmbeddingsProvider } from '../rag/embeddings'
 import { TARIFAS_PATH, KNOWLEDGE_DIR } from './loadKnowledge'
-import { resolve } from 'path'
 
 interface Caso {
   q: string

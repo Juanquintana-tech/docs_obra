@@ -67,7 +67,7 @@ export function densidadSummary(datos: Record<string, unknown>): DensidadSummary
   const dMinAdm = dEspec ? Math.round((dEspec - MARGEN_DENSIDAD) * 1000) / 1000 : 0
   const dSituMin = dCorrList.length ? Math.round(Math.min(...dCorrList) * 1000) / 1000 : 0
   const cond1 = mediaComp >= compMin
-  const cond2 = dSituList.length ? dSituMin >= dMinAdm : false
+  const cond2 = dCorrList.length ? dSituMin >= dMinAdm : false
   const cond3 = (datos.cond3_cumple as boolean | null | undefined) ?? null
 
   let cumple = cond1 && cond2
