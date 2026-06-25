@@ -76,6 +76,13 @@ IGNORAR (no incluir):
 - Lámina/membrana anti-radón en m² (ej: "4920 M2 RADÓN", "LÁMINA RADON 0.6 mm"): es un material
   de impermeabilización, NO un ensayo de medición. IGNORAR. Solo clasificar como SERVICIO
   cuando aparezca como partida de medición/informe sin unidad m².
+- Malla electrosoldada / mallazo en m² (ej: "1767 M2 MALLAZO 15X15X6", "MALLA ELECTROSOLDADA"):
+  es armadura secundaria de pavimento expresada en m². Sin el peso por m² no se puede convertir a
+  toneladas. IGNORAR. (Si aparece en kg o t → ACERO con esa cantidad.)
+- Alumbrado público / farolas / luminarias (ej: "150 FAROLAS LED", "ALUMBRADO VIAL"):
+  son instalaciones de infraestructura urbana. IGNORAR. No generar SERVICIO por cantidad de farolas.
+  EXCEPCIÓN: si aparece como partida de control eléctrico genérica ("electricidad", "alumbrado" sin
+  cantidad de unidades de obra) → SERVICIO quantity=1.
 
 ── Abreviaturas frecuentes en obras civiles españolas ──────────────────────────
   ZA / Z.A.  → ZAHORRA_ARTIFICIAL
