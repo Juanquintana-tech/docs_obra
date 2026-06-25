@@ -119,6 +119,7 @@ export function extractBudgetPairs(...bases: string[]): BudgetPair[] {
 }
 
 export const DEFAULT_BUDGETS_DIRS: string[] = [
+  '/Users/usuario/Desktop/Nigal/Proyects/CYE/DOCS/Presupuestos_completo',
   '/Users/usuario/Desktop/Nigal/Proyects/CYE/Proyecto_docs_obra/Docs_post_demo_1/Presupuestos',
   '/Users/usuario/Desktop/Nigal/Proyects/CYE/Proyecto_docs_obra/presupuestos'
 ]

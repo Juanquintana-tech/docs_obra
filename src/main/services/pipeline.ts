@@ -1,11 +1,11 @@
 /**
- * Servicio de pipeline para el proceso main: orquesta ingesta y entregables,
- * cacheando el índice RAG y las reglas (se construyen una sola vez).
+ * Servicio de pipeline para el proceso main: orquesta ingesta y entregables.
+ * Motor de generación: Gemini LLM (plannerLLM) + precio determinista (price_book).
+ * El LabPricer TF-IDF se conserva solo para la pantalla de validación RAG.
  */
-import { readFile } from 'fs/promises'
 import { extractDocument } from '../pipeline/extractor'
 import { classifyMaterials, classifyLargeDocument, extractObraInfo } from '../pipeline/classifier'
-import { generatePlan, type Material, type Rules } from '../pipeline/planner'
+import type { Material } from '../pipeline/planner'
 import { listSheets, parseBudget, type BudgetSheet, type BudgetImportResult } from '../pipeline/budgetParser'
 import { CATEGORY_CTX } from '../pipeline/rag/ragPricer'
 import type { RagMatch } from '../pipeline/rag/types'
@@ -16,9 +16,10 @@ import { generateExcel, generateWord, type ObraInfo } from '../pipeline/formatte
 import { generateInformeWord, generateInformeExcel } from '../pipeline/informes'
 import type { PlanRowInput } from '../pipeline/types'
 import type { Ensayo, Obra } from '../db'
-import { knowledgePath, writableKnowledgePath, templatePath } from '../paths'
+import { knowledgePath, templatePath } from '../paths'
+import { generatePlanLLM, invalidatePlannerCache } from '../pipeline/llm/plannerLLM'
 
-let _rules: Rules | null = null
+// ── Caché del LabPricer TF-IDF (solo para pantalla de validación) ──────────
 let _pricer: LabPricer | null = null
 let _pricerPromise: Promise<LabPricer> | null = null
 
@@ -30,15 +31,7 @@ export function disposePipeline(): void {
   _embeddings.dispose()
 }
 
-async function getRules(): Promise<Rules> {
-  if (_rules) return _rules
-  _rules = JSON.parse(await readFile(writableKnowledgePath('test_rules.json'), 'utf-8')) as Rules
-  return _rules
-}
-
-/** Construye (y cachea) el motor de precios: libro de precios propio + ALAGAL de
- *  fallback. Cachea la PROMESA en vuelo para no construirlo dos veces si hay
- *  ingestas concurrentes. */
+/** Construye (y cachea) el LabPricer TF-IDF — solo para la pantalla de validación RAG. */
 function getPricer(): Promise<LabPricer> {
   if (_pricer) return Promise.resolve(_pricer)
   if (!_pricerPromise) {
@@ -58,6 +51,14 @@ function getPricer(): Promise<LabPricer> {
   return _pricerPromise
 }
 
+function plannerOpts(strategy: PriceStrategy) {
+  return {
+    priceBookPath: knowledgePath('price_book.json'),
+    historicalProjectsPath: knowledgePath('historical_projects.json'),
+    strategy: strategy === 'reciente' ? 'reciente' : 'mediana',
+  } as const
+}
+
 export interface IngestResult {
   obra: { obra: string; cliente: string; ref_doc: string; municipio: string }
   materials: Material[]
@@ -66,7 +67,7 @@ export interface IngestResult {
   meta: { format: string; chars: number; needsOcr: boolean }
 }
 
-/** PDF/Word/Excel → texto → (obra, materiales) → plan valorado con la estrategia dada. */
+/** PDF/Word/Excel → texto → (obra, materiales) → plan generado por LLM. */
 export async function ingestDocument(
   path: string,
   strategy: PriceStrategy = 'mediana',
@@ -77,8 +78,7 @@ export async function ingestDocument(
     extractObraInfo(text),
     classifyLargeDocument(text, format, undefined, onChunkDone)
   ])
-  const [rules, pricer] = await Promise.all([getRules(), getPricer()])
-  const plan = await generatePlan(materials, rules, (items) => pricer.priceMany(items, strategy))
+  const plan = await generatePlanLLM(materials, plannerOpts(strategy))
   return {
     obra: {
       obra: obraInfo.obra ?? '',
@@ -93,14 +93,13 @@ export async function ingestDocument(
   }
 }
 
-/** Texto plano pegado directamente por el usuario → (obra, materiales) → plan valorado. */
+/** Texto plano pegado directamente por el usuario → (obra, materiales) → plan generado por LLM. */
 export async function ingestText(
   text: string,
   strategy: PriceStrategy = 'mediana'
 ): Promise<IngestResult> {
   const [obraInfo, materials] = await Promise.all([extractObraInfo(text), classifyMaterials(text)])
-  const [rules, pricer] = await Promise.all([getRules(), getPricer()])
-  const plan = await generatePlan(materials, rules, (items) => pricer.priceMany(items, strategy))
+  const plan = await generatePlanLLM(materials, plannerOpts(strategy))
   return {
     obra: {
       obra: obraInfo.obra ?? '',
@@ -120,8 +119,7 @@ export async function repricePlan(
   materials: Material[],
   strategy: PriceStrategy
 ): Promise<PlanRowInput[]> {
-  const [rules, pricer] = await Promise.all([getRules(), getPricer()])
-  return generatePlan(materials, rules, (items) => pricer.priceMany(items, strategy))
+  return generatePlanLLM(materials, plannerOpts(strategy))
 }
 
 // ── Consultas RAG (para la pantalla de validación) ──────────────────────────
@@ -173,9 +171,9 @@ export async function buildEnsayoExcel(ensayo: Ensayo, obra: Obra): Promise<Buff
   return generateInformeExcel(ensayo, obra, tpl)
 }
 
-/** Invalida el cache de reglas para que se relean en el próximo presupuesto. */
+/** Invalida todos los cachés del pipeline (reglas, price_book, proyectos históricos). */
 export function invalidateRulesCache(): void {
-  _rules = null
+  invalidatePlannerCache()
 }
 
 // ── Importación de presupuestos existentes ───────────────────────────────────

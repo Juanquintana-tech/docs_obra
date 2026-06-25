@@ -28,6 +28,8 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
+    "rag:historical": "tsx src/main/pipeline/harness/buildHistoricalProjects.ts",
+    "rag:benchmark": "tsx src/main/pipeline/harness/benchmarkLLM.ts",
     "rag:compare": "tsx src/main/pipeline/harness/ragCompare.ts",
     "rag:cases": "tsx src/main/pipeline/harness/buildCasesFromBudgets.ts",
     "rag:price-book": "tsx src/main/pipeline/harness/buildPriceBook.ts",

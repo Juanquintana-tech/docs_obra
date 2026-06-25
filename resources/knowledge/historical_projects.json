@@ -1,0 +1,2635 @@
+{
+  "projects": [
+    {
+      "id": "E1",
+      "nombre": "ENSAYO / NORMATIVA",
+      "archivo": "Ejemplo 1 — P-1140.25 Rev 2.xls",
+      "total_base": 105039.4,
+      "categories": [
+        "TERRAPLEN_RELLENOS",
+        "ZAHORRA_ARTIFICIAL",
+        "HORMIGON",
+        "ACERO"
+      ],
+      "plan": [
+        {
+          "seccion": "TERRAPLÉN, PEDRAPLÉN O RELLENO Y EXPLANADA E2",
+          "descripcion": "Granulometría de suelos por tamizado UNE 103101",
+          "n_tests": 10,
+          "precio_unitario": 30,
+          "importe": 300
+        },
+        {
+          "seccion": "TERRAPLÉN, PEDRAPLÉN O RELLENO Y EXPLANADA E2",
+          "descripcion": "Límites de Atterberg UNE 103103 y 103104",
+          "n_tests": 10,
+          "precio_unitario": 33,
+          "importe": 330
+        },
+        {
+          "seccion": "TERRAPLÉN, PEDRAPLÉN O RELLENO Y EXPLANADA E2",
+          "descripcion": "Proctor Modificado UNE 103501",
+          "n_tests": 10,
+          "precio_unitario": 48,
+          "importe": 480
+        },
+        {
+          "seccion": "TERRAPLÉN, PEDRAPLÉN O RELLENO Y EXPLANADA E2",
+          "descripcion": "Índice CBR en laboratorio, sin incluir Proctor (tres puntos) UNE 103502",
+          "n_tests": 10,
+          "precio_unitario": 57,
+          "importe": 570
+        },
+        {
+          "seccion": "TERRAPLÉN, PEDRAPLÉN O RELLENO Y EXPLANADA E2",
+          "descripcion": "Contenido de materia orgánica en suelos UNE 103204",
+          "n_tests": 10,
+          "precio_unitario": 25,
+          "importe": 250
+        },
+        {
+          "seccion": "TERRAPLÉN, PEDRAPLÉN O RELLENO Y EXPLANADA E2",
+          "descripcion": "% Humedad por secado en estufa UNE 103300-93",
+          "n_tests": 10,
+          "precio_unitario": 30,
+          "importe": 300
+        },
+        {
+          "seccion": "TERRAPLÉN, PEDRAPLÉN O RELLENO Y EXPLANADA E2",
+          "descripcion": "Contenido de sales solubles en suelos NLT 114",
+          "n_tests": 10,
+          "precio_unitario": 30,
+          "importe": 300
+        },
+        {
+          "seccion": "TERRAPLÉN, PEDRAPLÉN O RELLENO Y EXPLANADA E2",
+          "descripcion": "Contenido de yesos en suelos NLT 115",
+          "n_tests": 10,
+          "precio_unitario": 30,
+          "importe": 300
+        },
+        {
+          "seccion": "TERRAPLÉN, PEDRAPLÉN O RELLENO Y EXPLANADA E2",
+          "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos UNE 103900 Mínimo facturable por desplazamiento 10 puntos",
+          "n_tests": 140,
+          "precio_unitario": 10,
+          "importe": 1400
+        },
+        {
+          "seccion": "ZAHORRA ARTIFICIAL",
+          "descripcion": "Humedad natural UNE EN 1097-5:2009",
+          "n_tests": 5,
+          "precio_unitario": 30,
+          "importe": 150
+        },
+        {
+          "seccion": "ZAHORRA ARTIFICIAL",
+          "descripcion": "Granulometría por tamizado, UNE-EN 933-1:2012",
+          "n_tests": 5,
+          "precio_unitario": 30,
+          "importe": 150
+        },
+        {
+          "seccion": "ZAHORRA ARTIFICIAL",
+          "descripcion": "Equivalente de arena UNE-EN 933-8",
+          "n_tests": 5,
+          "precio_unitario": 30,
+          "importe": 150
+        },
+        {
+          "seccion": "ZAHORRA ARTIFICIAL",
+          "descripcion": "Límites de Atterberg, UNE 103103:94, 103104:93",
+          "n_tests": 5,
+          "precio_unitario": 33,
+          "importe": 165
+        },
+        {
+          "seccion": "ZAHORRA ARTIFICIAL",
+          "descripcion": "Próctor Modificado, UNE 103501:94",
+          "n_tests": 5,
+          "precio_unitario": 48,
+          "importe": 240
+        },
+        {
+          "seccion": "ZAHORRA ARTIFICIAL",
+          "descripcion": "Caras de fractura UNE EN 933-5:1999/A1:2005",
+          "n_tests": 5,
+          "precio_unitario": 30,
+          "importe": 150
+        },
+        {
+          "seccion": "ZAHORRA ARTIFICIAL",
+          "descripcion": "Desgaste de Los Ángeles EN 1097-2:2010",
+          "n_tests": 5,
+          "precio_unitario": 60,
+          "importe": 300
+        },
+        {
+          "seccion": "ZAHORRA ARTIFICIAL",
+          "descripcion": "Ud. Índice de Lajas del árido grueso UNE-EN 933-3:2012",
+          "n_tests": 5,
+          "precio_unitario": 45,
+          "importe": 225
+        },
+        {
+          "seccion": "ZAHORRA ARTIFICIAL",
+          "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos UNE 103900 Mínimo facturable por desplazamiento 14 puntos",
+          "n_tests": 70,
+          "precio_unitario": 10,
+          "importe": 700
+        },
+        {
+          "seccion": "HORMIGÓN",
+          "descripcion": "Toma de muestra (incluyendo desplazamiento y traslado de muestras desde el laboratorio), medida de asentamiento, fabricación de cinco (5) probetas normalizadas, curado y ensayo a compresión UNE-EN 123",
+          "n_tests": 151,
+          "precio_unitario": 60,
+          "importe": 9060
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Visita para realización de ensayo no destructivo de uniones soldadas. Inspector Nivel 2. Examen mediante líquidos penetrantes UNE-EN 3452-1",
+          "n_tests": 5,
+          "precio_unitario": 450,
+          "importe": 2250
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Visita para la determinación del espesor de la película (galvanizado, recubrimiento, intumescente, etc.) en obra por métodos no destructivos UNE-EN ISO 1461, 2808, etc.",
+          "n_tests": 10,
+          "precio_unitario": 225,
+          "importe": 2250
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Visita para determinación \"in situ\" de la resistencia al deslizamiento con péndulo TRRL sobre pavimento acabado y en condiciones de uso, incluida la redacción de informe UNE-ENV 12633, UNE 41901, UNE ",
+          "n_tests": 2,
+          "precio_unitario": 195,
+          "importe": 390
+        },
+        {
+          "seccion": "HORMIGÓN",
+          "descripcion": "Toma de muestra (incluyendo desplazamiento y traslado de muestras desde el laboratorio), medida de asentamiento, fabricación de cinco (5) probetas normalizadas, curado y ensayo a compresión UNE-EN 123",
+          "n_tests": 228,
+          "precio_unitario": 60,
+          "importe": 13680
+        },
+        {
+          "seccion": "HORMIGÓN",
+          "descripcion": "Toma de muestra (incluyendo desplazamiento y traslado de muestras desde el laboratorio), medida de asentamiento, fabricación de cinco (5) probetas normalizadas, curado y ensayo a compresión UNE-EN 123",
+          "n_tests": 13,
+          "precio_unitario": 60,
+          "importe": 780
+        },
+        {
+          "seccion": "HORMIGÓN",
+          "descripcion": "Toma de muestra (incluyendo desplazamiento y traslado de muestras desde el laboratorio), medida de asentamiento, fabricación de cinco (5) probetas normalizadas, curado y ensayo a compresión UNE-EN 123",
+          "n_tests": 3,
+          "precio_unitario": 60,
+          "importe": 180
+        },
+        {
+          "seccion": "HORMIGÓN",
+          "descripcion": "Toma de muestra (incluyendo desplazamiento y traslado de muestras desde el laboratorio), medida de asentamiento, fabricación de cinco (5) probetas normalizadas, curado y ensayo a compresión UNE-EN 123",
+          "n_tests": 78,
+          "precio_unitario": 60,
+          "importe": 4680
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Visita para realización de ensayo no destructivo de uniones soldadas. Inspector Nivel 2. Examen mediante líquidos penetrantes UNE-EN 3452-1",
+          "n_tests": 15,
+          "precio_unitario": 450,
+          "importe": 6750
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Visita para la determinación del espesor de la película (galvanizado, recubrimiento, intumescente, etc.) en obra por métodos no destructivos UNE-EN ISO 1461, 2808, etc.",
+          "n_tests": 4,
+          "precio_unitario": 225,
+          "importe": 900
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Toma de muestras de mortero de cemento, fabricación, conservación y rotura a flexotracción y a compresión de 3 probetas prismáticas UNE-EN 1015-11",
+          "n_tests": 3,
+          "precio_unitario": 69,
+          "importe": 207
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Inspección para determinación de la himedad mediante higrómetro de contacto",
+          "n_tests": 2,
+          "precio_unitario": 70,
+          "importe": 140
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Ensayo arrancamiento en pavimentos y recrecidos",
+          "n_tests": 4,
+          "precio_unitario": 90,
+          "importe": 360
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Visita para realización de ensayo no destructivo de uniones soldadas. Inspector Nivel 2. Examen mediante líquidos penetrantes UNE-EN 3452-1",
+          "n_tests": 3,
+          "precio_unitario": 450,
+          "importe": 1350
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Visita para la determinación del espesor de la película (galvanizado, recubrimiento, intumescente, etc.) en obra por métodos no destructivos UNE-EN ISO 1461, 2808, etc.",
+          "n_tests": 2,
+          "precio_unitario": 225,
+          "importe": 450
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Espesor del panel, de las chapas y del aislante, densidad del aislante y espesor de recubrimiento de las chapas externa e interna.",
+          "n_tests": 4,
+          "precio_unitario": 80,
+          "importe": 320
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Prueba de estanqueidad \"in situ\" de cubiertas por inundación, verificación de la correcta evacuación de desagües y canalones, según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emi",
+          "n_tests": 8,
+          "precio_unitario": 390,
+          "importe": 3120
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Prueba de estanqueidad \"in situ\" de cubiertas no inundables por aspersores, verificación de la correcta evacuación de desagües y canalones, según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fot",
+          "n_tests": 8,
+          "precio_unitario": 390,
+          "importe": 3120
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Prueba de estanqueidad \"in situ\" del conjunto fachada-carpintería mediante batería de rociadores según procedimiento ALAGAL 1-ECC-01. Incluido reportaje fotográfico y emisión de informe. Los medios au",
+          "n_tests": 8,
+          "precio_unitario": 290,
+          "importe": 2320
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Visita para determinación \"in situ\" de la resistencia al deslizamiento con péndulo TRRL sobre pavimento acabado y en condiciones de uso, incluida la redacción de informe UNE-ENV 12633, UNE 41901, UNE ",
+          "n_tests": 4,
+          "precio_unitario": 195,
+          "importe": 780
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Ensayo estático de empuje horizontal en barandilla In Situ (sin incluir elemento de reacción), CTE / basada en UNE 85238:1991 Mínimo facturable por desplazamiento 2 ensayos",
+          "n_tests": 3,
+          "precio_unitario": 305,
+          "importe": 915
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Control de ejecución de estructuras Inspección de control de ejecución de estructuras. Inspección a cargo de técnico titulado de grado superior o medio, con experiencia en control de ejecución de estr",
+          "n_tests": 40,
+          "precio_unitario": 260,
+          "importe": 10400
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Prueba de estanqueidad en instalación de Saneamiento",
+          "n_tests": 4,
+          "precio_unitario": 310,
+          "importe": 1240
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Saneamiento prueba de circulación de la red general. Mediante el accionamiento de los aparatos, se comprobará que no hay estancamientos y que no existen fugas en los puntos visibles.",
+          "n_tests": 1,
+          "precio_unitario": 475,
+          "importe": 475
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Visita para inspección de tubería de saneamiento diámetro superior a 250 mm mediante equipo robotizado equipado con cámara CCTV. Mínimo facturable 500 m por visita",
+          "n_tests": 968,
+          "precio_unitario": 1.8,
+          "importe": 1742.4
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Instalación de electricidad. Realización de las pruebas electricas necesarias para comprobar los siguientes parámetros fundamentales de una instalación eléctrica: impedancia de linea, impedancia bucle",
+          "n_tests": 1,
+          "precio_unitario": 2550,
+          "importe": 2550
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Electricidad, puesta a tierra. Medición de la resistencia de puesta a tierra y comparación del mismo con los valores máximos reglamentarios establecidos teniendo en cuenta el valor de tensión de conta",
+          "n_tests": 1,
+          "precio_unitario": 400,
+          "importe": 400
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Comprobación de la continuidad del conductor de protección. En las tomas de corriente del edificio se comprobará que existe una continuidad del conductor de protección de tal forma que se asegura que ",
+          "n_tests": 1,
+          "precio_unitario": 500,
+          "importe": 500
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Prueba de funcionamiento de puesta a tierra de pararrayos A realizar en la misma visita",
+          "n_tests": 2,
+          "precio_unitario": 215,
+          "importe": 430
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Pruebas finales de centros de transformación. Se realizará una verificación de las medidas de seguridad del centro y el estado y características del local. (ventilaciones, contactos, distancias, medid",
+          "n_tests": 3,
+          "precio_unitario": 275,
+          "importe": 825
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Pruebas eléctricas del grupo electrógeno. Consiste en la comprobación del correcto funcionamiento del grupo, la conmutación y acoplamiento y desacoplamiento del grupo a la instalación. Se realizarán c",
+          "n_tests": 3,
+          "precio_unitario": 300,
+          "importe": 900
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Iluminación, pruebas de funcionamiento. Se verificará el funcionamiento de los sistemas de iluminación, accionamiento de los mecanismos, sensores de presencia, sistema de control de iluminación del al",
+          "n_tests": 1,
+          "precio_unitario": 700,
+          "importe": 700
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Medición lumínica de diferentes estancias donde se necesite un aporte de luz específico. Se realizará una medición de luxes en un mínimo de 5 puntos por estancia",
+          "n_tests": 1,
+          "precio_unitario": 550,
+          "importe": 550
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Pruebas de servicio en antenas TV/FM. En las tomas de televisión se verificará el nivel de señal existente y se comprobará que cumple con los mínimos establecidos por la normativa.",
+          "n_tests": 1,
+          "precio_unitario": 475,
+          "importe": 475
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Pruebas de servicio de instalación de control de accesos.",
+          "n_tests": 1,
+          "precio_unitario": 400,
+          "importe": 400
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Funcionamiento de la red de incendios. Se hará una comprobación de la existencia de todos los elementos de extinción contra incendios tanto manuales como automáticos, así como que su distribución cump",
+          "n_tests": 1,
+          "precio_unitario": 1950,
+          "importe": 1950
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Supervisión de estaqueidad de BIEs o rociadores",
+          "n_tests": 4,
+          "precio_unitario": 250,
+          "importe": 1000
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Prueba de servicio de instalación fotovoltaica",
+          "n_tests": 1,
+          "precio_unitario": 390,
+          "importe": 390
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Supervisión de prueba de presión y estanqueidad de la red de fontanería y agua fría del edificio.",
+          "n_tests": 1,
+          "precio_unitario": 325,
+          "importe": 325
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Se verificará el correcto accionamiento de los grifos y llaves de corte de aparatos y de locales húmedos, comprobando que es completo y que los caudales son adecuados.",
+          "n_tests": 1,
+          "precio_unitario": 750,
+          "importe": 750
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Supervisión de prueba de presión y estanqueidad de la red de fontanería y agua caliente del edificio.",
+          "n_tests": 1,
+          "precio_unitario": 325,
+          "importe": 325
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Se realizará una prueba de prestaciones térmicas (temperatura y humedad) en todas las estancias climatizadas, control de los equipos instalados, caudales en un porcentaje de las rejillas, medidas de s",
+          "n_tests": 1,
+          "precio_unitario": 3350,
+          "importe": 3350
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Supervisión de prueba de presión en circuito hidráulico de refrigeración.",
+          "n_tests": 2,
+          "precio_unitario": 350,
+          "importe": 700
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Prueba de servicio de la instalación de ventilación.",
+          "n_tests": 1,
+          "precio_unitario": 800,
+          "importe": 800
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Prueba de servicio y funcionamiento de los equipos de producción térmica",
+          "n_tests": 1,
+          "precio_unitario": 750,
+          "importe": 750
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Supervisión de prueba de presión en circuito de tubería de producción térmica.",
+          "n_tests": 6,
+          "precio_unitario": 270,
+          "importe": 1620
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Pruebas de servicio de aparatos elevadores. Comprobación del funcionamiento del equipo, enclavamientos mecánicos y eléctricos, medidas de seguridad, nivelado de la cabina, ventilación del hueco, desli",
+          "n_tests": 4,
+          "precio_unitario": 245,
+          "importe": 980
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Aislamiento Acústico de Fachadas. Se realizará en el exterior del local cuando las condiciones climatológicas lo permitan.",
+          "n_tests": 2,
+          "precio_unitario": 350,
+          "importe": 700
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Medición Ruido Ambiental Exterior. Se medirá el nivel de presión sonora recibido en 2 posiciones.",
+          "n_tests": 1,
+          "precio_unitario": 400,
+          "importe": 400
+        },
+        {
+          "seccion": "ACERO LAMINADO",
+          "descripcion": "Ensayo Blower Door, para medir el volumen de infiltraciones de aire, en edificación de hasta 100 m² de superficie útil, durante la ejecución de la obra, una vez cerrada la envolvente.",
+          "n_tests": 3,
+          "precio_unitario": 540,
+          "importe": 1620
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "ENSAYO / NORMATIVA",
+      "archivo": "Ejemplo 2 — P-0331.25.xlsx",
+      "total_base": 11410,
+      "categories": [
+        "HORMIGON"
+      ],
+      "plan": [
+        {
+          "seccion": "MURO HORMIGÓN ARMADO IMPERMEABLE HA-30/B/20/XS1",
+          "descripcion": "Determinación de la consistencia del hormigón fresco (Cono de Abrams) UNE EN 12350-2 Toma de muestra de hormigón fresco y fabricación de 5 probetas cilíndricas de 15x30 cm UNE EN 12390-2 Curado en cám",
+          "n_tests": 3,
+          "precio_unitario": 90,
+          "importe": 270
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Determinación de la consistencia del hormigón fresco (Cono de Abrams) UNE EN 12350-2 Toma de muestra de hormigón fresco y fabricación de 5 probetas cilíndricas de 15x30 cm UNE EN 12390-2 Curado en cám",
+          "n_tests": 3,
+          "precio_unitario": 90,
+          "importe": 270
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Determinación de la profundidad al agua bajo presión del hormigón para un ambiente IIIc (3 probetas) UNE EN 12390-8",
+          "n_tests": 1,
+          "precio_unitario": 210,
+          "importe": 210
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Determinación de la consistencia del hormigón fresco (Cono de Abrams) UNE EN 12350-2 Toma de muestra de hormigón fresco y fabricación de 5 probetas cilíndricas de 15x30 cm UNE EN 12390-2 Curado en cám",
+          "n_tests": 3,
+          "precio_unitario": 90,
+          "importe": 270
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Determinación de la consistencia del hormigón fresco (Cono de Abrams) UNE EN 12350-2 Toma de muestra de hormigón fresco y fabricación de 5 probetas cilíndricas de 15x30 cm UNE EN 12390-2 Curado en cám",
+          "n_tests": 12,
+          "precio_unitario": 90,
+          "importe": 1080
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Determinación de características geométricas UNE EN 15630-1 y UNE EN 10080 Determinación de las características mecánicas en el ensayo de tracción UNE EN ISO 15630-1 Aptitud al doblado-desdoblado UNE ",
+          "n_tests": 5,
+          "precio_unitario": 81,
+          "importe": 405
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Prueba de estanqueidad \"in situ\" de cubiertas no inundables, según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión de informe.",
+          "n_tests": 1,
+          "precio_unitario": 540,
+          "importe": 540
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Toma de muestras, fabricación, conservación y rotura a flexotracción y a compresión de 3 probetas prismáticas UNE-EN 1015-11",
+          "n_tests": 2,
+          "precio_unitario": 90,
+          "importe": 180
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Visita para determinación \"in situ\" de la resistencia al deslizamiento con péndulo TRRL sobre pavimento acabado y en condiciones de uso, incluida la redacción de informe UNE-ENV 12633, UNE 41901, UNE ",
+          "n_tests": 1,
+          "precio_unitario": 275,
+          "importe": 275
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Informe sobre cumplimiento de la envolvente que nos permitirá detectar anomalías y problemas ocultos (filtraciones de aire, deficiencias de sellado, humedades, etc.) en el edificio, reaizando las sigu",
+          "n_tests": 1,
+          "precio_unitario": 1800,
+          "importe": 1800
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Prueba de estanqueidad \"in situ\" del conjunto fachada-carpintería mediante batería de rociadores según procedimiento ALAGAL 1-ECC-01. Incluido reportaje fotográfico y emisión de informe.",
+          "n_tests": 4,
+          "precio_unitario": 350,
+          "importe": 1400
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Informe de mediciones de la concentración de radón a edificio terminado, mediante la instalación y deinstalación de 15 detectores de trazas, un período de exposicón de tres meses",
+          "n_tests": 1,
+          "precio_unitario": 1200,
+          "importe": 1200
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Informe de mediciones de parámetros acústicos según DB HR: - Aislamiento a ruido aéreo de elementos de separación entre estancias - Aislamiento a ruido aéreo de elementos de fachada - Aislamiento a ru",
+          "n_tests": 1,
+          "precio_unitario": 750,
+          "importe": 750
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Prueba de estanqueidad de aparatos, red horizontal, arquetas y pozos según DB-HS-5, CTE y Estanqueidad de la red UNE EN 1610 “Instalación y pruebas de acometidas y redes de saneamiento”.",
+          "n_tests": 1,
+          "precio_unitario": 420,
+          "importe": 420
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Prueba de servicio de la instalación de fontanería, determinando: -Grupo de presión (nivel muestreo 100%): Presiones de tarado Secuencias y alternancias de bombas. Consumo de motores. -Red de tuberías",
+          "n_tests": 1,
+          "precio_unitario": 420,
+          "importe": 420
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Prueba de servicio de electricidad e iluminación RBT, determinando: - Medición de la resistencia de aislamiento - Circuitos: Reparto de cargas, caidas de tensión, equipotencialidad - Cuadros eléctrico",
+          "n_tests": 1,
+          "precio_unitario": 900,
+          "importe": 900
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Prueba de servicio de calefacción y ACS determinando: - Circulación y libre dilatación: Identificación, Deformaciones y expansión - Conductos de distribución: velocidad, cuadales, temperaturas, sondas",
+          "n_tests": 1,
+          "precio_unitario": 570,
+          "importe": 570
+        },
+        {
+          "seccion": "CIMENTACIÓN HA-30/B/20/XS1",
+          "descripcion": "Prueba de servicio de contra incendios, determinando: - Detectores - Central de señalización y alarma - Pulsadores - Extintores - Estanqueidad y presiones de las bocas de incendios e hidrantes",
+          "n_tests": 1,
+          "precio_unitario": 450,
+          "importe": 450
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "nombre": "ENSAYOS DE CARACTERIZACIÓN (Art 330 PG-3)",
+      "archivo": "Ejemplo 5 — P-1339-20 P Rev 3.xlsx",
+      "total_base": 124025,
+      "categories": [
+        "TERRAPLEN_RELLENOS",
+        "SUELO_ESTABILIZADO",
+        "RIEGO_BITUMINOSO",
+        "MEZCLA_BITUMINOSA",
+        "ZAHORRA_ARTIFICIAL",
+        "HORMIGON",
+        "ACERO",
+        "MARCAS_VIALES"
+      ],
+      "plan": [
+        {
+          "seccion": "- RELLENOS",
+          "descripcion": "Granulometría de suelos por tamizado UNE 103101:95",
+          "n_tests": 50,
+          "precio_unitario": 25,
+          "importe": 1250
+        },
+        {
+          "seccion": "- RELLENOS",
+          "descripcion": "Límites de Atterberg UNE 103103:94 y 103014:93",
+          "n_tests": 50,
+          "precio_unitario": 25,
+          "importe": 1250
+        },
+        {
+          "seccion": "- RELLENOS",
+          "descripcion": "Proctor Modificado UNE 103501:94",
+          "n_tests": 50,
+          "precio_unitario": 42,
+          "importe": 2100
+        },
+        {
+          "seccion": "- RELLENOS",
+          "descripcion": "Índice CBR en laboratorio, sin incluir Proctor (tres puntos) UNE 103502:95",
+          "n_tests": 50,
+          "precio_unitario": 54,
+          "importe": 2700
+        },
+        {
+          "seccion": "- RELLENOS",
+          "descripcion": "Contenido de materia orgánica en suelos UNE 103204:93",
+          "n_tests": 50,
+          "precio_unitario": 27,
+          "importe": 1350
+        },
+        {
+          "seccion": "- RELLENOS",
+          "descripcion": "Contenido de sales solubles en suelos NLT 114-99",
+          "n_tests": 50,
+          "precio_unitario": 27,
+          "importe": 1350
+        },
+        {
+          "seccion": "- RELLENOS",
+          "descripcion": "Contenido de yesos en suelos NLT 115-99",
+          "n_tests": 50,
+          "precio_unitario": 27,
+          "importe": 1350
+        },
+        {
+          "seccion": "EN EL CASO DE TODO UNO / PEDRAPLÉN",
+          "descripcion": "Indice de forma Art 331 PG-3",
+          "n_tests": 10,
+          "precio_unitario": 30,
+          "importe": 300
+        },
+        {
+          "seccion": "EN EL CASO DE TODO UNO / PEDRAPLÉN",
+          "descripcion": "Granulometría de pedraplén compactado UNE 103501",
+          "n_tests": 10,
+          "precio_unitario": 45,
+          "importe": 450
+        },
+        {
+          "seccion": "EN EL CASO DE TODO UNO / PEDRAPLÉN",
+          "descripcion": "Granulometría Pedraplén-Todo Uno. Inspección de acopio de material Todo Uno/Pedraplén, fotografías, Tam. Máx y estimación de % de mat. > 100 mm, muestreo del mat. <100 mm. Determinación en lab. del % ",
+          "n_tests": 1,
+          "precio_unitario": 80,
+          "importe": 80
+        },
+        {
+          "seccion": "EN EL CASO DE TODO UNO / PEDRAPLÉN",
+          "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 10 puntos",
+          "n_tests": 1205,
+          "precio_unitario": 7,
+          "importe": 8435
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Análisis granulométrico por tamizado UNE 103101",
+          "n_tests": 3,
+          "precio_unitario": 25,
+          "importe": 75
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Límites de Atterberg UNE 103103, 103104",
+          "n_tests": 3,
+          "precio_unitario": 25,
+          "importe": 75
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Contenido de sulfatos solubles UNE 103201",
+          "n_tests": 3,
+          "precio_unitario": 40,
+          "importe": 120
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Contenido de materia orgánica UNE 103204",
+          "n_tests": 3,
+          "precio_unitario": 27,
+          "importe": 81
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Proctor Modificado UNE 103501-94",
+          "n_tests": 3,
+          "precio_unitario": 42,
+          "importe": 126
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Estudio de dosificación de una mezcla de suelo estabilizado incluyendo: Fabricación de cuatro series de cuatro probetas con 4 porcentajes de cemento",
+          "n_tests": 3,
+          "precio_unitario": 330,
+          "importe": 990
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Comprobación de la fórmula de trabajo: fabricación de 3 probetas y rotura a compresión a 7 días con el % de cemento óptimo",
+          "n_tests": 3,
+          "precio_unitario": 140,
+          "importe": 420
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Plazo de trabajabilidad UNE 41240",
+          "n_tests": 3,
+          "precio_unitario": 90,
+          "importe": 270
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Análisis granulométrico por tamizado UNE 103101",
+          "n_tests": 5,
+          "precio_unitario": 25,
+          "importe": 125
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Límites de Atterberg UNE 103103, 103104",
+          "n_tests": 5,
+          "precio_unitario": 25,
+          "importe": 125
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Proctor Modificado UNE 103501-94",
+          "n_tests": 5,
+          "precio_unitario": 42,
+          "importe": 210
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Ud. Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla, NLT-305-310",
+          "n_tests": 125,
+          "precio_unitario": 50,
+          "importe": 6250
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 14 puntos",
+          "n_tests": 175,
+          "precio_unitario": 7,
+          "importe": 1225
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Comprobación del espesor de capa (mediante comprobación de estaquillado) (mínimo facturable 10 determinaciones por desplazamiento)",
+          "n_tests": 25,
+          "precio_unitario": 5,
+          "importe": 125
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Determinación del espesor de la capa estabilizada mediante ejecución de calicata y rociado con fenolftaleína",
+          "n_tests": 25,
+          "precio_unitario": 10,
+          "importe": 250
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Jornada para medida de la deflexión mediante el ensayo de viga Benkelman NLT-356. Sin incluir elemento de reacción",
+          "n_tests": 3,
+          "precio_unitario": 560,
+          "importe": 1680
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Humedad de un suelo mediante secado en estufa",
+          "n_tests": 1,
+          "precio_unitario": 6,
+          "importe": 6
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Análisis granulométrico por tamizado UNE EN 933-1",
+          "n_tests": 1,
+          "precio_unitario": 25,
+          "importe": 25
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Límites de Atterberg UNE 103103, 103104",
+          "n_tests": 1,
+          "precio_unitario": 25,
+          "importe": 25
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Contenido de sulfatos solubles en ácido UNE EN 1744-1",
+          "n_tests": 1,
+          "precio_unitario": 40,
+          "importe": 40
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Contenido de materia orgánica UNE 103204",
+          "n_tests": 1,
+          "precio_unitario": 27,
+          "importe": 27
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Reactividad potencial de los áridos a los álcalis del cemento UNE 146507-1",
+          "n_tests": 1,
+          "precio_unitario": 150,
+          "importe": 150
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Compuestos totales de azufre UNE EN 1744-1",
+          "n_tests": 1,
+          "precio_unitario": 100,
+          "importe": 100
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Proctor Modificado UNE 103501-94",
+          "n_tests": 1,
+          "precio_unitario": 42,
+          "importe": 42
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Estudio de dosificación de una mezcla de suelo cemento incluyendo: Fabricación de cuatro series de cuatro probetas con 4 porcentajes de cemento",
+          "n_tests": 1,
+          "precio_unitario": 330,
+          "importe": 330
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Comprobación de la fórmula de trabajo: fabricación de 3 probetas y rotura a compresión a 7 días con el % de cemento óptimo",
+          "n_tests": 1,
+          "precio_unitario": 140,
+          "importe": 140
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Plazo de trabajabilidad UNE 41240",
+          "n_tests": 1,
+          "precio_unitario": 90,
+          "importe": 90
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Análisis granulométrico por tamizado UNE EN 933-1",
+          "n_tests": 3,
+          "precio_unitario": 25,
+          "importe": 75
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Límites de Atterberg UNE 103103, 103104",
+          "n_tests": 3,
+          "precio_unitario": 25,
+          "importe": 75
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Proctor Modificado UNE 103501-94",
+          "n_tests": 3,
+          "precio_unitario": 42,
+          "importe": 126
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Ud. Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla, NLT-305-310",
+          "n_tests": 57,
+          "precio_unitario": 50,
+          "importe": 2850
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Extracción de probeta-testigo en suelo-cemento con diámetro 100 mm y determinación del espesor de capa",
+          "n_tests": 5,
+          "precio_unitario": 45,
+          "importe": 225
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Extracción de testigo para comprobación de espesor de la mezcla de suelo cemento",
+          "n_tests": 5,
+          "precio_unitario": 60,
+          "importe": 300
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 14 puntos",
+          "n_tests": 133,
+          "precio_unitario": 7,
+          "importe": 931
+        },
+        {
+          "seccion": "2.- RIEGO DE IMPRIMACION",
+          "descripcion": "Penetracion de materiales bituminosos UNE EN 1426",
+          "n_tests": 2,
+          "precio_unitario": 42,
+          "importe": 84
+        },
+        {
+          "seccion": "2.- RIEGO DE IMPRIMACION",
+          "descripcion": "Agua en emulsiones bituminosas UNE EN 1428",
+          "n_tests": 1,
+          "precio_unitario": 42,
+          "importe": 42
+        },
+        {
+          "seccion": "RESIDUO POR DESTILACIÓN DE LAS EMULSIONES BITUMINOSAS UNE EN",
+          "descripcion": "Determinación de la dotación de ligante residual UNE EN 12697-3",
+          "n_tests": 5,
+          "precio_unitario": 40,
+          "importe": 200
+        },
+        {
+          "seccion": "3.- RIEGO DE CURADO",
+          "descripcion": "Penetracion de materiales bituminosos UNE EN 1426",
+          "n_tests": 3,
+          "precio_unitario": 42,
+          "importe": 126
+        },
+        {
+          "seccion": "3.- RIEGO DE CURADO",
+          "descripcion": "Agua en emulsiones bituminosas UNE EN 1428",
+          "n_tests": 2,
+          "precio_unitario": 42,
+          "importe": 84
+        },
+        {
+          "seccion": "3.- RIEGO DE CURADO",
+          "descripcion": "Residuo por destilación de las emulsiones bituminosas UNE EN 1431-00",
+          "n_tests": 1,
+          "precio_unitario": 57,
+          "importe": 57
+        },
+        {
+          "seccion": "3.- RIEGO DE CURADO",
+          "descripcion": "Determinación de la dotación de ligante residual UNE EN 12697-3",
+          "n_tests": 30,
+          "precio_unitario": 40,
+          "importe": 1200
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Humedad natural UNE 103300:93",
+          "n_tests": 2,
+          "precio_unitario": 6,
+          "importe": 12
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Granulometría por tamizado, UNE-EN 933-1:98",
+          "n_tests": 2,
+          "precio_unitario": 25,
+          "importe": 50
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Evaluación finos. Ensayo equivalente de arena UNE-EN 933-8:00",
+          "n_tests": 2,
+          "precio_unitario": 35,
+          "importe": 70
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Límites de Atterberg, UNE 103103:94, 103104:93",
+          "n_tests": 2,
+          "precio_unitario": 25,
+          "importe": 50
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Próctor Modificado, UNE 103501:94",
+          "n_tests": 2,
+          "precio_unitario": 42,
+          "importe": 84
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Limpieza superficial. Contenido de impurezas NLT-172:86",
+          "n_tests": 2,
+          "precio_unitario": 24,
+          "importe": 48
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Caras de fractura UNE EN 933-5",
+          "n_tests": 2,
+          "precio_unitario": 24,
+          "importe": 48
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Desgaste de Los Ángeles EN 1097-2",
+          "n_tests": 2,
+          "precio_unitario": 50,
+          "importe": 100
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Índice de Lajas del árido grueso UNE-EN 933-3:97",
+          "n_tests": 2,
+          "precio_unitario": 36,
+          "importe": 72
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Ud. Determinación del espesor de zahorra mediante la inspección de calicatas manuales",
+          "n_tests": 7,
+          "precio_unitario": 7,
+          "importe": 49
+        },
+        {
+          "seccion": "AGUA EN EMULSIONES BITUMINOSAS UNE EN 1428",
+          "descripcion": "Determinación de la dotación de ligante residual mediante calicata de 30x30 cm UNE EN 12697-3",
+          "n_tests": 4,
+          "precio_unitario": 80,
+          "importe": 320
+        },
+        {
+          "seccion": "AGUA EN EMULSIONES BITUMINOSAS UNE EN 1428",
+          "descripcion": "Toma sobre 3 bandejas y determinar la dotación media de ligante y árido",
+          "n_tests": 4,
+          "precio_unitario": 40,
+          "importe": 160
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC32 BASE G",
+          "descripcion": "Comprobación de las características y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinació",
+          "n_tests": 1,
+          "precio_unitario": 145,
+          "importe": 145
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC32 BASE G",
+          "descripcion": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfi",
+          "n_tests": 24,
+          "precio_unitario": 35,
+          "importe": 840
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC32 BASE G",
+          "descripcion": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
+          "n_tests": 24,
+          "precio_unitario": 45,
+          "importe": 1080
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC32 BASE G",
+          "descripcion": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
+          "n_tests": 24,
+          "precio_unitario": 25,
+          "importe": 600
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC32 BASE G",
+          "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
+          "n_tests": 24,
+          "precio_unitario": 60,
+          "importe": 1440
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC32 BASE G",
+          "descripcion": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla",
+          "n_tests": 1,
+          "precio_unitario": 135,
+          "importe": 135
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC32 BASE G",
+          "descripcion": "Determinación de la Deformación Permanente según UNE EN 12697-22",
+          "n_tests": 1,
+          "precio_unitario": 345,
+          "importe": 345
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 22 BIN S Y AC 22 BIN D",
+          "descripcion": "Comprobación de las caracteristicas y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinació",
+          "n_tests": 2,
+          "precio_unitario": 145,
+          "importe": 290
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 22 BIN S Y AC 22 BIN D",
+          "descripcion": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfi",
+          "n_tests": 31,
+          "precio_unitario": 35,
+          "importe": 1085
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 22 BIN S Y AC 22 BIN D",
+          "descripcion": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
+          "n_tests": 31,
+          "precio_unitario": 45,
+          "importe": 1395
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 22 BIN S Y AC 22 BIN D",
+          "descripcion": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
+          "n_tests": 31,
+          "precio_unitario": 25,
+          "importe": 775
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 22 BIN S Y AC 22 BIN D",
+          "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
+          "n_tests": 31,
+          "precio_unitario": 60,
+          "importe": 1860
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 22 BIN S Y AC 22 BIN D",
+          "descripcion": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla",
+          "n_tests": 2,
+          "precio_unitario": 135,
+          "importe": 270
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 22 BIN S Y AC 22 BIN D",
+          "descripcion": "Determinación de la Deformación Permanente según UNE EN 12697-22",
+          "n_tests": 2,
+          "precio_unitario": 345,
+          "importe": 690
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 16 SURF 50/70 D",
+          "descripcion": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfi",
+          "n_tests": 1,
+          "precio_unitario": 35,
+          "importe": 35
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 16 SURF 50/70 D",
+          "descripcion": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
+          "n_tests": 1,
+          "precio_unitario": 45,
+          "importe": 45
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 16 SURF 50/70 D",
+          "descripcion": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
+          "n_tests": 1,
+          "precio_unitario": 25,
+          "importe": 25
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 16 SURF 50/70 D",
+          "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
+          "n_tests": 1,
+          "precio_unitario": 60,
+          "importe": 60
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Comprobación de las caracteristicas y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinació",
+          "n_tests": 1,
+          "precio_unitario": 145,
+          "importe": 145
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfi",
+          "n_tests": 14,
+          "precio_unitario": 35,
+          "importe": 490
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
+          "n_tests": 14,
+          "precio_unitario": 45,
+          "importe": 630
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
+          "n_tests": 14,
+          "precio_unitario": 25,
+          "importe": 350
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
+          "n_tests": 14,
+          "precio_unitario": 60,
+          "importe": 840
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla",
+          "n_tests": 2,
+          "precio_unitario": 135,
+          "importe": 270
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Determinación de escurrimiento de ligante UNE EN 12697-18",
+          "n_tests": 1,
+          "precio_unitario": 80,
+          "importe": 80
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Determinación de la Deformación Permanente según UNE EN 12697-22",
+          "n_tests": 2,
+          "precio_unitario": 345,
+          "importe": 690
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Punto de reblandecimiento (anillo y bola) de betún asfáltico UNE EN 1427",
+          "n_tests": 2,
+          "precio_unitario": 42,
+          "importe": 84
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Indice de penetración (sin incluir ensayos) de betún asfáltico NLT-181",
+          "n_tests": 2,
+          "precio_unitario": 8,
+          "importe": 16
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Penetración de betún asfáltico UNE EN 1426",
+          "n_tests": 1,
+          "precio_unitario": 42,
+          "importe": 42
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Punto de reblandecimiento (anillo y bola) de betún asfáltico UNE EN 1427",
+          "n_tests": 1,
+          "precio_unitario": 42,
+          "importe": 42
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Indice de penetración (sin incluir ensayos) de betún asfáltico NLT-181",
+          "n_tests": 1,
+          "precio_unitario": 8,
+          "importe": 8
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Recuperación elástica de betún modificado NLT-329",
+          "n_tests": 1,
+          "precio_unitario": 140,
+          "importe": 140
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Determinación de las propiedades de tracción de los ligantes modificados por el método fuerza-ductilidad a una temperatura UNE EN 13589",
+          "n_tests": 1,
+          "precio_unitario": 210,
+          "importe": 210
+        },
+        {
+          "seccion": "RIEGO DE ADHERENCIA",
+          "descripcion": "Agua en emulsiones bituminosas UNE EN 1428-00",
+          "n_tests": 2,
+          "precio_unitario": 42,
+          "importe": 84
+        },
+        {
+          "seccion": "RESIDUO POR DESTILACIÓN DE LAS EMULSIONES BITUMINOSAS UNE EN",
+          "descripcion": "Tamizado emulsiones bituminosas UNE EN 1429",
+          "n_tests": 2,
+          "precio_unitario": 33,
+          "importe": 66
+        },
+        {
+          "seccion": "RESIDUO POR DESTILACIÓN DE LAS EMULSIONES BITUMINOSAS UNE EN",
+          "descripcion": "Carga de las partículas de las emulsiones bituminosas UNE EN 1430",
+          "n_tests": 2,
+          "precio_unitario": 38,
+          "importe": 76
+        },
+        {
+          "seccion": "RESIDUO POR DESTILACIÓN DE LAS EMULSIONES BITUMINOSAS UNE EN",
+          "descripcion": "Índice de rotura UNE EN 13075-1",
+          "n_tests": 2,
+          "precio_unitario": 46,
+          "importe": 92
+        },
+        {
+          "seccion": "RESIDUO POR DESTILACIÓN DE LAS EMULSIONES BITUMINOSAS UNE EN",
+          "descripcion": "Determinación del tiempo de fluencia por medio de viscosímetro de flujo",
+          "n_tests": 2,
+          "precio_unitario": 55,
+          "importe": 110
+        },
+        {
+          "seccion": "RESIDUO POR DESTILACIÓN DE LAS EMULSIONES BITUMINOSAS UNE EN",
+          "descripcion": "Caracterización de las propiedades perceptibles",
+          "n_tests": 2,
+          "precio_unitario": 30,
+          "importe": 60
+        },
+        {
+          "seccion": "RESIDUO POR DESTILACIÓN DE LAS EMULSIONES BITUMINOSAS UNE EN",
+          "descripcion": "Contenido de fluidificante por destilación UNE EN 1431",
+          "n_tests": 2,
+          "precio_unitario": 57,
+          "importe": 114
+        },
+        {
+          "seccion": "RESIDUO POR DESTILACIÓN DE LAS EMULSIONES BITUMINOSAS UNE EN",
+          "descripcion": "Determinación de la dotación de ligante residual UNE EN 12697-3",
+          "n_tests": 40,
+          "precio_unitario": 40,
+          "importe": 1600
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Extracción de testigo en mezcla bituminosa en caliente: espesor y densidad UNE EN 12697-27, -30,-6",
+          "n_tests": 120,
+          "precio_unitario": 39,
+          "importe": 4680
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Extracción de testigo en mezcla bituminosa en caliente y determinación de la adherencia a cortante entre capas UNE EN 12697-27 y NLT-381",
+          "n_tests": 120,
+          "precio_unitario": 30,
+          "importe": 3600
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Desplazamiento de equipo APL para determinación del IRI en obra",
+          "n_tests": 3,
+          "precio_unitario": 1200,
+          "importe": 3600
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Km de carril medido para la medición del IRI NLT-330",
+          "n_tests": 30,
+          "precio_unitario": 14,
+          "importe": 420
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Macrotextura superficial UNE EN 13036-1 Mínimo facturable por desplazamiento 10 ensayos",
+          "n_tests": 60,
+          "precio_unitario": 25,
+          "importe": 1500
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Desplazamiento de equipo para el cálculo del CRT en obra 2 meses después de la puesta en servicio No incluye señalización que será por cuenta del Contratista",
+          "n_tests": 1,
+          "precio_unitario": 3750,
+          "importe": 3750
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Km. de resistencia al deslizamiento CRT NLT-336",
+          "n_tests": 30,
+          "precio_unitario": 24,
+          "importe": 720
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Inspección de media jornada para la determinación del coeficiente de resistencia al deslizamiento con péndulo PTV según UNE EN 13036-4 Método alternativo al equipo de medida del CRT No incluye señaliz",
+          "n_tests": 3,
+          "precio_unitario": 225,
+          "importe": 675
+        },
+        {
+          "seccion": "HORMIGÓN",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cinco (5) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 1",
+          "n_tests": 370,
+          "precio_unitario": 39,
+          "importe": 14430
+        },
+        {
+          "seccion": "ENSAYOS DURABILIDAD HORMIGÓN",
+          "descripcion": "Determinación de la profundidad de penetración del agua bajo presión sobre 3 probetas cilíndricas de 15x30 cm a la edad de 28 días UNE EN 12390-8",
+          "n_tests": 1,
+          "precio_unitario": 210,
+          "importe": 210
+        },
+        {
+          "seccion": "- ACERO PASIVO",
+          "descripcion": "Determinación de características geométricas y mecánicas de acero corrugado (doblado-desdoblado y tracción) UNE EN ISO 15630-1, ISO 6892 y UNE EN 10080",
+          "n_tests": 46,
+          "precio_unitario": 40,
+          "importe": 1840
+        },
+        {
+          "seccion": "- ACERO LAMINADO",
+          "descripcion": "Visita de inspección para la realización de ensayos no destructivos de uniones soldadas en ángulo. Inspección por líquidos penetrantes UNE-EN 3452-1. Realización en obra o taller a < 50 km de obra",
+          "n_tests": 5,
+          "precio_unitario": 300,
+          "importe": 1500
+        },
+        {
+          "seccion": "- ACERO LAMINADO",
+          "descripcion": "Visita de inspección para la realización de ensayos no destructivos de uniones soldadas a tope o fuerza. Examen por ultrasonidos UNE-EN ISO 17640. Realización en obra o taller a < 50 km de obra",
+          "n_tests": 5,
+          "precio_unitario": 480,
+          "importe": 2400
+        },
+        {
+          "seccion": "- ACERO LAMINADO",
+          "descripcion": "Visita de inspección para la determinación del espesor de recubrimiento UNE EN ISO 2808 y/o comprobación de la adherencia del recubrImiento de la estructura metálica UNE EN ISO 2409. Realización en ob",
+          "n_tests": 5,
+          "precio_unitario": 230,
+          "importe": 1150
+        },
+        {
+          "seccion": "- MARCAS VIALES",
+          "descripcion": "Dotación individual de microesferas y pintura en marcas viales sobre 15 pares de bandejas taradas",
+          "n_tests": 3,
+          "precio_unitario": 350,
+          "importe": 1050
+        },
+        {
+          "seccion": "- MARCAS VIALES",
+          "descripcion": "Desplazamiento de equipo ECODYN para la medida de la retrorreflexión en obra No incluye señalización que será por cuenta del Contratista",
+          "n_tests": 3,
+          "precio_unitario": 2680,
+          "importe": 8040
+        },
+        {
+          "seccion": "- MARCAS VIALES",
+          "descripcion": "Km de retrorrreflexión de marcas viales a los 30, 180 o 730 días de la puesta en servicio",
+          "n_tests": 20,
+          "precio_unitario": 17,
+          "importe": 340
+        },
+        {
+          "seccion": "- MARCAS VIALES",
+          "descripcion": "Inspección de media jornada para la determinación del coeficiente de resistencia al deslizamiento con péndulo PTV según UNE EN 13036-4 Método alternativo al equipo de medida del CRT No incluye señaliz",
+          "n_tests": 2,
+          "precio_unitario": 250,
+          "importe": 500
+        },
+        {
+          "seccion": "- MARCAS VIALES",
+          "descripcion": "Visita de inspección para la determinación del espesor de galvanizado in situ por métodos no destructivos UNE EN ISO 1461",
+          "n_tests": 2,
+          "precio_unitario": 210,
+          "importe": 420
+        }
+      ]
+    },
+    {
+      "id": "E8",
+      "nombre": "ENSAYOS DE CARACTERIZACIÓN (Art 330 PG-3)",
+      "archivo": "Ejemplo 8 — P-0618-2018 CYE A54 ARZUA.xlsx",
+      "total_base": 1314272,
+      "categories": [
+        "TERRAPLEN_RELLENOS",
+        "SUELO_ESTABILIZADO",
+        "RIEGO_BITUMINOSO",
+        "MEZCLA_BITUMINOSA",
+        "ZAHORRA_ARTIFICIAL",
+        "MARCAS_VIALES",
+        "HORMIGON",
+        "PILOTES",
+        "ACERO"
+      ],
+      "plan": [
+        {
+          "seccion": "- TERRAPLÉN Y RELLENOS LOCALIZADOS",
+          "descripcion": "Granulometría de suelos por tamizado UNE 103101:95",
+          "n_tests": 440,
+          "precio_unitario": 35,
+          "importe": 15400
+        },
+        {
+          "seccion": "- TERRAPLÉN Y RELLENOS LOCALIZADOS",
+          "descripcion": "Límites de Atterberg UNE 103103:94 y 103014:93",
+          "n_tests": 440,
+          "precio_unitario": 40,
+          "importe": 17600
+        },
+        {
+          "seccion": "- TERRAPLÉN Y RELLENOS LOCALIZADOS",
+          "descripcion": "Proctor Modificado UNE 103501:94",
+          "n_tests": 440,
+          "precio_unitario": 55,
+          "importe": 24200
+        },
+        {
+          "seccion": "- TERRAPLÉN Y RELLENOS LOCALIZADOS",
+          "descripcion": "Índice CBR en laboratorio, sin incluir Proctor (tres puntos) UNE 103502:95",
+          "n_tests": 440,
+          "precio_unitario": 85,
+          "importe": 37400
+        },
+        {
+          "seccion": "- TERRAPLÉN Y RELLENOS LOCALIZADOS",
+          "descripcion": "Contenido de materia orgánica en suelos UNE 103204:93",
+          "n_tests": 440,
+          "precio_unitario": 30,
+          "importe": 13200
+        },
+        {
+          "seccion": "- TERRAPLÉN Y RELLENOS LOCALIZADOS",
+          "descripcion": "Contenido de sales solubles en suelos NLT 114-99",
+          "n_tests": 440,
+          "precio_unitario": 40,
+          "importe": 17600
+        },
+        {
+          "seccion": "- TERRAPLÉN Y RELLENOS LOCALIZADOS",
+          "descripcion": "Contenido de yesos en suelos NLT 115-99",
+          "n_tests": 440,
+          "precio_unitario": 40,
+          "importe": 17600
+        },
+        {
+          "seccion": "EN EL CASO DE TODO UNO / PEDRAPLÉN",
+          "descripcion": "Estabilidad de los áridos y fragmentos de roca frente a la acción de los ciclos de humedad-sequedad NLT-260",
+          "n_tests": 3,
+          "precio_unitario": 115,
+          "importe": 345
+        },
+        {
+          "seccion": "EN EL CASO DE TODO UNO / PEDRAPLÉN",
+          "descripcion": "Indice de forma Art 331 PG-3",
+          "n_tests": 3,
+          "precio_unitario": 36,
+          "importe": 108
+        },
+        {
+          "seccion": "EN EL CASO DE TODO UNO / PEDRAPLÉN",
+          "descripcion": "Análisis granulométrico de pedraplén compactado UNE103101-95",
+          "n_tests": 3,
+          "precio_unitario": 42,
+          "importe": 126
+        },
+        {
+          "seccion": "EN EL CASO DE TODO UNO / PEDRAPLÉN",
+          "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 10 puntos",
+          "n_tests": 7350,
+          "precio_unitario": 13,
+          "importe": 95550
+        },
+        {
+          "seccion": "EN EL CASO DE TODO UNO / PEDRAPLÉN",
+          "descripcion": "Densidad por el método de la arena UNE 103503:95 y Humedad por secado en estufa UNE 103300:93. Calibración método nuclear",
+          "n_tests": 147,
+          "precio_unitario": 30,
+          "importe": 4410
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Análisis granulométrico por tamizado UNE 103101",
+          "n_tests": 3,
+          "precio_unitario": 35,
+          "importe": 105
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Límites de Atterberg UNE 103103, 103104",
+          "n_tests": 3,
+          "precio_unitario": 40,
+          "importe": 120
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Contenido de sulfatos solubles UNE 103201",
+          "n_tests": 3,
+          "precio_unitario": 40,
+          "importe": 120
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Contenido de materia orgánica UNE 103204",
+          "n_tests": 3,
+          "precio_unitario": 30,
+          "importe": 90
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Reactividad potencial de los áridos a los álcalis del cemento UNE 146507-1",
+          "n_tests": 3,
+          "precio_unitario": 180,
+          "importe": 540
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Proctor Modificado UNE 103501-94",
+          "n_tests": 3,
+          "precio_unitario": 55,
+          "importe": 165
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Estudio de dosificación de una mezcla de suelo estabilizado incluyendo: Fabricación de cuatro series de cuatro probetas con 4 porcentajes de cemento",
+          "n_tests": 1,
+          "precio_unitario": 480,
+          "importe": 480
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Comprobación de la fórmula de trabajo: fabricación de 3 probetas y rotura a compresión a 7 días con el % de cemento óptimo",
+          "n_tests": 3,
+          "precio_unitario": 180,
+          "importe": 540
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Plazo de trabajabilidad UNE 41240",
+          "n_tests": 3,
+          "precio_unitario": 120,
+          "importe": 360
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Análisis granulométrico por tamizado UNE 103101",
+          "n_tests": 134,
+          "precio_unitario": 35,
+          "importe": 4690
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Límites de Atterberg UNE 103103, 103104",
+          "n_tests": 134,
+          "precio_unitario": 40,
+          "importe": 5360
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Proctor Modificado UNE 103501-94",
+          "n_tests": 7,
+          "precio_unitario": 55,
+          "importe": 385
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Ud. Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla, NLT-305-310",
+          "n_tests": 765,
+          "precio_unitario": 70,
+          "importe": 53550
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 14 puntos",
+          "n_tests": 1071,
+          "precio_unitario": 13,
+          "importe": 13923
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Densidad por el método de la arena UNE 103503:95 y Humedad por secado en estufa UNE 103300:93. Calibración método nuclear",
+          "n_tests": 5,
+          "precio_unitario": 30,
+          "importe": 150
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Determinación del espesor de la capa estabilizada mediante ejecución de calicata y rociado con fenolftaleína",
+          "n_tests": 153,
+          "precio_unitario": 15,
+          "importe": 2295
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Análisis granulométrico por tamizado UNE EN 933-1",
+          "n_tests": 2,
+          "precio_unitario": 35,
+          "importe": 70
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Límites de Atterberg UNE 103103, 103104",
+          "n_tests": 2,
+          "precio_unitario": 40,
+          "importe": 80
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Contenido de sulfatos solubles en ácido UNE EN 1744-1",
+          "n_tests": 2,
+          "precio_unitario": 40,
+          "importe": 80
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Contenido de materia orgánica UNE 103204",
+          "n_tests": 2,
+          "precio_unitario": 30,
+          "importe": 60
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Reactividad potencial de los áridos a los álcalis del cemento UNE 146507-1",
+          "n_tests": 2,
+          "precio_unitario": 180,
+          "importe": 360
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Compuestos totales de azufre UNE EN 1744-1",
+          "n_tests": 2,
+          "precio_unitario": 97,
+          "importe": 194
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Proctor Modificado UNE 103501-94",
+          "n_tests": 2,
+          "precio_unitario": 55,
+          "importe": 110
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Estudio de dosificación de una mezcla de suelo cemento incluyendo: Fabricación de cuatro series de cuatro probetas con 4 porcentajes de cemento",
+          "n_tests": 1,
+          "precio_unitario": 480,
+          "importe": 480
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Comprobación de la fórmula de trabajo: fabricación de 3 probetas y rotura a compresión a 7 días con el % de cemento óptimo",
+          "n_tests": 2,
+          "precio_unitario": 180,
+          "importe": 360
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Plazo de trabajabilidad UNE 41240",
+          "n_tests": 2,
+          "precio_unitario": 120,
+          "importe": 240
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Análisis granulométrico por tamizado UNE EN 933-1",
+          "n_tests": 8,
+          "precio_unitario": 35,
+          "importe": 280
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Límites de Atterberg UNE 103103, 103104",
+          "n_tests": 8,
+          "precio_unitario": 40,
+          "importe": 320
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Proctor Modificado UNE 103501-94",
+          "n_tests": 8,
+          "precio_unitario": 55,
+          "importe": 440
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Ud. Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla, NLT-305-310",
+          "n_tests": 234,
+          "precio_unitario": 70,
+          "importe": 16380
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Extracción de testigo para comprobación de esperor de la mezcla de suelo cemento",
+          "n_tests": 10,
+          "precio_unitario": 72,
+          "importe": 720
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 14 puntos",
+          "n_tests": 819,
+          "precio_unitario": 13,
+          "importe": 10647
+        },
+        {
+          "seccion": "- SUELO ESTABILIZADO \"IN SITU CON CEMENTO",
+          "descripcion": "Densidad por el método de la arena UNE 103503:95 y Humedad por secado en estufa UNE 103300:93. Calibración método nuclear",
+          "n_tests": 3,
+          "precio_unitario": 30,
+          "importe": 90
+        },
+        {
+          "seccion": "2.- RIEGO DE IMPRIMACION",
+          "descripcion": "Agua en emulsiones bituminosas UNE EN 1428",
+          "n_tests": 1,
+          "precio_unitario": 42,
+          "importe": 42
+        },
+        {
+          "seccion": "RESIDUO POR DESTILACIÓN DE LAS EMULSIONES BITUMINOSAS UNE EN",
+          "descripcion": "Determinación de la dotación de ligante residual UNE EN 12697-3",
+          "n_tests": 20,
+          "precio_unitario": 54,
+          "importe": 1080
+        },
+        {
+          "seccion": "3.- RIEGO DE CURADO",
+          "descripcion": "Agua en emulsiones bituminosas UNE EN 1428",
+          "n_tests": 1,
+          "precio_unitario": 42,
+          "importe": 42
+        },
+        {
+          "seccion": "RESIDUO POR DESTILACIÓN DE LAS EMULSIONES BITUMINOSAS UNE EN",
+          "descripcion": "Determinación de la dotación de ligante residual UNE EN 12697-3",
+          "n_tests": 50,
+          "precio_unitario": 54,
+          "importe": 2700
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Humedad natural UNE 103300:93",
+          "n_tests": 29,
+          "precio_unitario": 8,
+          "importe": 232
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Granulometría por tamizado, UNE-EN 933-1:98",
+          "n_tests": 29,
+          "precio_unitario": 35,
+          "importe": 1015
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Evaluación finos. Ensayo equivalente de arena UNE-EN 933-8:00",
+          "n_tests": 29,
+          "precio_unitario": 21,
+          "importe": 609
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Límites de Atterberg, UNE 103103:94, 103104:93",
+          "n_tests": 29,
+          "precio_unitario": 40,
+          "importe": 1160
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Próctor Modificado, UNE 103501:94",
+          "n_tests": 39,
+          "precio_unitario": 55,
+          "importe": 2145
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Limpieza superficial. Contenido de impurezas NLT-172:86",
+          "n_tests": 29,
+          "precio_unitario": 24,
+          "importe": 696
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Caras de fractura UNE EN 933-5",
+          "n_tests": 29,
+          "precio_unitario": 24,
+          "importe": 696
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Desgaste de Los Ángeles EN 1097-2",
+          "n_tests": 29,
+          "precio_unitario": 54,
+          "importe": 1566
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Índice de Lajas del árido grueso UNE-EN 933-3:97",
+          "n_tests": 29,
+          "precio_unitario": 42,
+          "importe": 1218
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Ud. Determinación del espesor de zahorra mediante la inspección de calicatas manuales",
+          "n_tests": 168,
+          "precio_unitario": 12,
+          "importe": 2016
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Ud. Ensayo de Carga con Placa, NLT-357. No se Incluye camión u otro elemento de reacción que será aportado el peticionario a su cargo. Mínimo facturable por desplazamiento 2 Unidades por desplazamient",
+          "n_tests": 168,
+          "precio_unitario": 120,
+          "importe": 20160
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Agua en emulsiones bituminosas UNE EN 1428",
+          "n_tests": 1,
+          "precio_unitario": 42,
+          "importe": 42
+        },
+        {
+          "seccion": "4.- ZAHORRA ARTIFICIAL",
+          "descripcion": "Determinación de la dotación de ligante residual mediante calicata de 30x30 cm UNE EN 12697-3",
+          "n_tests": 31,
+          "precio_unitario": 81,
+          "importe": 2511
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC22 BASE G",
+          "descripcion": "Comprobación de las caracteristicas y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinació",
+          "n_tests": 1,
+          "precio_unitario": 185,
+          "importe": 185
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC22 BASE G",
+          "descripcion": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfi",
+          "n_tests": 94,
+          "precio_unitario": 63,
+          "importe": 5922
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC22 BASE G",
+          "descripcion": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
+          "n_tests": 94,
+          "precio_unitario": 48,
+          "importe": 4512
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC22 BASE G",
+          "descripcion": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
+          "n_tests": 94,
+          "precio_unitario": 35,
+          "importe": 3290
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC22 BASE G",
+          "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
+          "n_tests": 94,
+          "precio_unitario": 90,
+          "importe": 8460
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC22 BASE G",
+          "descripcion": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla",
+          "n_tests": 5,
+          "precio_unitario": 210,
+          "importe": 1050
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC22 BASE G",
+          "descripcion": "Determinación de la Deformación Permanente según UNE EN 12697-22",
+          "n_tests": 5,
+          "precio_unitario": 420,
+          "importe": 2100
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 22 BIN S",
+          "descripcion": "Comprobación de las caracteristicas y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinació",
+          "n_tests": 1,
+          "precio_unitario": 185,
+          "importe": 185
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 22 BIN S",
+          "descripcion": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfi",
+          "n_tests": 152,
+          "precio_unitario": 63,
+          "importe": 9576
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 22 BIN S",
+          "descripcion": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
+          "n_tests": 152,
+          "precio_unitario": 48,
+          "importe": 7296
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 22 BIN S",
+          "descripcion": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
+          "n_tests": 152,
+          "precio_unitario": 35,
+          "importe": 5320
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 22 BIN S",
+          "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
+          "n_tests": 152,
+          "precio_unitario": 90,
+          "importe": 13680
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 22 BIN S",
+          "descripcion": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla",
+          "n_tests": 8,
+          "precio_unitario": 210,
+          "importe": 1680
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSA EN CALIENTE AC 22 BIN S",
+          "descripcion": "Determinación de la Deformación Permanente según UNE EN 12697-22",
+          "n_tests": 8,
+          "precio_unitario": 420,
+          "importe": 3360
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 16 SURF 50/70 S, AC 16 SU",
+          "descripcion": "Coeficiente de Pulimento Acelerado UNE EN 1097-8",
+          "n_tests": 1,
+          "precio_unitario": 420,
+          "importe": 420
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 16 SURF 50/70 S, AC 16 SU",
+          "descripcion": "Comprobación de las caracteristicas y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinació",
+          "n_tests": 1,
+          "precio_unitario": 185,
+          "importe": 185
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 16 SURF 50/70 S, AC 16 SU",
+          "descripcion": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfi",
+          "n_tests": 55,
+          "precio_unitario": 63,
+          "importe": 3465
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 16 SURF 50/70 S, AC 16 SU",
+          "descripcion": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
+          "n_tests": 55,
+          "precio_unitario": 48,
+          "importe": 2640
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 16 SURF 50/70 S, AC 16 SU",
+          "descripcion": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
+          "n_tests": 55,
+          "precio_unitario": 35,
+          "importe": 1925
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 16 SURF 50/70 S, AC 16 SU",
+          "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
+          "n_tests": 55,
+          "precio_unitario": 90,
+          "importe": 4950
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 16 SURF 50/70 S, AC 16 SU",
+          "descripcion": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla",
+          "n_tests": 3,
+          "precio_unitario": 210,
+          "importe": 630
+        },
+        {
+          "seccion": "MEZCLAS BITUMINOSAS EN CALIENTE AC 16 SURF 50/70 S, AC 16 SU",
+          "descripcion": "Determinación de la Deformación Permanente según UNE EN 12697-22",
+          "n_tests": 3,
+          "precio_unitario": 420,
+          "importe": 1260
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Desgaste de Los Ángeles según UNE EN 1097-2",
+          "n_tests": 1,
+          "precio_unitario": 54,
+          "importe": 54
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Coeficiente de Pulimento Acelerado UNE EN 1097-8",
+          "n_tests": 1,
+          "precio_unitario": 420,
+          "importe": 420
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Comprobación de las caracteristicas y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinació",
+          "n_tests": 1,
+          "precio_unitario": 185,
+          "importe": 185
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfi",
+          "n_tests": 74,
+          "precio_unitario": 63,
+          "importe": 4662
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
+          "n_tests": 74,
+          "precio_unitario": 48,
+          "importe": 3552
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
+          "n_tests": 74,
+          "precio_unitario": 35,
+          "importe": 2590
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
+          "n_tests": 74,
+          "precio_unitario": 90,
+          "importe": 6660
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla",
+          "n_tests": 4,
+          "precio_unitario": 210,
+          "importe": 840
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Determinación de escurrimiento de ligante UNE EN 12697-18",
+          "n_tests": 4,
+          "precio_unitario": 50,
+          "importe": 200
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Determinación de la Deformación Permanente según UNE EN 12697-22",
+          "n_tests": 4,
+          "precio_unitario": 420,
+          "importe": 1680
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Penetración de betún asfáltico UNE EN 1426",
+          "n_tests": 3,
+          "precio_unitario": 48,
+          "importe": 144
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Punto de reblandecimiento (anillo y bola) de betún asfáltico UNE EN 1427",
+          "n_tests": 3,
+          "precio_unitario": 47,
+          "importe": 141
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Indice de penetración (sin incluir ensayos) de betún asfáltico NLT-181",
+          "n_tests": 3,
+          "precio_unitario": 8,
+          "importe": 24
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Penetración de betún asfáltico UNE EN 1426",
+          "n_tests": 2,
+          "precio_unitario": 48,
+          "importe": 96
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Punto de reblandecimiento (anillo y bola) de betún asfáltico UNE EN 1427",
+          "n_tests": 2,
+          "precio_unitario": 47,
+          "importe": 94
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Indice de penetración (sin incluir ensayos) de betún asfáltico NLT-181",
+          "n_tests": 2,
+          "precio_unitario": 8,
+          "importe": 16
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Recuperación elástica de betún modificado NLT-329",
+          "n_tests": 2,
+          "precio_unitario": 150,
+          "importe": 300
+        },
+        {
+          "seccion": "MEZCLA BITUMINOSAS EN CALIENTE BBTM 11 B",
+          "descripcion": "Determinación de las propiedades de tracción de los ligantes modificados por el método fuerza-ductilidad a una temperatura UNE EN 13589",
+          "n_tests": 2,
+          "precio_unitario": 260,
+          "importe": 520
+        },
+        {
+          "seccion": "RIEGO DE ADHERENCIA",
+          "descripcion": "Penetracion de materiales bituminosos UNE EN 1426-00",
+          "n_tests": 3,
+          "precio_unitario": 48,
+          "importe": 144
+        },
+        {
+          "seccion": "RIEGO DE ADHERENCIA",
+          "descripcion": "Agua en emulsiones bituminosas UNE EN 1428-00",
+          "n_tests": 3,
+          "precio_unitario": 42,
+          "importe": 126
+        },
+        {
+          "seccion": "RIEGO DE ADHERENCIA",
+          "descripcion": "Residuo por destilación de las emulsiones bituminosas UNE EN 1431-00",
+          "n_tests": 3,
+          "precio_unitario": 86,
+          "importe": 258
+        },
+        {
+          "seccion": "RIEGO DE ADHERENCIA",
+          "descripcion": "Determinación de la dotación de ligante residual UNE EN 12697-3",
+          "n_tests": 50,
+          "precio_unitario": 54,
+          "importe": 2700
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Extracción de testigo en mezcla bituminosa en caliente: espesor y densidad UNE EN 12697-27, -30,-6",
+          "n_tests": 90,
+          "precio_unitario": 50,
+          "importe": 4500
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Extracción de testigo en mezcla bituminosa en caliente y determinación de la adherencia a cortante entre capas UNE EN 12697-27 y NLT-381",
+          "n_tests": 45,
+          "precio_unitario": 50,
+          "importe": 2250
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Desplazamiento de equipo APL para determinación del IRI en obra",
+          "n_tests": 4,
+          "precio_unitario": 1500,
+          "importe": 6000
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Km de carril medido para la medición del IRI NLT-330",
+          "n_tests": 120,
+          "precio_unitario": 14,
+          "importe": 1680
+        },
+        {
+          "seccion": "CONTROL DE MEZCLAS BITUMINOSAS EN CALIENTE TERMINADAS",
+          "descripcion": "Macrotextura superficial UNE EN 13036-1 Mínimo facturable por desplazamiento 10 ensayos",
+          "n_tests": 48,
+          "precio_unitario": 20,
+          "importe": 960
+        },
+        {
+          "seccion": "DESPLAZAMIENTO DE EQUIPO PARA EL CÁLCULO DEL CRT EN OBRA 2 M",
+          "descripcion": "Km. de resistencia al deslizamiento CRT NLT-336",
+          "n_tests": 30,
+          "precio_unitario": 25,
+          "importe": 750
+        },
+        {
+          "seccion": "HORMIGÓN HA-25",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 21,
+          "precio_unitario": 72,
+          "importe": 1512
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 63,
+          "precio_unitario": 72,
+          "importe": 4536
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 294,
+          "precio_unitario": 72,
+          "importe": 21168
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 225,
+          "precio_unitario": 72,
+          "importe": 16200
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 217,
+          "precio_unitario": 72,
+          "importe": 15624
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 235,
+          "precio_unitario": 72,
+          "importe": 16920
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 490,
+          "precio_unitario": 72,
+          "importe": 35280
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 289,
+          "precio_unitario": 72,
+          "importe": 20808
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 265,
+          "precio_unitario": 72,
+          "importe": 19080
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 87,
+          "precio_unitario": 72,
+          "importe": 6264
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 323,
+          "precio_unitario": 72,
+          "importe": 23256
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 49,
+          "precio_unitario": 72,
+          "importe": 3528
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 26,
+          "precio_unitario": 72,
+          "importe": 1872
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 46,
+          "precio_unitario": 72,
+          "importe": 3312
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 26,
+          "precio_unitario": 72,
+          "importe": 1872
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 34,
+          "precio_unitario": 72,
+          "importe": 2448
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 26,
+          "precio_unitario": 72,
+          "importe": 1872
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 26,
+          "precio_unitario": 72,
+          "importe": 1872
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 30,
+          "precio_unitario": 72,
+          "importe": 2160
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 138,
+          "precio_unitario": 72,
+          "importe": 9936
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 47,
+          "precio_unitario": 72,
+          "importe": 3384
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 40,
+          "precio_unitario": 72,
+          "importe": 2880
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 80,
+          "precio_unitario": 72,
+          "importe": 5760
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 59,
+          "precio_unitario": 72,
+          "importe": 4248
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 9,
+          "precio_unitario": 72,
+          "importe": 648
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 9,
+          "precio_unitario": 72,
+          "importe": 648
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 81,
+          "precio_unitario": 72,
+          "importe": 5832
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 59,
+          "precio_unitario": 72,
+          "importe": 4248
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 59,
+          "precio_unitario": 72,
+          "importe": 4248
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 50,
+          "precio_unitario": 72,
+          "importe": 3600
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 41,
+          "precio_unitario": 72,
+          "importe": 2952
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 41,
+          "precio_unitario": 72,
+          "importe": 2952
+        },
+        {
+          "seccion": "HORMIGÓN HA-30",
+          "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN ",
+          "n_tests": 45,
+          "precio_unitario": 72,
+          "importe": 3240
+        },
+        {
+          "seccion": "ENSAYOS DURABILIDAD HORMIGÓN",
+          "descripcion": "Determinación de la profundidad de penetración del agua bajo presión sobre 3 probetas cilíndricas de 15x30 cm a la edad de 28 días UNE EN 12390-8",
+          "n_tests": 10,
+          "precio_unitario": 210,
+          "importe": 2100
+        },
+        {
+          "seccion": "- AUSCULTACIÓN DE PILOTES",
+          "descripcion": "Realización de ensayo de integridad estructural por Crosshole de pilote instrumentado con 4 tubos incluyendo el desplazamiento de personal y equipo a obra y la elaboración del correspondiente informe ",
+          "n_tests": 548,
+          "precio_unitario": 90,
+          "importe": 49320
+        },
+        {
+          "seccion": "- HORMIGÓN PROYECTADO",
+          "descripcion": "Toma de muestra en artesa de 35x35 cm, curado en cámara húmeda, extracción de doce (12) testigos de 60 mm en artesa y ensayo a compresión a 4 edades (3,7, 28 y 90 días) según lo establecido en UNE EN ",
+          "n_tests": 3,
+          "precio_unitario": 135,
+          "importe": 405
+        },
+        {
+          "seccion": "- HORMIGÓN PROYECTADO",
+          "descripcion": "Determinación de la capacidad de absorción de energía sobre una probeta plana de 600x600x100 mm reforzada con fibras según lo establecido en UNE EN 14488-5, incluyendo la determinación de la respuesta",
+          "n_tests": 1,
+          "precio_unitario": 150,
+          "importe": 150
+        },
+        {
+          "seccion": "- ACERO PASIVO",
+          "descripcion": "Determinación de características geométricas y mecánicas de acero corrugado (doblado-desdoblado y tracción) UNE EN ISO 15630-1, ISO 6892 y UNE EN 10080",
+          "n_tests": 1539,
+          "precio_unitario": 75,
+          "importe": 115425
+        },
+        {
+          "seccion": "- ACERO PASIVO",
+          "descripcion": "Determinación de características geométricas y mecánicas de acero activo (tracción) UNE EN ISO 15630-3 y ISO 6892",
+          "n_tests": 40,
+          "precio_unitario": 120,
+          "importe": 4800
+        },
+        {
+          "seccion": "- MARCAS VIALES 10, 15, 20 Y 40 CM",
+          "descripcion": "Dotación individual de microesferas y pintura en marcas viales",
+          "n_tests": 36,
+          "precio_unitario": 50,
+          "importe": 1800
+        },
+        {
+          "seccion": "- MARCAS VIALES 10, 15, 20 Y 40 CM",
+          "descripcion": "Desplazamiento de equipo ECODYN para la medida de la retrorreflexión en obra No incluye señalización que será por cuenta del Contratista",
+          "n_tests": 1,
+          "precio_unitario": 2150,
+          "importe": 2150
+        },
+        {
+          "seccion": "- MARCAS VIALES 10, 15, 20 Y 40 CM",
+          "descripcion": "Km de retrorrreflexión de marcas viales a los 30, 180 o 730 días de la puesta en servicio",
+          "n_tests": 72,
+          "precio_unitario": 17,
+          "importe": 1224
+        },
+        {
+          "seccion": "- MARCAS VIALES 10, 15, 20 Y 40 CM",
+          "descripcion": "Resistencia al deslizamiento SRT \"in situ\" UNE EN 1436",
+          "n_tests": 40,
+          "precio_unitario": 60,
+          "importe": 2400
+        },
+        {
+          "seccion": "- SEÑALIZACIÓN VERTICAL",
+          "descripcion": "Ensayos ópticos sobre la señal, incluyendo la medición de coordenadas cromáticas, factor de luminancia y coeficiente de retroreflexión UNE 135334 (hasta un máximo de 10 señales)",
+          "n_tests": 1,
+          "precio_unitario": 1500,
+          "importe": 1500
+        },
+        {
+          "seccion": "- SEÑALIZACIÓN VERTICAL",
+          "descripcion": "Determinación del espesor de galvanizado in situ por métodos no destructivos UNE EN ISO 1461",
+          "n_tests": 20,
+          "precio_unitario": 45,
+          "importe": 900
+        }
+      ]
+    }
+  ]
+}

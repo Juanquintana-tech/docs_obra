@@ -1,741 +1,1209 @@
 {
   "entries": [
     {
-      "codigo": "PB-0169",
-      "descripcion": "Granulometría según UNE EN 933-1",
-      "reciente": 30,
-      "mediana": 30,
-      "max": 35,
-      "min": 25,
-      "n": 36
+      "codigo": "PB-0064",
+      "descripcion": "Determinación de la profundidad de penetración del agua bajo presión UNE EN 12390-8",
+      "reciente": 210,
+      "mediana": 210,
+      "max": 210,
+      "min": 90,
+      "n": 116
     },
     {
-      "codigo": "PB-0171",
-      "descripcion": "Densidad y absorción UNE EN 1097-6",
-      "reciente": 36,
-      "mediana": 36,
-      "max": 36,
-      "min": 36,
-      "n": 36
+      "codigo": "PB-0088",
+      "descripcion": "Determinación de la consistencia del hormigón fresco (Cono de Abrams) UNE EN 12350-2. Toma de muestra y fabricación de 5 probetas cilíndricas 15x30 cm UNE EN 12390-2. Curado en cámara húmeda, refrendado y rotura a compresión a 3 edades UNE EN 12390-3. Determinación de la densidad de la probeta UNE EN 12390-7",
+      "reciente": 90,
+      "mediana": 90,
+      "max": 90,
+      "min": 90,
+      "n": 100
     },
     {
-      "codigo": "PB-0138",
+      "codigo": "PB-0054",
+      "descripcion": "Densidad y humedad in situ por isótopos radiactivos ASTM D-3017",
+      "reciente": 10,
+      "mediana": 10,
+      "max": 13,
+      "min": 9,
+      "n": 72
+    },
+    {
+      "codigo": "PB-0055",
+      "descripcion": "Ensayo de carga con placa doble ciclo NLT-357",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 120,
+      "min": 72,
+      "n": 72
+    },
+    {
+      "codigo": "PB-0061",
       "descripcion": "Límites de Atterberg UNE 103103, 103104",
       "reciente": 33,
       "mediana": 33,
       "max": 40,
       "min": 25,
-      "n": 26
+      "n": 68
     },
     {
-      "codigo": "PB-0143",
-      "descripcion": "Proctor Modificado UNE 103501-94",
+      "codigo": "PB-0056",
+      "descripcion": "Granulometría según UNE EN 933-1",
+      "reciente": 30,
+      "mediana": 30,
+      "max": 35,
+      "min": 25,
+      "n": 65
+    },
+    {
+      "codigo": "PB-0047",
+      "descripcion": "Proctor Modificado UNE 103501:94",
       "reciente": 48,
-      "mediana": 48,
+      "mediana": 60,
       "max": 60,
       "min": 42,
-      "n": 26
+      "n": 62
     },
     {
-      "codigo": "PB-0084",
-      "descripcion": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfica",
-      "reciente": 50,
-      "mediana": 50,
-      "max": 63,
-      "min": 35,
-      "n": 25
-    },
-    {
-      "codigo": "PB-0085",
-      "descripcion": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
-      "reciente": 45,
-      "mediana": 45,
-      "max": 60,
-      "min": 42,
-      "n": 25
-    },
-    {
-      "codigo": "PB-0086",
+      "codigo": "PB-0099",
       "descripcion": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
       "reciente": 30,
       "mediana": 30,
       "max": 35,
       "min": 25,
-      "n": 25
+      "n": 54
     },
     {
-      "codigo": "PB-0088",
-      "descripcion": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla",
-      "reciente": 170,
-      "mediana": 170,
-      "max": 210,
-      "min": 135,
-      "n": 25
+      "codigo": "PB-0108",
+      "descripcion": "Proctor Modificado UNE 103501-94",
+      "reciente": 48,
+      "mediana": 48,
+      "max": 60,
+      "min": 42,
+      "n": 48
     },
     {
-      "codigo": "PB-0089",
-      "descripcion": "Determinación de la Deformación Permanente según UNE EN 12697-22",
-      "reciente": 340,
-      "mediana": 360,
-      "max": 420,
-      "min": 340,
-      "n": 25
+      "codigo": "PB-0059",
+      "descripcion": "Desgaste de Los Ángeles según UNE EN 1097-2",
+      "reciente": 60,
+      "mediana": 60,
+      "max": 60,
+      "min": 50,
+      "n": 44
+    },
+    {
+      "codigo": "PB-0219",
+      "descripcion": "Densidad y absorción UNE EN 1097-6",
+      "reciente": 36,
+      "mediana": 36,
+      "max": 36,
+      "min": 36,
+      "n": 44
     },
     {
       "codigo": "PB-0057",
-      "descripcion": "Densidad por el método de la arena UNE 103503:95 y Humedad por secado en estufa UNE 103300:93. Calibración método nuclear",
-      "reciente": 15,
-      "mediana": 20,
-      "max": 30,
-      "min": 9,
-      "n": 22
-    },
-    {
-      "codigo": "PB-0179",
-      "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
-      "reciente": 75,
-      "mediana": 87,
-      "max": 90,
-      "min": 60,
-      "n": 22
-    },
-    {
-      "codigo": "PB-0083",
-      "descripcion": "Determinación de la dotación de ligante residual UNE EN 12697-3",
-      "reciente": 54,
-      "mediana": 50,
-      "max": 54,
-      "min": 40,
-      "n": 20
-    },
-    {
-      "codigo": "PB-0094",
-      "descripcion": "Residuo por destilación de las emulsiones bituminosas UNE EN 1431-00",
-      "reciente": 86,
-      "mediana": 72,
-      "max": 86,
-      "min": 57,
-      "n": 19
-    },
-    {
-      "codigo": "PB-0082",
-      "descripcion": "Agua en emulsiones bituminosas UNE EN 1428",
-      "reciente": 42,
-      "mediana": 42,
-      "max": 52,
-      "min": 42,
-      "n": 18
-    },
-    {
-      "codigo": "PB-0170",
       "descripcion": "Equivalente de arena según UNE EN 933-8",
       "reciente": 21,
-      "mediana": 35,
+      "mediana": 21,
       "max": 35,
       "min": 21,
-      "n": 18
-    },
-    {
-      "codigo": "PB-0172",
-      "descripcion": "Índice de lajas según UNE EN 933-3",
-      "reciente": 42,
-      "mediana": 42,
-      "max": 42,
-      "min": 36,
-      "n": 18
-    },
-    {
-      "codigo": "PB-0173",
-      "descripcion": "Partículas trituradas según UNE EN 933-5",
-      "reciente": 30,
-      "mediana": 24,
-      "max": 30,
-      "min": 24,
-      "n": 18
-    },
-    {
-      "codigo": "PB-0174",
-      "descripcion": "Desgaste de Los Ángeles según UNE EN 1097-2",
-      "reciente": 60,
-      "mediana": 54,
-      "max": 60,
-      "min": 50,
-      "n": 18
-    },
-    {
-      "codigo": "PB-0175",
-      "descripcion": "Limpieza superficial según UNE 146130 (Anexo C)",
-      "reciente": 30,
-      "mediana": 24,
-      "max": 30,
-      "min": 24,
-      "n": 18
-    },
-    {
-      "codigo": "PB-0176",
-      "descripcion": "Densidad aparente según la UNE EN 1097-3",
-      "reciente": 30,
-      "mediana": 20,
-      "max": 30,
-      "min": 20,
-      "n": 18
-    },
-    {
-      "codigo": "PB-0177",
-      "descripcion": "Granulometría en corriente de aire según UNE EN 933-10",
-      "reciente": 39,
-      "mediana": 36,
-      "max": 39,
-      "min": 36,
-      "n": 18
-    },
-    {
-      "codigo": "PB-0180",
-      "descripcion": "Comprobación de las caracteristicas y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinación de la densidad aparente, determinación de la densidad máxima, cálculo de contenido de huecos, determinación del contenido de ligante y de la granulometría de los áridos extraídos",
-      "reciente": 185,
-      "mediana": 185,
-      "max": 185,
-      "min": 145,
-      "n": 15
+      "n": 43
     },
     {
       "codigo": "PB-0058",
-      "descripcion": "Análisis granulométrico por tamizado UNE 103101",
-      "reciente": 30,
-      "mediana": 30,
-      "max": 35,
-      "min": 25,
-      "n": 14
-    },
-    {
-      "codigo": "PB-0071",
-      "descripcion": "Reactividad potencial de los áridos a los álcalis del cemento UNE 146507-1",
-      "reciente": 150,
-      "mediana": 180,
-      "max": 180,
-      "min": 150,
-      "n": 14
-    },
-    {
-      "codigo": "PB-0073",
-      "descripcion": "Ensayo de carga con placa doble ciclo NLT-357. Sin incluir elemento de reacción",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 120,
-      "min": 54,
-      "n": 14
-    },
-    {
-      "codigo": "PB-0151",
-      "descripcion": "Análisis granulométrico por tamizado UNE EN 933-1",
-      "reciente": 30,
-      "mediana": 30,
-      "max": 35,
-      "min": 25,
-      "n": 14
-    },
-    {
-      "codigo": "PB-0090",
-      "descripcion": "Penetración de betún asfáltico UNE EN 1426",
-      "reciente": 45,
-      "mediana": 45,
-      "max": 48,
-      "min": 42,
-      "n": 13
-    },
-    {
-      "codigo": "PB-0140",
-      "descripcion": "Contenido de materia orgánica UNE 103204",
-      "reciente": 30,
-      "mediana": 30,
-      "max": 30,
-      "min": 27,
-      "n": 13
-    },
-    {
-      "codigo": "PB-0144",
-      "descripcion": "Plazo de trabajabilidad UNE 41240",
-      "reciente": 100,
-      "mediana": 100,
-      "max": 120,
-      "min": 90,
-      "n": 13
-    },
-    {
-      "codigo": "PB-0145",
-      "descripcion": "Ud. Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla, NLT-305-310",
-      "reciente": 69,
-      "mediana": 69,
-      "max": 76,
-      "min": 50,
-      "n": 13
-    },
-    {
-      "codigo": "PB-0146",
-      "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 14 puntos",
-      "reciente": 9,
-      "mediana": 9,
-      "max": 13,
-      "min": 7,
-      "n": 13
-    },
-    {
-      "codigo": "PB-0156",
-      "descripcion": "Penetracion de materiales bituminosos UNE EN 1426",
-      "reciente": 48,
-      "mediana": 48,
-      "max": 48,
-      "min": 42,
-      "n": 12
-    },
-    {
-      "codigo": "PB-0183",
-      "descripcion": "Punto de reblandecimiento (anillo y bola) de betún asfáltico UNE EN 1427",
-      "reciente": 45,
-      "mediana": 46,
-      "max": 48,
-      "min": 42,
-      "n": 12
-    },
-    {
-      "codigo": "PB-0098",
-      "descripcion": "Inspección de media jornada para la determinación del coeficiente de resistencia al deslizamiento con péndulo PTV según UNE EN 13036-4 Método alternativo al equipo de medida del CRT No incluye señalización que será por cuenta del Contratista",
-      "reciente": 300,
-      "mediana": 250,
-      "max": 300,
-      "min": 180,
-      "n": 11
-    },
-    {
-      "codigo": "PB-0184",
-      "descripcion": "Indice de penetración (sin incluir ensayos) de betún asfáltico NLT-181",
-      "reciente": 8,
-      "mediana": 8,
-      "max": 8,
-      "min": 8,
-      "n": 10
-    },
-    {
-      "codigo": "PB-0006",
-      "descripcion": "Ensayo de colapso en suelos NLT 254",
+      "descripcion": "Índice de lajas según UNE EN 933-3",
       "reciente": 42,
-      "mediana": 45,
-      "max": 60,
+      "mediana": 42,
+      "max": 45,
       "min": 36,
-      "n": 8
+      "n": 43
     },
     {
-      "codigo": "PB-0124",
+      "codigo": "PB-0046",
       "descripcion": "Límites de Atterberg UNE 103103:94 y 103014:93",
       "reciente": 33,
       "mediana": 33,
       "max": 40,
       "min": 25,
-      "n": 8
+      "n": 42
     },
     {
-      "codigo": "PB-0162",
-      "descripcion": "Desgaste de Los Ángeles EN 1097-2",
-      "reciente": 60,
-      "mediana": 60,
-      "max": 60,
-      "min": 50,
-      "n": 8
-    },
-    {
-      "codigo": "PB-0016",
-      "descripcion": "Límites de Atterberg, UNE 103103:94, 103104:93",
-      "reciente": 33,
-      "mediana": 33,
-      "max": 40,
-      "min": 25,
-      "n": 7
-    },
-    {
-      "codigo": "PB-0017",
-      "descripcion": "Próctor Modificado, UNE 103501:94",
-      "reciente": 48,
-      "mediana": 48,
-      "max": 60,
-      "min": 42,
-      "n": 7
-    },
-    {
-      "codigo": "PB-0092",
-      "descripcion": "Penetracion de materiales bituminosos UNE EN 1426-00",
-      "reciente": 48,
-      "mediana": 48,
-      "max": 48,
-      "min": 42,
-      "n": 7
-    },
-    {
-      "codigo": "PB-0093",
-      "descripcion": "Agua en emulsiones bituminosas UNE EN 1428-00",
+      "codigo": "PB-0006",
+      "descripcion": "Ensayo de colapso en suelos NLT 254",
       "reciente": 42,
       "mediana": 42,
-      "max": 52,
-      "min": 42,
-      "n": 7
+      "max": 60,
+      "min": 36,
+      "n": 41
     },
     {
-      "codigo": "PB-0096",
-      "descripcion": "Extracción de testigo en mezcla bituminosa en caliente y determinación de la adherencia a cortante entre capas UNE EN 12697-27 y NLT-381",
-      "reciente": 45,
-      "mediana": 45,
-      "max": 50,
-      "min": 30,
-      "n": 7
-    },
-    {
-      "codigo": "PB-0118",
-      "descripcion": "Determinación de características geométricas y mecánicas de acero corrugado (doblado-desdoblado y tracción) UNE EN ISO 15630-1, ISO 6892 y UNE EN 10080",
-      "reciente": 54,
-      "mediana": 60,
-      "max": 75,
-      "min": 40,
-      "n": 7
-    },
-    {
-      "codigo": "PB-0123",
+      "codigo": "PB-0045",
       "descripcion": "Granulometría de suelos por tamizado UNE 103101:95",
       "reciente": 30,
       "mediana": 30,
       "max": 35,
       "min": 25,
-      "n": 7
+      "n": 41
     },
     {
-      "codigo": "PB-0125",
-      "descripcion": "Proctor Modificado UNE 103501:94",
-      "reciente": 48,
-      "mediana": 48,
-      "max": 60,
-      "min": 42,
-      "n": 7
-    },
-    {
-      "codigo": "PB-0126",
-      "descripcion": "Índice CBR en laboratorio, sin incluir Proctor (tres puntos) UNE 103502:95",
-      "reciente": 65,
-      "mediana": 65,
-      "max": 85,
-      "min": 54,
-      "n": 7
-    },
-    {
-      "codigo": "PB-0127",
+      "codigo": "PB-0049",
       "descripcion": "Ensayo de hinchamiento libre en edómetro UNE 103601:96",
       "reciente": 45,
       "mediana": 45,
       "max": 60,
       "min": 36,
-      "n": 7
+      "n": 41
     },
     {
-      "codigo": "PB-0128",
+      "codigo": "PB-0050",
       "descripcion": "Contenido de materia orgánica en suelos UNE 103204:93",
       "reciente": 30,
       "mediana": 30,
       "max": 30,
       "min": 27,
-      "n": 7
+      "n": 41
     },
     {
-      "codigo": "PB-0129",
+      "codigo": "PB-0051",
       "descripcion": "Contenido de sales solubles en suelos NLT 114-99",
       "reciente": 30,
       "mediana": 30,
       "max": 40,
       "min": 27,
-      "n": 7
+      "n": 41
     },
     {
-      "codigo": "PB-0130",
+      "codigo": "PB-0052",
       "descripcion": "Contenido de yesos en suelos NLT 115-99",
       "reciente": 30,
       "mediana": 30,
       "max": 40,
       "min": 27,
-      "n": 7
+      "n": 41
     },
     {
-      "codigo": "PB-0135",
-      "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 10 puntos",
-      "reciente": 9,
-      "mediana": 9,
-      "max": 13,
-      "min": 7,
-      "n": 7
+      "codigo": "PB-0069",
+      "descripcion": "Medida de retroreflectancia de marcas viales en servicio UNE EN 1436",
+      "reciente": 35,
+      "mediana": 35,
+      "max": 300,
+      "min": 35,
+      "n": 41
     },
     {
-      "codigo": "PB-0136",
-      "descripcion": "Ensayo de placa de carga dinámica UNE 103807-2:2008 correlacionado con el estático (no es necesario elemento de reacción) (mínimo facturable 5 por desplazamiento)",
+      "codigo": "PB-0070",
+      "descripcion": "Resistencia al deslizamiento de marcas viales UNE EN 1436 (péndulo SRT)",
+      "reciente": 50,
+      "mediana": 50,
+      "max": 300,
+      "min": 50,
+      "n": 41
+    },
+    {
+      "codigo": "PB-0071",
+      "descripcion": "Determinación del espesor de película seca de marcas viales UNE EN 1871",
+      "reciente": 25,
+      "mediana": 25,
+      "max": 805,
+      "min": 25,
+      "n": 41
+    },
+    {
+      "codigo": "PB-0107",
+      "descripcion": "Análisis granulométrico por tamizado UNE 103101",
+      "reciente": 30,
+      "mediana": 30,
+      "max": 35,
+      "min": 25,
+      "n": 34
+    },
+    {
+      "codigo": "PB-0048",
+      "descripcion": "Índice CBR en laboratorio UNE 103502:95",
+      "reciente": 57,
+      "mediana": 57,
+      "max": 57,
+      "min": 57,
+      "n": 33
+    },
+    {
+      "codigo": "PB-0053",
+      "descripcion": "Humedad por secado en estufa UNE 103300-93",
+      "reciente": 30,
+      "mediana": 30,
+      "max": 30,
+      "min": 30,
+      "n": 32
+    },
+    {
+      "codigo": "PB-0143",
+      "descripcion": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfica",
+      "reciente": 50,
+      "mediana": 63,
+      "max": 63,
+      "min": 35,
+      "n": 29
+    },
+    {
+      "codigo": "PB-0144",
+      "descripcion": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
       "reciente": 45,
       "mediana": 48,
-      "max": 48,
-      "min": 45,
-      "n": 7
+      "max": 60,
+      "min": 42,
+      "n": 29
     },
     {
-      "codigo": "PB-0152",
-      "descripcion": "Contenido de sulfatos solubles en ácido UNE EN 1744-1",
-      "reciente": 50,
-      "mediana": 48,
-      "max": 50,
-      "min": 40,
-      "n": 7
+      "codigo": "PB-0146",
+      "descripcion": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla",
+      "reciente": 170,
+      "mediana": 210,
+      "max": 210,
+      "min": 135,
+      "n": 29
     },
     {
-      "codigo": "PB-0153",
-      "descripcion": "Compuestos totales de azufre UNE EN 1744-1",
-      "reciente": 120,
-      "mediana": 105,
-      "max": 150,
-      "min": 97,
-      "n": 7
+      "codigo": "PB-0147",
+      "descripcion": "Determinación de la Deformación Permanente según UNE EN 12697-22",
+      "reciente": 340,
+      "mediana": 420,
+      "max": 420,
+      "min": 340,
+      "n": 29
     },
     {
-      "codigo": "PB-0163",
-      "descripcion": "Índice de Lajas del árido grueso UNE-EN 933-3:97",
-      "reciente": 42,
-      "mediana": 42,
-      "max": 42,
-      "min": 36,
-      "n": 7
+      "codigo": "PB-0095",
+      "descripcion": "Equivalente de arena UNE EN 933-8",
+      "reciente": 40,
+      "mediana": 30,
+      "max": 40,
+      "min": 30,
+      "n": 26
     },
     {
-      "codigo": "PB-0181",
-      "descripcion": "Coeficiente de Pulimento Acelerado UNE EN 1097-8",
-      "reciente": 450,
-      "mediana": 480,
-      "max": 480,
-      "min": 420,
-      "n": 7
+      "codigo": "PB-0225",
+      "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
+      "reciente": 75,
+      "mediana": 87,
+      "max": 90,
+      "min": 60,
+      "n": 26
     },
     {
-      "codigo": "PB-0131",
-      "descripcion": "Indice de forma Art 331 PG-3",
+      "codigo": "PB-0089",
+      "descripcion": "Granulometría de árido grueso para MBC UNE EN 933-1",
+      "reciente": 27,
+      "mediana": 27,
+      "max": 27,
+      "min": 27,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0090",
+      "descripcion": "Índice de lajas del árido grueso UNE EN 933-3",
+      "reciente": 45,
+      "mediana": 45,
+      "max": 45,
+      "min": 42,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0091",
+      "descripcion": "Partículas trituradas (caras de fractura) UNE EN 933-5",
+      "reciente": 30,
+      "mediana": 30,
+      "max": 30,
+      "min": 30,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0092",
+      "descripcion": "Desgaste de Los Ángeles UNE EN 1097-2",
+      "reciente": 60,
+      "mediana": 60,
+      "max": 60,
+      "min": 54,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0093",
+      "descripcion": "Densidad y absorción del árido grueso UNE EN 1097-6",
       "reciente": 36,
       "mediana": 36,
       "max": 36,
+      "min": 36,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0094",
+      "descripcion": "Granulometría de árido fino para MBC UNE EN 933-1",
+      "reciente": 27,
+      "mediana": 27,
+      "max": 27,
+      "min": 27,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0096",
+      "descripcion": "Densidad y absorción del árido fino UNE EN 1097-6",
+      "reciente": 36,
+      "mediana": 36,
+      "max": 36,
+      "min": 36,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0097",
+      "descripcion": "Toma de muestra de MBC e inspección de espectro granulométrico",
+      "reciente": 41,
+      "mediana": 41,
+      "max": 45,
+      "min": 41,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0098",
+      "descripcion": "Contenido de ligante de la mezcla bituminosa UNE EN 12697-2",
+      "reciente": 45,
+      "mediana": 45,
+      "max": 60,
+      "min": 45,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0100",
+      "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5",
+      "reciente": 45,
+      "mediana": 45,
+      "max": 60,
+      "min": 45,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0101",
+      "descripcion": "Extracción de testigo en MBC: espesor y densidad aparente UNE EN 12697-6",
+      "reciente": 48,
+      "mediana": 48,
+      "max": 55,
+      "min": 48,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0117",
+      "descripcion": "Densidad por el método de la arena UNE 103503:95 y Humedad por secado en estufa UNE 103300:93. Calibración método nuclear",
+      "reciente": 15,
+      "mediana": 20,
+      "max": 30,
+      "min": 9,
+      "n": 25
+    },
+    {
+      "codigo": "PB-0067",
+      "descripcion": "Ensayo de doblado sobre acero estructural UNE EN ISO 7438",
+      "reciente": 95,
+      "mediana": 95,
+      "max": 95,
+      "min": 60,
+      "n": 24
+    },
+    {
+      "codigo": "PB-0068",
+      "descripcion": "Ensayo de resiliencia Charpy a temperatura ambiente UNE EN ISO 148-1",
+      "reciente": 120,
+      "mediana": 120,
+      "max": 275,
+      "min": 120,
+      "n": 24
+    },
+    {
+      "codigo": "PB-0142",
+      "descripcion": "Determinación de la dotación de ligante residual UNE EN 12697-3",
+      "reciente": 54,
+      "mediana": 50,
+      "max": 54,
+      "min": 40,
+      "n": 23
+    },
+    {
+      "codigo": "PB-0152",
+      "descripcion": "Residuo por destilación de las emulsiones bituminosas UNE EN 1431-00",
+      "reciente": 86,
+      "mediana": 72,
+      "max": 86,
+      "min": 57,
+      "n": 22
+    },
+    {
+      "codigo": "PB-0220",
+      "descripcion": "Partículas trituradas según UNE EN 933-5",
+      "reciente": 30,
+      "mediana": 24,
+      "max": 30,
+      "min": 24,
+      "n": 22
+    },
+    {
+      "codigo": "PB-0221",
+      "descripcion": "Limpieza superficial según UNE 146130 (Anexo C)",
+      "reciente": 30,
+      "mediana": 24,
+      "max": 30,
+      "min": 24,
+      "n": 22
+    },
+    {
+      "codigo": "PB-0222",
+      "descripcion": "Densidad aparente según la UNE EN 1097-3",
+      "reciente": 30,
+      "mediana": 20,
+      "max": 30,
+      "min": 20,
+      "n": 22
+    },
+    {
+      "codigo": "PB-0223",
+      "descripcion": "Granulometría en corriente de aire según UNE EN 933-10",
+      "reciente": 39,
+      "mediana": 36,
+      "max": 39,
+      "min": 36,
+      "n": 22
+    },
+    {
+      "codigo": "PB-0302",
+      "descripcion": "Visita para inspección de soldaduras mediante ensayo no destructivo Inspector Nivel 2 examen mediante líquidos penetrantes partículas magnéticas o ultrasonidos",
+      "reciente": 500,
+      "mediana": 500,
+      "max": 500,
+      "min": 450,
+      "n": 22
+    },
+    {
+      "codigo": "PB-0303",
+      "descripcion": "Visita para determinación del espesor de recubrimiento galvanizado pintura intumescente o anticorrosión UNE EN ISO 2178",
+      "reciente": 225,
+      "mediana": 225,
+      "max": 225,
+      "min": 225,
+      "n": 22
+    },
+    {
+      "codigo": "PB-0060",
+      "descripcion": "Humedad natural UNE EN 1097-5",
+      "reciente": 12,
+      "mediana": 30,
+      "max": 30,
+      "min": 12,
+      "n": 21
+    },
+    {
+      "codigo": "PB-0141",
+      "descripcion": "Agua en emulsiones bituminosas UNE EN 1428",
+      "reciente": 42,
+      "mediana": 42,
+      "max": 52,
+      "min": 42,
+      "n": 21
+    },
+    {
+      "codigo": "PB-0062",
+      "descripcion": "Caras de fractura (partículas trituradas) UNE EN 933-5",
+      "reciente": 30,
+      "mediana": 30,
+      "max": 30,
       "min": 30,
-      "n": 6
+      "n": 20
+    },
+    {
+      "codigo": "PB-0226",
+      "descripcion": "Comprobación de las caracteristicas y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinación de la densidad aparente, determinación de la densidad máxima, cálculo de contenido de huecos, determinación del contenido de ligante y de la granulometría de los áridos extraídos",
+      "reciente": 185,
+      "mediana": 185,
+      "max": 185,
+      "min": 145,
+      "n": 19
+    },
+    {
+      "codigo": "PB-0109",
+      "descripcion": "Comprobación fórmula de trabajo: 3 probetas, rotura a compresión a 7 días UNE 41240",
+      "reciente": 180,
+      "mediana": 180,
+      "max": 180,
+      "min": 100,
+      "n": 18
+    },
+    {
+      "codigo": "PB-0110",
+      "descripcion": "Análisis granulométrico de suelo en puesta en obra UNE 103101",
+      "reciente": 30,
+      "mediana": 30,
+      "max": 30,
+      "min": 30,
+      "n": 18
+    },
+    {
+      "codigo": "PB-0111",
+      "descripcion": "Límites de Atterberg en puesta en obra UNE 103103, 103104",
+      "reciente": 33,
+      "mediana": 33,
+      "max": 40,
+      "min": 33,
+      "n": 18
+    },
+    {
+      "codigo": "PB-0112",
+      "descripcion": "Proctor Modificado en puesta en obra UNE 103501-94",
+      "reciente": 48,
+      "mediana": 48,
+      "max": 60,
+      "min": 48,
+      "n": 18
+    },
+    {
+      "codigo": "PB-0114",
+      "descripcion": "Determinación del espesor de la capa estabilizada mediante sonda de penetración",
+      "reciente": 15,
+      "mediana": 15,
+      "max": 15,
+      "min": 15,
+      "n": 18
+    },
+    {
+      "codigo": "PB-0065",
+      "descripcion": "Determinación de características geométricas y mecánicas de acero para hormigón armado UNE EN ISO 15630-1",
+      "reciente": 120,
+      "mediana": 120,
+      "max": 120,
+      "min": 120,
+      "n": 17
+    },
+    {
+      "codigo": "PB-0115",
+      "descripcion": "Ensayo de integridad de pilotes por sonic logging (reflectometría) UNE EN 1536",
+      "reciente": 690,
+      "mediana": 690,
+      "max": 690,
+      "min": 72,
+      "n": 17
+    },
+    {
+      "codigo": "PB-0116",
+      "descripcion": "Prueba de carga estática sobre pilote (pila de reacción) UNE EN ISO 22477-1",
+      "reciente": 690,
+      "mediana": 690,
+      "max": 690,
+      "min": 72,
+      "n": 17
+    },
+    {
+      "codigo": "PB-0181",
+      "descripcion": "Control de dotación de emulsión bituminosa por pesada de bandejas NLT 182",
+      "reciente": 75,
+      "mediana": 75,
+      "max": 75,
+      "min": 42,
+      "n": 17
+    },
+    {
+      "codigo": "PB-0182",
+      "descripcion": "Viscosidad Saybolt-Furol de la emulsión bituminosa NLT 138",
+      "reciente": 75,
+      "mediana": 75,
+      "max": 75,
+      "min": 42,
+      "n": 17
+    },
+    {
+      "codigo": "PB-0063",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de 4 probetas cilíndricas 15x30 cm, curado y rotura a compresión (2+2) UNE EN 12350-1,2 y UNE EN 12390-1,2,3",
+      "reciente": 60,
+      "mediana": 60,
+      "max": 90,
+      "min": 60,
+      "n": 16
+    },
+    {
+      "codigo": "PB-0087",
+      "descripcion": "Prueba de estanqueidad in situ de cubierta por inundación o aspersores verificación de evacuación de aguas",
+      "reciente": 540,
+      "mediana": 540,
+      "max": 540,
+      "min": 390,
+      "n": 16
+    },
+    {
+      "codigo": "PB-0130",
+      "descripcion": "Reactividad potencial de los áridos a los álcalis del cemento UNE 146507-1",
+      "reciente": 150,
+      "mediana": 180,
+      "max": 180,
+      "min": 150,
+      "n": 16
     },
     {
       "codigo": "PB-0132",
+      "descripcion": "Ensayo de carga con placa doble ciclo NLT-357. Sin incluir elemento de reacción",
+      "reciente": 72,
+      "mediana": 76.5,
+      "max": 120,
+      "min": 54,
+      "n": 16
+    },
+    {
+      "codigo": "PB-0201",
+      "descripcion": "Análisis granulométrico por tamizado UNE EN 933-1",
+      "reciente": 30,
+      "mediana": 30,
+      "max": 35,
+      "min": 25,
+      "n": 16
+    },
+    {
+      "codigo": "PB-0148",
+      "descripcion": "Penetración de betún asfáltico UNE EN 1426",
+      "reciente": 45,
+      "mediana": 48,
+      "max": 48,
+      "min": 42,
+      "n": 15
+    },
+    {
+      "codigo": "PB-0191",
+      "descripcion": "Contenido de materia orgánica UNE 103204",
+      "reciente": 30,
+      "mediana": 30,
+      "max": 30,
+      "min": 27,
+      "n": 15
+    },
+    {
+      "codigo": "PB-0194",
+      "descripcion": "Plazo de trabajabilidad UNE 41240",
+      "reciente": 100,
+      "mediana": 120,
+      "max": 120,
+      "min": 90,
+      "n": 15
+    },
+    {
+      "codigo": "PB-0195",
+      "descripcion": "Ud. Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla, NLT-305-310",
+      "reciente": 69,
+      "mediana": 70,
+      "max": 76,
+      "min": 50,
+      "n": 15
+    },
+    {
+      "codigo": "PB-0196",
+      "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 14 puntos",
+      "reciente": 9,
+      "mediana": 10,
+      "max": 13,
+      "min": 7,
+      "n": 15
+    },
+    {
+      "codigo": "PB-0066",
+      "descripcion": "Ensayo de tracción sobre acero estructural laminado UNE EN ISO 6892-1",
+      "reciente": 120,
+      "mediana": 120,
+      "max": 120,
+      "min": 120,
+      "n": 14
+    },
+    {
+      "codigo": "PB-0085",
+      "descripcion": "Ensayo estático de empuje horizontal in situ en barandilla sin incluir elemento de reacción CTE DB-SE",
+      "reciente": 305,
+      "mediana": 305,
+      "max": 305,
+      "min": 305,
+      "n": 14
+    },
+    {
+      "codigo": "PB-0206",
+      "descripcion": "Penetracion de materiales bituminosos UNE EN 1426",
+      "reciente": 48,
+      "mediana": 48,
+      "max": 48,
+      "min": 42,
+      "n": 14
+    },
+    {
+      "codigo": "PB-0229",
+      "descripcion": "Punto de reblandecimiento (anillo y bola) de betún asfáltico UNE EN 1427",
+      "reciente": 45,
+      "mediana": 47,
+      "max": 48,
+      "min": 42,
+      "n": 14
+    },
+    {
+      "codigo": "PB-0156",
+      "descripcion": "Inspección de media jornada para la determinación del coeficiente de resistencia al deslizamiento con péndulo PTV según UNE EN 13036-4 Método alternativo al equipo de medida del CRT No incluye señalización que será por cuenta del Contratista",
+      "reciente": 300,
+      "mediana": 250,
+      "max": 300,
+      "min": 180,
+      "n": 12
+    },
+    {
+      "codigo": "PB-0230",
+      "descripcion": "Indice de penetración (sin incluir ensayos) de betún asfáltico NLT-181",
+      "reciente": 8,
+      "mediana": 8,
+      "max": 8,
+      "min": 8,
+      "n": 12
+    },
+    {
+      "codigo": "PB-0086",
+      "descripcion": "Prueba de estanqueidad in situ del conjunto fachada carpintería mediante batería de rociadores",
+      "reciente": 350,
+      "mediana": 350,
+      "max": 450,
+      "min": 350,
+      "n": 10
+    },
+    {
+      "codigo": "PB-0113",
+      "descripcion": "Fabricación de 3 probetas y determinación de resistencia a compresión a 7 días en tongada de suelo estabilizado",
+      "reciente": 125,
+      "mediana": 125,
+      "max": 125,
+      "min": 125,
+      "n": 10
+    },
+    {
+      "codigo": "PB-0371",
+      "descripcion": "Ensayo a tracción de una probeta de acero en perfiles laminados estructurales UNE EN ISO 6892-1",
+      "reciente": 153.5,
+      "mediana": 153.5,
+      "max": 207,
+      "min": 100,
+      "n": 10
+    },
+    {
+      "codigo": "PB-0212",
+      "descripcion": "Desgaste de Los Ángeles EN 1097-2",
+      "reciente": 60,
+      "mediana": 60,
+      "max": 60,
+      "min": 50,
+      "n": 9
+    },
+    {
+      "codigo": "PB-0227",
+      "descripcion": "Coeficiente de Pulimento Acelerado UNE EN 1097-8",
+      "reciente": 450,
+      "mediana": 450,
+      "max": 480,
+      "min": 420,
+      "n": 9
+    },
+    {
+      "codigo": "PB-0016",
+      "descripcion": "Límites de Atterberg, UNE 103103:94, 103104:93",
+      "reciente": 33,
+      "mediana": 34,
+      "max": 40,
+      "min": 25,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0017",
+      "descripcion": "Próctor Modificado, UNE 103501:94",
+      "reciente": 48,
+      "mediana": 51.5,
+      "max": 60,
+      "min": 42,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0083",
+      "descripcion": "Ensayo de adherencia in situ arrancamiento tracción perpendicular de la subestructura de falsos techos",
+      "reciente": 280,
+      "mediana": 280,
+      "max": 280,
+      "min": 280,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0106",
       "descripcion": "Ensayo de desmoronamiento frente al agua NLT 255",
       "reciente": 90,
       "mediana": 90,
       "max": 90,
       "min": 75,
-      "n": 6
+      "n": 8
     },
     {
-      "codigo": "PB-0139",
+      "codigo": "PB-0150",
+      "descripcion": "Penetracion de materiales bituminosos UNE EN 1426-00",
+      "reciente": 48,
+      "mediana": 48,
+      "max": 48,
+      "min": 42,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0151",
+      "descripcion": "Agua en emulsiones bituminosas UNE EN 1428-00",
+      "reciente": 42,
+      "mediana": 42,
+      "max": 52,
+      "min": 42,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0154",
+      "descripcion": "Extracción de testigo en mezcla bituminosa en caliente y determinación de la adherencia a cortante entre capas UNE EN 12697-27 y NLT-381",
+      "reciente": 45,
+      "mediana": 46.5,
+      "max": 50,
+      "min": 30,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0176",
+      "descripcion": "Determinación de características geométricas y mecánicas de acero corrugado (doblado-desdoblado y tracción) UNE EN ISO 15630-1, ISO 6892 y UNE EN 10080",
+      "reciente": 54,
+      "mediana": 67.5,
+      "max": 75,
+      "min": 40,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0183",
+      "descripcion": "Índice CBR en laboratorio, sin incluir Proctor (tres puntos) UNE 103502:95",
+      "reciente": 65,
+      "mediana": 71.5,
+      "max": 85,
+      "min": 54,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0187",
+      "descripcion": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 10 puntos",
+      "reciente": 9,
+      "mediana": 9.5,
+      "max": 13,
+      "min": 7,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0188",
+      "descripcion": "Ensayo de placa de carga dinámica UNE 103807-2:2008 correlacionado con el estático (no es necesario elemento de reacción) (mínimo facturable 5 por desplazamiento)",
+      "reciente": 45,
+      "mediana": 46.5,
+      "max": 48,
+      "min": 45,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0202",
+      "descripcion": "Contenido de sulfatos solubles en ácido UNE EN 1744-1",
+      "reciente": 50,
+      "mediana": 44,
+      "max": 50,
+      "min": 40,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0203",
+      "descripcion": "Compuestos totales de azufre UNE EN 1744-1",
+      "reciente": 120,
+      "mediana": 102.5,
+      "max": 150,
+      "min": 97,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0213",
+      "descripcion": "Índice de Lajas del árido grueso UNE-EN 933-3:97",
+      "reciente": 42,
+      "mediana": 42,
+      "max": 42,
+      "min": 36,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0304",
+      "descripcion": "Determinación de características geométricas y mecánicas de acero activo para pretensado UNE EN ISO 6892-1",
+      "reciente": 120,
+      "mediana": 120,
+      "max": 120,
+      "min": 120,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0367",
+      "descripcion": "Ud. Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla NLT-305-310 suelo estabilizado",
+      "reciente": 69,
+      "mediana": 69,
+      "max": 69,
+      "min": 69,
+      "n": 8
+    },
+    {
+      "codigo": "PB-0084",
+      "descripcion": "Toma de muestras fabricación conservación y rotura a flexotracción y compresión de probetas prismáticas de mortero UNE EN 1015-11",
+      "reciente": 90,
+      "mediana": 90,
+      "max": 90,
+      "min": 69,
+      "n": 7
+    },
+    {
+      "codigo": "PB-0184",
+      "descripcion": "Indice de forma Art 331 PG-3",
+      "reciente": 36,
+      "mediana": 36,
+      "max": 36,
+      "min": 30,
+      "n": 7
+    },
+    {
+      "codigo": "PB-0190",
       "descripcion": "Contenido de sulfatos solubles UNE 103201",
       "reciente": 30,
       "mediana": 40,
       "max": 48,
       "min": 30,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0141",
+      "codigo": "PB-0192",
       "descripcion": "Ensayo de hinchamiento libre UNE 103601. Si se trata de un suelo tolerable",
       "reciente": 45,
-      "mediana": 51,
+      "mediana": 57,
       "max": 60,
       "min": 36,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0142",
+      "codigo": "PB-0193",
       "descripcion": "Ensayo de colapso en suelos NLT-254. Si se trata de un suelo tolerable",
       "reciente": 45,
-      "mediana": 51,
+      "mediana": 57,
       "max": 60,
       "min": 36,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0148",
+      "codigo": "PB-0198",
       "descripcion": "Determinación del espesor de la capa estabilizada mediante ejecución de calicata y rociado con fenolftaleína",
       "reciente": 20,
       "mediana": 15,
       "max": 20,
       "min": 10,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0157",
+      "codigo": "PB-0207",
       "descripcion": "Humedad natural UNE 103300:93",
       "reciente": 8,
       "mediana": 6,
       "max": 8,
       "min": 6,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0158",
+      "codigo": "PB-0208",
       "descripcion": "Granulometría por tamizado, UNE-EN 933-1:98",
       "reciente": 30,
       "mediana": 30,
       "max": 35,
       "min": 25,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0159",
+      "codigo": "PB-0209",
       "descripcion": "Evaluación finos. Ensayo equivalente de arena UNE-EN 933-8:00",
       "reciente": 21,
       "mediana": 35,
       "max": 35,
       "min": 21,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0160",
+      "codigo": "PB-0210",
       "descripcion": "Limpieza superficial. Contenido de impurezas NLT-172:86",
       "reciente": 30,
       "mediana": 24,
       "max": 30,
       "min": 24,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0161",
+      "codigo": "PB-0211",
       "descripcion": "Caras de fractura UNE EN 933-5",
       "reciente": 30,
       "mediana": 24,
       "max": 30,
       "min": 24,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0164",
+      "codigo": "PB-0214",
       "descripcion": "Ensayos de densidad y humedad \"in situ\", UNE 103503:95, Isótopos Radiactivos ASTM D-3017 (mínimo facturable 1 lote n=5 determinaciones por desplazamiento)",
       "reciente": 9,
-      "mediana": 9.5,
+      "mediana": 10,
       "max": 13,
       "min": 7,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0165",
+      "codigo": "PB-0215",
       "descripcion": "Ud. Determinación del espesor de zahorra mediante la inspección de calicatas manuales",
       "reciente": 15,
       "mediana": 12,
       "max": 15,
       "min": 7,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0166",
+      "codigo": "PB-0216",
       "descripcion": "Ud. Ensayo de Carga con Placa, NLT-357. No se Incluye camión u otro elemento de reacción que será aportado el peticionario a su cargo. Mínimo facturable por desplazamiento 2 Unidades por desplazamiento",
       "reciente": 72,
-      "mediana": 76.5,
+      "mediana": 81,
       "max": 120,
       "min": 54,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0182",
+      "codigo": "PB-0228",
       "descripcion": "Determinación de escurrimiento de ligante UNE EN 12697-18",
       "reciente": 72,
       "mediana": 80,
       "max": 120,
       "min": 50,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0185",
+      "codigo": "PB-0231",
       "descripcion": "Recuperación elástica de betún modificado NLT-329",
       "reciente": 150,
       "mediana": 150,
       "max": 150,
       "min": 140,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0186",
+      "codigo": "PB-0232",
       "descripcion": "Determinación de las propiedades de tracción de los ligantes modificados por el método fuerza-ductilidad a una temperatura UNE EN 13589",
       "reciente": 240,
       "mediana": 240,
       "max": 260,
       "min": 210,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0193",
+      "codigo": "PB-0239",
       "descripcion": "Extracción de testigo en mezcla bituminosa en caliente: espesor y densidad UNE EN 12697-27, -30,-6",
       "reciente": 48,
-      "mediana": 49,
+      "mediana": 50,
       "max": 55,
       "min": 39,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0194",
+      "codigo": "PB-0240",
       "descripcion": "Desplazamiento de equipo APL para determinación del IRI en obra",
       "reciente": 1000,
-      "mediana": 1340,
+      "mediana": 1480,
       "max": 1500,
       "min": 1000,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0195",
+      "codigo": "PB-0241",
       "descripcion": "Km de carril medido para la medición del IRI NLT-330",
       "reciente": 8,
       "mediana": 14,
       "max": 15,
       "min": 8,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0196",
+      "codigo": "PB-0242",
       "descripcion": "Macrotextura superficial UNE EN 13036-1 Mínimo facturable por desplazamiento 10 ensayos",
       "reciente": 39,
       "mediana": 25,
       "max": 39,
       "min": 20,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0197",
+      "codigo": "PB-0243",
       "descripcion": "Desplazamiento de equipo para el cálculo del CRT en obra 2 meses después de la puesta en servicio No incluye señalización que será por cuenta del Contratista",
       "reciente": 4990,
       "mediana": 4500,
       "max": 7850,
       "min": 3750,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0198",
+      "codigo": "PB-0244",
       "descripcion": "Km. de resistencia al deslizamiento CRT NLT-336",
       "reciente": 30,
       "mediana": 25,
       "max": 30,
       "min": 24,
-      "n": 6
+      "n": 7
     },
     {
-      "codigo": "PB-0200",
+      "codigo": "PB-0246",
       "descripcion": "Determinación de la profundidad de penetración del agua bajo presión sobre 3 probetas cilíndricas de 15x30 cm a la edad de 28 días UNE EN 12390-8",
       "reciente": 150,
       "mediana": 210,
       "max": 210,
       "min": 150,
+      "n": 7
+    },
+    {
+      "codigo": "PB-0250",
+      "descripcion": "Desplazamiento de equipo ECODYN para la medida de la retrorreflexión en obra No incluye señalización que será por cuenta del Contratista",
+      "reciente": 3150,
+      "mediana": 2680,
+      "max": 3150,
+      "min": 2150,
+      "n": 7
+    },
+    {
+      "codigo": "PB-0252",
+      "descripcion": "GEORREFERENCIACIÓN DE PUNTO DE PROSPECCIÓN CON TRES COORDENADAS",
+      "reciente": 25,
+      "mediana": 5,
+      "max": 25,
+      "min": 5,
+      "n": 7
+    },
+    {
+      "codigo": "PB-0301",
+      "descripcion": "Ensayo de arrancamiento hasta la carga de servicio. Mínimo por destajo",
+      "reciente": 51,
+      "mediana": 51,
+      "max": 51,
+      "min": 51,
+      "n": 7
+    },
+    {
+      "codigo": "PB-0217",
+      "descripcion": "Determinación de la dotación de ligante residual mediante calicata de 30x30 cm UNE EN 12697-3",
+      "reciente": 87.5,
+      "mediana": 81,
+      "max": 95,
+      "min": 80,
       "n": 6
     },
     {
-      "codigo": "PB-0204",
-      "descripcion": "Desplazamiento de equipo ECODYN para la medida de la retrorreflexión en obra No incluye señalización que será por cuenta del Contratista",
-      "reciente": 3150,
-      "mediana": 2915,
-      "max": 3150,
-      "min": 2150,
+      "codigo": "PB-0396",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
       "n": 6
     },
     {
@@ -748,21 +1216,12 @@
       "n": 5
     },
     {
-      "codigo": "PB-0155",
+      "codigo": "PB-0205",
       "descripcion": "Extracción de testigo para comprobación de espesor de la mezcla de suelo cemento",
       "reciente": 75,
       "mediana": 72,
       "max": 75,
       "min": 60,
-      "n": 5
-    },
-    {
-      "codigo": "PB-0167",
-      "descripcion": "Determinación de la dotación de ligante residual mediante calicata de 30x30 cm UNE EN 12697-3",
-      "reciente": 87.5,
-      "mediana": 81,
-      "max": 95,
-      "min": 80,
       "n": 5
     },
     {
@@ -775,7 +1234,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0045",
+      "codigo": "PB-0072",
       "descripcion": "Determinación de la consistencia del hormigón fresco (Cono de Abrams) UNE EN 12350-2 Toma de muestra de hormigón fresco y fabricación de 5 probetas cilíndricas de 15x30 cm UNE EN 12390-2 Curado en cámara húmeda y refrendado y rotura a compresión a 3 edades de las probetas UNE EN 12390-3 Determinación de la densidad de la probeta previo a su rotura UNE EN 12390-7",
       "reciente": 90,
       "mediana": 90,
@@ -784,7 +1243,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0137",
+      "codigo": "PB-0189",
       "descripcion": "Ensayo de Huella en terrenos NLT 256-99. Sin incluir elemento de reacción PARA EL CASO DE PEDRAPLENES O TODO-UNO",
       "reciente": 55.5,
       "mediana": 55.5,
@@ -793,7 +1252,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0149",
+      "codigo": "PB-0199",
       "descripcion": "Jornada para medida de la deflexión mediante el ensayo de viga Benkelman NLT-356. Sin incluir elemento de reacción",
       "reciente": 670,
       "mediana": 670,
@@ -802,7 +1261,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0150",
+      "codigo": "PB-0200",
       "descripcion": "Desplazamiento de equipo para la medida de la deflexión patrón mediante deflectómetro de impacto",
       "reciente": 2200,
       "mediana": 2200,
@@ -811,7 +1270,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0168",
+      "codigo": "PB-0218",
       "descripcion": "Toma sobre 3 bandejas y determinar la dotación media de ligante y árido",
       "reciente": 45,
       "mediana": 45,
@@ -820,7 +1279,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0178",
+      "codigo": "PB-0224",
       "descripcion": "Comprobación de las características y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinación de la densidad aparente, determinación de la densidad máxima, cálculo de contenido de huecos, determinación del contenido de ligante y de la granulometría de los áridos extraídos",
       "reciente": 165,
       "mediana": 165,
@@ -829,7 +1288,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0187",
+      "codigo": "PB-0233",
       "descripcion": "Tamizado emulsiones bituminosas UNE EN 1429",
       "reciente": 33,
       "mediana": 33,
@@ -838,7 +1297,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0188",
+      "codigo": "PB-0234",
       "descripcion": "Carga de las partículas de las emulsiones bituminosas UNE EN 1430",
       "reciente": 38,
       "mediana": 38,
@@ -847,7 +1306,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0189",
+      "codigo": "PB-0235",
       "descripcion": "Índice de rotura UNE EN 13075-1",
       "reciente": 46,
       "mediana": 46,
@@ -856,7 +1315,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0190",
+      "codigo": "PB-0236",
       "descripcion": "Determinación del tiempo de fluencia por medio de viscosímetro de flujo",
       "reciente": 55,
       "mediana": 55,
@@ -865,7 +1324,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0191",
+      "codigo": "PB-0237",
       "descripcion": "Contenido de fluidificante por destilación UNE EN 1431",
       "reciente": 64.5,
       "mediana": 64.5,
@@ -874,7 +1333,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0199",
+      "codigo": "PB-0245",
       "descripcion": "Toma de muestra, medida de Cono, fabricación de cinco (5) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03",
       "reciente": 45,
       "mediana": 45,
@@ -883,7 +1342,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0201",
+      "codigo": "PB-0247",
       "descripcion": "Visita de inspección para la realización de ensayos no destructivos de uniones soldadas en ángulo. Inspección por líquidos penetrantes UNE-EN 3452-1. Realización en obra o taller a < 50 km de obra",
       "reciente": 330,
       "mediana": 330,
@@ -892,7 +1351,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0202",
+      "codigo": "PB-0248",
       "descripcion": "Visita de inspección para la realización de ensayos no destructivos de uniones soldadas a tope o fuerza. Examen por ultrasonidos UNE-EN ISO 17640. Realización en obra o taller a < 50 km de obra",
       "reciente": 495,
       "mediana": 495,
@@ -901,7 +1360,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0203",
+      "codigo": "PB-0249",
       "descripcion": "Visita de inspección para la determinación del espesor de recubrimiento UNE EN ISO 2808 y/o comprobación de la adherencia del recubrImiento de la estructura metálica UNE EN ISO 2409. Realización en obra o taller a < 50 km de obra Al ser un ensayo destructivo la determinación de la adherencia es preciso que se proceda a repasar la estructura tras la realización del ensayo. Para ello se indicarán al contratista las zonas de ensayo",
       "reciente": 257.5,
       "mediana": 257.5,
@@ -910,7 +1369,7 @@
       "n": 4
     },
     {
-      "codigo": "PB-0205",
+      "codigo": "PB-0251",
       "descripcion": "Visita de inspección para la determinación del espesor de galvanizado in situ por métodos no destructivos UNE EN ISO 1461",
       "reciente": 247.5,
       "mediana": 247.5,
@@ -919,12 +1378,30 @@
       "n": 4
     },
     {
-      "codigo": "PB-0206",
-      "descripcion": "GEORREFERENCIACIÓN DE PUNTO DE PROSPECCIÓN CON TRES COORDENADAS",
-      "reciente": 25,
-      "mediana": 5,
-      "max": 25,
-      "min": 5,
+      "codigo": "PB-0300",
+      "descripcion": "Análisis granulométrico de pedraplén compactado UNE103101-95",
+      "reciente": 50,
+      "mediana": 46,
+      "max": 51,
+      "min": 42,
+      "n": 4
+    },
+    {
+      "codigo": "PB-0323",
+      "descripcion": "ENSAYO DE CORTE DIRECTO EN SUELOS, CONSOLIDADO Y DRENADO",
+      "reciente": 95,
+      "mediana": 95,
+      "max": 95,
+      "min": 95,
+      "n": 4
+    },
+    {
+      "codigo": "PB-0324",
+      "descripcion": "ENSAYO TRIAXIAL EN SUELOS, SIN CONSOLIDAR Y SIN DRENAR",
+      "reciente": 150,
+      "mediana": 150,
+      "max": 150,
+      "min": 150,
       "n": 4
     },
     {
@@ -973,7 +1450,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0066",
+      "codigo": "PB-0125",
       "descripcion": "Densidad y humedad “in situ” por isótopos radiactivos UNE 103900",
       "reciente": 9,
       "mediana": 9,
@@ -982,7 +1459,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0087",
+      "codigo": "PB-0145",
       "descripcion": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5, determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 y cálculo del contenido en huecos UNE EN 12697-8",
       "reciente": 75,
       "mediana": 66,
@@ -991,7 +1468,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0133",
+      "codigo": "PB-0185",
       "descripcion": "Granulometría de pedraplén compactado UNE 103501",
       "reciente": 45,
       "mediana": 45,
@@ -1000,7 +1477,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0134",
+      "codigo": "PB-0186",
       "descripcion": "Granulometría Pedraplén-Todo Uno. Inspección de acopio de material Todo Uno/Pedraplén, fotografías, Tam. Máx y estimación de % de mat. > 100 mm, muestreo del mat. <100 mm. Determinación en lab. del % de mat. <a 20 mm y a 0,08 mm",
       "reciente": 80,
       "mediana": 80,
@@ -1009,7 +1486,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0147",
+      "codigo": "PB-0197",
       "descripcion": "Comprobación del espesor de capa (mediante comprobación de estaquillado) (mínimo facturable 10 determinaciones por desplazamiento)",
       "reciente": 5,
       "mediana": 5,
@@ -1018,7 +1495,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0154",
+      "codigo": "PB-0204",
       "descripcion": "Extracción de probeta-testigo en suelo-cemento con diámetro 100 mm y determinación del espesor de capa",
       "reciente": 45,
       "mediana": 45,
@@ -1027,7 +1504,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0192",
+      "codigo": "PB-0238",
       "descripcion": "Toma sobre 3 bandejas y determinación de la dotación media de ligante y árido",
       "reciente": 50,
       "mediana": 50,
@@ -1036,7 +1513,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0207",
+      "codigo": "PB-0253",
       "descripcion": "ABONO FIJO POR TRANSPORTE AL ÁREA DE TRABAJO DE LOS EQUIPOS DE SONDEO",
       "reciente": 450,
       "mediana": 450,
@@ -1045,7 +1522,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0208",
+      "codigo": "PB-0254",
       "descripcion": "TRASLADO DE SONDA ENTRE PUNTOS A RECONOCER i/ EMPLAZAMIENTO",
       "reciente": 40,
       "mediana": 40,
@@ -1054,7 +1531,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0209",
+      "codigo": "PB-0255",
       "descripcion": "ABONO FIJO POR TRANSPORTE AL ÁREA DE TRABAJO DEL CONJUNTO DE PENETRÓMETRO (ESTÁTICO O DINÁMICO), EQUIPO DE PLACA DE CARGA, PRESIOMETROS, ETC.",
       "reciente": 175,
       "mediana": 175,
@@ -1063,7 +1540,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0210",
+      "codigo": "PB-0256",
       "descripcion": "TRASLADO ENTRE PUNTOS A RECONOCER DE PENETRÓMETRO (ESTÁTICO O DINÁMICO), EQUIPO DE PLACA DE CARGA, PRESIÓMETRO, DILATÓMETRO, PIE",
       "reciente": 6,
       "mediana": 6,
@@ -1072,7 +1549,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0211",
+      "codigo": "PB-0257",
       "descripcion": "PERFORACIÓN A ROTACIÓN EN RELLENOS O SUELOS, CON DIÁMETROS COMERCIALES Ø < 120 mm CON EXTRACCIÓN CONTINUA DE TESTIGO i/ SUMINISTRO DE AGUA Y TESTIFICACIÓN IN SITU POR TÉCNICO COMPETENTE.",
       "reciente": 45,
       "mediana": 45,
@@ -1081,7 +1558,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0212",
+      "codigo": "PB-0258",
       "descripcion": "PERFORACIÓN A ROTACIÓN EN ROCAS DE RESISTENCIA A COMPRESIÓN SIMPLE > 100 MPa, CON DIÁMETROS COMERCIALES Ø < 120 mm CON EXTRACCIÓN CONTINUA DE TESTIGO i/ SUMINISTRO DE AGUA Y TESTIFICACIÓN IN SITU POR TÉCNICO COMPETENTE.",
       "reciente": 75,
       "mediana": 75,
@@ -1090,7 +1567,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0213",
+      "codigo": "PB-0259",
       "descripcion": "TOMA DE MUESTRA INALTERADA CON TOMAMUESTRAS DE TIPO ABIERTO, A CUALQUIER PROFUNDIDAD",
       "reciente": 24,
       "mediana": 24,
@@ -1099,7 +1576,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0214",
+      "codigo": "PB-0260",
       "descripcion": "TESTIGO PARAFINADO DE LONGITUD L > 35 cm DE Y Ø > 70 mm A CUALQUIER PROFUNDIDAD",
       "reciente": 12,
       "mediana": 12,
@@ -1108,7 +1585,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0215",
+      "codigo": "PB-0261",
       "descripcion": "TOMA DE MUESTRAS DE LAS AGUAS, EN SONDEO, DESTINADAS AL ANÁLISIS QUÍMICO",
       "reciente": 10,
       "mediana": 10,
@@ -1117,7 +1594,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0216",
+      "codigo": "PB-0262",
       "descripcion": "CAJA PORTATESTIGOS DE CARTÓN PARAFINADO i/ TRANSPORTE A ALMACÉN DESIGNADO, ROTULACIÓN Y FOTOGRAFÍA EN COLOR.",
       "reciente": 8,
       "mediana": 8,
@@ -1126,7 +1603,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0217",
+      "codigo": "PB-0263",
       "descripcion": "ENSAYO DE PENETRACIÓN ESTÁNDAR SPT, A CUALQUIER PROFUNDIDAD Y EN CUALQUIER TIPO DE TERRENO, SEGÚN UNE EN ISO 22476-3.",
       "reciente": 22,
       "mediana": 22,
@@ -1135,7 +1612,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0218",
+      "codigo": "PB-0264",
       "descripcion": "PENETRACIÓN DINÁMICA TIPO DPL, DPM, DPH Y DPSH, SEGÚN UNE EN ISO 22476-2, Y ENSAYO BORRO, SEGÚN UNE 103809, A CUALQUIER PROFUNDIDAD.",
       "reciente": 12,
       "mediana": 12,
@@ -1144,7 +1621,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0219",
+      "codigo": "PB-0265",
       "descripcion": "TOMA DE MUESTRA EN SACO EN CALICATA, CANTERA O ZONA CANTERABLE, ACOPIO U OTROS PUNTOS, DE MENOS DE 30 kg.",
       "reciente": 5,
       "mediana": 5,
@@ -1153,7 +1630,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0220",
+      "codigo": "PB-0266",
       "descripcion": "TOMA DE MUESTRA EN SACO EN CALICATA, CANTERA O ZONA CANTERABLE, ACOPIO U OTROS PUNTOS, DE MÁS DE 30 kg.",
       "reciente": 13,
       "mediana": 13,
@@ -1162,7 +1639,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0221",
+      "codigo": "PB-0267",
       "descripcion": "ENSAYO DE PERMEABILIDAD LEFRANC BAJO DIRECCIÓN \"IN SITU\" DE TÉCNICO EXPERTO E INTERPRETACIÓN.",
       "reciente": 90,
       "mediana": 90,
@@ -1171,7 +1648,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0222",
+      "codigo": "PB-0268",
       "descripcion": "APERTURA Y PREPARACIÓN DE MUESTRAS DE SUELOS, CUANDO UNA MISMA MUESTRA (NORMALMENTE INALTERADA) DEBA SERVIR PARA LA REALIZACIÓN DE MÁS DE UN ENSAYO. APLICABLE UNA SOLA VEZ POR MUESTRA.",
       "reciente": 5,
       "mediana": 5,
@@ -1180,7 +1657,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0223",
+      "codigo": "PB-0269",
       "descripcion": "APERTURA Y PREPARACIÓN DE MUESTRAS DE ROCA, CUANDO UNA MISMA MUESTRA DEBA SERVIR PARA LA REALIZACIÓN DE MÁS DE UN ENSAYO. APLICABLE UNA SOLA VEZ POR MUESTRA.",
       "reciente": 6,
       "mediana": 6,
@@ -1189,7 +1666,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0224",
+      "codigo": "PB-0270",
       "descripcion": "ANÁLISIS GRANULOMÉTRICO DE SUELOS POR TAMIZADO, UNE 103101.",
       "reciente": 30,
       "mediana": 30,
@@ -1198,7 +1675,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0225",
+      "codigo": "PB-0271",
       "descripcion": "ANÁLISIS GRANULOMÉTRICO DE SUELOS FINOS POR SEDIMENTACIÓN, UNE 103102.",
       "reciente": 39,
       "mediana": 39,
@@ -1207,7 +1684,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0226",
+      "codigo": "PB-0272",
       "descripcion": "DETERMINACIÓN DE LOS LÍMITES LÍQUIDO Y PLÁSTICO DE UN SUELO (LÍMITES DE ATTERBERG), UNE 103103 Y UNE 103104.",
       "reciente": 35,
       "mediana": 35,
@@ -1216,7 +1693,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0227",
+      "codigo": "PB-0273",
       "descripcion": "DETERMINACIÓN DE LA HUMEDAD DE UN SUELO MEDIANTE SECADO EN ESTUFA, UNE 103300.",
       "reciente": 6,
       "mediana": 6,
@@ -1225,7 +1702,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0228",
+      "codigo": "PB-0274",
       "descripcion": "DETERMINACIÓN DE LA DENSIDAD DE UN SUELO. MÉTODO DE LA BALANZA HIDROSTÁTICA, UNE 103301.",
       "reciente": 6,
       "mediana": 6,
@@ -1234,7 +1711,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0229",
+      "codigo": "PB-0275",
       "descripcion": "DETERMINACIÓN DEL CONTENIDO DE CARBONATOS EN LOS SUELOS, UNE 103200.",
       "reciente": 30,
       "mediana": 30,
@@ -1243,7 +1720,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0230",
+      "codigo": "PB-0276",
       "descripcion": "DETERMINACIÓN CUANTITATIVA DEL CONTENIDO EN SULFATOS SOLUBLES DE UN SUELO, UNE 103201.",
       "reciente": 36,
       "mediana": 36,
@@ -1252,7 +1729,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0231",
+      "codigo": "PB-0277",
       "descripcion": "DETERMINACIÓN CUALITATIVA DEL CONTENIDO EN SULFATOS SOLUBLES DE UN SUELO, UNE 103202.",
       "reciente": 25,
       "mediana": 25,
@@ -1261,7 +1738,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0232",
+      "codigo": "PB-0278",
       "descripcion": "DETERMINACIÓN DEL CONTENIDO DE MATERIA ORGÁNICA OXIDABLE DE UN SUELO POR EL MÉTODO DEL PERMANGANATO POTÁSICO, UNE 103204.",
       "reciente": 30,
       "mediana": 30,
@@ -1270,7 +1747,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0233",
+      "codigo": "PB-0279",
       "descripcion": "DETERMINACIÓN DEL CONTENIDO DE SALES SOLUBLES EN LOS SUELOS, UNE 103205.",
       "reciente": 36,
       "mediana": 36,
@@ -1279,7 +1756,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0234",
+      "codigo": "PB-0280",
       "descripcion": "DETERMINACIÓN DEL CONTENIDO DE YESOS EN LOS SUELOS",
       "reciente": 36,
       "mediana": 36,
@@ -1288,7 +1765,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0235",
+      "codigo": "PB-0281",
       "descripcion": "DETERMINACIÓN DEL PH DE UN SUELO, UNE 77305.",
       "reciente": 15,
       "mediana": 15,
@@ -1297,7 +1774,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0236",
+      "codigo": "PB-0282",
       "descripcion": "ENSAYO DE COMPACTACIÓN PRÓCTOR MODIFICADO, UNE 103501.",
       "reciente": 60,
       "mediana": 60,
@@ -1306,7 +1783,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0237",
+      "codigo": "PB-0283",
       "descripcion": "ENSAYO PARA DETERMINAR EN LABORATORIO EL ÍNDICE C.B.R. DE UN SUELO PARA LA SOBRECARGA DE 4,5 kg DEFINIDA EN LA NORMA, UNE 103502.",
       "reciente": 78,
       "mediana": 78,
@@ -1315,7 +1792,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0238",
+      "codigo": "PB-0284",
       "descripcion": "ENSAYO DE ROTURA A COMPRESIÓN SIMPLE EN PROBETAS DE SUELO, UNE 103400 (i/ DETERMINACIÓN DE HUMEDAD Y DENSIDAD).",
       "reciente": 24,
       "mediana": 24,
@@ -1324,7 +1801,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0239",
+      "codigo": "PB-0285",
       "descripcion": "ENSAYO DE CORTE DIRECTO EN SUELOS, CONSOLIDADO Y SIN DRENAR (CU), UNE 103401.",
       "reciente": 80,
       "mediana": 80,
@@ -1333,7 +1810,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0240",
+      "codigo": "PB-0286",
       "descripcion": "ENSAYO DE CONSOLIDACIÓN UNIDIMENSIONAL DE UN SUELO EN EDÓMETRO (CON AL MENOS SIETE ESCALONES DE CARGA Y TRES DE DESCARGA i/ CURVAS DE CONSOLIDACIÓN), UNE 103405.",
       "reciente": 150,
       "mediana": 150,
@@ -1342,7 +1819,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0241",
+      "codigo": "PB-0287",
       "descripcion": "ENSAYO DE COLAPSO DE SUELOS, PARA CONDICIONES DE ENSAYO DEFINIDAS EN EL APARTADO 330.4.4.1 DEL PG-3 (i/ CURVAS), UNE 103406.",
       "reciente": 57,
       "mediana": 57,
@@ -1351,7 +1828,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0242",
+      "codigo": "PB-0288",
       "descripcion": "ENSAYO DEL HINCHAMIENTO LIBRE DE UN SUELO EN EDÓMETRO, PARA CONDICIONES DE ENSAYO DEFINIDAS EN EL APARTADO 330.4.4.2 DEL PG-3 (i/ CURVAS), UNE 103601.",
       "reciente": 57,
       "mediana": 57,
@@ -1360,7 +1837,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0243",
+      "codigo": "PB-0289",
       "descripcion": "DETERMINACIÓN DEL PESO ESPECÍFICO DE LOS MATERIALES PÉTREOS.",
       "reciente": 24,
       "mediana": 24,
@@ -1369,7 +1846,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0244",
+      "codigo": "PB-0290",
       "descripcion": "DETERMINACIÓN DE LA RESISTENCIA A COMPRESIÓN SIMPLE DE PROBETAS DE ROCA (RESISTENCIA A COMPRESIÓN UNIAXIAL) i/ PREPARACIÓN DE PROBETA UNE 22950-1.",
       "reciente": 36,
       "mediana": 36,
@@ -1378,7 +1855,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0245",
+      "codigo": "PB-0291",
       "descripcion": "DETERMINACIÓN DE LA RESISTENCIA A CARGA PUNTUAL DE LAS ROCAS (PLT) i/ PREPARACIÓN DE PROBETA, UNE 22950-5.",
       "reciente": 15,
       "mediana": 15,
@@ -1387,7 +1864,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0246",
+      "codigo": "PB-0292",
       "descripcion": "ANÁLISIS QUÍMICO COMPLETO DE AGUA PARA DETERMINAR SU AGRESIVIDAD FRENTE AL HORMIGÓN, SEGÚN LA INSTRUCCIÓN EHE: VALOR DEL PH, UNE 83952, CO2 AGRESIVO, UNE EN 13577, IÓN AMONIO, UNE 83954, IÓN MAGNESIO, UNE 83955, IÓN SULFATO, UNE 83956, Y RESIDUO SECO, UNE 83957.",
       "reciente": 80,
       "mediana": 80,
@@ -1396,7 +1873,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0247",
+      "codigo": "PB-0293",
       "descripcion": "ANÁLISIS QUÍMICO COMPLETO DE SUELO PARA DETERMINAR SU AGRESIVIDAD FRENTE AL HORMIGÓN, SEGÚN LA INSTRUCCIÓN EHE: GRADO DE ACIDEZ BAUMANN-GULLY, UNE 83962, Y DETERMINACIÓN DEL IÓN SULFATO, UNE 83963.",
       "reciente": 50,
       "mediana": 50,
@@ -1405,7 +1882,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0248",
+      "codigo": "PB-0294",
       "descripcion": "INFORME GEOTÉCNICO PARA LA CIMENTACIÓN DEL PASO SUPERIOR ENLACE ORBITAL E-02I Y E-02II, INCLUYENDO EL ANÁLISIS DE LA INFORMACIÓN PREVIA DISPONIBLE Y RECONOCIMIENTOS REALIZADOS EN FASE DE OBRA, CONCLUSIONES Y RECOMENDACIONES CONSTRUCTIVAS.",
       "reciente": 900,
       "mediana": 900,
@@ -1414,7 +1891,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0249",
+      "codigo": "PB-0295",
       "descripcion": "INFORME GEOTÉCNICO PARA LA CIMENTACIÓN DEL PASO SUPERIOR E-OR-01 PS-400+375, INCLUYENDO EL ANÁLISIS DE LA INFORMACIÓN PREVIA DISPONIBLE Y RECONOCIMIENTOS REALIZADOS EN FASE DE OBRA, CONCLUSIONES Y RECOMENDACIONES CONSTRUCTIVAS.",
       "reciente": 600,
       "mediana": 600,
@@ -1423,7 +1900,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0250",
+      "codigo": "PB-0296",
       "descripcion": "INFORME GEOTÉCNICO PARA LA CIMENTACIÓN DE LA AMPLIACIÓN DEL PASO INFERIOR E-05 PBA-98+917, INCLUYENDO EL ANÁLISIS DE LA INFORMACIÓN PREVIA DISPONIBLE Y RECONOCIMIENTOS REALIZADOS EN FASE DE OBRA, CONCLUSIONES Y RECOMENDACIONES CONSTRUCTIVAS.",
       "reciente": 600,
       "mediana": 600,
@@ -1432,7 +1909,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0251",
+      "codigo": "PB-0297",
       "descripcion": "INFORME GEOTÉCNICO PARA LA CIMENTACIÓN DEL MURO DEL ENLACE ORBITAL, INCLUYENDO EL ANÁLISIS DE LA INFORMACIÓN PREVIA DISPONIBLE Y RECONOCIMIENTOS REALIZADOS EN FASE DE OBRA, CONCLUSIONES Y RECOMENDACIONES CONSTRUCTIVAS.",
       "reciente": 600,
       "mediana": 600,
@@ -1441,7 +1918,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0252",
+      "codigo": "PB-0298",
       "descripcion": "INFORME GEOTÉCNICO PARA EL ANÁLISIS DE ESTABILIDAD DE TALUDES CON USO DE PROGRAMAS ESPECÍFICOS A PARTIR DE LA INFORMACIÓN PREVIA DISPONIBLE Y NUEVOS RECONOCIMIENTOS EN FASE DE OBRA, INCLUYENDO CONCLUSIONES Y RECOMENDACIONES CONSTRUCTIVAS.",
       "reciente": 900,
       "mediana": 900,
@@ -1450,7 +1927,7 @@
       "n": 3
     },
     {
-      "codigo": "PB-0253",
+      "codigo": "PB-0299",
       "descripcion": "INFORME GEOTÉCNICO PARA EL ANÁLISIS DE LA EXCAVABILIDAD DE TALUDES A PARTIR DEL ANÁLISIS DE LA INFORMACIÓN PREVIA DISPONIBLE Y NUEVOS RECONOCIMIENTOS EN FASE DE OBRA,INCLUYENDO CONCLUSIONES Y RECOMENDACIONES CONSTRUCTIVAS.",
       "reciente": 600,
       "mediana": 600,
@@ -1459,21 +1936,156 @@
       "n": 3
     },
     {
-      "codigo": "PB-0254",
-      "descripcion": "Análisis granulométrico de pedraplén compactado UNE103101-95",
-      "reciente": 50,
-      "mediana": 50,
-      "max": 51,
-      "min": 42,
+      "codigo": "PB-0329",
+      "descripcion": "Ensayo de durabilidad (SDT) NLT 251",
+      "reciente": 90,
+      "mediana": 90,
+      "max": 90,
+      "min": 90,
       "n": 3
     },
     {
-      "codigo": "PB-0318",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03",
+      "codigo": "PB-0330",
+      "descripcion": "Ensayo de Huella en terrenos NLT 256-99. Sin incluir elemento de reacción PARA EL CASO DE PEDRAPLENES",
       "reciente": 72,
-      "mediana": 72,
-      "max": 72,
+      "mediana": 120,
+      "max": 120,
       "min": 72,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0334",
+      "descripcion": "Toma de muestra en artesa de 35x35 cm, curado en cámara húmeda, extracción de doce (12) testigos de 60 mm en artesa y ensayo a compresión a 4 edades (3,7, 28 y 90 días) según lo establecido en UNE EN 14488-1, UNE 83605 y UNE EN 12390-3",
+      "reciente": 150,
+      "mediana": 135,
+      "max": 150,
+      "min": 135,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0335",
+      "descripcion": "Determinación de la capacidad de absorción de energía sobre una probeta plana de 600x600x100 mm reforzada con fibras según lo establecido en UNE EN 14488-5, incluyendo la determinación de la respuesta carga - flecha y el cálculo del diagrama de energía – fecha para la determinación de la capacidad de absorción de energía entre 0 y 25 mm de fecha.",
+      "reciente": 210,
+      "mediana": 150,
+      "max": 210,
+      "min": 150,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0345",
+      "descripcion": "Resistencia al deslizamiento SRT \"in situ\" UNE EN 1436",
+      "reciente": 60,
+      "mediana": 60,
+      "max": 60,
+      "min": 60,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0346",
+      "descripcion": "Ensayos ópticos sobre la señal, incluyendo la medición de coordenadas cromáticas, factor de luminancia y coeficiente de retroreflexión UNE 135334 (hasta un máximo de 10 señales)",
+      "reciente": 1500,
+      "mediana": 1500,
+      "max": 1500,
+      "min": 1500,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0350",
+      "descripcion": "PERFORACIÓN A ROTACIÓN EN RELLENOS O SUELOS",
+      "reciente": 50,
+      "mediana": 50,
+      "max": 50,
+      "min": 50,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0352",
+      "descripcion": "TOMA DE MUESTRA INALTERADA CON TOMAMUESTRAS DE TIPO ABIERTO",
+      "reciente": 25,
+      "mediana": 25,
+      "max": 25,
+      "min": 25,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0353",
+      "descripcion": "TESTIGO PARAFINADO DE LONGITUD L > 35 CMDE Y Ø > 70 MM",
+      "reciente": 12,
+      "mediana": 12,
+      "max": 12,
+      "min": 12,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0354",
+      "descripcion": "TUBO RANURADO DE PVC, DE DIÁMETRO Ø > 60 MM",
+      "reciente": 12,
+      "mediana": 12,
+      "max": 12,
+      "min": 12,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0358",
+      "descripcion": "LECTURA DE NIVEL PIEZOMÉTRICO EN SONDEO, A CUALQUIER PROFUNDIDAD",
+      "reciente": 25,
+      "mediana": 25,
+      "max": 25,
+      "min": 25,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0359",
+      "descripcion": "ENSAYO DE PENETRACIÓN ESTÁNDAR SPT, A CUALQUIER PROFUNDIDAD",
+      "reciente": 22,
+      "mediana": 22,
+      "max": 22,
+      "min": 22,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0360",
+      "descripcion": "ENSAYO PRESIOMÉTRICO, CON CICLO INTERMEDIO",
+      "reciente": 215,
+      "mediana": 215,
+      "max": 215,
+      "min": 215,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0362",
+      "descripcion": "ANÁLISIS GRANULOMÉTRICO DE SUELOS POR TAMIZADO, UNE 103101",
+      "reciente": 30,
+      "mediana": 30,
+      "max": 30,
+      "min": 30,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0363",
+      "descripcion": "DETERMINACIÓN DE LOS LÍMITES LÍQUIDO Y PLÁSTICO DE UN SUELO",
+      "reciente": 35,
+      "mediana": 35,
+      "max": 35,
+      "min": 35,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0365",
+      "descripcion": "DETERMINACIÓN DE LA RESISTENCIA A COMPRESIÓN SIMPLE DE PROBETAS",
+      "reciente": 35,
+      "mediana": 35,
+      "max": 36,
+      "min": 35,
+      "n": 3
+    },
+    {
+      "codigo": "PB-0366",
+      "descripcion": "ANÁLISIS QUÍMICO COMPLETO DE AGUA PARA DETERMINAR SU AGRESIVIDAD",
+      "reciente": 75,
+      "mediana": 75,
+      "max": 75,
+      "min": 75,
       "n": 3
     },
     {
@@ -1504,7 +2116,7 @@
       "n": 2
     },
     {
-      "codigo": "PB-0051",
+      "codigo": "PB-0078",
       "descripcion": "Prueba de estanqueidad \"in situ\" del conjunto fachada-carpintería mediante batería de rociadores según procedimiento ALAGAL 1-ECC-01. Incluido reportaje fotográfico y emisión de informe.",
       "reciente": 450,
       "mediana": 400,
@@ -1513,7 +2125,7 @@
       "n": 2
     },
     {
-      "codigo": "PB-0059",
+      "codigo": "PB-0118",
       "descripcion": "Determinación de Límites de Atterberg UNE 103103, UNE 103104",
       "reciente": 27,
       "mediana": 27,
@@ -1522,7 +2134,7 @@
       "n": 2
     },
     {
-      "codigo": "PB-0067",
+      "codigo": "PB-0126",
       "descripcion": "Carga con placa estática de 30 cm, NLT 357/ UNE 103808",
       "reciente": 65,
       "mediana": 65,
@@ -1531,7 +2143,7 @@
       "n": 2
     },
     {
-      "codigo": "PB-0103",
+      "codigo": "PB-0161",
       "descripcion": "Toma de muestra, medida de Cono, fabricación de cinco (5) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNEEN 12390-3:03",
       "reciente": 48,
       "mediana": 48,
@@ -1540,44 +2152,8 @@
       "n": 2
     },
     {
-      "codigo": "PB-0279",
-      "descripcion": "Ensayo de durabilidad (SDT) NLT 251",
-      "reciente": 90,
-      "mediana": 90,
-      "max": 90,
-      "min": 90,
-      "n": 2
-    },
-    {
-      "codigo": "PB-0280",
-      "descripcion": "Ensayo de Huella en terrenos NLT 256-99. Sin incluir elemento de reacción PARA EL CASO DE PEDRAPLENES",
-      "reciente": 72,
-      "mediana": 96,
-      "max": 120,
-      "min": 72,
-      "n": 2
-    },
-    {
-      "codigo": "PB-0284",
-      "descripcion": "Toma de muestra en artesa de 35x35 cm, curado en cámara húmeda, extracción de doce (12) testigos de 60 mm en artesa y ensayo a compresión a 4 edades (3,7, 28 y 90 días) según lo establecido en UNE EN 14488-1, UNE 83605 y UNE EN 12390-3",
-      "reciente": 150,
-      "mediana": 142.5,
-      "max": 150,
-      "min": 135,
-      "n": 2
-    },
-    {
-      "codigo": "PB-0285",
-      "descripcion": "Determinación de la capacidad de absorción de energía sobre una probeta plana de 600x600x100 mm reforzada con fibras según lo establecido en UNE EN 14488-5, incluyendo la determinación de la respuesta carga - flecha y el cálculo del diagrama de energía – fecha para la determinación de la capacidad de absorción de energía entre 0 y 25 mm de fecha.",
-      "reciente": 210,
-      "mediana": 180,
-      "max": 210,
-      "min": 150,
-      "n": 2
-    },
-    {
-      "codigo": "PB-0295",
-      "descripcion": "Resistencia al deslizamiento SRT \"in situ\" UNE EN 1436",
+      "codigo": "PB-0306",
+      "descripcion": "Traslado de sonda entre puntos a reconocer",
       "reciente": 60,
       "mediana": 60,
       "max": 60,
@@ -1585,12 +2161,354 @@
       "n": 2
     },
     {
-      "codigo": "PB-0296",
-      "descripcion": "Ensayos ópticos sobre la señal, incluyendo la medición de coordenadas cromáticas, factor de luminancia y coeficiente de retroreflexión UNE 135334 (hasta un máximo de 10 señales)",
-      "reciente": 1500,
-      "mediana": 1500,
-      "max": 1500,
-      "min": 1500,
+      "codigo": "PB-0320",
+      "descripcion": "Apertura y preparación de muestras de roca",
+      "reciente": 15,
+      "mediana": 15,
+      "max": 15,
+      "min": 15,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0378",
+      "descripcion": "Determinación del espesor del panel de las chapas y del aislante densidad del aislante y espesor de recubrimiento",
+      "reciente": 132.5,
+      "mediana": 132.5,
+      "max": 150,
+      "min": 115,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0394",
+      "descripcion": "Estabilidad de los áridos y fragmentos de roca frente a la acción de los ciclos de humedad-sequedad NLT-260",
+      "reciente": 115,
+      "mediana": 115,
+      "max": 115,
+      "min": 115,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0395",
+      "descripcion": "Extracción de testigo para comprobación de esperor de la mezcla de suelo cemento",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0397",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 2.720 m3 HA-30. 27 Lotes n=3: 81 Tomas 1.580 m3 HA-35. 16 Lotes n=4: 64 Tomas 1.980 m3 HP-50. 20 Lotes n=4: 80 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0398",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 1.940 m3 HA-30. 19 Lotes n=3: 57 Tomas 1.090 m3 HA-35. 11 Lotes n=4: 44 Tomas 2.870 m3 HP-50. 29 Lotes n=4: 116 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0399",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 2.050 m3 HA-30. 21 Lotes n=3: 63 Tomas 1.650 m3 HA-35. 17 Lotes n=4: 68 Tomas 2.580 m3 HP-50. 26 Lotes n=4: 104 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0400",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 5.820 m3 HA-30. 58 Lotes n=3: 174 Tomas 1.800 m3 HA-35. 18 Lotes n=4: 72 Tomas 6.050 m3 HP-50. 61 Lotes n=4: 244 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0401",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 1.920 m3 HA-30. 19 Lotes n=3: 57 Tomas 2.310 m3 HA-35. 23 Lotes n=4: 92 Tomas 3.500 m3 HP-50. 35 Lotes n=4: 140 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0402",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 3.870 m3 HA-30. 39 Lotes n=3: 117 Tomas 2.180 m3 HA-35. 22 Lotes n=4: 88 Tomas 1.480 m3 HP-50. 15 Lotes n=4: 60 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0403",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 1.320 m3 HA-30. 13 Lotes n=3: 39 Tomas 460 m3 HA-35. 5 Lotes n=4: 20 Tomas 630 m3 HP-50. 7 Lotes n=4: 28 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0404",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 3.730 m3 HA-30. 37 Lotes n=3: 111 Tomas 2.370 m3 HA-35. 24 Lotes n=4: 96 Tomas 2.870 m3 HP-50. 29 Lotes n=4: 116 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0405",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 313 m3 HA-30. 3 Lotes n=3: 9 Tomas 469 m3 HA-35. 5 Lotes n=4: 20 Tomas 473 m3 HP-45. 5 Lotes n=4: 20 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0406",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 213 m3 HA-30. 2 Lotes n=3: 6 Tomas 123 m3 HA-35. 2 Lotes n=4: 8 Tomas 313 m3 HP-45. 3 Lotes n=4: 12 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0407",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 197 m3 HA-30. 2 Lotes n=3: 6 Tomas 255 m3 HA-35. 3 Lotes n=4: 12 Tomas 662 m3 HP-45. 7 Lotes n=4: 28 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0408",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 177 m3 HA-30. 2 Lotes n=3: 6 Tomas 209 m3 HA-35. 2 Lotes n=4: 8 Tomas 321 m3 HP-45. 3 Lotes n=4: 12 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0409",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 117 m3 HA-30. 2 Lotes n=3: 6 Tomas 236 m3 HA-35. 3 Lotes n=4: 12 Tomas 355 m3 HP-45. 4 Lotes n=4: 16 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0410",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 162 m3 HA-30. 2 Lotes n=3: 6 Tomas 149 m3 HA-35. 2 Lotes n=4: 8 Tomas 313 m3 HP-45. 3 Lotes n=4: 12 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0411",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 153 m3 HA-30. 2 Lotes n=3: 6 Tomas 146 m3 HA-35. 2 Lotes n=4: 8 Tomas 319 m3 HP-45. 3 Lotes n=4: 12 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0412",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 207 m3 HA-30. 2 Lotes n=3: 6 Tomas 217 m3 HA-35. 2 Lotes n=4: 8 Tomas 355 m3 HP-45. 4 Lotes n=4: 16 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0413",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 1.344 m3 HA-30. 14 Lotes n=3: 42 Tomas 2.393 m3 HA-35. 24 Lotes n=4: 96 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0414",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 479 m3 HA-30. 5 Lotes n=3: 15 Tomas 805 m3 HA-35. 8 Lotes n=4: 32 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0415",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 394 m3 HA-30. 4 Lotes n=3: 12 Tomas 708 m3 HA-35. 7 Lotes n=4: 28 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0416",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 838 m3 HA-30. 8 Lotes n=3: 24 Tomas 1.353 m3 HA-35. 14 Lotes n=4: 56 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0417",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 526 m3 HA-30. 5 Lotes n=3: 15 Tomas 1.076 m3 HA-35. 11 Lotes n=4: 44 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0418",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 308 m3 HA-30. 3 Lotes n=3: 9 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0419",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 257 m3 HA-30. 3 Lotes n=3: 9 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0420",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 2674 m3 HA-30. 27 Lotes n=3: 81 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0421",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 541 m3 HA-30. 5 Lotes n=3: 15 Tomas 1.082 m3 HA-35. 11 Lotes n=4: 44 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0422",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 541 m3 HA-30. 5 Lotes n=3: 15 Tomas 1.085 m3 HA-35. 11 Lotes n=4: 44 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0423",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 613 m3 HA-30. 6 Lotes n=3: 18 Tomas 192 m3 HA-35. 2 Lotes n=4: 8 Tomas 567 m3 HP-45. 6 Lotes n=4: 24 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0424",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 269 m3 HA-30. 3 Lotes n=3: 9 Tomas 239 m3 HA-35. 3 Lotes n=4: 12 Tomas 506 m3 HP-45. 5 Lotes n=4: 20 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0425",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 239 m3 HA-30. 3 Lotes n=3: 9 Tomas 247 m3 HA-35. 3 Lotes n=4: 12 Tomas 506 m3 HP-45. 5 Lotes n=4: 20 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0426",
+      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 1.488 m3 HA-30. 15 Lotes n=3: 45 Tomas",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0427",
+      "descripcion": "Realización de ensayo de integridad estructural por Crosshole de pilote instrumentado con 4 tubos incluyendo el desplazamiento de personal y equipo a obra y la elaboración del correspondiente informe Mínimo facturable por desplazamiento 6 pilotes",
+      "reciente": 90,
+      "mediana": 90,
+      "max": 90,
+      "min": 90,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0428",
+      "descripcion": "Determinación de características geométricas y mecánicas de acero activo (tracción) UNE EN ISO 15630-3 y ISO 6892",
+      "reciente": 120,
+      "mediana": 120,
+      "max": 120,
+      "min": 120,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0429",
+      "descripcion": "Ensayo de arrancamiento hasta la carga de servicio. Mínimo por desplazamiento 5 ensayos. Si fuesen necesarios medios de elevación correrán a cargo del Peticionario",
+      "reciente": 51,
+      "mediana": 51,
+      "max": 51,
+      "min": 51,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0430",
+      "descripcion": "Determinación del espesor de galvanizado in situ por métodos no destructivos UNE EN ISO 1461",
+      "reciente": 45,
+      "mediana": 45,
+      "max": 45,
+      "min": 45,
+      "n": 2
+    },
+    {
+      "codigo": "PB-0431",
+      "descripcion": "Ensayo de choque sobre barreras metálicas de seguridad UNE EN 1317-1 y UNE EN 1317-2",
+      "reciente": 510,
+      "mediana": 510,
+      "max": 510,
+      "min": 510,
       "n": 2
     },
     {
@@ -1873,7 +2791,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0046",
+      "codigo": "PB-0073",
       "descripcion": "Determinación de la profundidad al agua bajo presión del hormigón para un ambiente IIIc (3 probetas) UNE EN 12390-8",
       "reciente": 210,
       "mediana": 210,
@@ -1882,7 +2800,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0047",
+      "codigo": "PB-0074",
       "descripcion": "Determinación de características geométricas UNE EN 15630-1 y UNE EN 10080 Determinación de las características mecánicas en el ensayo de tracción UNE EN ISO 15630-1 Aptitud al doblado-desdoblado UNE EN ISO 15630-1",
       "reciente": 81,
       "mediana": 81,
@@ -1891,7 +2809,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0048",
+      "codigo": "PB-0075",
       "descripcion": "Prueba de estanqueidad \"in situ\" de cubiertas no inundables, según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión de informe.",
       "reciente": 540,
       "mediana": 540,
@@ -1900,7 +2818,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0049",
+      "codigo": "PB-0076",
       "descripcion": "Toma de muestras, fabricación, conservación y rotura a flexotracción y a compresión de 3 probetas prismáticas UNE-EN 1015-11",
       "reciente": 90,
       "mediana": 90,
@@ -1909,7 +2827,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0050",
+      "codigo": "PB-0077",
       "descripcion": "Informe sobre cumplimiento de la envolvente que nos permitirá detectar anomalías y problemas ocultos (filtraciones de aire, deficiencias de sellado, humedades, etc.) en el edificio, reaizando las siguientes pruebas: - Prueba blower door - Análisis de trasmitancias térmica mediante termoflujómetro - Inspección con cámara termográfica a comprobación de aislamientos térmicos, sobrecargas de tensión, filtraciones de aire, puentes térmicos, etc.",
       "reciente": 1800,
       "mediana": 1800,
@@ -1918,7 +2836,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0052",
+      "codigo": "PB-0079",
       "descripcion": "Prueba de estanqueidad de aparatos, red horizontal, arquetas y pozos según DB-HS-5, CTE y Estanqueidad de la red UNE EN 1610 “Instalación y pruebas de acometidas y redes de saneamiento”.",
       "reciente": 420,
       "mediana": 420,
@@ -1927,7 +2845,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0053",
+      "codigo": "PB-0080",
       "descripcion": "Prueba de servicio de la instalación de fontanería, determinando: -Grupo de presión (nivel muestreo 100%): Presiones de tarado Secuencias y alternancias de bombas. Consumo de motores. -Red de tuberías Prueba de resistencia y estanqueidad de la red (nivel muestreo 100%). Funcionamiento llaves de corte (nivel muestreo 25%). Comprobación de funcionamiento de agua fría y A.C.S. Llegada a los puntos de servicio simulando simultaneidad (nivel muestreo 15%). Temperatura del A.C.S. en puntos de servicio más desfavorables y adecuación a normativa (50ºC UNE 100030) (nivel muestreo 15%).",
       "reciente": 420,
       "mediana": 420,
@@ -1936,7 +2854,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0054",
+      "codigo": "PB-0081",
       "descripcion": "Prueba de servicio de electricidad e iluminación RBT, determinando: - Medición de la resistencia de aislamiento - Circuitos: Reparto de cargas, caidas de tensión, equipotencialidad - Cuadros eléctricos - Resistencia de puesta a tierra - Iluminación: Intensidad luminosa, alumbrado de emergencia e interruptores",
       "reciente": 900,
       "mediana": 900,
@@ -1945,7 +2863,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0055",
+      "codigo": "PB-0082",
       "descripcion": "Prueba de servicio de contra incendios, determinando: - Detectores - Central de señalización y alarma - Pulsadores - Extintores - Estanqueidad y presiones de las bocas de incendios e hidrantes",
       "reciente": 450,
       "mediana": 450,
@@ -1954,7 +2872,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0056",
+      "codigo": "PB-0102",
       "descripcion": "Toma de muestra (incluyendo desplazamiento y traslado de muestras desde el laboratorio), medida de asentamiento, fabricación de cuatro (5) probetas, curado, ajuste de caras y ensayo a compresión UNE-EN 12350-1, UNE-EN 12350-2, UNE-EN 12390-2, UNE-EN 12390-3",
       "reciente": 65,
       "mediana": 65,
@@ -1963,7 +2881,34 @@
       "n": 1
     },
     {
-      "codigo": "PB-0060",
+      "codigo": "PB-0103",
+      "descripcion": "Granulometría de escollera UNE 103101",
+      "reciente": 42,
+      "mediana": 42,
+      "max": 42,
+      "min": 42,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0104",
+      "descripcion": "Índice de forma Art 331 PG-3",
+      "reciente": 36,
+      "mediana": 36,
+      "max": 36,
+      "min": 36,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0105",
+      "descripcion": "Ensayo de durabilidad SDT NLT 251",
+      "reciente": 90,
+      "mediana": 90,
+      "max": 90,
+      "min": 90,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0119",
       "descripcion": "Ensayo de apisonado: proctor modificado UNE 103501",
       "reciente": 45,
       "mediana": 45,
@@ -1972,7 +2917,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0061",
+      "codigo": "PB-0120",
       "descripcion": "Índice CBR Laboratorio SIN PROCTOR (3 puntos), con compactación PN o PM UNE 103502",
       "reciente": 57,
       "mediana": 57,
@@ -1981,7 +2926,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0062",
+      "codigo": "PB-0121",
       "descripcion": "Medida de hinchamiento libre en edómetro UNE 103601",
       "reciente": 45,
       "mediana": 45,
@@ -1990,7 +2935,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0063",
+      "codigo": "PB-0122",
       "descripcion": "Asiento en ensayo de colapso NLT 254",
       "reciente": 45,
       "mediana": 45,
@@ -1999,7 +2944,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0064",
+      "codigo": "PB-0123",
       "descripcion": "Determinación de Sales Solubles en Suelos NLT 114",
       "reciente": 30,
       "mediana": 30,
@@ -2008,7 +2953,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0065",
+      "codigo": "PB-0124",
       "descripcion": "Contenido de yesos NLT 115",
       "reciente": 30,
       "mediana": 30,
@@ -2017,7 +2962,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0068",
+      "codigo": "PB-0127",
       "descripcion": "Medida de hinchamiento libre en edómetro UNE 103601. SI SE TRATA DE SUELO TOLERABLE",
       "reciente": 45,
       "mediana": 45,
@@ -2026,7 +2971,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0069",
+      "codigo": "PB-0128",
       "descripcion": "Ensayo de colapso en suelos NLT-254. SI SE TRATA DE SUELO TOLERABLE",
       "reciente": 45,
       "mediana": 45,
@@ -2035,7 +2980,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0070",
+      "codigo": "PB-0129",
       "descripcion": "Determinación del contenido de sulfatos solubles UNE 103201",
       "reciente": 30,
       "mediana": 30,
@@ -2044,7 +2989,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0072",
+      "codigo": "PB-0131",
       "descripcion": "Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla, NLT-305-310",
       "reciente": 60,
       "mediana": 60,
@@ -2053,7 +2998,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0074",
+      "codigo": "PB-0133",
       "descripcion": "Granulometría por tamizado, UNE-EN 933-1",
       "reciente": 27,
       "mediana": 27,
@@ -2062,7 +3007,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0075",
+      "codigo": "PB-0134",
       "descripcion": "Humedad natural UNE 103300",
       "reciente": 6,
       "mediana": 6,
@@ -2071,7 +3016,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0076",
+      "codigo": "PB-0135",
       "descripcion": "Límites de Atterberg UNE 103103, UNE 103104",
       "reciente": 27,
       "mediana": 27,
@@ -2080,7 +3025,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0077",
+      "codigo": "PB-0136",
       "descripcion": "Evaluación finos. Ensayo equivalente de arena UNE-EN 933-8",
       "reciente": 20,
       "mediana": 20,
@@ -2089,7 +3034,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0078",
+      "codigo": "PB-0137",
       "descripcion": "Ensayo de apisonado proctor modificado UNE 103500 / UNE-EN 13286-2",
       "reciente": 45,
       "mediana": 45,
@@ -2098,7 +3043,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0079",
+      "codigo": "PB-0138",
       "descripcion": "Coeficiente desgaste Los Ángeles UNE-EN 1097-2",
       "reciente": 45,
       "mediana": 45,
@@ -2107,7 +3052,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0080",
+      "codigo": "PB-0139",
       "descripcion": "Índice de lajas UNE-EN 933-3",
       "reciente": 30,
       "mediana": 30,
@@ -2116,7 +3061,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0081",
+      "codigo": "PB-0140",
       "descripcion": "Determinación porcentaje de caras de fractura de las partículas de árido grueso UNE EN 933-5",
       "reciente": 15,
       "mediana": 15,
@@ -2125,7 +3070,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0091",
+      "codigo": "PB-0149",
       "descripcion": "Punto de reblandecimiento anillo y bola UNE EN 1427",
       "reciente": 42,
       "mediana": 42,
@@ -2134,7 +3079,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0095",
+      "codigo": "PB-0153",
       "descripcion": "Extracción de testigo en mezcla bituminosa en caliente: espesor y densidad UNE EN 12697-27, -30,-6)",
       "reciente": 39,
       "mediana": 39,
@@ -2143,7 +3088,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0097",
+      "codigo": "PB-0155",
       "descripcion": "Macrotextura superficial UNE EN 13036-1 Mínimo facturable por desplazamiento 9 ensayos",
       "reciente": 30,
       "mediana": 30,
@@ -2152,7 +3097,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0099",
+      "codigo": "PB-0157",
       "descripcion": "Toma de muestras de hormigón fresco HF-3,5, incluyendo muestreo del hormigón, medida del asiento de cono, fabricación de tres probetas prismáticas de 15x15x60 cm, curado y rotura a dos edades, UNE EN 12390-2, 12390-5, 12350-1 y 12350-2",
       "reciente": 75,
       "mediana": 75,
@@ -2161,7 +3106,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0100",
+      "codigo": "PB-0158",
       "descripcion": "Granulometría por tamizado del árido fino UNE-EN 933-1",
       "reciente": 27,
       "mediana": 27,
@@ -2170,7 +3115,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0101",
+      "codigo": "PB-0159",
       "descripcion": "Granulometría por tamizado del árido grueso UNE-EN 933-1",
       "reciente": 27,
       "mediana": 27,
@@ -2179,7 +3124,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0102",
+      "codigo": "PB-0160",
       "descripcion": "Contenido de aire ocluido UNE EN 12350-7",
       "reciente": 40,
       "mediana": 40,
@@ -2188,7 +3133,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0104",
+      "codigo": "PB-0162",
       "descripcion": "Visita de inspección de media jornada para la determinación \"in situ\" de las características superficiales del pavimento: resbaladicidad mediante péndulo TRRL y macrotextura mediante círculo de arena UNE EN 13036-1 y 41201",
       "reciente": 180,
       "mediana": 180,
@@ -2197,7 +3142,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0105",
+      "codigo": "PB-0163",
       "descripcion": "Determinación de la absorción de agua UNE-EN 1339, 13748-1, 13748-2",
       "reciente": 30,
       "mediana": 30,
@@ -2206,7 +3151,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0106",
+      "codigo": "PB-0164",
       "descripcion": "Determinación de la resistencia al desgaste, por rozamiento UNE-EN 1339, 13748-1, 13748-2",
       "reciente": 165,
       "mediana": 165,
@@ -2215,7 +3160,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0107",
+      "codigo": "PB-0165",
       "descripcion": "Determinación de la resistencia a flexión UNE-EN 1339, 13748-1, 13748-2",
       "reciente": 65,
       "mediana": 65,
@@ -2224,7 +3169,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0108",
+      "codigo": "PB-0166",
       "descripcion": "Determinación del coeficiente de absorción UNE EN 1339, UNE EN 13748-1, UNE EN 13748-2",
       "reciente": 30,
       "mediana": 30,
@@ -2233,7 +3178,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0109",
+      "codigo": "PB-0167",
       "descripcion": "Determinación de la Resistencia al deslizamiento/resbalamiento en laboratorio UNE-EN 1339, 13748-1, 13748-2",
       "reciente": 48,
       "mediana": 48,
@@ -2242,7 +3187,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0110",
+      "codigo": "PB-0168",
       "descripcion": "Dimensiones y tolerancias UNE-EN 1340",
       "reciente": 30,
       "mediana": 30,
@@ -2251,7 +3196,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0111",
+      "codigo": "PB-0169",
       "descripcion": "Resistencia a la flexión de bordillos UNE-EN 1340",
       "reciente": 90,
       "mediana": 90,
@@ -2260,7 +3205,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0112",
+      "codigo": "PB-0170",
       "descripcion": "Determinación de la resistencia al desgaste, por rozamiento UNE-EN 1340",
       "reciente": 165,
       "mediana": 165,
@@ -2269,7 +3214,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0113",
+      "codigo": "PB-0171",
       "descripcion": "Determinación del coeficiente de absorción de agua UNE-EN 1340",
       "reciente": 30,
       "mediana": 30,
@@ -2278,7 +3223,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0114",
+      "codigo": "PB-0172",
       "descripcion": "Determinación de la Resistencia al deslizamiento/resbalamiento en laboratorio UNE-EN 1340",
       "reciente": 48,
       "mediana": 48,
@@ -2287,7 +3232,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0115",
+      "codigo": "PB-0173",
       "descripcion": "Determinación individual del peso de pintura y del peso microesferas aplicadas x m2 UNE 135274-94",
       "reciente": 48,
       "mediana": 48,
@@ -2296,7 +3241,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0116",
+      "codigo": "PB-0174",
       "descripcion": "Inspección de media jornada para determinación de la visibilidad de las marcas viales horizontales mediante retroreflectómetro horizontal según UNE EN 1436 determinando los coeficientes de luminancia QD y RL",
       "reciente": 300,
       "mediana": 300,
@@ -2305,7 +3250,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0117",
+      "codigo": "PB-0175",
       "descripcion": "Inspección de media jornada para la determinación del coeficiente de resistencia al deslizamiento con péndulo PTV según UNE EN 13036-4 Método alternativo al equipo de medida del CRT",
       "reciente": 180,
       "mediana": 180,
@@ -2314,7 +3259,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0119",
+      "codigo": "PB-0177",
       "descripcion": "Prueba estática a realizar en obra, sobre una barandilla, para la determinación de la fuerza horizontal que resiste según CTE DB SE-AE. Incluso desplazamiento a obra e informe de resultados",
       "reciente": 450,
       "mediana": 450,
@@ -2323,7 +3268,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0120",
+      "codigo": "PB-0178",
       "descripcion": "Prueba de estanqueidad con aire (método \"L\") de la red según la UNE EN 1610:2016 y Emisión de Acta de la Prueba. Para la realización de la prueba, CYE aportará los siguientes medios: - Obturadores neumáticos (ciegos y con bypass) en los rangos 150-1.600 mm con presión de inflado 2,5 bar - Equipo completo de control de inflado y llenado de tubería - Compresor de aire y generador trifásicos de 3 kW y 13,5 kVA respectivamente - Trípode y torno rescatador de personas y elevación de cargas - Equipos de protección y seguridad (detectores multigas, sondas de muestreo y autorescatadores de oxígeno químico) - Manómetros diferenciales calibrados con resolución 0,1 bar - Dos operadores con formación específica en prevención de riesgos laborales en espacios confinados",
       "reciente": 250,
       "mediana": 250,
@@ -2332,7 +3277,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0121",
+      "codigo": "PB-0179",
       "descripcion": "Inspección de canalización nueva, de diámetro >200 mm, mediante videocámara por circuito cerrado de televisión e inclinómetro para determinación de pendientes instantáneas, acompañado con informe que incluye: Video de la inspección en formato digital y actas de inspección.",
       "reciente": 1.4,
       "mediana": 1.4,
@@ -2341,7 +3286,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0122",
+      "codigo": "PB-0180",
       "descripcion": "Supervisión Prueba de presión/estanqueidad en tramo de la red (PPTG para Abastecimiento de Agua ó UNE-EN 805:00)",
       "reciente": 150,
       "mediana": 150,
@@ -2350,7 +3295,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0255",
+      "codigo": "PB-0305",
       "descripcion": "Movilización de equipo de sondeos y su personal a las obras",
       "reciente": 400,
       "mediana": 400,
@@ -2359,16 +3304,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0256",
-      "descripcion": "Traslado de sonda entre puntos a reconocer",
-      "reciente": 60,
-      "mediana": 60,
-      "max": 60,
-      "min": 60,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0257",
+      "codigo": "PB-0307",
       "descripcion": "ml de perforación a rotación en rellenos o suelos",
       "reciente": 50,
       "mediana": 50,
@@ -2377,7 +3313,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0258",
+      "codigo": "PB-0308",
       "descripcion": "ml de perforación a rotación en roca dura (con diamante)",
       "reciente": 90,
       "mediana": 90,
@@ -2386,7 +3322,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0259",
+      "codigo": "PB-0309",
       "descripcion": "ml de perforación a rotación en roca blanda (con widia)",
       "reciente": 75,
       "mediana": 75,
@@ -2395,7 +3331,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0260",
+      "codigo": "PB-0310",
       "descripcion": "Toma de muestra inalterada con tomamuestra tipo abierto",
       "reciente": 25,
       "mediana": 25,
@@ -2404,7 +3340,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0261",
+      "codigo": "PB-0311",
       "descripcion": "Testigo parafinado",
       "reciente": 18,
       "mediana": 18,
@@ -2413,7 +3349,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0262",
+      "codigo": "PB-0312",
       "descripcion": "ml de tubo ranurado de PVC",
       "reciente": 12,
       "mediana": 12,
@@ -2422,7 +3358,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0263",
+      "codigo": "PB-0313",
       "descripcion": "Ud. De embocadura y tapado de sondeo con arqueta",
       "reciente": 60,
       "mediana": 60,
@@ -2431,7 +3367,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0264",
+      "codigo": "PB-0314",
       "descripcion": "Ud. De toma de muestra de agua",
       "reciente": 25,
       "mediana": 25,
@@ -2440,7 +3376,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0265",
+      "codigo": "PB-0315",
       "descripcion": "Ud. De caja portatestigo de plástico rígido",
       "reciente": 11,
       "mediana": 11,
@@ -2449,7 +3385,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0266",
+      "codigo": "PB-0316",
       "descripcion": "Lectura de nivel piezométrico en sondeo",
       "reciente": 25,
       "mediana": 25,
@@ -2458,7 +3394,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0267",
+      "codigo": "PB-0317",
       "descripcion": "Ensayo de penetración estándar SPT",
       "reciente": 25,
       "mediana": 25,
@@ -2467,7 +3403,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0268",
+      "codigo": "PB-0318",
       "descripcion": "Ensayo presiométrico con ciclo intermedio",
       "reciente": 215,
       "mediana": 215,
@@ -2476,7 +3412,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0269",
+      "codigo": "PB-0319",
       "descripcion": "Apertura y preparación de muestras de suelo",
       "reciente": 12,
       "mediana": 12,
@@ -2485,16 +3421,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0270",
-      "descripcion": "Apertura y preparación de muestras de roca",
-      "reciente": 15,
-      "mediana": 15,
-      "max": 15,
-      "min": 15,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0271",
+      "codigo": "PB-0321",
       "descripcion": "Análisis granulométrico de suelos",
       "reciente": 30,
       "mediana": 30,
@@ -2503,7 +3430,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0272",
+      "codigo": "PB-0322",
       "descripcion": "Resistencia a compresión simple de suelos",
       "reciente": 30,
       "mediana": 30,
@@ -2512,25 +3439,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0273",
-      "descripcion": "Ensayo de corte directo en suelos, consolidado y drenado",
-      "reciente": 95,
-      "mediana": 95,
-      "max": 95,
-      "min": 95,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0274",
-      "descripcion": "Ensayo triaxial en suelos, sin consolidar y sin drenar",
-      "reciente": 150,
-      "mediana": 150,
-      "max": 150,
-      "min": 150,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0275",
+      "codigo": "PB-0325",
       "descripcion": "Ensayo triaxial en suelos, consolidado y drenado",
       "reciente": 250,
       "mediana": 250,
@@ -2539,7 +3448,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0276",
+      "codigo": "PB-0326",
       "descripcion": "Resistencia a compresión simple de rocas",
       "reciente": 40,
       "mediana": 40,
@@ -2548,7 +3457,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0277",
+      "codigo": "PB-0327",
       "descripcion": "Análisis químico completo de aguas para determinar su agresividad",
       "reciente": 75,
       "mediana": 75,
@@ -2557,7 +3466,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0278",
+      "codigo": "PB-0328",
       "descripcion": "Análisis químico completo de suelos para determinar su agresividad",
       "reciente": 45,
       "mediana": 45,
@@ -2566,7 +3475,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0281",
+      "codigo": "PB-0331",
       "descripcion": "Extracción de testigo para comprobación de espesor de la mezcla de gravacemento",
       "reciente": 75,
       "mediana": 75,
@@ -2575,7 +3484,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0282",
+      "codigo": "PB-0332",
       "descripcion": "Toma de muestra, medida de Cono, fabricación de cinco (5) probetas cilíndricas o cúbicas, curado, densidad, ajuste de las caras y ensayo a compresión a dos edades, UNE-EN 12350-1 y 2, UNE-EN 12390-1, 2, 3 y 7",
       "reciente": 54,
       "mediana": 54,
@@ -2584,7 +3493,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0283",
+      "codigo": "PB-0333",
       "descripcion": "Realización de ensayo de integridad estructural por Crosshole de pilote instrumentado con 4 tubos incluyendo el desplazamiento de personal y equipo a obra y la elaboración del correspondiente informe Mínimo facturable por desplazamiento 5 pilotes",
       "reciente": 72,
       "mediana": 72,
@@ -2593,7 +3502,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0286",
+      "codigo": "PB-0336",
       "descripcion": "Determinación de características mecánicas de acero activo (tracción) UNE EN ISO 15630-3 y ISO 6892",
       "reciente": 100,
       "mediana": 100,
@@ -2602,7 +3511,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0287",
+      "codigo": "PB-0337",
       "descripcion": "Ensayo a tracción de una probeta de acero en perfiles (incluso mecanizado de probetas prismaticas y alargamiento a la rotura) UNE EN 10002. Ensayo de flexión por choque (resiliencia) a temperatura ambiente (20ºC), por 3 probetas UNE 7475 Parte 1/92 Parte 2/93. Pasarela 1, pasarela 2 y armado de micropilotes",
       "reciente": 275,
       "mediana": 275,
@@ -2611,7 +3520,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0288",
+      "codigo": "PB-0338",
       "descripcion": "Visita para la medición del espesor de pintura mediante corrientes inducidas S/ UNE ISO 28,08-00. Pasarela 1, pasarela 2",
       "reciente": 315,
       "mediana": 315,
@@ -2620,7 +3529,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0289",
+      "codigo": "PB-0339",
       "descripcion": "Visita para ensayo de adherencia de pintura sobre estructura metálica mediante corte por enrejado. (método destructivo)",
       "reciente": 275,
       "mediana": 275,
@@ -2629,7 +3538,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0290",
+      "codigo": "PB-0340",
       "descripcion": "Visita de inspección por técnico para la realización del control de soldaduras mediante partículas magnéticas por técnico nivel II con emisión de informe. Mínimo 8 cordones inspeccionados por visita",
       "reciente": 380,
       "mediana": 380,
@@ -2638,7 +3547,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0291",
+      "codigo": "PB-0341",
       "descripcion": "Visita de inspección por técnico para la realización del control de soldaduras en la estructura metálica mediante inspección visual, UNE-EN 970 por técnico END nivel II con emisión de Informe",
       "reciente": 450,
       "mediana": 450,
@@ -2647,7 +3556,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0292",
+      "codigo": "PB-0342",
       "descripcion": "Visita de inspección por técnico para la realización del control de soldaduras en la estructura metálica mediante ultrasonidos con emisión de Informe. Mínimo 8 cordones inspeccionados por visita",
       "reciente": 480,
       "mediana": 480,
@@ -2656,7 +3565,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0293",
+      "codigo": "PB-0343",
       "descripcion": "Toma de muestra de mortero/lechada de cemento, fabricación de probetas de 4x4x16 cm y rotura a compresión y flexión a tres edades",
       "reciente": 54,
       "mediana": 54,
@@ -2665,7 +3574,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0294",
+      "codigo": "PB-0344",
       "descripcion": "Ud de inspección de la visibilidad de las marcas viales horizontales mediante retroreflectómetro horizontal según UNE EN 1436 determinando: -Visibilidad Diurna: Coefiente de luminancia en iluminación difusa sobre pavimento (Qd) -Visibilidad Nocturna: Coeficiente de luminancia retrorreflejada o retrorreflexión en seco (RL) No se incluye la señalización que será por cuenta del Contratista",
       "reciente": 390,
       "mediana": 390,
@@ -2674,7 +3583,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0297",
+      "codigo": "PB-0347",
       "descripcion": "Inspección de canalización nueva de saneamiento mediante videocámara por circuito cerrado e inclinómetro. Se incluye informe con video de la inspección realizada en formato digital y actas de inspección con instantáneas sobre el estado de la tubería y registro de patologías. Tramo mínimo facturable por desplazamiento y jornada de disponibilidad de equipo 400 ml",
       "reciente": 1.6,
       "mediana": 1.6,
@@ -2683,7 +3592,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0298",
+      "codigo": "PB-0348",
       "descripcion": "Prueba de estanqueidad con aire (método L) en tubería de saneamiento de hormigón en el rango de Ø 200 - 1.000 mm entre pozos, según norma UNE-EN 1610",
       "reciente": 350,
       "mediana": 350,
@@ -2692,7 +3601,7 @@
       "n": 1
     },
     {
-      "codigo": "PB-0299",
+      "codigo": "PB-0349",
       "descripcion": "Realización de prueba de estanqueidad de tubería de abastecimiento de agua en reposición de servicios",
       "reciente": 240,
       "mediana": 240,
@@ -2701,575 +3610,26 @@
       "n": 1
     },
     {
-      "codigo": "PB-0300",
-      "descripcion": "Equivalente de arena UNE EN 933-8",
-      "reciente": 40,
-      "mediana": 40,
-      "max": 40,
-      "min": 40,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0301",
-      "descripcion": "Ensayo de apisonado proctor modificado UNE 103 501",
-      "reciente": 85,
-      "mediana": 85,
-      "max": 85,
-      "min": 85,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0302",
-      "descripcion": "Determinación de límites de Atterberg UNE 103 103, 102104",
-      "reciente": 65,
-      "mediana": 65,
-      "max": 65,
-      "min": 65,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0303",
-      "descripcion": "Coeficiente desgaste Los Angeles UNE EN 1097-2",
-      "reciente": 80,
-      "mediana": 80,
-      "max": 80,
-      "min": 80,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0304",
-      "descripcion": "Indice de lajas UNE EN 933-3",
-      "reciente": 45,
-      "mediana": 45,
-      "max": 45,
-      "min": 45,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0305",
-      "descripcion": "Determinación del porcentaje de caras de fractura de las partículas de árido grueso UNE EN 933-5",
-      "reciente": 40,
-      "mediana": 40,
-      "max": 40,
-      "min": 40,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0306",
-      "descripcion": "Analisis granulométrico UNE EN 933-1",
-      "reciente": 35,
-      "mediana": 35,
-      "max": 35,
-      "min": 35,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0307",
-      "descripcion": "Humedad natural UNE EN 1097-5",
-      "reciente": 12,
-      "mediana": 12,
-      "max": 12,
-      "min": 12,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0308",
-      "descripcion": "Determinación \"in situ\" de la densidad de un suelo por el método de la arena y humedad en estufa UNE 103503, 103300",
-      "reciente": 21,
-      "mediana": 21,
-      "max": 21,
-      "min": 21,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0309",
-      "descripcion": "Ensayo de carga con placa determinando módulos de compresibilidad para viales. No incluyen preparación del dispositivo a reacción NLT 357",
-      "reciente": 75,
-      "mediana": 75,
-      "max": 75,
-      "min": 75,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0310",
-      "descripcion": "Visita de inspección para la realización del ensayo de impedancia mecánica de pilotes prefabricados para comprobación de la integridad estructural de los mismos",
-      "reciente": 600,
-      "mediana": 600,
-      "max": 600,
-      "min": 600,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0311",
-      "descripcion": "Toma de muestras de hormigón fresco, incluyendo muestreo del hormigón, medida del asiento de cono, fabricación de hasta 5 probetas, curado y rotura a compresión UNE EN 12390-2,3 y 12350-2",
-      "reciente": 90,
-      "mediana": 90,
-      "max": 90,
-      "min": 90,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0312",
-      "descripcion": "Ensayo completo de una muestra de acero para armaduras pasivas, incluyendo tracción (con medida de Agt), doblado/desdoblado y características geométricas (UNE 36068, 36065, EN 10002 ó UNE EN ISO 15630-1, ISO 6892 y UNE EN 10080).",
-      "reciente": 81,
-      "mediana": 81,
-      "max": 81,
-      "min": 81,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0313",
-      "descripcion": "Visita de inspección para la realización del control de uniones soldadas mediante ensayos no destructivos: Líquidos penetrantes o partículas magnéticas",
-      "reciente": 500,
-      "mediana": 500,
-      "max": 500,
-      "min": 500,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0314",
-      "descripcion": "Prueba de estanqueidad \"in situ\" de cubiertas no inundables , según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión de informe.",
-      "reciente": 690,
-      "mediana": 690,
-      "max": 690,
-      "min": 690,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0315",
-      "descripcion": "Visita de inspección para la determinación del índice de resbaladicidad de los pavimentos acabados",
-      "reciente": 360,
-      "mediana": 360,
-      "max": 360,
-      "min": 360,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0316",
-      "descripcion": "Estabilidad de los áridos y fragmentos de roca frente a la acción de los ciclos de humedad-sequedad NLT-260",
-      "reciente": 115,
-      "mediana": 115,
-      "max": 115,
-      "min": 115,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0317",
-      "descripcion": "Extracción de testigo para comprobación de esperor de la mezcla de suelo cemento",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0319",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 2.720 m3 HA-30. 27 Lotes n=3: 81 Tomas 1.580 m3 HA-35. 16 Lotes n=4: 64 Tomas 1.980 m3 HP-50. 20 Lotes n=4: 80 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0320",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 1.940 m3 HA-30. 19 Lotes n=3: 57 Tomas 1.090 m3 HA-35. 11 Lotes n=4: 44 Tomas 2.870 m3 HP-50. 29 Lotes n=4: 116 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0321",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 2.050 m3 HA-30. 21 Lotes n=3: 63 Tomas 1.650 m3 HA-35. 17 Lotes n=4: 68 Tomas 2.580 m3 HP-50. 26 Lotes n=4: 104 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0322",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 5.820 m3 HA-30. 58 Lotes n=3: 174 Tomas 1.800 m3 HA-35. 18 Lotes n=4: 72 Tomas 6.050 m3 HP-50. 61 Lotes n=4: 244 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0323",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 1.920 m3 HA-30. 19 Lotes n=3: 57 Tomas 2.310 m3 HA-35. 23 Lotes n=4: 92 Tomas 3.500 m3 HP-50. 35 Lotes n=4: 140 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0324",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 3.870 m3 HA-30. 39 Lotes n=3: 117 Tomas 2.180 m3 HA-35. 22 Lotes n=4: 88 Tomas 1.480 m3 HP-50. 15 Lotes n=4: 60 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0325",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 1.320 m3 HA-30. 13 Lotes n=3: 39 Tomas 460 m3 HA-35. 5 Lotes n=4: 20 Tomas 630 m3 HP-50. 7 Lotes n=4: 28 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0326",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 3.730 m3 HA-30. 37 Lotes n=3: 111 Tomas 2.370 m3 HA-35. 24 Lotes n=4: 96 Tomas 2.870 m3 HP-50. 29 Lotes n=4: 116 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0327",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 313 m3 HA-30. 3 Lotes n=3: 9 Tomas 469 m3 HA-35. 5 Lotes n=4: 20 Tomas 473 m3 HP-45. 5 Lotes n=4: 20 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0328",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 213 m3 HA-30. 2 Lotes n=3: 6 Tomas 123 m3 HA-35. 2 Lotes n=4: 8 Tomas 313 m3 HP-45. 3 Lotes n=4: 12 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0329",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 197 m3 HA-30. 2 Lotes n=3: 6 Tomas 255 m3 HA-35. 3 Lotes n=4: 12 Tomas 662 m3 HP-45. 7 Lotes n=4: 28 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0330",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 177 m3 HA-30. 2 Lotes n=3: 6 Tomas 209 m3 HA-35. 2 Lotes n=4: 8 Tomas 321 m3 HP-45. 3 Lotes n=4: 12 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0331",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 117 m3 HA-30. 2 Lotes n=3: 6 Tomas 236 m3 HA-35. 3 Lotes n=4: 12 Tomas 355 m3 HP-45. 4 Lotes n=4: 16 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0332",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 162 m3 HA-30. 2 Lotes n=3: 6 Tomas 149 m3 HA-35. 2 Lotes n=4: 8 Tomas 313 m3 HP-45. 3 Lotes n=4: 12 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0333",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 153 m3 HA-30. 2 Lotes n=3: 6 Tomas 146 m3 HA-35. 2 Lotes n=4: 8 Tomas 319 m3 HP-45. 3 Lotes n=4: 12 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0334",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 207 m3 HA-30. 2 Lotes n=3: 6 Tomas 217 m3 HA-35. 2 Lotes n=4: 8 Tomas 355 m3 HP-45. 4 Lotes n=4: 16 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0335",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 1.344 m3 HA-30. 14 Lotes n=3: 42 Tomas 2.393 m3 HA-35. 24 Lotes n=4: 96 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0336",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 479 m3 HA-30. 5 Lotes n=3: 15 Tomas 805 m3 HA-35. 8 Lotes n=4: 32 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0337",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 394 m3 HA-30. 4 Lotes n=3: 12 Tomas 708 m3 HA-35. 7 Lotes n=4: 28 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0338",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 838 m3 HA-30. 8 Lotes n=3: 24 Tomas 1.353 m3 HA-35. 14 Lotes n=4: 56 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0339",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 526 m3 HA-30. 5 Lotes n=3: 15 Tomas 1.076 m3 HA-35. 11 Lotes n=4: 44 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0340",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 308 m3 HA-30. 3 Lotes n=3: 9 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0341",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 257 m3 HA-30. 3 Lotes n=3: 9 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0342",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 2674 m3 HA-30. 27 Lotes n=3: 81 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0343",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 541 m3 HA-30. 5 Lotes n=3: 15 Tomas 1.082 m3 HA-35. 11 Lotes n=4: 44 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0344",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 541 m3 HA-30. 5 Lotes n=3: 15 Tomas 1.085 m3 HA-35. 11 Lotes n=4: 44 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0345",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 613 m3 HA-30. 6 Lotes n=3: 18 Tomas 192 m3 HA-35. 2 Lotes n=4: 8 Tomas 567 m3 HP-45. 6 Lotes n=4: 24 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0346",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 269 m3 HA-30. 3 Lotes n=3: 9 Tomas 239 m3 HA-35. 3 Lotes n=4: 12 Tomas 506 m3 HP-45. 5 Lotes n=4: 20 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0347",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 239 m3 HA-30. 3 Lotes n=3: 9 Tomas 247 m3 HA-35. 3 Lotes n=4: 12 Tomas 506 m3 HP-45. 5 Lotes n=4: 20 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0348",
-      "descripcion": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03 1.488 m3 HA-30. 15 Lotes n=3: 45 Tomas",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0349",
-      "descripcion": "Realización de ensayo de integridad estructural por Crosshole de pilote instrumentado con 4 tubos incluyendo el desplazamiento de personal y equipo a obra y la elaboración del correspondiente informe Mínimo facturable por desplazamiento 6 pilotes",
-      "reciente": 90,
-      "mediana": 90,
-      "max": 90,
-      "min": 90,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0350",
-      "descripcion": "Determinación de características geométricas y mecánicas de acero activo (tracción) UNE EN ISO 15630-3 y ISO 6892",
-      "reciente": 120,
-      "mediana": 120,
-      "max": 120,
-      "min": 120,
-      "n": 1
-    },
-    {
       "codigo": "PB-0351",
-      "descripcion": "Ensayo de arrancamiento hasta la carga de servicio. Mínimo por desplazamiento 5 ensayos. Si fuesen necesarios medios de elevación correrán a cargo del Peticionario",
-      "reciente": 51,
-      "mediana": 51,
-      "max": 51,
-      "min": 51,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0352",
-      "descripcion": "Determinación del espesor de galvanizado in situ por métodos no destructivos UNE EN ISO 1461",
-      "reciente": 45,
-      "mediana": 45,
-      "max": 45,
-      "min": 45,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0353",
-      "descripcion": "Ensayo de choque sobre barreras metálicas de seguridad UNE EN 1317-1 y UNE EN 1317-2",
-      "reciente": 510,
-      "mediana": 510,
-      "max": 510,
-      "min": 510,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0354",
-      "descripcion": "Ensayo de colapso en suelos NLT 254",
-      "reciente": 42,
-      "mediana": 42,
-      "max": 42,
-      "min": 42,
+      "descripcion": "PERFORACIÓN A ROTACIÓN EN ROCAS",
+      "reciente": 90,
+      "mediana": 90,
+      "max": 90,
+      "min": 90,
       "n": 1
     },
     {
       "codigo": "PB-0355",
-      "descripcion": "Humedad por secado en estufa UNE 103300-93",
-      "reciente": 30,
-      "mediana": 30,
-      "max": 30,
-      "min": 30,
+      "descripcion": "EMBOCADURA Y TAPADO DE SONDEO I/ ARQUETA IDENTIFICADA",
+      "reciente": 60,
+      "mediana": 60,
+      "max": 60,
+      "min": 60,
       "n": 1
     },
     {
       "codigo": "PB-0356",
-      "descripcion": "Humedad natural UNE EN 1097-5",
-      "reciente": 30,
-      "mediana": 30,
-      "max": 30,
-      "min": 30,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0357",
-      "descripcion": "Caras de fractura partículas trituradas UNE EN 933-5",
-      "reciente": 30,
-      "mediana": 30,
-      "max": 30,
-      "min": 30,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0358",
-      "descripcion": "Ensayo de profundidad de penetración del agua bajo presión UNE EN 12390-8",
-      "reciente": 90,
-      "mediana": 90,
-      "max": 90,
-      "min": 90,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0359",
-      "descripcion": "Ensayo de carga con placa doble ciclo UNE 103808",
-      "reciente": 72,
-      "mediana": 72,
-      "max": 72,
-      "min": 72,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0360",
-      "descripcion": "Desgaste de Los Ángeles árido zahorra UNE EN 1097-2",
-      "reciente": 60,
-      "mediana": 60,
-      "max": 60,
-      "min": 60,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0361",
-      "descripcion": "Toma de muestra medida de cono fabricación probetas cilíndricas rotura a compresión UNE EN 12350 UNE EN 12390",
-      "reciente": 60,
-      "mediana": 60,
-      "max": 60,
-      "min": 60,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0362",
-      "descripcion": "Índice CBR en laboratorio sin incluir Proctor tres puntos UNE 103502",
-      "reciente": 57,
-      "mediana": 57,
-      "max": 57,
-      "min": 57,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0363",
-      "descripcion": "Índice de lajas árido grueso UNE EN 933-3",
-      "reciente": 45,
-      "mediana": 45,
-      "max": 45,
-      "min": 45,
-      "n": 1
-    },
-    {
-      "codigo": "PB-0364",
-      "descripcion": "Densidad y humedad in situ por isótopos radiactivos UNE 103900",
+      "descripcion": "TOMA DE MUESTRAS DE LAS AGUAS, EN SONDEO",
       "reciente": 10,
       "mediana": 10,
       "max": 10,
@@ -3277,35 +3637,35 @@
       "n": 1
     },
     {
-      "codigo": "PB-0365",
-      "descripcion": "Medida de retroreflectancia de marcas viales en servicio UNE EN 1436",
-      "reciente": 35,
-      "mediana": 35,
-      "max": 35,
-      "min": 35,
+      "codigo": "PB-0357",
+      "descripcion": "CAJA PORTATESTIGOS DE CARTÓN PARAFINADO I/ TRANSPORTE A ALMACÉN",
+      "reciente": 8,
+      "mediana": 8,
+      "max": 8,
+      "min": 8,
       "n": 1
     },
     {
-      "codigo": "PB-0366",
-      "descripcion": "Resistencia al deslizamiento de marcas viales pendulo SRT UNE EN 1436",
-      "reciente": 50,
-      "mediana": 50,
-      "max": 50,
-      "min": 50,
+      "codigo": "PB-0361",
+      "descripcion": "APERTURA Y PREPARACIÓN DE MUESTRAS DE SUELOS",
+      "reciente": 12,
+      "mediana": 12,
+      "max": 12,
+      "min": 12,
       "n": 1
     },
     {
-      "codigo": "PB-0367",
-      "descripcion": "Determinacion del espesor de pelicula seca de marcas viales UNE EN 1871",
-      "reciente": 25,
-      "mediana": 25,
-      "max": 25,
-      "min": 25,
+      "codigo": "PB-0364",
+      "descripcion": "ENSAYO DE ROTURA A COMPRESIÓN SIMPLE EN PROBETAS DE SUELO",
+      "reciente": 24,
+      "mediana": 24,
+      "max": 24,
+      "min": 24,
       "n": 1
     },
     {
       "codigo": "PB-0368",
-      "descripcion": "Toma de muestra hormigon fresco fabricacion 5 probetas cilindricas 15x30 cm consistencia cono Abrams curado camara humeda refrendado rotura compresion 3 edades densidad probeta UNE EN 12350 UNE EN 12390",
+      "descripcion": "PERFORACIÓN DE PILOTE DE DIÁMETRO DESDE 650 mm HASTA 850 mm",
       "reciente": 90,
       "mediana": 90,
       "max": 90,
@@ -3314,146 +3674,209 @@
     },
     {
       "codigo": "PB-0369",
-      "descripcion": "Determinacion profundidad penetracion agua bajo presion hormigon ambiente XS XD IIIc 3 probetas UNE EN 12390-8",
-      "reciente": 210,
-      "mediana": 210,
-      "max": 210,
-      "min": 210,
+      "descripcion": "ENSAYO DE INTEGRIDAD ESTRUCTURAL POR \"CROSS-HOLE\" ULTRASÓNICO",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
       "n": 1
     },
     {
       "codigo": "PB-0370",
-      "descripcion": "Prueba de estanqueidad in situ cubierta no inundable inclinada zinc aspersores ALAGAL 3-ECNI-01",
-      "reciente": 540,
-      "mediana": 540,
-      "max": 540,
-      "min": 390,
-      "n": 2
-    },
-    {
-      "codigo": "PB-0371",
-      "descripcion": "Prueba estanqueidad in situ conjunto fachada carpinteria bateria rociadores ALAGAL 1-ECC-01",
-      "reciente": 350,
-      "mediana": 320,
-      "max": 350,
-      "min": 290,
-      "n": 2
+      "descripcion": "PERFORACIÓN DE PILOTE DE DIÁMETRO DE 1000 mm (INCLUIDO)",
+      "reciente": 57,
+      "mediana": 57,
+      "max": 57,
+      "min": 57,
+      "n": 1
     },
     {
       "codigo": "PB-0372",
-      "descripcion": "Visita determinacion in situ resistencia deslizamiento pendulo TRRL pavimento acabado condiciones de uso UNE ENV 12633",
-      "reciente": 275,
-      "mediana": 275,
-      "max": 275,
-      "min": 195,
-      "n": 2
-    },
-    {
-      "codigo": "PB-0373",
-      "descripcion": "Toma muestras fabricacion conservacion rotura flexotraccion compresion probetas prismaticas mortero cemento UNE EN 1015-11",
+      "descripcion": "PERFORACIÓN DE HASTA 300 MM DE DIÁMETRO EN CIMENTACIÓN EXISTENTE.",
       "reciente": 90,
       "mediana": 90,
       "max": 90,
-      "min": 69,
-      "n": 3
+      "min": 90,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0373",
+      "descripcion": "PERFORACIÓN DE PILOTE DE DIÁMETRO DESDE 650 mm HASTA 850 mm (INCLUIDO) CON ENTUBACIÓN RECUPERABLE (DE MÁS DE 6 m) HASTA 30 m DE PROFUNDIDAD i/ CAMISA Y SU RECUPERACIÓN.",
+      "reciente": 45,
+      "mediana": 45,
+      "max": 45,
+      "min": 45,
+      "n": 1
     },
     {
       "codigo": "PB-0374",
-      "descripcion": "Determinacion caracteristicas geometricas mecanicas traccion doblado desdoblado acero corrugado B500S UNE EN 15630-1 UNE EN 10080",
-      "reciente": 81,
-      "mediana": 75,
-      "max": 81,
-      "min": 60,
-      "n": 2
+      "descripcion": "ENSAYO DE INTEGRIDAD ESTRUCTURAL POR \"CROSS-HOLE\" ULTRASÓNICO DE PILOTE INSTRUMENTADO CON TRES (3) TUBOS (3 DIAGRAFÍAS POR PILOTE) HASTA 20 m DE PROFUNDIDAD.",
+      "reciente": 72,
+      "mediana": 72,
+      "max": 72,
+      "min": 72,
+      "n": 1
     },
     {
       "codigo": "PB-0375",
-      "descripcion": "Informe envolvente blower door analisis transmitancias termicas termofluijometro inspeccion camara termografica filtraciones puentes termicos",
-      "reciente": 1800,
-      "mediana": 1700,
-      "max": 1800,
-      "min": 1620,
-      "n": 2
+      "descripcion": "PERFORACIÓN DE PILOTE DE DIÁMETRO DE 1000 mm (INCLUIDO) CON ENTUBACIÓN RECUPERABLE (DE MÁS DE 6 m) HASTA 30 m DE PROFUNDIDAD i/ CAMISA Y SU RECUPERACIÓN.",
+      "reciente": 45,
+      "mediana": 45,
+      "max": 45,
+      "min": 45,
+      "n": 1
     },
     {
       "codigo": "PB-0376",
-      "descripcion": "Informe mediciones concentracion radon 15 detectores trazas instalacion desinstalacion periodo exposicion tres meses",
-      "reciente": 1200,
-      "mediana": 1200,
-      "max": 1200,
-      "min": 1200,
+      "descripcion": "PERFORACIÓN HORIZONTAL DIRIGIDA INTRODUCIENDO TUBERÍA DE PEAD 125 MM, EN TERRENO TIERRAS. INCLUYE DESPLAZAMIENTO DE EQUIPOS.",
+      "reciente": 65,
+      "mediana": 65,
+      "max": 65,
+      "min": 65,
       "n": 1
     },
     {
       "codigo": "PB-0377",
-      "descripcion": "Informe mediciones parametros acusticos DB HR aislamiento ruido aereo elementos separacion fachada ruido impacto suelos nivel inmision",
-      "reciente": 750,
-      "mediana": 750,
-      "max": 750,
-      "min": 700,
-      "n": 2
-    },
-    {
-      "codigo": "PB-0378",
-      "descripcion": "Prueba de servicio de calefaccion ACS y climatizacion circulacion libre dilatacion conductos caudales temperaturas sondas compuertas climatizadores enfriadores ACS prevencion legionela",
-      "reciente": 570,
-      "mediana": 570,
-      "max": 570,
-      "min": 570,
+      "descripcion": "ABONO FIJO POR TRANSPORTE AL ÁREA DE TRABAJOS DE PENETRÓMETRO DINÁMICO, EQUIPO DE PLACA DE CARGA, PRESIÓMETRO, DILATOMETRÍA, SÍSMICOS, ELÉCTRICOS, ELECTROMAGNÉTICOS, DIAGRAFÍAS, GEO-RADAR, VANE-TEST, ETC",
+      "reciente": 175,
+      "mediana": 175,
+      "max": 175,
+      "min": 175,
       "n": 1
     },
     {
       "codigo": "PB-0379",
-      "descripcion": "Prueba de servicio de radon medicion concentracion detectores trazas nucleares instalacion desinstalacion",
-      "reciente": 1200,
-      "mediana": 1200,
-      "max": 1200,
-      "min": 1200,
+      "descripcion": "pruebas de estanqueidad",
+      "reciente": 420,
+      "mediana": 420,
+      "max": 420,
+      "min": 420,
       "n": 1
     },
     {
       "codigo": "PB-0380",
-      "descripcion": "Prueba de servicio de saneamiento pluviales residuales estanqueidad red horizontal arquetas pozos DB-HS",
-      "reciente": 420,
-      "mediana": 420,
-      "max": 420,
-      "min": 420,
+      "descripcion": "Ensayo de apisonado proctor modificado UNE 103 501",
+      "reciente": 85,
+      "mediana": 85,
+      "max": 85,
+      "min": 85,
       "n": 1
     },
     {
       "codigo": "PB-0381",
-      "descripcion": "Prueba de servicio de fontaneria grupo presion red tuberias estanqueidad presion agua fria ACS",
-      "reciente": 420,
-      "mediana": 420,
-      "max": 420,
-      "min": 420,
+      "descripcion": "Determinación de límites de Atterberg UNE 103 103, 102104",
+      "reciente": 65,
+      "mediana": 65,
+      "max": 65,
+      "min": 65,
       "n": 1
     },
     {
       "codigo": "PB-0382",
-      "descripcion": "Prueba de servicio de electricidad alumbrado iluminacion RBT resistencia aislamiento puesta a tierra cuadros",
-      "reciente": 900,
-      "mediana": 900,
-      "max": 900,
-      "min": 900,
+      "descripcion": "Coeficiente desgaste Los Angeles UNE EN 1097-2",
+      "reciente": 80,
+      "mediana": 80,
+      "max": 80,
+      "min": 80,
       "n": 1
     },
     {
       "codigo": "PB-0383",
-      "descripcion": "Prueba de servicio de calefaccion clima ventilacion ACS climatizacion circulacion caudales temperaturas legionela",
-      "reciente": 570,
-      "mediana": 570,
-      "max": 570,
-      "min": 570,
+      "descripcion": "Indice de lajas UNE EN 933-3",
+      "reciente": 45,
+      "mediana": 45,
+      "max": 45,
+      "min": 45,
       "n": 1
     },
     {
       "codigo": "PB-0384",
-      "descripcion": "Prueba de servicio de contra incendios PCI CI detectores central alarma pulsadores extintores bocas hidrantees",
-      "reciente": 450,
-      "mediana": 450,
-      "max": 450,
-      "min": 450,
+      "descripcion": "Determinación del porcentaje de caras de fractura de las partículas de árido grueso UNE EN 933-5",
+      "reciente": 40,
+      "mediana": 40,
+      "max": 40,
+      "min": 40,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0385",
+      "descripcion": "Analisis granulométrico UNE EN 933-1",
+      "reciente": 35,
+      "mediana": 35,
+      "max": 35,
+      "min": 35,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0386",
+      "descripcion": "Determinación \"in situ\" de la densidad de un suelo por el método de la arena y humedad en estufa UNE 103503, 103300",
+      "reciente": 21,
+      "mediana": 21,
+      "max": 21,
+      "min": 21,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0387",
+      "descripcion": "Ensayo de carga con placa determinando módulos de compresibilidad para viales. No incluyen preparación del dispositivo a reacción NLT 357",
+      "reciente": 75,
+      "mediana": 75,
+      "max": 75,
+      "min": 75,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0388",
+      "descripcion": "Visita de inspección para la realización del ensayo de impedancia mecánica de pilotes prefabricados para comprobación de la integridad estructural de los mismos",
+      "reciente": 600,
+      "mediana": 600,
+      "max": 600,
+      "min": 600,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0389",
+      "descripcion": "Toma de muestras de hormigón fresco, incluyendo muestreo del hormigón, medida del asiento de cono, fabricación de hasta 5 probetas, curado y rotura a compresión UNE EN 12390-2,3 y 12350-2",
+      "reciente": 90,
+      "mediana": 90,
+      "max": 90,
+      "min": 90,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0390",
+      "descripcion": "Ensayo completo de una muestra de acero para armaduras pasivas, incluyendo tracción (con medida de Agt), doblado/desdoblado y características geométricas (UNE 36068, 36065, EN 10002 ó UNE EN ISO 15630-1, ISO 6892 y UNE EN 10080).",
+      "reciente": 81,
+      "mediana": 81,
+      "max": 81,
+      "min": 81,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0391",
+      "descripcion": "Visita de inspección para la realización del control de uniones soldadas mediante ensayos no destructivos: Líquidos penetrantes o partículas magnéticas",
+      "reciente": 500,
+      "mediana": 500,
+      "max": 500,
+      "min": 500,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0392",
+      "descripcion": "Prueba de estanqueidad \"in situ\" de cubiertas no inundables , según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión de informe.",
+      "reciente": 690,
+      "mediana": 690,
+      "max": 690,
+      "min": 690,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0393",
+      "descripcion": "Visita de inspección para la determinación del índice de resbaladicidad de los pavimentos acabados",
+      "reciente": 360,
+      "mediana": 360,
+      "max": 360,
+      "min": 360,
       "n": 1
     }
   ]
