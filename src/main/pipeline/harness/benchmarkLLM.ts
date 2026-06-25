@@ -4,6 +4,7 @@
  *
  *   npm run rag:benchmark
  */
+import 'dotenv/config'
 import { resolve } from 'path'
 import { generatePlanLLM } from '../llm/plannerLLM'
 import { loadHistoricalProjects } from '../rag/historicalProjects'

@@ -1,16 +1,24 @@
 /**
  * Motor de generación de planes de ensayo basado en LLM (Gemini Flash).
  *
- * Flujo:
- *   1. Carga price_book.json y historical_projects.json.
- *   2. Selecciona los 3 proyectos históricos más similares como few-shot.
- *   3. Llama a Gemini con: materiales + ejemplos + catálogo de precios.
- *   4. Mapea cada descripción generada al precio determinista del price_book.
- *   5. Devuelve PlanRowInput[] compatible con el formatter existente.
+ * Arquitectura sección a sección:
+ *   Para cada material del proyecto, se hace una llamada Gemini independiente.
+ *   Cada llamada recibe:
+ *     - La sección y cantidad del material
+ *     - Secciones históricas de esa misma categoría (con cantidades para escalar)
+ *     - Tabla de frecuencias medias derivada del historial
+ *     - Fragmento del price_book relevante para esa categoría
+ *
+ *   Esto elimina el "scale mismatch": el modelo escala dentro de cada sección,
+ *   no entre secciones de tamaños muy diferentes.
  */
 import { readFileSync, existsSync } from 'fs'
 import { GeminiProvider } from './gemini'
-import { loadHistoricalProjects, findSimilarProjects } from '../rag/historicalProjects'
+import {
+  loadHistoricalProjects,
+  getSectionsByCategory,
+  type SectionReference,
+} from '../rag/historicalProjects'
 import type { HistoricalProject } from '../rag/historicalProjects'
 import type { Material, PlanRowInput } from '../types'
 import { normalize } from '../rag/normalize'
@@ -27,18 +35,17 @@ interface PriceBookEntry {
   n: number
 }
 
-interface LLMPlanLine {
-  seccion: string
+interface LLMSectionLine {
   descripcion: string
   n_tests: number
   precio_unitario: number
 }
 
-interface LLMResponse {
-  ensayos: LLMPlanLine[]
+interface LLMSectionResponse {
+  ensayos: LLMSectionLine[]
 }
 
-// ── Price book lookup ──────────────────────────────────────────────────────
+// ── Price book ─────────────────────────────────────────────────────────────
 
 let _priceBook: PriceBookEntry[] | null = null
 
@@ -50,18 +57,12 @@ function loadPriceBook(path: string): PriceBookEntry[] {
   return entries
 }
 
-/**
- * Busca la entrada más cercana del price_book para una descripción dada.
- * 1º intento: coincidencia de norma (UNE/NLT/ASTM) + palabra clave principal.
- * 2º intento: máximo solapamiento de tokens normalizados.
- */
 function matchPriceBook(desc: string, entries: PriceBookEntry[]): PriceBookEntry | null {
   if (entries.length === 0) return null
 
   const normDesc = normalize(desc)
   const normDescTokens = new Set(normDesc.split(/\s+/).filter((t) => t.length > 3))
 
-  // Extraer códigos de norma del texto (UNE 103101, NLT-357, etc.)
   const normCodes = desc.match(/(?:UNE|NLT|ASTM|EN)\s*[\d\-.:]+/gi) ?? []
   const normCodesNorm = normCodes.map((c) => normalize(c).replace(/\s+/g, ''))
 
@@ -72,10 +73,10 @@ function matchPriceBook(desc: string, entries: PriceBookEntry[]): PriceBookEntry
     const entryNorm = normalize(entry.descripcion)
     const entryTokens = new Set(entryNorm.split(/\s+/).filter((t) => t.length > 3))
 
-    // Bonus por coincidencia de código de norma
-    const entryNormCodes = entry.descripcion
-      .match(/(?:UNE|NLT|ASTM|EN)\s*[\d\-.:]+/gi)
-      ?.map((c) => normalize(c).replace(/\s+/g, '')) ?? []
+    const entryNormCodes =
+      entry.descripcion
+        .match(/(?:UNE|NLT|ASTM|EN)\s*[\d\-.:]+/gi)
+        ?.map((c) => normalize(c).replace(/\s+/g, '')) ?? []
 
     let normBonus = 0
     for (const code of normCodesNorm) {
@@ -84,7 +85,6 @@ function matchPriceBook(desc: string, entries: PriceBookEntry[]): PriceBookEntry
       }
     }
 
-    // Jaccard sobre tokens
     const inter = [...normDescTokens].filter((t) => entryTokens.has(t)).length
     const union = new Set([...normDescTokens, ...entryTokens]).size
     const jaccard = union > 0 ? inter / union : 0
@@ -96,44 +96,182 @@ function matchPriceBook(desc: string, entries: PriceBookEntry[]): PriceBookEntry
     }
   }
 
-  // Umbral mínimo: al menos 20% solapamiento
   return bestScore >= 0.2 ? bestEntry : null
 }
 
-// ── Formateo del prompt ───────────────────────────────────────────────────
+// ── Frecuencias históricas ─────────────────────────────────────────────────
 
-function formatPriceBookForPrompt(entries: PriceBookEntry[]): string {
-  return entries
-    .map((e) => `  ${e.descripcion} → ${e.reciente}€`)
-    .join('\n')
+interface FrequencyRow {
+  desc: string
+  testsPerUnit: number
+  sources: number
 }
 
-function formatMaterials(materials: Material[]): string {
-  return materials
-    .map((m) => {
-      const qty = m.quantity != null ? `${m.quantity.toLocaleString('es-ES')} ${m.unit ?? ''}` : '(cantidad no especificada)'
-      return `  - ${m.material ?? m.description ?? m.category}: ${qty}`
+/**
+ * Normaliza unidades para comparación (m3/m³ → m3, m2/m² → m2, etc.)
+ */
+function normUnit(u: string): string {
+  return u.trim().toLowerCase()
+    .replace('³', '3').replace('²', '2')
+    .replace(/\s+/g, '')
+}
+
+/**
+ * Calcula frecuencias SOLO cuando la unidad histórica coincide con la del material.
+ * Si no hay coincidencia de unidades, devuelve [] para no propagar unidades erróneas.
+ */
+function computeFrequencies(refs: SectionReference[], materialUnit: string): FrequencyRow[] {
+  const targetUnit = normUnit(materialUnit)
+  const byKey = new Map<string, { desc: string; totalRate: number; sources: number }>()
+
+  for (const { section } of refs) {
+    if (!section.quantity || section.quantity <= 0) continue
+    if (!section.unit) continue
+    // Solo usar si la unidad coincide
+    if (normUnit(section.unit) !== targetUnit) continue
+
+    for (const test of section.tests) {
+      const key = normalize(test.descripcion).slice(0, 60)
+      if (!byKey.has(key)) {
+        byKey.set(key, { desc: test.descripcion, totalRate: 0, sources: 0 })
+      }
+      const entry = byKey.get(key)!
+      entry.totalRate += test.n_tests / section.quantity
+      entry.sources++
+    }
+  }
+
+  return Array.from(byKey.values())
+    .map(({ desc, totalRate, sources }) => ({
+      desc,
+      testsPerUnit: totalRate / sources,
+      sources,
+    }))
+    .sort((a, b) => b.sources - a.sources)
+}
+
+// ── Price book filtrado por categoría ─────────────────────────────────────
+
+/**
+ * Devuelve las entradas del price_book más relevantes para una categoría.
+ * Prioriza los ensayos que aparecen en las secciones históricas de esa categoría.
+ */
+function priceBookForCategory(
+  allEntries: PriceBookEntry[],
+  refs: SectionReference[]
+): PriceBookEntry[] {
+  if (refs.length === 0) return allEntries.filter((e) => e.n >= 20)
+
+  const usedNorms = new Set<string>()
+  const usedDescs = new Set<string>()
+
+  for (const { section } of refs) {
+    for (const test of section.tests) {
+      usedDescs.add(normalize(test.descripcion))
+      const codes = test.descripcion.match(/(?:UNE|NLT|ASTM|EN)\s*[\d\-.:]+/gi) ?? []
+      for (const c of codes) usedNorms.add(normalize(c).replace(/\s+/g, ''))
+    }
+  }
+
+  const relevant = allEntries.filter((e) => {
+    const nd = normalize(e.descripcion)
+    if (usedDescs.has(nd)) return true
+    const eCodes =
+      e.descripcion
+        .match(/(?:UNE|NLT|ASTM|EN)\s*[\d\-.:]+/gi)
+        ?.map((c) => normalize(c).replace(/\s+/g, '')) ?? []
+    return eCodes.some((ec) => usedNorms.has(ec))
+  })
+
+  // Siempre incluir entradas muy frecuentes aunque no aparezcan en el historial
+  const highFreq = allEntries.filter((e) => e.n >= 30 && !relevant.includes(e))
+  return [...relevant, ...highFreq]
+}
+
+// ── Construcción del prompt por sección ───────────────────────────────────
+
+function fmt(n: number, unit: string): string {
+  return `${n.toLocaleString('es-ES')} ${unit}`
+}
+
+function buildSectionPrompt(
+  material: Material,
+  refs: SectionReference[],
+  freqs: FrequencyRow[],
+  pbEntries: PriceBookEntry[],
+  strategy: 'reciente' | 'mediana'
+): string {
+  const matName = material.material ?? material.description ?? material.category ?? 'Material'
+  const qty = material.quantity
+  const unit = material.unit ?? ''
+
+  // ── Bloque de secciones históricas ─────────────────────────────────────
+  let histBlock = ''
+  if (refs.length > 0) {
+    const refLines = refs.map(({ projectId, projectNombre, section }) => {
+      const qtyStr = section.quantity
+        ? `${fmt(section.quantity, section.unit ?? unit)}`
+        : '(cantidad desconocida)'
+      const tests = section.tests
+        .map((t) => {
+          const rate =
+            section.quantity && section.quantity > 0
+              ? ` → 1 por ${Math.round(section.quantity / t.n_tests).toLocaleString('es-ES')} ${section.unit ?? unit}`
+              : ''
+          return `    ${t.descripcion.slice(0, 70)}: ${t.n_tests} uds${rate}`
+        })
+        .join('\n')
+      return `  ${projectId} — ${projectNombre.slice(0, 50)} (${qtyStr}):\n${tests}`
+    })
+    histBlock = `HISTORIAL — MISMA CATEGORÍA (${refs.length} proyecto${refs.length > 1 ? 's' : ''}):\n${refLines.join('\n\n')}\n\n`
+  }
+
+  // ── Tabla de frecuencias medias ─────────────────────────────────────────
+  let freqBlock = ''
+  if (freqs.length > 0 && qty != null && qty > 0) {
+    const freqLines = freqs
+      .slice(0, 20)
+      .map((f) => {
+        const estimated = Math.max(1, Math.round(f.testsPerUnit * qty))
+        return `  ${f.desc.slice(0, 65)}: ~${estimated} ensayos (${(f.testsPerUnit * 1000).toFixed(2)} por 1.000 ${unit})`
+      })
+      .join('\n')
+    freqBlock = `FRECUENCIAS MEDIAS HISTÓRICAS → estimación para ${fmt(qty, unit)}:\n${freqLines}\n\n`
+  }
+
+  // ── Catálogo de precios ─────────────────────────────────────────────────
+  const pbLines = pbEntries
+    .map((e) => {
+      const price = strategy === 'mediana' ? e.mediana : e.reciente
+      return `  ${e.descripcion} → ${price}€`
     })
     .join('\n')
+
+  const qtyStr = qty != null ? fmt(qty, unit) : '(cantidad no especificada)'
+
+  return `Eres un ingeniero experto en planes de control de calidad para obras civiles en España.
+
+TAREA: Genera el plan de ensayos EXCLUSIVAMENTE para la siguiente sección.
+
+SECCIÓN: ${matName}
+CANTIDAD: ${qtyStr}
+
+${histBlock}${freqBlock}CATÁLOGO DE PRECIOS DISPONIBLE (${pbEntries.length} ensayos para esta categoría):
+${pbLines}
+
+REGLAS:
+1. Usa SOLO descripciones que aparezcan EXACTAMENTE en el catálogo de precios.
+2. Usa las frecuencias históricas como referencia principal para n_tests.
+3. Incluye TODOS los ensayos aplicables: caracterización, control ejecución, recepción.
+4. No omitas ensayos que aparezcan en el historial de esta misma categoría.
+5. precio_unitario = el precio del catálogo para esa descripción.
+6. Responde SOLO con JSON válido, sin markdown ni texto adicional.
+
+FORMATO:
+{"ensayos": [{"descripcion": "descripción exacta del catálogo", "n_tests": número_entero, "precio_unitario": número}]}`
 }
 
-// Máximo de líneas por ejemplo en el prompt.
-// 100 líneas es el sweet-spot: suficiente para aprender frecuencias sin
-// overwhelmar al modelo con contexto redundante.
-const MAX_EXAMPLE_LINES = 100
-
-function formatExample(p: HistoricalProject): string {
-  const lines = p.plan.slice(0, MAX_EXAMPLE_LINES)
-  const planText = lines
-    .map((l) => `    ${l.seccion} | ${l.descripcion} | ${l.n_tests} uds × ${l.precio_unitario}€ = ${l.importe}€`)
-    .join('\n')
-  const more = p.plan.length > MAX_EXAMPLE_LINES
-    ? `\n    ... (${p.plan.length - MAX_EXAMPLE_LINES} líneas más, proporcionalmente)`
-    : ''
-  return `### ${p.id}: ${p.nombre}\nCategorías: ${p.categories.join(', ')}\nBase imponible: ${p.total_base.toLocaleString('es-ES')} €\nPlan:\n${planText}${more}`
-}
-
-// ── Parseo de respuesta JSON ──────────────────────────────────────────────
+// ── Parseo de respuesta ───────────────────────────────────────────────────
 
 function stripFences(raw: string): string {
   return raw
@@ -142,118 +280,69 @@ function stripFences(raw: string): string {
     .trim()
 }
 
-// ── API pública ───────────────────────────────────────────────────────────
+// ── Retry helper ─────────────────────────────────────────────────────────
 
-export interface PlannerLLMOptions {
-  priceBookPath: string
-  historicalProjectsPath: string
-  strategy?: 'reciente' | 'mediana'
-  /** Excluir este id del few-shot (útil en benchmarks para evitar auto-referencia). */
-  excludeProjectId?: string
-}
-
-/**
- * Filtra el price_book a las entradas relevantes para los ejemplos similares +
- * las categorías de materiales. Reduce el prompt ~3x sin perder cobertura.
- */
-function relevantPriceBook(
-  allEntries: PriceBookEntry[],
-  similar: HistoricalProject[]
-): PriceBookEntry[] {
-  if (similar.length === 0) return allEntries
-
-  // Recoger todas las descripciones que aparecen en los proyectos similares
-  const usedDescs = new Set<string>()
-  for (const p of similar) {
-    for (const l of p.plan) usedDescs.add(normalize(l.descripcion))
-  }
-
-  // Incluir entrada si su norma normalizada aparece en algún proyecto similar
-  const relevant = allEntries.filter((e) => {
-    const nd = normalize(e.descripcion)
-    // Coincidencia exacta o alta por norma
-    if (usedDescs.has(nd)) return true
-    // Coincidencia de código de norma
-    const codes = e.descripcion.match(/(?:UNE|NLT|ASTM|EN)\s*[\d\-.:]+/gi) ?? []
-    for (const code of codes) {
-      const nc = normalize(code).replace(/\s/g, '')
-      for (const ud of usedDescs) {
-        if (ud.includes(nc)) return true
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxAttempts = 3,
+  delayMs = 6000
+): Promise<T> {
+  let lastErr: unknown
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn()
+    } catch (err) {
+      lastErr = err
+      if (attempt < maxAttempts) {
+        const wait = delayMs * attempt
+        console.warn(`[plannerLLM] retry ${attempt}/${maxAttempts - 1} en ${wait / 1000}s...`)
+        await new Promise((r) => setTimeout(r, wait))
       }
     }
-    return false
-  })
-
-  // Siempre incluir entradas muy frecuentes (n >= 30) aunque no estén en ejemplos
-  const highFreq = allEntries.filter((e) => e.n >= 30 && !relevant.includes(e))
-  return [...relevant, ...highFreq]
+  }
+  throw lastErr
 }
 
-export async function generatePlanLLM(
-  materials: Material[],
+// ── Generación de una sección ─────────────────────────────────────────────
+
+async function generateSectionLLM(
+  material: Material,
+  allEntries: PriceBookEntry[],
+  historical: HistoricalProject[],
   opts: PlannerLLMOptions
 ): Promise<PlanRowInput[]> {
-  const priceBook = loadPriceBook(opts.priceBookPath)
-  const historical = loadHistoricalProjects(opts.historicalProjectsPath)
-    .filter((p) => p.id !== opts.excludeProjectId)
-  const similar = findSimilarProjects(materials, historical, 3)
-  const filteredPB = relevantPriceBook(priceBook, similar)
+  const category = material.category ?? ''
+  const refs = getSectionsByCategory(historical, category, opts.excludeProjectId)
+  const pbEntries = priceBookForCategory(allEntries, refs)
+
+  const strategy = opts.strategy ?? 'reciente'
+  const freqs = computeFrequencies(refs, material.unit ?? '')
+  const prompt = buildSectionPrompt(material, refs, freqs, pbEntries, strategy)
 
   const gemini = new GeminiProvider()
+  const sectionName = material.material ?? material.description ?? material.category ?? 'Sección'
 
-  const systemPrompt = `Eres un ingeniero experto en planes de control de calidad para obras civiles en España.
-Tu tarea: dado un listado de materiales con cantidades, generar el plan COMPLETO y EXHAUSTIVO de ensayos de laboratorio.
+  const raw = await withRetry(() =>
+    gemini.chat(
+      'Eres un experto en control de calidad de obras civiles. Responde solo con JSON.',
+      prompt,
+      { maxTokens: 4096, timeoutMs: 90_000, tag: `section:${sectionName.slice(0, 30)}` }
+    )
+  )
 
-REGLAS ESTRICTAS:
-1. Usa ÚNICAMENTE descripciones de ensayo que aparezcan en el CATÁLOGO DE PRECIOS siguiente.
-2. Calcula n_tests según las frecuencias del PG-3 (Art. 330 y siguientes) y los ejemplos adjuntos.
-3. precio_unitario = el precio del catálogo para esa descripción exacta.
-4. NO omitas ensayos de caracterización, control de ejecución ni control de recepción. Incluye TODOS.
-5. Responde EXCLUSIVAMENTE con JSON válido, sin texto ni markdown adicional.
-6. Es CRÍTICO que el plan sea exhaustivo: un plan incompleto subestima el presupuesto.
-
-CATÁLOGO DE PRECIOS DISPONIBLES (${filteredPB.length} entradas relevantes):
-${formatPriceBookForPrompt(filteredPB)}
-
-FORMATO DE RESPUESTA:
-{
-  "ensayos": [
-    { "seccion": "nombre del capítulo/material", "descripcion": "descripción exacta del catálogo", "n_tests": número_entero, "precio_unitario": número }
-  ]
-}`
-
-  const examplesBlock =
-    similar.length > 0
-      ? `PROYECTOS SIMILARES (usa como referencia de frecuencias y estructura):\n${similar.map(formatExample).join('\n\n')}\n\n`
-      : ''
-
-  const userPrompt = `${examplesBlock}NUEVO PROYECTO — materiales y cantidades:
-${formatMaterials(materials)}
-
-Genera el plan completo de ensayos en JSON.`
-
-  // Timeout generoso: el prompt puede ser largo (>10k tokens)
-  const raw = await gemini.chat(systemPrompt, userPrompt, {
-    maxTokens: 16384,
-    timeoutMs: 120_000,
-    tag: 'plannerLLM',
-  })
-
-  let parsed: LLMResponse
+  let parsed: LLMSectionResponse
   try {
-    parsed = JSON.parse(stripFences(raw)) as LLMResponse
+    parsed = JSON.parse(stripFences(raw)) as LLMSectionResponse
   } catch {
-    throw new Error(`plannerLLM: respuesta JSON inválida de Gemini:\n${raw.slice(0, 500)}`)
+    throw new Error(`plannerLLM[${sectionName}]: JSON inválido:\n${raw.slice(0, 300)}`)
   }
 
   if (!Array.isArray(parsed.ensayos) || parsed.ensayos.length === 0) {
-    throw new Error('plannerLLM: Gemini devolvió un plan vacío.')
+    return []
   }
 
-  const strategy = opts.strategy ?? 'reciente'
-
   return parsed.ensayos.map((line): PlanRowInput => {
-    const pb = matchPriceBook(line.descripcion, priceBook)
+    const pb = matchPriceBook(line.descripcion, allEntries)
     const unitPrice = pb
       ? (strategy === 'mediana' ? pb.mediana : pb.reciente)
       : line.precio_unitario ?? 0
@@ -262,7 +351,7 @@ Genera el plan completo de ensayos en JSON.`
     const total = nTests * unitPrice
 
     return {
-      material: line.seccion,
+      material: sectionName,
       description: line.descripcion,
       n_lots: null,
       n_tests: nTests,
@@ -276,6 +365,57 @@ Genera el plan completo de ensayos en JSON.`
       price_n: pb?.n ?? null,
     }
   })
+}
+
+// ── API pública ───────────────────────────────────────────────────────────
+
+export interface PlannerLLMOptions {
+  priceBookPath: string
+  historicalProjectsPath: string
+  strategy?: 'reciente' | 'mediana'
+  excludeProjectId?: string
+}
+
+/**
+ * Genera el plan de ensayos completo procesando cada material de forma independiente.
+ *
+ * Una llamada Gemini por sección → cada sección se calibra con su propio historial
+ * → sin "scale mismatch" entre secciones de tamaños muy distintos.
+ * Las secciones se procesan en paralelo para minimizar el tiempo de respuesta.
+ */
+export async function generatePlanLLM(
+  materials: Material[],
+  opts: PlannerLLMOptions
+): Promise<PlanRowInput[]> {
+  if (materials.length === 0) return []
+
+  const priceBook = loadPriceBook(opts.priceBookPath)
+  const historical = loadHistoricalProjects(opts.historicalProjectsPath)
+    .filter((p) => p.id !== opts.excludeProjectId)
+
+  // Procesar secciones con concurrencia limitada para evitar rate-limiting de la API
+  const CONCURRENCY = 4
+  const results: PromiseSettledResult<PlanRowInput[]>[] = []
+  for (let i = 0; i < materials.length; i += CONCURRENCY) {
+    const batch = materials.slice(i, i + CONCURRENCY)
+    const batchResults = await Promise.allSettled(
+      batch.map((m) => generateSectionLLM(m, priceBook, historical, opts))
+    )
+    results.push(...batchResults)
+  }
+
+  const allLines: PlanRowInput[] = []
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i]
+    const name = materials[i].material ?? materials[i].category ?? `sección ${i + 1}`
+    if (r.status === 'fulfilled') {
+      allLines.push(...r.value)
+    } else {
+      console.error(`[plannerLLM] Error en sección "${name}":`, r.reason)
+    }
+  }
+
+  return allLines
 }
 
 export function invalidatePlannerCache(): void {

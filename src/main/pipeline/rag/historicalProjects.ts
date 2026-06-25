@@ -5,10 +5,9 @@
 import { readFileSync, existsSync } from 'fs'
 import type { Material } from '../types'
 
-export type { HistoricalProject, HistoricalPlanLine } from '../harness/buildHistoricalProjects'
-import type { HistoricalProject } from '../harness/buildHistoricalProjects'
+export type { HistoricalProject, HistoricalPlanLine, HistoricalSection } from '../harness/buildHistoricalProjects'
+import type { HistoricalProject, HistoricalSection } from '../harness/buildHistoricalProjects'
 
-// Categorías que el classifier reconoce → mismos keys que inferCategory en buildHistoricalProjects
 const CLASSIFIER_TO_CATEGORY: Record<string, string> = {
   TERRAPLEN_RELLENOS: 'TERRAPLEN_RELLENOS',
   ZAHORRA_ARTIFICIAL: 'ZAHORRA_ARTIFICIAL',
@@ -43,7 +42,6 @@ export function invalidateHistoricalCache(): void {
 /**
  * Devuelve los k proyectos históricos más similares al nuevo proyecto.
  * Similitud = Jaccard sobre las categorías de materiales.
- * Desempate: el proyecto con mayor presupuesto total va primero (más informativo).
  */
 export function findSimilarProjects(
   materials: Material[],
@@ -59,7 +57,6 @@ export function findSimilarProjects(
   )
 
   if (inputCats.size === 0) {
-    // Sin categorías conocidas: devolver los k más grandes
     return [...projects].sort((a, b) => b.total_base - a.total_base).slice(0, k)
   }
 
@@ -75,4 +72,39 @@ export function findSimilarProjects(
     .sort((a, b) => b.score - a.score || b.project.total_base - a.project.total_base)
     .slice(0, k)
     .map((s) => s.project)
+}
+
+export interface SectionReference {
+  projectId: string
+  projectNombre: string
+  section: HistoricalSection
+}
+
+/**
+ * Devuelve todas las secciones históricas que coinciden con una categoría de material.
+ * Ordenadas de mayor a menor cantidad (proyectos más grandes primero).
+ */
+export function getSectionsByCategory(
+  projects: HistoricalProject[],
+  category: string,
+  excludeProjectId?: string
+): SectionReference[] {
+  const refs: SectionReference[] = []
+  const normalizedCat = CLASSIFIER_TO_CATEGORY[category] ?? category
+
+  for (const p of projects) {
+    if (p.id === excludeProjectId) continue
+    for (const s of p.sections ?? []) {
+      if (s.category === normalizedCat) {
+        refs.push({ projectId: p.id, projectNombre: p.nombre, section: s })
+      }
+    }
+  }
+
+  // Ordenar: secciones con cantidad conocida primero (más grandes primero)
+  return refs.sort((a, b) => {
+    const qa = a.section.quantity ?? 0
+    const qb = b.section.quantity ?? 0
+    return qb - qa
+  })
 }
