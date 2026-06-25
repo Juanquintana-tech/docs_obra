@@ -228,15 +228,31 @@ function buildSectionPrompt(
 
   // ── Tabla de frecuencias medias ─────────────────────────────────────────
   let freqBlock = ''
+  // Encontrar la referencia con mayor cantidad conocida para escala relativa
+  const refWithQty = refs.find((r) => r.section.quantity && r.section.quantity > 0)
+
   if (freqs.length > 0 && qty != null && qty > 0) {
     const freqLines = freqs
       .slice(0, 20)
       .map((f) => {
         const estimated = Math.max(1, Math.round(f.testsPerUnit * qty))
-        return `  ${f.desc.slice(0, 65)}: ~${estimated} ensayos (${(f.testsPerUnit * 1000).toFixed(2)} por 1.000 ${unit})`
+        return `  ${f.desc.slice(0, 65)}: ~${estimated} ensayos`
       })
       .join('\n')
-    freqBlock = `FRECUENCIAS MEDIAS HISTÓRICAS → estimación para ${fmt(qty, unit)}:\n${freqLines}\n\n`
+    freqBlock = `ESTIMACIÓN CALIBRADA para ${fmt(qty, unit)} (basada en historial con misma unidad):\n${freqLines}\n\n`
+  } else if (refWithQty && qty != null && qty > 0) {
+    // Sin calibración de frecuencias pero hay referencia con cantidad conocida
+    const refQty = refWithQty.section.quantity!
+    const factor = qty / refQty
+    const cappedFactor = Math.min(factor, 1.0) // nunca más que el historial
+    const scaleLines = refWithQty.section.tests
+      .slice(0, 15)
+      .map((t) => {
+        const scaled = Math.max(1, Math.round(t.n_tests * cappedFactor))
+        return `  ${t.descripcion.slice(0, 65)}: ${scaled} ensayos (historial: ${t.n_tests} para ${fmt(refQty, refWithQty.section.unit ?? unit)})`
+      })
+      .join('\n')
+    freqBlock = `ESCALA RELATIVA: tu cantidad (${fmt(qty, unit)}) es ${(factor * 100).toFixed(1)}% de ${refWithQty.projectId} (${fmt(refQty, refWithQty.section.unit ?? unit)}).\nUSA ESTOS VALORES COMO TECHO MÁXIMO:\n${scaleLines}\n\n`
   }
 
   // ── Catálogo de precios ─────────────────────────────────────────────────
@@ -261,11 +277,12 @@ ${pbLines}
 
 REGLAS:
 1. Usa SOLO descripciones que aparezcan EXACTAMENTE en el catálogo de precios.
-2. Usa las frecuencias históricas como referencia principal para n_tests.
-3. Incluye TODOS los ensayos aplicables: caracterización, control ejecución, recepción.
-4. No omitas ensayos que aparezcan en el historial de esta misma categoría.
-5. precio_unitario = el precio del catálogo para esa descripción.
-6. Responde SOLO con JSON válido, sin markdown ni texto adicional.
+2. Los n_tests deben seguir la ESTIMACIÓN CALIBRADA o ESCALA RELATIVA indicadas arriba.
+3. NUNCA generes más ensayos que los del historial si la cantidad es igual o menor.
+4. Si la cantidad del proyecto es pequeña, genera POCOS ensayos (escala proporcional).
+5. Incluye los ensayos aplicables, pero omite los que resulten en n_tests < 1.
+6. precio_unitario = el precio del catálogo para esa descripción.
+7. Responde SOLO con JSON válido, sin markdown ni texto adicional.
 
 FORMATO:
 {"ensayos": [{"descripcion": "descripción exacta del catálogo", "n_tests": número_entero, "precio_unitario": número}]}`
@@ -319,14 +336,15 @@ async function generateSectionLLM(
   const freqs = computeFrequencies(refs, material.unit ?? '')
   const prompt = buildSectionPrompt(material, refs, freqs, pbEntries, strategy)
 
-  const gemini = new GeminiProvider()
+  // gemini-2.5-flash explícito: el modelo preview puede colgar sin dar HTTP error
+  const gemini = new GeminiProvider({ model: 'gemini-2.5-flash' })
   const sectionName = material.material ?? material.description ?? material.category ?? 'Sección'
 
   const raw = await withRetry(() =>
     gemini.chat(
       'Eres un experto en control de calidad de obras civiles. Responde solo con JSON.',
       prompt,
-      { maxTokens: 4096, timeoutMs: 90_000, tag: `section:${sectionName.slice(0, 30)}` }
+      { maxTokens: 4096, timeoutMs: 60_000, tag: `section:${sectionName.slice(0, 30)}` }
     )
   )
 
@@ -351,6 +369,7 @@ async function generateSectionLLM(
     const total = nTests * unitPrice
 
     return {
+      type: 'test',
       material: sectionName,
       description: line.descripcion,
       n_lots: null,

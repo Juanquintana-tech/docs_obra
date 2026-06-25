@@ -90,7 +90,8 @@ export function closeDb(): void {
 // ── Escritura ────────────────────────────────────────────────────────────────
 export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
   const db = getDb()
-  const testRows = planRows.filter((r) => r.type === 'test')
+  // Tratar filas sin type como 'test' (compatibilidad con plannerLLM que puede omitirlo)
+  const testRows = planRows.filter((r) => !r.type || r.type === 'test')
   const totalImporte = testRows.reduce((s, r) => s + (r.total ?? 0), 0)
   const nEnsayos = testRows.reduce((s, r) => s + (r.n_tests ?? 0), 0)
   const nMateriales = new Set(testRows.map((r) => r.material).filter(Boolean)).size
@@ -136,7 +137,7 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
       if (row.type === 'section') currentMaterial = row.material ?? ''
       insertRow.run({
         obra_id: obraId,
-        row_type: row.type ?? null,
+        row_type: row.type ?? 'test',
         material: row.material || currentMaterial,
         subcategory: row.subcategory ?? '',
         description: row.description ?? '',

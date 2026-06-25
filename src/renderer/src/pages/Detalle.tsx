@@ -52,7 +52,7 @@ export function Detalle(): JSX.Element {
       api.getEnsayoProgress(obraId)
     ])
     setObra(o ?? null)
-    const testRows = r.filter((x) => x.row_type === 'test')
+    const testRows = r.filter((x) => !x.row_type || x.row_type === 'test')
     setRows(testRows)
     setEditedRows(testRows)
     setEnsayos(ens)
