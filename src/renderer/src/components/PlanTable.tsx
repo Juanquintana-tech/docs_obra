@@ -78,10 +78,15 @@ function Confidence({
     const nLabel = n != null ? `${n} presupuesto${n !== 1 ? 's' : ''}` : ''
     const tooltip = [nLabel, pct ? `similitud ${pct}` : ''].filter(Boolean).join(' · ')
     return (
-      <span className="badge badge-pricebook" title={tooltip}>
-        ● Histórico{rangeLabel
-          ? <span style={{ marginLeft: 4, opacity: 0.7, fontSize: '0.85em' }}>[{rangeLabel}]</span>
-          : null}
+      <span
+        className="badge badge-pricebook"
+        title={tooltip}
+        style={rangeLabel ? { display: 'inline-flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.3, gap: 1 } : undefined}
+      >
+        <span>● Histórico</span>
+        {rangeLabel && (
+          <span style={{ fontSize: '0.78em', opacity: 0.75, fontWeight: 'normal' }}>{rangeLabel}</span>
+        )}
       </span>
     )
   }

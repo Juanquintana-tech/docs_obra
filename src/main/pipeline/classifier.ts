@@ -90,9 +90,13 @@ IGNORAR (no incluir):
   falso techo / techo suspendido → FALSO_TECHO
   panel sándwich / panel chapa / panel PUR / panel PIR → PANEL_SANDWICH
   mortero / enfoscado / revoco / enlucido → MORTERO
-  radón / radon → SERVICIO (medición concentración radón, quantity=1)
-  saneamiento / fontanería / electricidad / calefacción / clima / ventilación → SERVICIO (prueba puesta en servicio, quantity=1)
-  ci / c.i. / contra incendios / PCI → SERVICIO (prueba instalación PCI, quantity=1)
+  radón / radon → SERVICIO (quantity=1, description="Prueba de servicio de radón")
+  saneamiento → SERVICIO (quantity=1, description="Prueba de servicio de saneamiento")
+  fontanería / fontaneria → SERVICIO (quantity=1, description="Prueba de servicio de fontanería")
+  electricidad / eelectricidad / alumbrado → SERVICIO (quantity=1, description="Prueba de servicio de electricidad")
+  calefacción / ACS / calefaccion → SERVICIO (quantity=1, description="Prueba de servicio de calefacción y ACS")
+  clima / climatización / ventilación / ventilacion → SERVICIO (quantity=1, description="Prueba de servicio de climatización y ventilación")
+  ci / c.i. / contra incendios / PCI → SERVICIO (quantity=1, description="Prueba de servicio de instalación PCI")
 
 ── Formato tabular (planes de control, totalizados) ────────────────────────────
 El documento puede ser una tabla con columnas separadas por tabuladores.
@@ -117,7 +121,7 @@ Devuelve EXCLUSIVAMENTE un JSON array (sin texto adicional):
     "category": "una de las categorías arriba",
     "quantity": número float o null,
     "unit": "m3|m2|t|m|ml|ud",
-    "description": "texto tal como aparece en el documento",
+    "description": "texto tal como aparece en el documento (para SERVICIO MEP/radón usa el formato canónico de las abreviaturas, no el texto del PDF)",
     "notes": "notas opcionales (tipo hormigón, localización, etc.)"
   }
 ]`
