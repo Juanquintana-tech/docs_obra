@@ -87,6 +87,15 @@ IGNORAR (no incluir):
   en ml (ej: "3295 ML BARRERA SEGURIDAD", "BIONDA", "DEFENSA METÁLICA"):
   son elementos de contención vial, NO barandillas de edificación. IGNORAR. No clasificar como
   BARANDILLA (su ensayo estático no es de frecuencia por ml sino por homologación de producto).
+- Perfiles de acero para forjado mixto colaborante / losas colaborantes (COFRAPLUS, HAIRCOL,
+  COMFLOR, "FORJADO MIXTO", "LOSA COLABORANTE", "CHAPA COLABORANTE"):
+  son productos siderúrgicos CE marcados; su control de calidad es documental, no se realizan
+  ensayos de tracción en obra. IGNORAR. No clasificar como ACERO_LAMINADO.
+- Impermeabilización de losa de tablero / impermeabilización de obra de paso / impermeabilización
+  de viaducto / estribos / muros de contención en obra civil en m²
+  (ej: "1200 M2 IMPERMEABILIZACIÓN LOSA TABLERO", "IMPERMEABILIZACIÓN OBRA DE PASO"):
+  son sistemas de impermeabilización certificados para estructuras de carretera, no ensayados
+  por frecuencia en m². IGNORAR. No clasificar como CUBIERTA ni OTRO.
 
 ── Abreviaturas frecuentes en obras civiles españolas ──────────────────────────
   ZA / Z.A.  → ZAHORRA_ARTIFICIAL
@@ -146,6 +155,13 @@ sección), SUMA todas las cantidades en UN SOLO ítem con la cantidad total.
 Ejemplo: si hay 10 filas "HA-30" con distintas cantidades (una por viaducto), devuelve
 UN solo ítem "HORMIGON HA-30" con la suma de todas las cantidades.
 Excepción: tipos de hormigón DIFERENTES (HA-30 y HP-50) van en ítems separados.
+
+CASO ESPECIAL — TERRAPLEN_RELLENOS: todos los subtipos de terraplén y relleno
+(terraplén con material de excavación, relleno de zanjas, relleno localizado, relleno de
+trasdós, relleno de saneo, préstamo, todo-uno, pedraplén, relleno drenante…) se fusionan
+en UN ÚNICO ítem "TERRAPLEN_RELLENOS" con la cantidad TOTAL en m³, independientemente
+de cuántas filas distintas aparezcan en el documento. El laboratorio ensaya el conjunto
+de rellenos de la obra, no cada partida presupuestaria por separado.
 
 Devuelve EXCLUSIVAMENTE un JSON array (sin texto adicional):
 [
