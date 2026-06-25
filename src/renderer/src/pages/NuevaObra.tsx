@@ -74,6 +74,7 @@ export function NuevaObra(): JSX.Element {
   const [dragOver, setDragOver] = useState(false)
   const [progress, setProgress] = useState(0)
   const [elapsed, setElapsed] = useState(0)
+  const [chunkInfo, setChunkInfo] = useState<{ done: number; total: number } | null>(null)
 
   // Campos del formulario de la obra
   const [obra, setObra] = useState('')
@@ -107,6 +108,18 @@ export function NuevaObra(): JSX.Element {
     return () => clearInterval(id)
   }, [isProcessing, impPhase])
 
+  // ── Progreso real de chunks (documentos grandes) ─────────────────────────
+  useEffect(() => {
+    if (genPhase !== 'ingesting') { setChunkInfo(null); return }
+    const unsub = api.onIngestProgress(({ done, total }) => {
+      setChunkInfo({ done, total })
+      // Mapear chunk done/total al rango 18-78% (etapa "Clasificando materiales")
+      const pct = 18 + (done / total) * 60
+      setProgress((prev) => Math.max(prev, pct))
+    })
+    return unsub
+  }, [genPhase])
+
   // ── Cambio de modo: resetear estado del otro ──────────────────────────────
   function switchMode(next: Mode): void {
     setMode(next)
@@ -136,7 +149,7 @@ export function NuevaObra(): JSX.Element {
   // ══════════════════════════════════════════════════════════════════════════
 
   const doIngest = useCallback(async (path: string, name: string): Promise<void> => {
-    setError(null); setFileName(name); setElapsed(0); setGenPhase('ingesting')
+    setError(null); setFileName(name); setElapsed(0); setChunkInfo(null); setGenPhase('ingesting')
     try {
       const r = await api.ingestDocument(path, strategy)
       setProgress(100)
@@ -383,6 +396,7 @@ export function NuevaObra(): JSX.Element {
           elapsed={elapsed}
           stages={GEN_STAGES as unknown as Stage[]}
           currentStage={genCurrentStage}
+          subtitle={chunkInfo ? `Clasificando parte ${chunkInfo.done} de ${chunkInfo.total}…` : undefined}
         />
       )}
 

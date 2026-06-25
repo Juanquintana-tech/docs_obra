@@ -4,7 +4,7 @@
  */
 import { readFile } from 'fs/promises'
 import { extractDocument } from '../pipeline/extractor'
-import { classifyMaterials, extractObraInfo } from '../pipeline/classifier'
+import { classifyMaterials, classifyLargeDocument, extractObraInfo } from '../pipeline/classifier'
 import { generatePlan, type Material, type Rules } from '../pipeline/planner'
 import { listSheets, parseBudget, type BudgetSheet, type BudgetImportResult } from '../pipeline/budgetParser'
 import { CATEGORY_CTX } from '../pipeline/rag/ragPricer'
@@ -69,10 +69,14 @@ export interface IngestResult {
 /** PDF/Word/Excel → texto → (obra, materiales) → plan valorado con la estrategia dada. */
 export async function ingestDocument(
   path: string,
-  strategy: PriceStrategy = 'mediana'
+  strategy: PriceStrategy = 'mediana',
+  onChunkDone?: (done: number, total: number) => void
 ): Promise<IngestResult> {
   const { text, format, needsOcr } = await extractDocument(path)
-  const [obraInfo, materials] = await Promise.all([extractObraInfo(text), classifyMaterials(text)])
+  const [obraInfo, materials] = await Promise.all([
+    extractObraInfo(text),
+    classifyLargeDocument(text, format, undefined, onChunkDone)
+  ])
   const [rules, pricer] = await Promise.all([getRules(), getPricer()])
   const plan = await generatePlan(materials, rules, (items) => pricer.priceMany(items, strategy))
   return {

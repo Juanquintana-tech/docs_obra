@@ -125,7 +125,21 @@ export const api = {
   // ── Presupuestos (catálogo y reglas) ──
   getCatalog: (): Promise<CatalogEntry[]> => ipcRenderer.invoke('presup:getCatalog'),
   getRules: (): Promise<Rules> => ipcRenderer.invoke('presup:getRules'),
-  saveRules: (rules: Rules): Promise<void> => ipcRenderer.invoke('presup:saveRules', rules)
+  saveRules: (rules: Rules): Promise<void> => ipcRenderer.invoke('presup:saveRules', rules),
+
+  // ── Progreso de clasificación por chunks (documentos grandes) ──
+  /**
+   * Suscribe un callback a los eventos de progreso de chunk emitidos por el proceso main
+   * durante la ingesta de documentos grandes. Devuelve una función de desuscripción.
+   */
+  onIngestProgress: (
+    cb: (data: { done: number; total: number }) => void
+  ): (() => void) => {
+    const handler = (_e: Electron.IpcRendererEvent, data: { done: number; total: number }): void =>
+      cb(data)
+    ipcRenderer.on('ingest:chunkProgress', handler)
+    return () => ipcRenderer.removeListener('ingest:chunkProgress', handler)
+  }
 }
 
 export type Api = typeof api

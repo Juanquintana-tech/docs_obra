@@ -226,15 +226,124 @@ export async function extractObraInfo(
 /** Extrae y clasifica los materiales ensayables del texto del PDF. */
 export async function classifyMaterials(
   pdfText: string,
-  provider: LlmProvider = createLlmProvider()
+  provider: LlmProvider = createLlmProvider(),
+  opts: { timeoutMs?: number } = {}
 ): Promise<Material[]> {
+  const { timeoutMs = 120_000 } = opts
   const raw = await provider.chat(
     SYSTEM_PROMPT,
     `Analiza este texto y extrae los materiales susceptibles de ensayo:\n\n${pdfText.slice(0, 50000)}`,
-    { maxTokens: 8192, timeoutMs: 120_000, tag: 'classify_materials' }
+    { maxTokens: 8192, timeoutMs, tag: 'classify_materials' }
   )
   const parsed = parseJsonLoose<unknown>(raw)
   if (!Array.isArray(parsed)) return []
   // conserva solo los elementos que son objetos (el LLM a veces mezcla strings)
   return parsed.filter((m): m is Material => typeof m === 'object' && m !== null)
+}
+
+// ── Clasificación de documentos grandes (chunking automático) ────────────────
+
+export const LARGE_DOC_THRESHOLD = 50_000
+const CHUNK_SIZE = 20_000
+
+// Palabras clave de líneas que el LLM ignoraría de todos modos —
+// filtrarlas aquí reduce el texto antes de enviarlo al LLM.
+const IGNORAR_BUDGET_RE =
+  /demolici|fresad|levantamiento|desbroce|excav|derribo|desescombro|desmontaje|gestión.*residu|transpor.*tierr|limpieza.*viaria|encofrado|andamio|apuntalamiento|barrera.*hormig.*prefabri|señaliz.*vertic|jardinería|mobiliario urbano|farola|luminari|alumbrado.*vial|cable|telecomunicaci|antena/i
+
+/**
+ * Compacta texto de presupuesto tabular (formato Presto/Fiebdc) a solo las
+ * columnas relevantes (qty, ud, descripción) y elimina líneas claramente IGNORAR.
+ * Reduce el texto típicamente a ~50% del tamaño original.
+ * Solo se aplica a textos extraídos de XLSX con formato tabular de ≥5 columnas.
+ */
+export function compactBudgetText(text: string): string {
+  const lines = text.split('\n')
+  const result: string[] = []
+  for (const line of lines) {
+    const cols = line.split('\t')
+    if (cols.length >= 5) {
+      if (cols[1]?.trim() === 'Capítulo') continue
+      const ud = cols[2]?.trim()
+      const desc = cols[3]?.trim()
+      const qty = cols[4]?.trim()
+      if (!desc || !qty || isNaN(Number(qty))) continue
+      if (IGNORAR_BUDGET_RE.test(desc)) continue
+      result.push(`${qty} ${ud} ${desc}`)
+    } else {
+      const t = line.trim()
+      if (t && !t.match(/^\d+(\.\d+)?$/) && t.length > 5 && !IGNORAR_BUDGET_RE.test(t))
+        result.push(t)
+    }
+  }
+  return result.join('\n')
+}
+
+/** Divide el texto en chunks cortando solo por líneas completas. */
+export function chunkByLines(text: string, maxChars: number): string[] {
+  const lines = text.split('\n')
+  const chunks: string[] = []
+  let current = ''
+  for (const line of lines) {
+    if (current.length + line.length + 1 > maxChars && current.length > 0) {
+      chunks.push(current)
+      current = ''
+    }
+    current += (current ? '\n' : '') + line
+  }
+  if (current) chunks.push(current)
+  return chunks
+}
+
+/**
+ * Fusiona materiales de múltiples chunks:
+ * - Agrupa por (category, material normalizado) y suma quantities.
+ * - Cuando un chunk tiene quantity=null y otro tiene quantity=x, conserva x.
+ */
+export function mergeMaterials(all: Material[][]): Material[] {
+  const map = new Map<string, Material>()
+  for (const chunk of all) {
+    for (const m of chunk) {
+      const key = `${m.category}||${(m.material ?? '').toLowerCase().trim()}`
+      const existing = map.get(key)
+      if (!existing) {
+        map.set(key, { ...m })
+      } else if (m.quantity != null && existing.quantity != null) {
+        existing.quantity += m.quantity
+      } else if (m.quantity != null) {
+        existing.quantity = m.quantity
+      }
+    }
+  }
+  return Array.from(map.values())
+}
+
+/**
+ * Clasifica materiales de un documento potencialmente grande.
+ * - Si el texto cabe en un solo chunk (≤ LARGE_DOC_THRESHOLD) usa classifyMaterials directamente.
+ * - Si es más grande: compacta (solo XLSX tabular), divide en chunks de CHUNK_SIZE,
+ *   clasifica cada chunk en serie con timeout extendido (300 s) y fusiona los resultados.
+ *
+ * @param onChunkDone  Callback opcional llamado tras cada chunk (done, total).
+ */
+export async function classifyLargeDocument(
+  text: string,
+  format: string,
+  provider: LlmProvider = createLlmProvider(),
+  onChunkDone?: (done: number, total: number) => void
+): Promise<Material[]> {
+  if (text.length <= LARGE_DOC_THRESHOLD) {
+    return classifyMaterials(text, provider)
+  }
+
+  const compact = format === 'xlsx' ? compactBudgetText(text) : text
+  const chunks = chunkByLines(compact, CHUNK_SIZE)
+  const results: Material[][] = []
+
+  for (let i = 0; i < chunks.length; i++) {
+    results.push(await classifyMaterials(chunks[i], provider, { timeoutMs: 300_000 }))
+    onChunkDone?.(i + 1, chunks.length)
+  }
+
+  return mergeMaterials(results)
 }

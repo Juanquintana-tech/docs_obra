@@ -158,8 +158,10 @@ export function registerIpc(): void {
     if (canceled || filePaths.length === 0) return null
     return { path: filePaths[0], name: basename(filePaths[0]) }
   })
-  ipcMain.handle('ingest:document', (_e, path: string, strategy?: PriceStrategy) =>
-    ingestDocument(path, strategy)
+  ipcMain.handle('ingest:document', (e, path: string, strategy?: PriceStrategy) =>
+    ingestDocument(path, strategy, (done, total) => {
+      e.sender.send('ingest:chunkProgress', { done, total })
+    })
   )
   ipcMain.handle('ingest:text', (_e, text: string, strategy?: PriceStrategy) =>
     ingestText(text, strategy)
