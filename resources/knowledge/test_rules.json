@@ -355,12 +355,12 @@
         "unit_price": 55
       },
       {
-        "description": "Fabricación de 3 probetas y determinación de resistencia a compresión a 7 días en tongada de suelo estabilizado",
+        "description": "Ud. Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla NLT-305-310 suelo estabilizado",
         "subcategory": "Control puesta en obra",
         "freq_qty": 5,
         "freq_unit": "500 m3",
         "tests_per_lot": 1,
-        "unit_price": 70
+        "unit_price": 69
       },
       {
         "description": "Determinación del espesor de la capa estabilizada mediante sonda de penetración",
@@ -594,7 +594,7 @@
         "description": "Ensayo de tracción sobre acero estructural laminado UNE EN ISO 6892-1",
         "subcategory": "Recepción",
         "freq_qty": 1,
-        "freq_unit": "1000 t",
+        "freq_unit": "25 t",
         "tests_per_lot": 1,
         "unit_price": 120
       },
