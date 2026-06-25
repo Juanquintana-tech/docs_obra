@@ -591,12 +591,12 @@
     "unit": "t",
     "tests": [
       {
-        "description": "Ensayo de tracción sobre acero estructural laminado UNE EN ISO 6892-1",
+        "description": "Ensayo a tracción de una probeta de acero en perfiles laminados estructurales UNE EN ISO 6892-1",
         "subcategory": "Recepción",
         "freq_qty": 1,
         "freq_unit": "25 t",
         "tests_per_lot": 1,
-        "unit_price": 120
+        "unit_price": 275
       },
       {
         "description": "Ensayo de doblado sobre acero estructural UNE EN ISO 7438",
