@@ -3401,6 +3401,60 @@
       "max": 570,
       "min": 570,
       "n": 1
+    },
+    {
+      "codigo": "PB-0379",
+      "descripcion": "Prueba de servicio de radon medicion concentracion detectores trazas nucleares instalacion desinstalacion",
+      "reciente": 1200,
+      "mediana": 1200,
+      "max": 1200,
+      "min": 1200,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0380",
+      "descripcion": "Prueba de servicio de saneamiento pluviales residuales estanqueidad red horizontal arquetas pozos DB-HS",
+      "reciente": 420,
+      "mediana": 420,
+      "max": 420,
+      "min": 420,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0381",
+      "descripcion": "Prueba de servicio de fontaneria grupo presion red tuberias estanqueidad presion agua fria ACS",
+      "reciente": 420,
+      "mediana": 420,
+      "max": 420,
+      "min": 420,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0382",
+      "descripcion": "Prueba de servicio de electricidad alumbrado iluminacion RBT resistencia aislamiento puesta a tierra cuadros",
+      "reciente": 900,
+      "mediana": 900,
+      "max": 900,
+      "min": 900,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0383",
+      "descripcion": "Prueba de servicio de calefaccion clima ventilacion ACS climatizacion circulacion caudales temperaturas legionela",
+      "reciente": 570,
+      "mediana": 570,
+      "max": 570,
+      "min": 570,
+      "n": 1
+    },
+    {
+      "codigo": "PB-0384",
+      "descripcion": "Prueba de servicio de contra incendios PCI CI detectores central alarma pulsadores extintores bocas hidrantees",
+      "reciente": 450,
+      "mediana": 450,
+      "max": 450,
+      "min": 450,
+      "n": 1
     }
   ]
 }
