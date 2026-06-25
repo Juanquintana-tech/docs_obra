@@ -594,7 +594,7 @@
         "description": "Ensayo de tracción sobre acero estructural laminado UNE EN ISO 6892-1",
         "subcategory": "Recepción",
         "freq_qty": 1,
-        "freq_unit": "20 t",
+        "freq_unit": "1000 t",
         "tests_per_lot": 1,
         "unit_price": 120
       },
@@ -602,7 +602,7 @@
         "description": "Ensayo de doblado sobre acero estructural UNE EN ISO 7438",
         "subcategory": "Recepción",
         "freq_qty": 1,
-        "freq_unit": "20 t",
+        "freq_unit": "1000 t",
         "tests_per_lot": 1,
         "unit_price": 95
       },
@@ -610,7 +610,7 @@
         "description": "Ensayo de resiliencia Charpy a temperatura ambiente UNE EN ISO 148-1",
         "subcategory": "Recepción",
         "freq_qty": 1,
-        "freq_unit": "40 t",
+        "freq_unit": "1000 t",
         "tests_per_lot": 1,
         "unit_price": 120
       },
