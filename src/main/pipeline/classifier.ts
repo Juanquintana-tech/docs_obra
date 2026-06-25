@@ -38,6 +38,7 @@ Categorías tipo A:
   BARANDILLA          — barandillas, pretiles, protecciones perimetrales de borde (cantidad en ml)
   FALSO_TECHO         — falsos techos, techos suspendidos, placas de techo (cantidad en m2)
   PANEL_SANDWICH      — paneles tipo sándwich en cubierta o fachada (chapa + aislante + chapa) (cantidad en m2)
+  MORTERO             — morteros de cemento, enfoscados, revocos, enlucidos (cantidad en m2)
   OTRO                — material ensayable que no encaja en ninguna categoría anterior
 
 ── TIPO B: Servicio o ensayo directo ───────────────────────────────────────────

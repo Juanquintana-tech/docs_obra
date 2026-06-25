@@ -869,5 +869,28 @@
         "unit_price": 195
       }
     ]
+  },
+  "MORTERO": {
+    "keywords": [
+      "mortero",
+      "morteros",
+      "mortero de cemento",
+      "mortero de agarre",
+      "enfoscado",
+      "revoco",
+      "enlucido",
+      "guarnecido"
+    ],
+    "unit": "m2",
+    "tests": [
+      {
+        "description": "Toma de muestras fabricación conservación y rotura a flexotracción y compresión de probetas prismáticas de mortero UNE EN 1015-11",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "100 m2",
+        "tests_per_lot": 1,
+        "unit_price": 90
+      }
+    ]
   }
 }
