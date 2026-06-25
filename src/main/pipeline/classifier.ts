@@ -31,6 +31,13 @@ Categorías tipo A:
                         arrancamiento por cada 50 m de bulon instalado)
   ACERO_ACTIVO        — acero para pretensado/postensado: torones Y1860, cordones, barras de
                         pretensar, acero activo en general
+  CUBIERTA            — cubiertas planas transitables o no transitables, cubiertas inclinadas,
+                        impermeabilizaciones de cubierta, lucernarios (cantidad en m2)
+  FACHADA             — fachadas, cerramientos exteriores, muros cortina, carpintería exterior,
+                        conjunto fachada-ventana (cantidad en m2)
+  BARANDILLA          — barandillas, pretiles, protecciones perimetrales de borde (cantidad en ml)
+  FALSO_TECHO         — falsos techos, techos suspendidos, placas de techo (cantidad en m2)
+  PANEL_SANDWICH      — paneles tipo sándwich en cubierta o fachada (chapa + aislante + chapa) (cantidad en m2)
   OTRO                — material ensayable que no encaja en ninguna categoría anterior
 
 ── TIPO B: Servicio o ensayo directo ───────────────────────────────────────────
@@ -48,10 +55,13 @@ Categoría tipo B:
 
 IGNORAR (no incluir):
 - Demoliciones, fresado, levantado, excavación, desbroce, retirada de firme.
-- Señalización vertical, jardinería, mobiliario, instalaciones MEP (salvo si son pruebas).
+- Señalización vertical, jardinería, mobiliario, instalaciones MEP (fontanería, electricidad,
+  climatización, saneamiento, PCI, telecomunicaciones) — salvo si son pruebas de servicio.
 - Partidas auxiliares o de abono ("por cm de espesor", "m²·cm").
 - Betún o ligante como materia prima aislada (p.ej. "BETUN MEJORADO 4.326 t", "BETUN MODIFICADO"):
   el ensayo es sobre la MEZCLA terminada, no sobre el betún en acopio.
+- Alicatados, pinturas, solados interiores, morteros de agarre (se ensayan como SERVICIO si aparecen
+  explícitamente con cantidad de ensayos, no como material puesto en obra).
 
 ── Abreviaturas frecuentes en obras civiles españolas ──────────────────────────
   ZA / Z.A.  → ZAHORRA_ARTIFICIAL
@@ -65,6 +75,11 @@ IGNORAR (no incluir):
   acero estructural / S275 / S355 / IPE / HEB → ACERO_LAMINADO
   horm. proyectado / gunita → HORMIGON
   micropilote / micropilotes → PILOTES
+  cubierta plana / cubierta transitable / cubierta inclinada → CUBIERTA
+  fachada / muro cortina / carpintería exterior → FACHADA
+  barandilla / pretil / protección perimetral → BARANDILLA
+  falso techo / techo suspendido → FALSO_TECHO
+  panel sándwich / panel chapa / panel PUR / panel PIR → PANEL_SANDWICH
 
 ── Formato tabular (planes de control, totalizados) ────────────────────────────
 El documento puede ser una tabla con columnas separadas por tabuladores.

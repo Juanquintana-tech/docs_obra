@@ -75,6 +75,22 @@
         "unit_price": 40
       },
       {
+        "description": "Ensayo de colapso en suelos NLT 254",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 42
+      },
+      {
+        "description": "Humedad por secado en estufa UNE 103300-93",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "10.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 30
+      },
+      {
         "description": "Densidad y humedad in situ por isótopos radiactivos ASTM D-3017",
         "subcategory": "Control compactación",
         "freq_qty": 5,
@@ -132,6 +148,30 @@
         "freq_unit": "10.000 m3",
         "tests_per_lot": 1,
         "unit_price": 90
+      },
+      {
+        "description": "Humedad natural UNE EN 1097-5",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "5.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 30
+      },
+      {
+        "description": "Límites de Atterberg UNE 103103, 103104",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "5.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 33
+      },
+      {
+        "description": "Caras de fractura (partículas trituradas) UNE EN 933-5",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "5.000 m3",
+        "tests_per_lot": 1,
+        "unit_price": 30
       },
       {
         "description": "Proctor Modificado UNE 103501:94",
@@ -573,6 +613,22 @@
         "freq_unit": "40 t",
         "tests_per_lot": 1,
         "unit_price": 120
+      },
+      {
+        "description": "Visita para inspección de soldaduras mediante ensayo no destructivo Inspector Nivel 2 examen mediante líquidos penetrantes partículas magnéticas o ultrasonidos",
+        "subcategory": "Control ejecución",
+        "freq_qty": 1,
+        "freq_unit": "10 t",
+        "tests_per_lot": 1,
+        "unit_price": 450
+      },
+      {
+        "description": "Visita para determinación del espesor de recubrimiento galvanizado pintura intumescente o anticorrosión UNE EN ISO 2178",
+        "subcategory": "Control ejecución",
+        "freq_qty": 1,
+        "freq_unit": "10 t",
+        "tests_per_lot": 1,
+        "unit_price": 225
       }
     ]
   },
@@ -681,6 +737,136 @@
         "freq_unit": "50 m",
         "tests_per_lot": 1,
         "unit_price": 250
+      }
+    ]
+  },
+  "CUBIERTA": {
+    "keywords": [
+      "cubierta plana",
+      "cubierta inclinada",
+      "cubierta transitable",
+      "cubierta no transitable",
+      "cubierta",
+      "impermeabilización cubierta",
+      "lucernario",
+      "lámina impermeabilizante"
+    ],
+    "unit": "m2",
+    "tests": [
+      {
+        "description": "Prueba de estanqueidad in situ de cubierta por inundación o aspersores verificación de evacuación de aguas",
+        "subcategory": "Control ejecución",
+        "freq_qty": 1,
+        "freq_unit": "500 m2",
+        "tests_per_lot": 1,
+        "unit_price": 390
+      }
+    ]
+  },
+  "FACHADA": {
+    "keywords": [
+      "fachada",
+      "panel fachada",
+      "cerramiento fachada",
+      "carpintería exterior",
+      "muro cortina",
+      "hoja fachada"
+    ],
+    "unit": "m2",
+    "tests": [
+      {
+        "description": "Prueba de estanqueidad in situ del conjunto fachada carpintería mediante batería de rociadores",
+        "subcategory": "Control ejecución",
+        "freq_qty": 1,
+        "freq_unit": "500 m2",
+        "tests_per_lot": 1,
+        "unit_price": 290
+      }
+    ]
+  },
+  "BARANDILLA": {
+    "keywords": [
+      "barandilla",
+      "barandillas",
+      "barandas",
+      "pretil",
+      "protección perimetral",
+      "valla de protección"
+    ],
+    "unit": "ml",
+    "tests": [
+      {
+        "description": "Ensayo estático de empuje horizontal in situ en barandilla sin incluir elemento de reacción CTE DB-SE",
+        "subcategory": "Control ejecución",
+        "freq_qty": 1,
+        "freq_unit": "30 ml",
+        "tests_per_lot": 1,
+        "unit_price": 305
+      }
+    ]
+  },
+  "FALSO_TECHO": {
+    "keywords": [
+      "falso techo",
+      "falsos techos",
+      "techo suspendido",
+      "placa de techo",
+      "sistema de techo",
+      "cielo raso"
+    ],
+    "unit": "m2",
+    "tests": [
+      {
+        "description": "Ensayo de adherencia in situ arrancamiento tracción perpendicular de la subestructura de falsos techos",
+        "subcategory": "Control ejecución",
+        "freq_qty": 1,
+        "freq_unit": "500 m2",
+        "tests_per_lot": 1,
+        "unit_price": 280
+      }
+    ]
+  },
+  "PANEL_SANDWICH": {
+    "keywords": [
+      "panel sandwich",
+      "panel sándwich",
+      "panel chapa sandwich",
+      "cubierta panel",
+      "cerramiento panel",
+      "panel pu",
+      "panel pir"
+    ],
+    "unit": "m2",
+    "tests": [
+      {
+        "description": "Determinación del espesor del panel de las chapas y del aislante densidad del aislante y espesor de recubrimiento",
+        "subcategory": "Caracterización",
+        "freq_qty": 1,
+        "freq_unit": "1000 m2",
+        "tests_per_lot": 1,
+        "unit_price": 80
+      }
+    ]
+  },
+  "RESBALADICIDAD": {
+    "keywords": [
+      "pavimento exterior",
+      "solado exterior",
+      "pavimento antideslizante",
+      "loseta",
+      "baldosa exterior",
+      "adoquín",
+      "pavimento accesible"
+    ],
+    "unit": "m2",
+    "tests": [
+      {
+        "description": "Visita para determinación in situ de la resistencia al deslizamiento con péndulo TRRL sobre pavimento UNE EN 13036-4",
+        "subcategory": "Control ejecución",
+        "freq_qty": 1,
+        "freq_unit": "500 m2",
+        "tests_per_lot": 1,
+        "unit_price": 195
       }
     ]
   }
