@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { eur } from '../lib/format'
 import { Ic } from '../components/Icon'
+import { CommandBar } from '../components/CommandBar'
 import type { GlobalStats, Obra } from '../lib/types'
 
 function initials(name: string): string {
@@ -50,6 +51,8 @@ export function Dashboard(): JSX.Element {
           <p>Resumen de la actividad de control de calidad</p>
         </div>
       </div>
+
+      <CommandBar />
 
       <div className="kpis">
         {stats === null ? (

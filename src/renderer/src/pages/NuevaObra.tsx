@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, type JSX, type DragEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../lib/api'
 import { PlanTable } from '../components/PlanTable'
 import { Ic } from '../components/Icon'
@@ -49,8 +49,16 @@ type ImpPhase = 'idle' | 'reading' | 'sheet-select' | 'parsing' | 'review' | 'sa
 
 // ── Componente principal ─────────────────────────────────────────────────────
 
+interface AgentRouteState {
+  autoFilePath?: string | null
+  autoFileName?: string | null
+  hints?: string | null
+}
+
 export function NuevaObra(): JSX.Element {
   const navigate = useNavigate()
+  const location = useLocation()
+  const didAutoIngest = useRef(false)
   const [mode, setMode] = useState<Mode>('generate')
 
   // ── Estado modo "Generar" ─────────────────────────────────────────────────
@@ -159,6 +167,16 @@ export function NuevaObra(): JSX.Element {
       setGenPhase('review')
     } catch (e) { setError(errorMessage(e)); setGenPhase('idle') }
   }, [strategy])
+
+  // Auto-ingest cuando se llega desde el CommandBar con un archivo ya seleccionado
+  useEffect(() => {
+    if (didAutoIngest.current || genPhase !== 'idle') return
+    const state = location.state as AgentRouteState | null
+    if (!state?.autoFilePath) return
+    didAutoIngest.current = true
+    const name = state.autoFileName ?? state.autoFilePath.split('/').pop() ?? 'documento'
+    void doIngest(state.autoFilePath, name)
+  }, [doIngest, genPhase, location.state])
 
   const doIngestText = useCallback(async (text: string): Promise<void> => {
     setError(null); setFileName('Texto pegado'); setElapsed(0); setGenPhase('ingesting')

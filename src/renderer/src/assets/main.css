@@ -1262,6 +1262,211 @@
   vertical-align: middle;
 }
 
+/* ── Command Bar (Agente CYE) ───────────────────────────────────────────── */
+.cmd-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 14px 16px;
+  margin-bottom: 26px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.cmd-bar:focus-within {
+  border-color: var(--mid);
+  box-shadow: var(--shadow-md), 0 0 0 3px rgba(46, 117, 182, 0.12);
+}
+.cmd-bar.cmd-bar-drag {
+  border-color: var(--mid);
+  background: #f0f5ff;
+  box-shadow: var(--shadow-md), 0 0 0 3px rgba(46, 117, 182, 0.18);
+}
+.cmd-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cmd-bar-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--mid) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.cmd-bar-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  font-family: inherit;
+  min-width: 0;
+}
+.cmd-bar-input::placeholder { color: var(--text-soft); }
+.cmd-bar-input:disabled { cursor: default; }
+.cmd-bar-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* Chips de archivos adjuntos */
+.cmd-bar-chips {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.cmd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1px solid;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cmd-chip-pdf  { background: #fef3f2; border-color: #fca5a5; color: #991b1b; }
+.cmd-chip-xlsx { background: #f0fdf4; border-color: #86efac; color: #14532d; }
+.cmd-chip-docx { background: #eff6ff; border-color: #93c5fd; color: #1e3a8a; }
+.cmd-chip-img  { background: #faf5ff; border-color: #d8b4fe; color: #581c87; }
+.cmd-chip-default { background: var(--bg); border-color: var(--border); color: var(--text-soft); }
+.cmd-chip-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.5;
+  padding: 0;
+  line-height: 1;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+.cmd-chip-remove:hover { opacity: 1; }
+
+/* Línea de estado: interpretando / respuesta / error */
+.cmd-status {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.55;
+}
+.cmd-status-interpreting {
+  background: var(--bg);
+  color: var(--text-soft);
+}
+.cmd-status-answer {
+  background: #f0fdf4;
+  color: #14532d;
+  border-left: 3px solid var(--ok);
+  border-radius: 0 8px 8px 0;
+}
+.cmd-status-error {
+  background: #fff1f2;
+  color: var(--danger);
+  border-left: 3px solid var(--danger);
+  border-radius: 0 8px 8px 0;
+}
+
+/* Tarjeta de previsualización de acción */
+.cmd-preview {
+  margin-top: 10px;
+  border: 1px solid var(--mid);
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: slideDown 0.15s ease;
+}
+.cmd-preview-header {
+  background: var(--mid);
+  color: #fff;
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cmd-preview-body {
+  padding: 13px 16px;
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+.cmd-preview-body b { color: var(--navy); font-weight: 600; }
+.cmd-preview-actions {
+  padding: 11px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Desambiguación de proyecto */
+.cmd-disambig {
+  margin-top: 10px;
+  border: 1px solid var(--warn);
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: slideDown 0.15s ease;
+}
+.cmd-disambig-title {
+  background: #fffbeb;
+  color: var(--warn);
+  padding: 9px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cmd-disambig-item {
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text);
+  transition: background 0.1s;
+}
+.cmd-disambig-item:hover { background: #f8faff; }
+.cmd-disambig-meta {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-soft);
+  flex-shrink: 0;
+}
+
 /* ── Ensayo group picker ─────────────────────────────────────────────────── */
 /* ── Estado toggle (botón de estado junto al título del editor) ────────────── */
 .estado-toggle-wrap {

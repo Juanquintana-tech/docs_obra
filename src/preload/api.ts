@@ -23,6 +23,7 @@ import type { RagMatch } from '../main/pipeline/rag/types'
 import type { CatalogEntry } from '../main/pipeline/rag/catalog'
 import type { Rules } from '../main/pipeline/planner'
 import type { PriceStrategy } from '../main/pipeline/rag/priceBook'
+import type { AgentIntent } from '../main/services/agent'
 
 export interface PickedDocument {
   path: string
@@ -126,6 +127,10 @@ export const api = {
   getCatalog: (): Promise<CatalogEntry[]> => ipcRenderer.invoke('presup:getCatalog'),
   getRules: (): Promise<Rules> => ipcRenderer.invoke('presup:getRules'),
   saveRules: (rules: Rules): Promise<void> => ipcRenderer.invoke('presup:saveRules', rules),
+
+  // ── Agente (intérprete de comandos en lenguaje natural) ──
+  interpretCommand: (userText: string, fileNames: string[]): Promise<AgentIntent> =>
+    ipcRenderer.invoke('agent:interpret', userText, fileNames),
 
   // ── Progreso de clasificación por chunks (documentos grandes) ──
   /**

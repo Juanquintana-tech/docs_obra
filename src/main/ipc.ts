@@ -27,6 +27,7 @@ import {
   listBudgetSheets,
   parseBudgetDocument
 } from './services/pipeline'
+import { interpretCommand } from './services/agent'
 import { loadCatalog } from './pipeline/rag/catalog'
 import { scanEnsayo } from './pipeline/ocr/ensayoOcr'
 import type { Rules } from './pipeline/planner'
@@ -312,6 +313,11 @@ export function registerIpc(): void {
   ipcMain.handle('radon:openPhoto', (_e, path: string) => {
     if (path) shell.openPath(path)
   })
+
+  // ── Agente (intérprete de comandos en lenguaje natural) ──
+  ipcMain.handle('agent:interpret', (_e, userText: string, fileNames: string[]) =>
+    interpretCommand(userText, fileNames)
+  )
 
   // ── Presupuestos (catálogo y reglas) ──
   ipcMain.handle('presup:getCatalog', () => loadCatalog(knowledgePath('tarifas_alagal.xlsx')))
