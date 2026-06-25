@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from 'react'
+import { useEffect, useState, useMemo, type JSX } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { eur } from '../lib/format'
@@ -37,6 +37,10 @@ export function Dashboard(): JSX.Element {
   const [counts, setCounts] = useState<Record<number, number>>({})
   const [sortBy, setSortBy] = useState<SortBy>('reciente')
 
+  const dateLabel = useMemo(() => {
+    return new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  }, [])
+
   useEffect(() => {
     api.getGlobalStats().then(setStats)
     api.getObras().then(setRecent)
@@ -45,11 +49,12 @@ export function Dashboard(): JSX.Element {
 
   return (
     <div>
-      <div className="page-head">
-        <div>
+      <div className="dash-header">
+        <div className="dash-header-title">
+          <span className="dash-header-label">Control de Calidad</span>
           <h1>Dashboard</h1>
-          <p>Resumen de la actividad de control de calidad</p>
         </div>
+        <span className="dash-header-date">{dateLabel}</span>
       </div>
 
       <CommandBar />

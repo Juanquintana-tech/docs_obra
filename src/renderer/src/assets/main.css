@@ -103,6 +103,52 @@
   margin-top: 4px;
 }
 
+/* ── Dashboard header ── */
+.dash-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.dash-header-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dash-header-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--orange);
+  background: rgba(227, 108, 9, 0.08);
+  border: 1px solid rgba(227, 108, 9, 0.2);
+  border-radius: 99px;
+  padding: 3px 10px;
+  width: fit-content;
+}
+.dash-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+}
+.dash-header-date {
+  font-size: 12px;
+  color: var(--text-soft);
+  font-weight: 500;
+  text-align: right;
+  line-height: 1.4;
+  padding-bottom: 2px;
+  text-transform: capitalize;
+}
+
 /* ── Botones ── */
 .btn {
   border: 1px solid var(--border);
@@ -504,6 +550,7 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
+  background: var(--surface);
 }
 .btn-group .btn {
   border: none;
@@ -516,6 +563,11 @@
 }
 .btn-group .btn-primary {
   box-shadow: none;
+  border-color: transparent;
+}
+.btn-group .btn:not(.btn-primary):hover {
+  background: var(--bg);
+  border-color: var(--border);
 }
 
 /* ── Dashboard ── */
@@ -1268,8 +1320,8 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  padding: 14px 16px;
-  margin-bottom: 26px;
+  padding: 16px 18px;
+  margin-bottom: 28px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .cmd-bar:focus-within {
@@ -1303,14 +1355,13 @@
   border: none;
   background: transparent;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--text);
   outline: none;
   font-family: inherit;
   min-width: 0;
   resize: none;
-  padding: 4px 0;
-  height: calc(14px * 1.5 * 2 + 8px); /* 2 líneas exactas */
+  padding: 2px 0 4px;
   overflow-y: hidden;
 }
 .cmd-bar-input::placeholder { color: var(--text-soft); }
