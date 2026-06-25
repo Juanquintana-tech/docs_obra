@@ -618,7 +618,7 @@
         "description": "Visita para inspección de soldaduras mediante ensayo no destructivo Inspector Nivel 2 examen mediante líquidos penetrantes partículas magnéticas o ultrasonidos",
         "subcategory": "Control ejecución",
         "freq_qty": 1,
-        "freq_unit": "10 t",
+        "freq_unit": "100 t",
         "tests_per_lot": 1,
         "unit_price": 450
       },
@@ -626,7 +626,7 @@
         "description": "Visita para determinación del espesor de recubrimiento galvanizado pintura intumescente o anticorrosión UNE EN ISO 2178",
         "subcategory": "Control ejecución",
         "freq_qty": 1,
-        "freq_unit": "10 t",
+        "freq_unit": "100 t",
         "tests_per_lot": 1,
         "unit_price": 225
       }

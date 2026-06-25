@@ -83,6 +83,10 @@ IGNORAR (no incluir):
   son instalaciones de infraestructura urbana. IGNORAR. No generar SERVICIO por cantidad de farolas.
   EXCEPCIÓN: si aparece como partida de control eléctrico genérica ("electricidad", "alumbrado" sin
   cantidad de unidades de obra) → SERVICIO quantity=1.
+- Barreras de seguridad vial / biondas / quitamiedos / defensas metálicas / pretiles de carretera
+  en ml (ej: "3295 ML BARRERA SEGURIDAD", "BIONDA", "DEFENSA METÁLICA"):
+  son elementos de contención vial, NO barandillas de edificación. IGNORAR. No clasificar como
+  BARANDILLA (su ensayo estático no es de frecuencia por ml sino por homologación de producto).
 
 ── Abreviaturas frecuentes en obras civiles españolas ──────────────────────────
   ZA / Z.A.  → ZAHORRA_ARTIFICIAL
@@ -119,6 +123,14 @@ Columnas adicionales con números (lotes, muestras) o texto de control → IGNOR
 Extrae solo los materiales con cantidad numérica clara.
 Agrupa por tipo: si hay varios tipos de hormigón (C25/30, C30/37, C40/50) en una misma obra,
 agrúpalos en un único ítem HORMIGON con la suma de todas las cantidades.
+
+── Mezclas bituminosas expresadas en m² ─────────────────────────────────────────
+Algunas mezclas de capa delgada aparecen en m² en lugar de toneladas:
+  BBTM (betún bituminoso de muy bajo espesor, e ≈ 25 mm, densidad ≈ 2,3 t/m³):
+    → quantity = m² × 0,057  (ej: 55.968 m² × 0,057 = 3.190 t)  → unit = "t"
+  DTS (doble tratamiento superficial): NO es mezcla bituminosa propiamente dicha.
+    Clasificar como RIEGO_BITUMINOSO con la cantidad en m² y unit = "m2".
+    (Solo se ensayan dotaciones de ligante y árido, no extracción de testigos.)
 
 ── Soleras de hormigón en m² ────────────────────────────────────────────────────
 Cuando el Totalizados expresa una solera en m² con espesor visible en la descripción
