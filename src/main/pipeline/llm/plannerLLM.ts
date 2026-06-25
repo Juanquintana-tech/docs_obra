@@ -117,8 +117,24 @@ function normUnit(u: string): string {
 }
 
 /**
- * Calcula frecuencias SOLO cuando la unidad histórica coincide con la del material.
- * Si no hay coincidencia de unidades, devuelve [] para no propagar unidades erróneas.
+ * Convierte una cantidad de fromUnit a toUnit si hay factor de conversión conocido.
+ * Devuelve null si no hay conversión posible (no fuerza la comparación).
+ */
+function convertUnit(qty: number, fromUnit: string, toUnit: string): number | null {
+  const from = normUnit(fromUnit)
+  const to = normUnit(toUnit)
+  if (from === to) return qty
+  if (from === 'kg' && to === 't') return qty / 1000
+  if (from === 't' && to === 'kg') return qty * 1000
+  if (from === 'ml' && to === 'm') return qty          // ml = metros lineales = m
+  if (from === 'm' && to === 'ml') return qty
+  return null
+}
+
+/**
+ * Calcula frecuencias usando secciones históricas.
+ * Acepta conversión de unidades conocida (kg↔t) para evitar perder calibración
+ * por simple cambio de escala en la misma magnitud física.
  */
 function computeFrequencies(refs: SectionReference[], materialUnit: string): FrequencyRow[] {
   const targetUnit = normUnit(materialUnit)
@@ -127,8 +143,11 @@ function computeFrequencies(refs: SectionReference[], materialUnit: string): Fre
   for (const { section } of refs) {
     if (!section.quantity || section.quantity <= 0) continue
     if (!section.unit) continue
-    // Solo usar si la unidad coincide
-    if (normUnit(section.unit) !== targetUnit) continue
+    const sectionUnit = normUnit(section.unit)
+    // Aceptar unidad directa o convertible (kg↔t)
+    const convertedQty = convertUnit(section.quantity, section.unit, materialUnit)
+    if (convertedQty === null && sectionUnit !== targetUnit) continue
+    const effectiveQty = convertedQty ?? section.quantity
 
     for (const test of section.tests) {
       const key = normalize(test.descripcion).slice(0, 60)
@@ -136,7 +155,7 @@ function computeFrequencies(refs: SectionReference[], materialUnit: string): Fre
         byKey.set(key, { desc: test.descripcion, totalRate: 0, sources: 0 })
       }
       const entry = byKey.get(key)!
-      entry.totalRate += test.n_tests / section.quantity
+      entry.totalRate += test.n_tests / effectiveQty
       entry.sources++
     }
   }
@@ -243,16 +262,19 @@ function buildSectionPrompt(
   } else if (refWithQty && qty != null && qty > 0) {
     // Sin calibración de frecuencias pero hay referencia con cantidad conocida
     const refQty = refWithQty.section.quantity!
-    const factor = qty / refQty
+    const refUnit = refWithQty.section.unit ?? unit
+    // Intentar convertir a la unidad del historial para comparación correcta
+    const qtyInRefUnit = convertUnit(qty, unit, refUnit) ?? qty
+    const factor = qtyInRefUnit / refQty
     const cappedFactor = Math.min(factor, 1.0) // nunca más que el historial
     const scaleLines = refWithQty.section.tests
       .slice(0, 15)
       .map((t) => {
         const scaled = Math.max(1, Math.round(t.n_tests * cappedFactor))
-        return `  ${t.descripcion.slice(0, 65)}: ${scaled} ensayos (historial: ${t.n_tests} para ${fmt(refQty, refWithQty.section.unit ?? unit)})`
+        return `  ${t.descripcion.slice(0, 65)}: ${scaled} ensayos (historial: ${t.n_tests} para ${fmt(refQty, refUnit)})`
       })
       .join('\n')
-    freqBlock = `ESCALA RELATIVA: tu cantidad (${fmt(qty, unit)}) es ${(factor * 100).toFixed(1)}% de ${refWithQty.projectId} (${fmt(refQty, refWithQty.section.unit ?? unit)}).\nUSA ESTOS VALORES COMO TECHO MÁXIMO:\n${scaleLines}\n\n`
+    freqBlock = `ESCALA RELATIVA: tu cantidad (${fmt(qty, unit)}) es ${(factor * 100).toFixed(1)}% de ${refWithQty.projectId} (${fmt(refQty, refUnit)}).\nUSA ESTOS VALORES COMO TECHO MÁXIMO:\n${scaleLines}\n\n`
   }
 
   // ── Catálogo de precios ─────────────────────────────────────────────────

@@ -104,6 +104,8 @@ IGNORAR (no incluir):
   AC-22 / AC-16 / BBTM → MEZCLA_BITUMINOSA
   HA-XX / HP-XX / HM-XX / C20/25 / C25/30 / C30/37 / C40/50 → HORMIGON
   BULON / BULÓN / soil nail / anclaje pasivo → BULON (cantidad en metros totales instalados)
+  cross hole / cross-hole / cross holle / auscultación sónica / sonic testing → PILOTES
+    (cantidad = número de pilotes; el laboratorio realiza 1 ensayo de auscultación por pilote)
   ACERO PRET / ACERO PRETENSAR / Y1860 / torones / cordones → ACERO_ACTIVO
   B500S / B500SD → ACERO (barras corrugadas pasivas)
   acero estructural / S275 / S355 / IPE / HEB → ACERO_LAMINADO
@@ -133,6 +135,15 @@ Extrae solo los materiales con cantidad numérica clara.
 Agrupa por tipo: si hay varios tipos de hormigón (C25/30, C30/37, C40/50) en una misma obra,
 agrúpalos en un único ítem HORMIGON con la suma de todas las cantidades.
 
+IMPORTANTE — Formato numérico de celdas Excel:
+Los números en este texto provienen de celdas Excel ya parseadas en notación anglosajona
+(punto como separador decimal, sin separador de miles). Interpreta el punto SIEMPRE como decimal,
+no como separador de miles. Ejemplos:
+  "219.775"   → quantity=219.775 (≈220 m³), NO 219775
+  "25420.816" → quantity=25420.816 (≈25.420 m³)
+  "45685"     → quantity=45685 (cuarenta y cinco mil seiscientos ochenta y cinco)
+  "3547"      → quantity=3547 (tres mil quinientos cuarenta y siete)
+
 ── Mezclas bituminosas expresadas en m² ─────────────────────────────────────────
 Algunas mezclas de capa delgada aparecen en m² en lugar de toneladas:
   BBTM (betún bituminoso de muy bajo espesor, e ≈ 25 mm, densidad ≈ 2,3 t/m³):
@@ -156,12 +167,23 @@ Ejemplo: si hay 10 filas "HA-30" con distintas cantidades (una por viaducto), de
 UN solo ítem "HORMIGON HA-30" con la suma de todas las cantidades.
 Excepción: tipos de hormigón DIFERENTES (HA-30 y HP-50) van en ítems separados.
 
+
 CASO ESPECIAL — TERRAPLEN_RELLENOS: todos los subtipos de terraplén y relleno
 (terraplén con material de excavación, relleno de zanjas, relleno localizado, relleno de
 trasdós, relleno de saneo, préstamo, todo-uno, pedraplén, relleno drenante…) se fusionan
-en UN ÚNICO ítem "TERRAPLEN_RELLENOS" con la cantidad TOTAL en m³, independientemente
+en UN ÚNICO ítem "TERRAPLEN_RELLENOS" con la cantidad TOTAL, independientemente
 de cuántas filas distintas aparezcan en el documento. El laboratorio ensaya el conjunto
 de rellenos de la obra, no cada partida presupuestaria por separado.
+
+Unidades en TERRAPLEN_RELLENOS (prioridad de unidades):
+1. Si hay partidas en m³ (terraplén, todo-uno, pedraplén…), suma SOLO las m³ → unit="m3".
+   Las partidas en kg del mismo grupo se anotan en "notes" pero no se suman a m³.
+2. Si NO hay ninguna partida en m³ pero sí en kg (p.ej. "RELLENO: 4304081 kg") → usar
+   los kg directamente: quantity=[suma kg], unit="kg". El planificador los utilizará para
+   calibración proporcional. NO ignorar por unidad diferente al historial.
+3. SUELO SELEC / suelo seleccionado sin unidad → si hay otras partidas en m³ en el mismo
+   documento, fusionar en m³ asumiendo que la cantidad es en m³. Si no hay m³, ignorar
+   (su cantidad suele ser insignificante frente al RELLENO principal en kg).
 
 Devuelve EXCLUSIVAMENTE un JSON array (sin texto adicional):
 [
