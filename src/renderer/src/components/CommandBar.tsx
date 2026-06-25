@@ -88,7 +88,7 @@ export function CommandBar(): JSX.Element {
   const [phase, setPhase] = useState<Phase>('idle')
   const [intent, setIntent] = useState<AgentIntent | null>(null)
   const [statusMsg, setStatusMsg] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
   function reset(): void {
     setText('')
@@ -240,7 +240,7 @@ export function CommandBar(): JSX.Element {
     reset()
   }
 
-  function handleKey(e: KeyboardEvent<HTMLInputElement>): void {
+  function handleKey(e: KeyboardEvent<HTMLTextAreaElement>): void {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void interpret() }
     if (e.key === 'Escape') reset()
   }
@@ -263,7 +263,7 @@ export function CommandBar(): JSX.Element {
           {isBusy ? <span className="spin" style={{ width: 14, height: 14, borderWidth: 2 }} /> : <Ic.Sparkles size={15} />}
         </div>
 
-        <input
+        <textarea
           ref={inputRef}
           className="cmd-bar-input"
           placeholder={
@@ -279,6 +279,7 @@ export function CommandBar(): JSX.Element {
           disabled={phase !== 'idle'}
           autoComplete="off"
           spellCheck={false}
+          rows={2}
         />
 
         <div className="cmd-bar-divider" />

@@ -1283,7 +1283,7 @@
 }
 .cmd-bar-row {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 10px;
 }
 .cmd-bar-icon {
@@ -1296,16 +1296,22 @@
   justify-content: center;
   color: #fff;
   flex-shrink: 0;
+  margin-bottom: 2px;
 }
 .cmd-bar-input {
   flex: 1;
   border: none;
   background: transparent;
   font-size: 14px;
+  line-height: 1.5;
   color: var(--text);
   outline: none;
   font-family: inherit;
   min-width: 0;
+  resize: none;
+  padding: 4px 0;
+  height: calc(14px * 1.5 * 2 + 8px); /* 2 líneas exactas */
+  overflow-y: hidden;
 }
 .cmd-bar-input::placeholder { color: var(--text-soft); }
 .cmd-bar-input:disabled { cursor: default; }
@@ -1314,6 +1320,7 @@
   height: 22px;
   background: var(--border);
   flex-shrink: 0;
+  margin-bottom: 2px;
 }
 
 /* Chips de archivos adjuntos */
