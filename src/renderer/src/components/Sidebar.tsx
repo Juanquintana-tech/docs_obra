@@ -45,27 +45,37 @@ function isActive(itemPath: string, currentPath: string): boolean {
   return currentPath === itemPath || currentPath.startsWith(itemPath + '/')
 }
 
+function NavGroup({
+  group,
+  currentPath,
+  onNavigate,
+  extraClass = ''
+}: {
+  group: NavDef
+  currentPath: string
+  onNavigate: (path: string) => void
+  extraClass?: string
+}): JSX.Element {
+  return (
+    <div>
+      <div className="nav-section">{group.section}</div>
+      {group.items.map((it) => (
+        <button
+          key={it.path}
+          className={`nav-item${extraClass}${isActive(it.path, currentPath) ? ' active' : ''}`}
+          onClick={() => onNavigate(it.path)}
+        >
+          <span className="ico">{it.ico}</span>
+          {it.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function Sidebar(): JSX.Element {
   const navigate = useNavigate()
-  const location = useLocation()
-
-  function renderGroup(group: NavDef, extraClass = ''): JSX.Element {
-    return (
-      <div key={group.section}>
-        <div className="nav-section">{group.section}</div>
-        {group.items.map((it) => (
-          <button
-            key={it.path}
-            className={`nav-item${extraClass}${isActive(it.path, location.pathname) ? ' active' : ''}`}
-            onClick={() => navigate(it.path)}
-          >
-            <span className="ico">{it.ico}</span>
-            {it.label}
-          </button>
-        ))}
-      </div>
-    )
-  }
+  const { pathname } = useLocation()
 
   return (
     <aside className="sidebar">
@@ -73,11 +83,15 @@ export function Sidebar(): JSX.Element {
         <CyeLogo />
       </div>
 
-      {NAV.map((g) => renderGroup(g))}
+      {NAV.map((g) => (
+        <NavGroup key={g.section} group={g} currentPath={pathname} onNavigate={navigate} />
+      ))}
 
       <div className="sidebar-spacer" />
 
-      {TOOLS.map((g) => renderGroup(g, ' nav-item-tool'))}
+      {TOOLS.map((g) => (
+        <NavGroup key={g.section} group={g} currentPath={pathname} onNavigate={navigate} extraClass=" nav-item-tool" />
+      ))}
     </aside>
   )
 }

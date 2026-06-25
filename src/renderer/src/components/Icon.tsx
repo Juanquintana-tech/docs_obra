@@ -179,6 +179,7 @@ export const Ic = {
       <polyline points="12 19 5 12 12 5" />
     </>
   ),
+  ChevronRight: mk(<polyline points="9 18 15 12 9 6" />),
   Close: mk(
     <>
       <line x1="18" y1="6" x2="6" y2="18" />

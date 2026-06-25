@@ -498,6 +498,86 @@
   margin-top: 2px;
 }
 
+/* ── Grupo de botones conectados (sort toggle) ── */
+.btn-group {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.btn-group .btn {
+  border: none;
+  border-radius: 0;
+  border-right: 1px solid var(--border);
+  box-shadow: none;
+}
+.btn-group .btn:last-child {
+  border-right: none;
+}
+.btn-group .btn-primary {
+  box-shadow: none;
+}
+
+/* ── Dashboard ── */
+.dash-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0 14px;
+}
+.obra-row-body {
+  flex: 1;
+  min-width: 0;
+}
+.obra-row-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--navy);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.obra-row-sub {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 2px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.obra-row-badge {
+  font-size: 11px;
+  background: var(--border);
+  color: var(--text-soft);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.obra-row-stats {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.obra-row-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.obra-row-chevron {
+  color: var(--text-soft);
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  transition: opacity 0.12s;
+}
+.obra-row:hover .obra-row-chevron {
+  opacity: 1;
+}
+
+/* ── KPI variantes de acento ── */
+.kpi-mid   { border-left-color: var(--mid); }
+.kpi-ok    { border-left-color: var(--ok); }
+
 /* ── Avatar de obra ── */
 .obra-avatar {
   width: 40px;
@@ -901,7 +981,6 @@
 .tab-btn:hover { color: var(--navy); background: var(--bg); }
 .tab-btn.active { color: var(--mid); border-bottom-color: var(--mid); background: transparent; }
 
-/* ── ScanPanel ── */
 /* ── Scan Panel ──────────────────────────────────────────────────────────── */
 .scan-panel {
   border-radius: 12px;
@@ -1182,7 +1261,6 @@
   margin-right: 6px;
   vertical-align: middle;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Ensayo group picker ─────────────────────────────────────────────────── */
 /* ── Estado toggle (botón de estado junto al título del editor) ────────────── */
