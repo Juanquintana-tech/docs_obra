@@ -62,6 +62,8 @@ Categoría tipo B:
 
 IGNORAR (no incluir):
 - Demoliciones, fresado, levantado, excavación, desbroce, retirada de firme.
+- Compactación de fondo de excavación en m² (ej: "20000 M2 COMPACTACIÓN FONDO EXCAVACIÓN"):
+  es una operación de preparación, no un material a ensayar. El relleno posterior (SS-2, ZA…) sí se ensaya.
 - El trabajo de ejecución de instalaciones MEP como tal (ml de tubería, m2 de conducto…).
   EXCEPCIÓN: si aparecen como partida de control sin cantidad de obra (etiqueta sola como
   "fontanería", "saneamiento", "electricidad", "ci"…) → clasificar como SERVICIO con quantity=1.
@@ -71,6 +73,9 @@ IGNORAR (no incluir):
   el ensayo es sobre la MEZCLA terminada, no sobre el betún en acopio.
 - Alicatados, pinturas, solados interiores, morteros de agarre (se ensayan como SERVICIO si aparecen
   explícitamente con cantidad de ensayos, no como material puesto en obra).
+- Lámina/membrana anti-radón en m² (ej: "4920 M2 RADÓN", "LÁMINA RADON 0.6 mm"): es un material
+  de impermeabilización, NO un ensayo de medición. IGNORAR. Solo clasificar como SERVICIO
+  cuando aparezca como partida de medición/informe sin unidad m².
 
 ── Abreviaturas frecuentes en obras civiles españolas ──────────────────────────
   ZA / Z.A.  → ZAHORRA_ARTIFICIAL
@@ -90,7 +95,8 @@ IGNORAR (no incluir):
   falso techo / techo suspendido → FALSO_TECHO
   panel sándwich / panel chapa / panel PUR / panel PIR → PANEL_SANDWICH
   mortero / enfoscado / revoco / enlucido → MORTERO
-  radón / radon → SERVICIO (quantity=1, description="Prueba de servicio de radón")
+  radón / radon SIN unidad m² → SERVICIO (quantity=1, description="Prueba de servicio de radón")
+  radón / radon CON unidad m² → IGNORAR (es lámina anti-radón, no ensayo)
   saneamiento → SERVICIO (quantity=1, description="Prueba de servicio de saneamiento")
   fontanería / fontaneria → SERVICIO (quantity=1, description="Prueba de servicio de fontanería")
   electricidad / eelectricidad / alumbrado → SERVICIO (quantity=1, description="Prueba de servicio de electricidad")
@@ -106,6 +112,14 @@ Columnas adicionales con números (lotes, muestras) o texto de control → IGNOR
 Extrae solo los materiales con cantidad numérica clara.
 Agrupa por tipo: si hay varios tipos de hormigón (C25/30, C30/37, C40/50) en una misma obra,
 agrúpalos en un único ítem HORMIGON con la suma de todas las cantidades.
+
+── Soleras de hormigón en m² ────────────────────────────────────────────────────
+Cuando el Totalizados expresa una solera en m² con espesor visible en la descripción
+(ej: "4920 M2 SOLERA HA-25 0,18 M", "2090 M2 SOLERA c-25 0.20 m"):
+  → quantity = m² × espesor_metros   (ej: 4920 × 0,18 = 885,6)
+  → unit = "m3"
+Si el espesor no aparece en el texto, usa quantity = m² y unit = "m2" (el planner lo tratará
+como metros cuadrados de losa; mejor imperfecto que inventar un espesor).
 
 ── Regla de AGREGACIÓN ─────────────────────────────────────────────────────────
 Si el mismo tipo de material aparece en MÚLTIPLES FILAS (una por estructura, viaducto o

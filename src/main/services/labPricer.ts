@@ -19,8 +19,8 @@ import { GeminiProvider } from '../pipeline/llm/gemini'
 import { maybeRerank } from '../pipeline/rag/reranker'
 
 // Calibrado con rag:thresholds: matches reales puntúan ~0.49–0.56, controles ≤0.354.
-// El hueco está en ~0.40, no en 0.50 (el 0.50 anterior dejaba matches correctos caer a ALAGAL).
-const PB_THRESHOLD = 0.40
+// 0.38 en lugar de 0.40: saneamiento (0.398) y similares rozaban el umbral con 384 entradas.
+const PB_THRESHOLD = 0.38
 const ALAGAL_THRESHOLD = 0.35
 
 export interface LabPriceResult {
