@@ -53,11 +53,19 @@ Categoría tipo B:
               con videocámara, medición IRI/CRT, desplazamiento de equipo APL/ECODYN,
               pruebas de estanqueidad, cualquier otro servicio/ensayo que aparece ya
               con su propia cantidad unitaria (no metros de material instalado).
+              Medición de concentración de radón (detectores de trazas, período de exposición).
+              Pruebas de puesta en servicio de instalaciones en edificación: cuando en el
+              Totalizados aparece "saneamiento", "fontanería", "electricidad", "calefacción",
+              "climatización", "ventilación", "PCI", "ci", "contra incendios" como ítem
+              de control (sin unidad de obra m/m2/m3 asociada), clasificar cada uno como
+              SERVICIO con quantity=1 y description="Prueba de servicio de [tipo]".
 
 IGNORAR (no incluir):
 - Demoliciones, fresado, levantado, excavación, desbroce, retirada de firme.
-- Señalización vertical, jardinería, mobiliario, instalaciones MEP (fontanería, electricidad,
-  climatización, saneamiento, PCI, telecomunicaciones) — salvo si son pruebas de servicio.
+- El trabajo de ejecución de instalaciones MEP como tal (ml de tubería, m2 de conducto…).
+  EXCEPCIÓN: si aparecen como partida de control sin cantidad de obra (etiqueta sola como
+  "fontanería", "saneamiento", "electricidad", "ci"…) → clasificar como SERVICIO con quantity=1.
+- Señalización vertical, jardinería, mobiliario urbano, telecomunicaciones (cableado/antenas).
 - Partidas auxiliares o de abono ("por cm de espesor", "m²·cm").
 - Betún o ligante como materia prima aislada (p.ej. "BETUN MEJORADO 4.326 t", "BETUN MODIFICADO"):
   el ensayo es sobre la MEZCLA terminada, no sobre el betún en acopio.
@@ -81,6 +89,10 @@ IGNORAR (no incluir):
   barandilla / pretil / protección perimetral → BARANDILLA
   falso techo / techo suspendido → FALSO_TECHO
   panel sándwich / panel chapa / panel PUR / panel PIR → PANEL_SANDWICH
+  mortero / enfoscado / revoco / enlucido → MORTERO
+  radón / radon → SERVICIO (medición concentración radón, quantity=1)
+  saneamiento / fontanería / electricidad / calefacción / clima / ventilación → SERVICIO (prueba puesta en servicio, quantity=1)
+  ci / c.i. / contra incendios / PCI → SERVICIO (prueba instalación PCI, quantity=1)
 
 ── Formato tabular (planes de control, totalizados) ────────────────────────────
 El documento puede ser una tabla con columnas separadas por tabuladores.

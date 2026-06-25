@@ -210,15 +210,15 @@
       "hormigón en masa"
     ],
     "unit": "m3",
-    "note": "1 lote por cada 100 m3 o fracción. 4 probetas por lote (2+2).",
+    "note": "1 lote por cada 100 m3 o 500 m2. 5 probetas por lote, rotura a 3 edades + densidad.",
     "tests": [
       {
-        "description": "Toma de muestra, medida de Cono, fabricación de 4 probetas cilíndricas 15x30 cm, curado y rotura a compresión (2+2) UNE EN 12350-1,2 y UNE EN 12390-1,2,3",
+        "description": "Determinación de la consistencia del hormigón fresco (Cono de Abrams) UNE EN 12350-2. Toma de muestra y fabricación de 5 probetas cilíndricas 15x30 cm UNE EN 12390-2. Curado en cámara húmeda, refrendado y rotura a compresión a 3 edades UNE EN 12390-3. Determinación de la densidad de la probeta UNE EN 12390-7",
         "subcategory": "Control de ejecución",
         "freq_qty": 1,
         "freq_unit": "100 m3 / 1.000 m2",
         "tests_per_lot": 1,
-        "unit_price": 72
+        "unit_price": 90
       },
       {
         "description": "Determinación de la profundidad de penetración del agua bajo presión UNE EN 12390-8",
