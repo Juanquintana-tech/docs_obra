@@ -160,9 +160,12 @@ export class RagPricer {
     if (this.opts.useRrf) {
       return this.applyRrf(tfidfScores, embScores, bonuses)
     }
-    return this.entries.map((_, i) =>
-      Math.min(1, weight * embScores[i] + (1 - weight) * tfidfScores[i] + bonuses[i])
-    )
+    return this.entries.map((_, i) => {
+      // Entries without an embedding vector (e.g. newly added) compete on TF-IDF alone,
+      // avoiding the unfair (1-weight) penalty that would cap their score at 0.7×tfidf.
+      if (!this.embVecs[i]) return Math.min(1, tfidfScores[i] + bonuses[i])
+      return Math.min(1, weight * embScores[i] + (1 - weight) * tfidfScores[i] + bonuses[i])
+    })
   }
 
   async findMatchesHybrid(query: string, n = 5, weight = DEFAULT_EMB_WEIGHT): Promise<RagMatch[]> {

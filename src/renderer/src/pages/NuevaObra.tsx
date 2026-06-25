@@ -11,7 +11,7 @@ import type { IngestResult, PlanRowInput, PriceStrategy, BudgetSheet, BudgetImpo
 
 const STRATEGY_LABELS: Record<PriceStrategy, string> = {
   reciente: 'Precio más reciente',
-  mediana: 'Precio mediano',
+  mediana: 'Precio mediana',
   max: 'Precio máximo',
   min: 'Precio mínimo',
   importado: 'Precio importado'
