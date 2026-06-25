@@ -25,10 +25,9 @@ const HEADERS = [
   'Nº ens./Lote',
   'Uds.',
   'PRECIO UNITARIO €',
-  'Rango €',
   'IMPORTE €'
 ]
-const COL_WIDTHS = [55, 11, 10, 6, 9, 12, 8, 16, 14, 12]
+const COL_WIDTHS = [55, 11, 10, 6, 9, 12, 8, 16, 12]
 const N_COLS = HEADERS.length
 
 export async function generateExcel(planRows: PlanRowInput[], obra: ObraInfo): Promise<Buffer> {
@@ -36,7 +35,7 @@ export async function generateExcel(planRows: PlanRowInput[], obra: ObraInfo): P
   const ws = wb.addWorksheet('Plan de Ensaios')
 
   // ── Cabecera ──
-  ws.mergeCells('A1:J1')
+  ws.mergeCells('A1:I1')
   const title = ws.getCell('A1')
   title.value = 'PLAN DE CONTROL DE CALIDAD VALORADO'
   title.font = { bold: true, size: 14, color: { argb: argb('FFFFFF') } }
@@ -44,7 +43,7 @@ export async function generateExcel(planRows: PlanRowInput[], obra: ObraInfo): P
   title.alignment = { horizontal: 'center', vertical: 'middle' }
   ws.getRow(1).height = 24
 
-  ws.mergeCells('A2:J2')
+  ws.mergeCells('A2:I2')
   const obraCell = ws.getCell('A2')
   obraCell.value = `Obra: ${obra.obra ?? ''}`
   obraCell.font = { bold: true, size: 11 }
@@ -74,7 +73,7 @@ export async function generateExcel(planRows: PlanRowInput[], obra: ObraInfo): P
     cell.border = allThin
     ws.getColumn(i + 1).width = COL_WIDTHS[i]
   })
-  ws.getRow(5).height = 32
+  ws.getRow(5).height = 28
 
   // ── Filas: agrupadas por material (sección) ──
   const testRows = planRows.filter((r) => r.type === 'test')
@@ -85,7 +84,7 @@ export async function generateExcel(planRows: PlanRowInput[], obra: ObraInfo): P
     const material = item.material ?? ''
     if (material !== currentMaterial) {
       currentMaterial = material
-      ws.mergeCells(`A${rowNum}:J${rowNum}`)
+      ws.mergeCells(`A${rowNum}:I${rowNum}`)
       const qty = item.measurement
       const qtyStr = qty ? `${qty.toLocaleString('es-ES')} ${item.measurement_unit ?? ''}` : ''
       const label = `  ${material.toUpperCase()}${qtyStr ? `   —   ${qtyStr}` : ''}`
@@ -100,16 +99,6 @@ export async function generateExcel(planRows: PlanRowInput[], obra: ObraInfo): P
       rowNum++
     }
 
-    const mn = item.price_min
-    const mx = item.price_max
-    const n  = item.price_n ?? 0
-    const rangeText =
-      mn != null && mx != null && mn !== mx
-        ? `${mn.toLocaleString('es-ES')} – ${mx.toLocaleString('es-ES')}`
-        : n === 1
-          ? '(1 dato)'
-          : null
-
     const values = [
       item.description ?? '',
       item.measurement ?? null,
@@ -119,8 +108,7 @@ export async function generateExcel(planRows: PlanRowInput[], obra: ObraInfo): P
       item.tests_per_lot ?? null,
       item.n_tests ?? null,
       item.unit_price ?? null,
-      rangeText,              // col 9: Rango €
-      item.total ?? null      // col 10: IMPORTE €
+      item.total ?? null
     ]
     values.forEach((v, i) => {
       const c = i + 1
@@ -129,11 +117,7 @@ export async function generateExcel(planRows: PlanRowInput[], obra: ObraInfo): P
       cell.border = allThin
       cell.font = { size: 9 }
       cell.alignment = { horizontal: c > 1 ? 'center' : 'left', wrapText: true, vertical: 'top' }
-      if ((c === 8 || c === 10) && typeof v === 'number') cell.numFmt = '#,##0.00'
-      // Rango: texto centrado, color gris suave
-      if (c === 9 && v) {
-        cell.font = { size: 8, italic: true, color: { argb: argb('666666') } }
-      }
+      if ((c === 8 || c === 9) && v) cell.numFmt = '#,##0.00'
     })
     ws.getRow(rowNum).height = 30
     rowNum++
@@ -158,12 +142,12 @@ function writeTotalRow(
   amount: number,
   strong: boolean
 ): void {
-  ws.mergeCells(`A${rowNum}:I${rowNum}`)
+  ws.mergeCells(`A${rowNum}:H${rowNum}`)
   const labelCell = ws.getCell(`A${rowNum}`)
   labelCell.value = label
   labelCell.alignment = { horizontal: 'right' }
   labelCell.font = { bold: strong, size: 11 }
-  const amountCell = ws.getRow(rowNum).getCell(10)
+  const amountCell = ws.getRow(rowNum).getCell(9)
   amountCell.value = amount
   amountCell.font = { bold: strong, size: 11 }
   amountCell.numFmt = '#,##0.00'

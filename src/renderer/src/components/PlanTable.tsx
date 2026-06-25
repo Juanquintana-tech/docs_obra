@@ -73,13 +73,15 @@ function Confidence({
 }): JSX.Element {
   if (source === 'pricebook') {
     const pct = score != null ? `${(score * 100).toFixed(0)}%` : ''
-    const range =
-      min != null && max != null && min !== max ? `€${min}–€${max}` : min != null ? `€${min}` : ''
+    const hasRange = min != null && max != null && min !== max
+    const rangeLabel = hasRange ? `${min}–${max} €` : null
     const nLabel = n != null ? `${n} presupuesto${n !== 1 ? 's' : ''}` : ''
-    const tooltip = [range, nLabel, pct ? `similitud ${pct}` : ''].filter(Boolean).join(' · ')
+    const tooltip = [nLabel, pct ? `similitud ${pct}` : ''].filter(Boolean).join(' · ')
     return (
       <span className="badge badge-pricebook" title={tooltip}>
-        ● Histórico {pct}
+        ● Histórico{rangeLabel
+          ? <span style={{ marginLeft: 4, opacity: 0.7, fontSize: '0.85em' }}>[{rangeLabel}]</span>
+          : null}
       </span>
     )
   }
