@@ -42,7 +42,7 @@ export const CATEGORY_CTX: Record<string, string> = {
   MARCAS_VIALES:      'marcas viales señalizacion horizontal retroreflectancia pintura',
   RIEGO_BITUMINOSO:   'riego bituminoso emulsion imprimacion adherencia dotacion',
   PILOTES:            'pilotes cimentacion profunda sonic logging integridad',
-  SERVICIO:           'prueba servicio instalacion laboratorio campo'
+  SERVICIO:           'prueba servicio laboratorio campo'
 }
 
 // Palabras clave del campo `categoria` del catálogo ALAGAL por categoría interna.

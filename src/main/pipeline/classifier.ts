@@ -96,7 +96,7 @@ IGNORAR (no incluir):
   electricidad / eelectricidad / alumbrado → SERVICIO (quantity=1, description="Prueba de servicio de electricidad")
   calefacción / ACS / calefaccion → SERVICIO (quantity=1, description="Prueba de servicio de calefacción y ACS")
   clima / climatización / ventilación / ventilacion → SERVICIO (quantity=1, description="Prueba de servicio de climatización y ventilación")
-  ci / c.i. / contra incendios / PCI → SERVICIO (quantity=1, description="Prueba de servicio de instalación PCI")
+  ci / c.i. / contra incendios / PCI → SERVICIO (quantity=1, description="Prueba de servicio PCI contra incendios")
 
 ── Formato tabular (planes de control, totalizados) ────────────────────────────
 El documento puede ser una tabla con columnas separadas por tabuladores.
