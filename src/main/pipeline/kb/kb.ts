@@ -8,7 +8,14 @@
  */
 import { readFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
+import { normalize } from '../rag/normalize'
+import { extractNormCodes } from '../rag/normCodes'
 import type { KbTest, KbPrice, KbCategory, KbFrequencyRule } from './types'
+
+export interface TestMatch {
+  testId: string
+  confidence: number
+}
 
 export interface Kb {
   tests: Map<string, KbTest>
@@ -17,6 +24,8 @@ export interface Kb {
   /** categoría → reglas de frecuencia (ya deduplicadas: 1 regla por ensayo). */
   rulesByCategory: Map<string, KbFrequencyRule[]>
   categories: Map<string, KbCategory>
+  /** Empareja una descripción libre con el ensayo canónico (código de norma + solape de texto). */
+  matchTest(desc: string): TestMatch | null
 }
 
 function readJson<T>(path: string, key: string): T[] {
@@ -95,7 +104,39 @@ export function loadKb(curatedDir = resolve(process.cwd(), 'resources/knowledge/
     }
   }
 
-  return { tests, pricesByTest, rulesByCategory, categories }
+  // Índice para el emparejador (código de norma + tokens de descripción).
+  const byNorm = new Map<string, string[]>()
+  const tokensByTest = new Map<string, Set<string>>()
+  for (const t of tests.values()) {
+    for (const c of extractNormCodes(t.canonicalDesc)) {
+      if (!byNorm.has(c)) byNorm.set(c, [])
+      byNorm.get(c)!.push(t.id)
+    }
+    tokensByTest.set(t.id, new Set(normalize(t.canonicalDesc).split(/\s+/).filter((w) => w.length > 3)))
+  }
+  const jaccard = (qTokens: Set<string>, testId: string): number => {
+    const et = tokensByTest.get(testId)
+    if (!et) return 0
+    let inter = 0
+    for (const w of qTokens) if (et.has(w)) inter++
+    const union = new Set([...qTokens, ...et]).size
+    return union ? inter / union : 0
+  }
+  const matchTest = (desc: string): TestMatch | null => {
+    const qTokens = new Set(normalize(desc).split(/\s+/).filter((w) => w.length > 3))
+    const normCands = new Set<string>()
+    for (const c of extractNormCodes(desc)) for (const id of byNorm.get(c) ?? []) normCands.add(id)
+    if (normCands.size > 0) {
+      let best = '', bestJ = -1
+      for (const id of normCands) { const j = jaccard(qTokens, id); if (j > bestJ) { bestJ = j; best = id } }
+      return { testId: best, confidence: Math.min(1, 0.7 + bestJ * 0.3) }
+    }
+    let best = '', bestJ = -1
+    for (const id of tests.keys()) { const j = jaccard(qTokens, id); if (j > bestJ) { bestJ = j; best = id } }
+    return best && bestJ >= 0.4 ? { testId: best, confidence: bestJ } : null
+  }
+
+  return { tests, pricesByTest, rulesByCategory, categories, matchTest }
 }
 
 /** Precio efectivo de un ensayo: prioridad tarifa_cye > pricebook > alagal. */

@@ -1,16 +1,18 @@
 /**
- * Motor determinista de valoración (Etapa 2, branch Cye_BBDD).
+ * Motor determinista de valoración (Etapa 2, modelo "por lote", branch Cye_BBDD).
  *
- * Entrada: mediciones estructuradas por tramo/sección (categoría, cantidad, unidad).
- * Salida:  PlanLine[] con procedencia auditable y flags de fallback.
+ * Entrada: mediciones por tramo/sección (categoría, cantidad, unidad, ± superficie/longitud/altura/capa).
+ * Salida:  PlanLine[] con procedencia auditable, precio y flags de fallback.
  *
- * SIN LLM, SIN red, SIN aleatoriedad: mismo input → mismo output (determinista).
- * Toda cifra sale de la BBDD curada (`kb`) y de aritmética explícita.
+ * Jerarquía de frecuencia (decidida 2026-06-26):
+ *   1) NORMATIVA (normative_rules.json) — autoridad; modelo por lote / escalones.
+ *   2) PRESUPUESTO CYE (frequency_rules.json) — rellena ensayos sin regla normativa.
+ * El precio SIEMPRE de la BBDD (tarifa_cye > pricebook > alagal). SIN LLM, determinista.
  */
 import type { KbFrequencyRule } from './types'
 import { type Kb, effectivePrice, VOLUME_THRESHOLD } from './kb'
-
-// ── Contratos (estables entre etapas, ver PLAN_BBDD.md §4) ──────────────────
+import { type NormativeRule } from './normative'
+import { computeRule, type LotSection } from './lotEngine'
 
 export interface SectionInput {
   tramo?: string | null
@@ -18,14 +20,19 @@ export interface SectionInput {
   material?: string | null
   quantity: number | null
   unit: string | null
+  surface_m2?: number | null
+  length_m?: number | null
+  heightGe5m?: boolean | null
+  capa?: 'rodadura' | 'intermedia' | 'base' | null
 }
 
 export interface Provenance {
-  ruleId: string | null // categoría|testId (clave de la regla aplicada)
-  freq: string | null // "1 / 5000 m3" legible
+  kind: 'normativa' | 'presupuesto'
+  source: string // artículo normativo o "presupuesto CYE (histórico)"
+  control?: string // fabricacion | recepcion | ejecucion
+  detail?: string // cómo se calculó el nº de ensayos
   priceSource: 'tarifa_cye' | 'pricebook' | 'alagal' | 'fallback'
-  matchConfidence: number // 1.0 = regla/precio directos de la BBDD
-  notes?: string
+  matchConfidence: number
 }
 
 export interface PlanLine {
@@ -33,31 +40,11 @@ export interface PlanLine {
   testId: string | null
   description: string
   categoryCode: string
-  nLots: number | null
   nTests: number
   unitPrice: number | null
   total: number | null
   provenance: Provenance
   needsReview: boolean
-}
-
-export interface GenerateOptions {
-  /** Redondeo de lotes (por defecto ceil: nunca menos control del normativo). */
-  rounding?: 'ceil' | 'round'
-  /** Umbral de volumen (m3) para el escalón de frecuencia. Por defecto VOLUME_THRESHOLD. */
-  volumeThreshold?: number
-}
-
-/**
- * Elige la frecuencia (m3 por lote) según el volumen de la sección:
- * ≤ umbral → escalón fino (1/5.000); > umbral → escalón grueso (1/10.000).
- * Entre las frecuencias realmente observadas (`tiers`), toma la más cercana al objetivo.
- */
-function resolveFreqQty(tiers: number[], fallback: number, volume: number | null, threshold: number): number {
-  if (tiers.length <= 1) return tiers[0] ?? fallback
-  if (volume == null) return fallback
-  const target = volume > threshold ? 10_000 : 5_000
-  return tiers.reduce((best, t) => (Math.abs(t - target) < Math.abs(best - target) ? t : best))
 }
 
 export interface GenerateResult {
@@ -66,114 +53,110 @@ export interface GenerateResult {
   warnings: string[]
 }
 
-// ── Conversión de unidades de magnitud ──────────────────────────────────────
+const ASPHALT_DENSITY = 2.4 // t/m³, para estimar volumen de MBC desde tonelaje
 
 function normUnit(u: string | null): string {
   return (u ?? '').trim().toLowerCase().replace('³', '3').replace('²', '2').replace(/\s+/g, '')
 }
 
-/** Convierte `qty` de `from` a `to`; null si no hay conversión conocida. */
-function convert(qty: number, from: string | null, to: string | null): number | null {
-  const f = normUnit(from)
-  const t = normUnit(to)
-  if (!f || !t) return null
-  if (f === t) return qty
-  if (f === 'kg' && t === 't') return qty / 1000
-  if (f === 't' && t === 'kg') return qty * 1000
-  if ((f === 'm' && t === 'ml') || (f === 'ml' && t === 'm')) return qty
-  if ((f === 'u' && t === 'ud') || (f === 'ud' && t === 'u')) return qty
-  return null
-}
-
-// ── Cálculo de nº de ensayos por regla ──────────────────────────────────────
-
-interface Computed { nLots: number | null; nTests: number; freqQtyUsed: number | null; note?: string; review: boolean }
-
-function computeTests(rule: KbFrequencyRule, section: SectionInput, rounding: 'ceil' | 'round', threshold: number): Computed {
-  const muestreo = rule.muestreo && rule.muestreo > 0 ? rule.muestreo : 1
-  const round = rounding === 'ceil' ? Math.ceil : Math.round
-
-  switch (rule.freqKind) {
-    case 'per_quantity':
-    case 'per_lot': {
-      if (section.quantity == null) {
-        return { nLots: null, nTests: muestreo, freqQtyUsed: rule.freqQty, note: 'cantidad de sección desconocida', review: true }
-      }
-      const q = convert(section.quantity, section.unit, rule.freqMagUnit)
-      if (q == null) {
-        return {
-          nLots: null,
-          nTests: muestreo,
-          freqQtyUsed: rule.freqQty,
-          note: `unidad sección (${section.unit ?? '—'}) ≠ unidad frecuencia (${rule.freqMagUnit ?? '—'})`,
-          review: true,
-        }
-      }
-      const tiers = rule.qtyTiers ?? (rule.freqQty != null ? [rule.freqQty] : [])
-      const freqQty = resolveFreqQty(tiers, rule.freqQty ?? 0, q, threshold)
-      if (!freqQty || freqQty <= 0) {
-        return { nLots: null, nTests: muestreo, freqQtyUsed: null, note: 'freqQty ausente', review: true }
-      }
-      const nLots = Math.max(1, round(q / freqQty))
-      const note = tiers.length > 1 ? `escalón 1/${freqQty} (de ${tiers.map((t) => `1/${t}`).join(', ')})` : undefined
-      return { nLots, nTests: nLots * muestreo, freqQtyUsed: freqQty, note, review: false }
-    }
-    case 'per_type':
-    case 'per_element':
-      // Una sección = un material/elemento → muestreo ensayos.
-      return { nLots: 1, nTests: muestreo, freqQtyUsed: null, review: false }
-    case 'fixed':
-      return { nLots: null, nTests: muestreo, freqQtyUsed: null, review: false }
-    default: // 'other' → condicional, no calculable
-      return { nLots: null, nTests: muestreo, freqQtyUsed: null, note: `frecuencia no estructurada: "${rule.freqUnit}"`, review: true }
+/** Deriva las magnitudes físicas (m³, t, m², m) de la medición principal + datos extra. */
+function toLotSection(s: SectionInput): LotSection {
+  const u = normUnit(s.unit)
+  const q = s.quantity ?? null
+  const isMBC = s.categoryCode === 'MEZCLA_BITUMINOSA'
+  let volume_m3: number | null = u === 'm3' ? q : null
+  const tonnage_t: number | null = u === 't' || u === 'tm' ? q : null
+  if (volume_m3 == null && isMBC && tonnage_t != null) volume_m3 = tonnage_t / ASPHALT_DENSITY
+  return {
+    categoryCode: s.categoryCode,
+    volume_m3,
+    tonnage_t,
+    surface_m2: s.surface_m2 ?? (u === 'm2' ? q : null),
+    length_m: s.length_m ?? (u === 'm' || u === 'ml' ? q : null),
+    heightGe5m: s.heightGe5m ?? null,
+    capa: s.capa ?? null,
   }
 }
 
-// ── API pública ─────────────────────────────────────────────────────────────
+/** Escalón de frecuencia para gap-fill per_quantity: usa los tiers observados y el volumen. */
+function pickFreqQty(rule: KbFrequencyRule, volume: number): number {
+  const tiers = rule.qtyTiers && rule.qtyTiers.length ? rule.qtyTiers : rule.freqQty != null ? [rule.freqQty] : []
+  if (tiers.length <= 1) return tiers[0] ?? 0
+  const target = volume > VOLUME_THRESHOLD ? 10_000 : 5_000
+  return tiers.reduce((best, t) => (Math.abs(t - target) < Math.abs(best - target) ? t : best))
+}
 
-export function generatePlan(sections: SectionInput[], kb: Kb, opts: GenerateOptions = {}): GenerateResult {
-  const rounding = opts.rounding ?? 'ceil'
-  const threshold = opts.volumeThreshold ?? VOLUME_THRESHOLD
+/** Gap-fill: nº de ensayos para un ensayo del presupuesto sin regla normativa. */
+function budgetTests(rule: KbFrequencyRule, lot: LotSection): { nTests: number; detail: string; review: boolean } {
+  const muestreo = rule.muestreo && rule.muestreo > 0 ? rule.muestreo : 1
+  // per_quantity: ensayos de identificación/material por volumen (escalón observado).
+  if (rule.freqKind === 'per_quantity' && lot.volume_m3 != null) {
+    const freqQty = pickFreqQty(rule, lot.volume_m3)
+    if (freqQty > 0) {
+      const n = Math.max(1, Math.ceil(lot.volume_m3 / freqQty) * muestreo)
+      return { nTests: n, detail: `${Math.round(lot.volume_m3).toLocaleString('es-ES')}/${freqQty} (inferida)`, review: false }
+    }
+  }
+  // per_lot: "1 por N lotes" — derivada de otro control; sin la referencia, no se infla por volumen.
+  if (rule.freqKind === 'per_lot') {
+    return { nTests: muestreo, detail: `${rule.freqUnit} (derivada de lotes — revisar)`, review: true }
+  }
+  if (rule.freqKind === 'per_type' || rule.freqKind === 'per_element' || rule.freqKind === 'fixed') {
+    return { nTests: muestreo, detail: `${rule.freqUnit} (inferida)`, review: false }
+  }
+  return { nTests: muestreo, detail: `${rule.freqUnit} (inferida, revisar)`, review: true }
+}
+
+export function generatePlan(
+  sections: SectionInput[],
+  kb: Kb,
+  normByCat: Map<string, NormativeRule[]>
+): GenerateResult {
   const lines: PlanLine[] = []
   const warnings: string[] = []
 
   for (const section of sections) {
-    const rules = kb.rulesByCategory.get(section.categoryCode)
-    if (!rules || rules.length === 0) {
-      warnings.push(`Sin reglas de frecuencia para categoría "${section.categoryCode}" (tramo ${section.tramo ?? '—'})`)
-      continue
+    const lot = toLotSection(section)
+    const tramo = section.tramo ?? null
+    const cat = section.categoryCode
+    const covered = new Set<string>()
+
+    // 1) Reglas normativas (autoridad de frecuencia)
+    const normRules = (normByCat.get(cat) ?? []).filter((r) => r.controlType !== 'material_acceptance')
+    for (const rule of normRules) {
+      for (const nl of computeRule(lot, rule)) {
+        const m = kb.matchTest(nl.test)
+        const testId = m?.testId ?? null
+        const priced = testId ? effectivePrice(kb, testId) : null
+        if (testId) covered.add(testId)
+        const unitPrice = priced?.price ?? null
+        const total = unitPrice != null ? Math.round(nl.nTests * unitPrice * 100) / 100 : null
+        lines.push({
+          tramo, testId, description: testId ? kb.tests.get(testId)!.canonicalDesc : nl.test, categoryCode: cat,
+          nTests: nl.nTests, unitPrice, total,
+          provenance: { kind: 'normativa', source: rule.source, control: rule.controlType, detail: nl.detail, priceSource: priced?.source ?? 'fallback', matchConfidence: m?.confidence ?? 0 },
+          needsReview: nl.review || nl.nTests === 0 || unitPrice == null,
+        })
+      }
     }
 
-    for (const rule of rules) {
-      const test = kb.tests.get(rule.testId)
-      const c = computeTests(rule, section, rounding, threshold)
-      const priced = effectivePrice(kb, rule.testId)
-
+    // 2) Gap-fill: ensayos del presupuesto CYE sin regla normativa
+    for (const br of kb.rulesByCategory.get(cat) ?? []) {
+      if (covered.has(br.testId)) continue
+      const { nTests, detail, review } = budgetTests(br, lot)
+      const priced = effectivePrice(kb, br.testId)
       const unitPrice = priced?.price ?? null
-      const total = unitPrice != null ? Math.round(c.nTests * unitPrice * 100) / 100 : null
-      const freqStr =
-        rule.freqKind === 'per_quantity' || rule.freqKind === 'per_lot'
-          ? `${rule.muestreo} / ${c.freqQtyUsed ?? rule.freqQty} ${rule.freqMagUnit ?? ''}`.trim()
-          : rule.freqUnit
-
+      const total = unitPrice != null ? Math.round(nTests * unitPrice * 100) / 100 : null
       lines.push({
-        tramo: section.tramo ?? null,
-        testId: rule.testId,
-        description: test?.canonicalDesc ?? rule.rawDesc,
-        categoryCode: section.categoryCode,
-        nLots: c.nLots,
-        nTests: c.nTests,
-        unitPrice,
-        total,
-        provenance: {
-          ruleId: `${rule.categoryCode}|${rule.testId}`,
-          freq: freqStr,
-          priceSource: priced?.source ?? 'fallback',
-          matchConfidence: 1,
-          notes: c.note,
-        },
-        needsReview: c.review || unitPrice == null,
+        tramo, testId: br.testId, description: kb.tests.get(br.testId)?.canonicalDesc ?? br.rawDesc, categoryCode: cat,
+        nTests, unitPrice, total,
+        provenance: { kind: 'presupuesto', source: 'presupuesto CYE (histórico)', detail, priceSource: priced?.source ?? 'fallback', matchConfidence: 1 },
+        needsReview: review || unitPrice == null,
       })
+    }
+
+    if (normRules.length === 0 && !(kb.rulesByCategory.get(cat)?.length)) {
+      warnings.push(`Sin reglas (normativa ni presupuesto) para categoría "${cat}" (tramo ${tramo ?? '—'})`)
     }
   }
 
