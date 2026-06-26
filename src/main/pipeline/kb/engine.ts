@@ -146,6 +146,16 @@ function sanityWarn(section: SectionInput, lot: LotSection): string | null {
   return null
 }
 
+/**
+ * Categorías sin reglas propias que reutilizan las de una categoría hermana
+ * (replicar ejemplos): el acero activo/laminado se controla como el acero pasivo
+ * (tracción, doblado, características geométricas) por lotes de tonelaje.
+ */
+const CATEGORY_FALLBACK: Record<string, string> = {
+  ACERO_ACTIVO: 'ACERO',
+  ACERO_LAMINADO: 'ACERO',
+}
+
 export function generatePlan(
   sections: SectionInput[],
   kb: Kb,
@@ -178,8 +188,13 @@ export function generatePlan(
       continue
     }
 
+    // Categoría efectiva para reglas: si la propia no tiene, usa la hermana (acero activo/laminado → acero).
+    const hasOwn = (normByCat.get(cat)?.length ?? 0) > 0 || (kb.rulesByCategory.get(cat)?.length ?? 0) > 0
+    const ruleCat = hasOwn ? cat : (CATEGORY_FALLBACK[cat] ?? cat)
+    const viaFallback = ruleCat !== cat
+
     // 1) Reglas normativas (autoridad de frecuencia)
-    const normRules = (normByCat.get(cat) ?? []).filter((r) => r.controlType !== 'material_acceptance')
+    const normRules = (normByCat.get(ruleCat) ?? []).filter((r) => r.controlType !== 'material_acceptance')
     for (const rule of normRules) {
       for (const nl of computeRule(lot, rule)) {
         // Si la norma no pudo calcular (nº=0, p.ej. hormigón sin valores de lote),
@@ -201,7 +216,7 @@ export function generatePlan(
     }
 
     // 2) Gap-fill: ensayos del presupuesto CYE sin regla normativa
-    for (const br of kb.rulesByCategory.get(cat) ?? []) {
+    for (const br of kb.rulesByCategory.get(ruleCat) ?? []) {
       if (covered.has(br.testId)) continue
       const { nTests, detail, review } = budgetTests(br, lot)
       const priced = effectivePrice(kb, br.testId)
@@ -210,12 +225,12 @@ export function generatePlan(
       lines.push({
         tramo, testId: br.testId, description: kb.tests.get(br.testId)?.canonicalDesc ?? br.rawDesc, categoryCode: cat,
         nTests, unitPrice, total,
-        provenance: { kind: 'presupuesto', source: 'presupuesto CYE (histórico)', detail, priceSource: priced?.source ?? 'fallback', matchConfidence: 1 },
-        needsReview: review || unitPrice == null,
+        provenance: { kind: 'presupuesto', source: viaFallback ? `presupuesto CYE (vía ${ruleCat})` : 'presupuesto CYE (histórico)', detail, priceSource: priced?.source ?? 'fallback', matchConfidence: 1 },
+        needsReview: review || unitPrice == null || viaFallback,
       })
     }
 
-    if (normRules.length === 0 && !(kb.rulesByCategory.get(cat)?.length)) {
+    if (normRules.length === 0 && !(kb.rulesByCategory.get(ruleCat)?.length)) {
       warnings.push(`Sin reglas (normativa ni presupuesto) para categoría "${cat}" (tramo ${tramo ?? '—'})`)
     }
   }
