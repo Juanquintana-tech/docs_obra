@@ -232,11 +232,12 @@ interface PlanLine {
 - [ ] **Objetivo de precisión acordado** (propuesta: ±5% total de obra y cobertura de líneas ≥95%).
 - **DoD:** paridad alcanzada (bate el baseline de Etapa 0 y cumple el objetivo).
 
-### Etapa 5 — UI: presupuesto por tramo + trazabilidad + curación
-- [ ] `Detalle`: plan agrupado por tramo/sección; provenance por línea ("regla X · freq Y · precio fuente Z").
-- [ ] Líneas de fallback marcadas para preciado manual.
-- [ ] (Opcional) UI de curación de la KB (ensayos/precios/reglas), o edición en fuentes + rebuild.
-- **DoD:** un presupuesto generado es legible y auditable por línea desde la UI.
+### Etapa 5 — UI: presupuesto por tramo + trazabilidad ✅ *(hecho 2026-06-26)*
+- [x] Página **"Presupuesto BBDD"** (`/bbdd`, menú Herramientas): elegir documento → plan por tramo.
+- [x] Por línea: nº ensayos, precio, importe y **provenance** (normativa+artículo o "presupuesto CYE" + fuente de precio). Líneas `needsReview` resaltadas. KPIs (base/IVA/total) + banner de avisos (sanity-check).
+- [x] `services/bbddPlan.ts` + IPC `bbdd:generateFromDoc` + `api.bbddGenerate`.
+- [ ] (Diferido) UI de curación de la KB / edición por el cliente con persistencia de correcciones.
+- **DoD:** ✅ build+typecheck verdes; render/clic en vivo pendiente de `npm run dev` (entorno de desarrollo headless).
 
 ### Etapa 6 — Agente conversacional + bucle de aprendizaje *(sobre el motor)*
 - [ ] Agente tool-calling para "¿por qué este ensayo?" y edición NL — **las herramientas son las consultas deterministas del motor** (respuestas fundamentadas, no inventadas).
@@ -313,6 +314,7 @@ interface PlanLine {
 - **2026-06-26** — **Etapa 2 completada**: motor determinista (`kb/kb.ts` + `kb/engine.ts`), validación `kb:plan` con determinismo verificado.
 - **2026-06-26** — **Política de frecuencia afinada con datos** (umbral volumen 500.000 m³) — *luego corregida, ver siguiente*.
 - **2026-06-26** — **Investigación normativa 1ª tanda (deep-research, verificada vs BOE)** → [`NORMATIVA_FRECUENCIAS.md`](NORMATIVA_FRECUENCIAS.md). **Corrige el modelo:** 5.000/10.000 = superficies de lote por altura de terraplén, NO volumen. Dos controles: fabricación (por m³) y recepción (por lote). Verificado: terraplén (330/332), zahorra (510), suelo estab. recepción (512.9.3), bituminosa recepción (542.9.4).
+- **2026-06-26** — **Etapa 5 — UI "Presupuesto BBDD".** Página `/bbdd` (por tramo, trazabilidad por línea, needsReview, KPIs, avisos) + `services/bbddPlan.ts` + IPC + preload. Build electron-vite y typecheck verdes; verificación visual en vivo pendiente de `npm run dev`.
 - **2026-06-26** — **Hormigón/acero arreglados + calibración empírica.** El gap-fill ahora calcula por la magnitud correcta (m³/t/m²/m), kg→t, y SERVICIO se factura directo. Calibración desde ejemplos reales: ensayos que NO escalan con el volumen (caracterización: penetración, geométrica de acero…) reclasificados per_quantity→per_type (11 reglas) → corrige la sobre-extrapolación. Sanity-check por categoría (avisa de cantidades inusuales, p.ej. acero 61.380 t). **End-to-end: E8 −4,7%, E6 −38%** (residuo E6 = acero_activo/laminado sin reglas). Resuelto con **fallback de categoría** (acero_activo/laminado → acero, replica ejemplos): **E8 −2,9%, E6 −26%**. Escollera sigue sin reglas (frecuencia PPTP, impacto menor) — pendiente opcional.
 - **2026-06-26** — **Etapa 3 — extractor LLM hecho.** `kbExtractor` (doc→`classifyMaterials`→`SectionInput[]`, capa/altura inferidas) + SERVICIO en el motor + harness `kb:extract`. End-to-end: E8 **Δ −6,6%**, E6 −50% (infraconteo por datos de hormigón/acero incompletos, no por el extractor). **Siguiente: completar hormigón/acero (Etapa 1bis) y paridad (Etapa 4).**
 - **2026-06-26** — **Motor integrado (Etapa 2 cerrada en lo esencial).** `generatePlan` reescrito al modelo por lote + gap-fill (normativa manda, presupuesto rellena); `kb.matchTest` mapea batería→ensayo canónico para precio. Validado vs total real de los 8 proyectos: corregido el sobreconteo catastrófico (regla "1/10 lotes" inflaba a 440.000 ensayos → 6,6M€). Estado: E5 −16%, E8 −51% (infraconteo por secciones sin cantidad/superficie). **Refinamiento pendiente:** dedup de ensayos de control duplicados (densidad normativa vs presupuesto). **Paridad fina = Etapa 4** (necesita extractor con superficie/longitud/altura/capa).
