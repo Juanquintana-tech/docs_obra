@@ -121,6 +121,22 @@ export function generatePlan(
     const cat = section.categoryCode
     const covered = new Set<string>()
 
+    // 0) SERVICIO: el ítem ES el ensayo/servicio → se factura cantidad × precio (sin batería).
+    if (cat === 'SERVICIO') {
+      const desc = section.material ?? section.tramo ?? 'Servicio'
+      const m = kb.matchTest(desc)
+      const priced = m ? effectivePrice(kb, m.testId) : null
+      const nTests = Math.max(1, Math.round(section.quantity ?? 1))
+      const unitPrice = priced?.price ?? null
+      lines.push({
+        tramo, testId: m?.testId ?? null, description: m ? kb.tests.get(m.testId)!.canonicalDesc : desc, categoryCode: cat,
+        nTests, unitPrice, total: unitPrice != null ? Math.round(nTests * unitPrice * 100) / 100 : null,
+        provenance: { kind: 'presupuesto', source: 'servicio directo', detail: `${nTests} × precio`, priceSource: priced?.source ?? 'fallback', matchConfidence: m?.confidence ?? 0 },
+        needsReview: unitPrice == null,
+      })
+      continue
+    }
+
     // 1) Reglas normativas (autoridad de frecuencia)
     const normRules = (normByCat.get(cat) ?? []).filter((r) => r.controlType !== 'material_acceptance')
     for (const rule of normRules) {

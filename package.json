@@ -13,6 +13,7 @@
     "kb:build": "tsx src/main/pipeline/harness/kb/buildKb.ts",
     "kb:plan": "tsx src/main/pipeline/harness/kb/planDemo.ts",
     "kb:lote": "tsx src/main/pipeline/harness/kb/planLote.ts",
+    "kb:extract": "tsx src/main/pipeline/harness/kb/planExtract.ts",
     "rag:demo": "tsx src/main/pipeline/harness/ragDemo.ts",
     "rag:eval": "tsx src/main/pipeline/harness/evaluate.ts",
     "rag:build-embeddings": "tsx src/main/pipeline/harness/buildEmbeddings.ts",
