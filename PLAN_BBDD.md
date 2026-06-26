@@ -199,13 +199,16 @@ interface PlanLine {
 - [x] Validación `kb:plan`: caso controlado + **determinismo verificado** (mismo input → salida byte-idéntica, sale ≠0 si falla).
 - **DoD:** ✅ motor corre, determinista, con provenance y fallback marcado.
 
-> **Política de frecuencia — RESUELTA (2026-06-26, validada con datos).** Análisis de los
-> presupuestos: la frecuencia se engruesa con el **volumen del propio material** (no con el
-> total de obra). Patrón: E4/E5/E6 (≤300k m³) → 1/5.000; E8 (4,4M m³) → 1/10.000. Decisión del
-> usuario: **umbral único 500.000 m³** (≤ → 1/5.000, > → 1/10.000). Implementado en el motor:
-> `kb.ts` conserva los escalones observados por ensayo (`qtyTiers`) y `engine.ts` elige el más
-> cercano al objetivo según el volumen de la sección (`resolveFreqQty`, `VOLUME_THRESHOLD`
-> configurable). Validación: TERRAPLÉN 4,4M m³ → **440 ensayos, igual que E8 real** (antes 880).
+> **Política de frecuencia — CORREGIDA con normativa (2026-06-26).** La hipótesis "por volumen"
+> (umbral 500.000 m³) resultó **errónea**: la investigación normativa (verificada vs BOE, ver
+> [`NORMATIVA_FRECUENCIAS.md`](NORMATIVA_FRECUENCIAS.md)) demuestra que el 5.000/10.000 son
+> **superficies (m²) del lote** y el conmutador es la **altura del terraplén** (<5 m / ≥5 m),
+> no el volumen. El `VOLUME_THRESHOLD` de `engine.ts` queda **superado**. Modelo correcto = **dos
+> controles**: FABRICACIÓN (por volumen, escalones 1.000/5.000/20.000 m³) y RECEPCIÓN/EJECUCIÓN
+> (por **lote** = menor de 500 m / superficie m² / fracción diaria × batería fija por lote).
+> **Implica rehacer el motor a "por lote"** y que el extractor (Etapa 3) aporte superficie,
+> longitud, altura y nº de tongadas — no solo volumen. La frecuencia es **autoridad normativa**;
+> los presupuestos CYE solo calibran el **precio**.
 
 > **Limitación conocida (la resuelve Etapa 3).** Muchas secciones eval no tienen cantidad, y
 > ensayos por área/tongada (m²) no se calculan en secciones medidas en m³ → se marcan. Por eso
@@ -303,4 +306,5 @@ interface PlanLine {
 - **2026-06-26** — Ambigüedades resueltas (E5→`BASE`, E7→`0414.26 P.xls`, cerrado con 8+ALAGAL) y **Etapa 1 construida**: módulo `src/main/pipeline/kb/` + harness `kb/{importAlagal,importCye,buildKb}.ts`, scripts `kb:import-alagal`/`kb:import-cye`/`kb:build`, fuentes curadas en `resources/knowledge/curated/` y `kb.sqlite` (gitignored). Typecheck verde.
 - **2026-06-26** — **Pulido de datos**: `freq_unit` estructurado (`freqKind/freqQty/freqMagUnit`), ditto resuelto, variantes fusionadas (176 reglas). El motor ya calcula lotes vía SQL (`ceil(qty/freqQty)`).
 - **2026-06-26** — **Etapa 2 completada**: motor determinista (`kb/kb.ts` + `kb/engine.ts`), validación `kb:plan` con determinismo verificado.
-- **2026-06-26** — **Política de frecuencia afinada con datos**: escalón por volumen del material, umbral 500.000 m³ (≤→1/5.000, >→1/10.000). El motor (`resolveFreqQty`/`qtyTiers`) replica el E8 real (TERRAPLÉN 4,4M m³ → 440 ensayos). **Siguiente: Etapa 3 — extractor LLM** (doc → mediciones por tramo, con cantidades y áreas), que destraba la paridad de Etapa 4.
+- **2026-06-26** — **Política de frecuencia afinada con datos** (umbral volumen 500.000 m³) — *luego corregida, ver siguiente*.
+- **2026-06-26** — **Investigación normativa (deep-research, verificada vs BOE)** → [`NORMATIVA_FRECUENCIAS.md`](NORMATIVA_FRECUENCIAS.md). **Corrige el modelo:** 5.000/10.000 = superficies de lote por altura de terraplén, NO volumen. Frecuencia = autoridad normativa (PG-3/FOM-2523/2014), no inferida de presupuestos. Dos controles: fabricación (por m³) y recepción (por lote = superficie/longitud/día). **Decisión pendiente con el usuario: rehacer el modelo de frecuencia a "por lote".** Pendiente 2ª tanda: hormigón, acero, escolleras, riegos, marcas viales.
