@@ -320,6 +320,7 @@ function main(): void {
   const aliases = new Map<string, KbAlias>()
   const freqAgg = new Map<string, KbFrequencyRule>()
   const priceAgg = new Map<string, number[]>() // testId → precios CYE
+  const obsByCatTest = new Map<string, number[]>() // `${cat}|${testId}` → nTests observados (calibración)
   let totalLines = 0, matched = 0
   let cyeSeq = 1
 
@@ -349,6 +350,13 @@ function main(): void {
         if (!priceAgg.has(testId)) priceAgg.set(testId, [])
         priceAgg.get(testId)!.push(l.precioUnitario)
 
+        // Observación para calibración (¿el nº de ensayos escala con el volumen o es plano?)
+        if (s.category) {
+          const ok = `${s.category}|${testId}`
+          if (!obsByCatTest.has(ok)) obsByCatTest.set(ok, [])
+          obsByCatTest.get(ok)!.push(l.nTests)
+        }
+
         // Regla de frecuencia (solo si hay categoría y datos de frecuencia)
         if (s.category && l.muestreo != null && l.freqUnit) {
           const pf = parseFreqUnit(l.freqUnit)
@@ -369,6 +377,25 @@ function main(): void {
           })
         }
       }
+    }
+  }
+
+  // ── Calibración empírica: ensayos que NO escalan con el volumen → per_type ──
+  // Si en los presupuestos reales el nº de ensayos de un (categoría, ensayo) es siempre
+  // pequeño (≤5) pese a variar la cantidad, es caracterización por tipo, no por volumen.
+  // Evita sobre-extrapolar (p.ej. "penetración de agua" 1/100 m³ → 712 en 71.000 m³).
+  const FLAT_MAX = 5
+  let recalibrated = 0
+  for (const rule of freqAgg.values()) {
+    if (rule.freqKind !== 'per_quantity') continue
+    const obs = obsByCatTest.get(`${rule.categoryCode}|${rule.testId}`)
+    if (obs && obs.length > 0 && Math.max(...obs) <= FLAT_MAX) {
+      rule.freqKind = 'per_type'
+      rule.muestreo = Math.max(1, Math.round(median(obs)))
+      rule.freqQty = null
+      rule.freqMagUnit = null
+      rule.freqUnit = `${rule.freqUnit} [calibrado: plano→por tipo]`
+      recalibrated++
     }
   }
 
@@ -398,7 +425,7 @@ function main(): void {
   console.log(`  ensayos específicos de CYE (no en ALAGAL → canónicos C-*): ${cyeTests.length}`)
   console.log(`    · con norma (revisar, posibles recuperables): ${cyeTests.filter((t) => t.normCodes.length).length}`)
   console.log(`    · sin norma (eléctricos/saneamiento/edificación, legítimos): ${cyeTests.filter((t) => !t.normCodes.length).length}`)
-  console.log(`Reglas de frecuencia derivadas: ${freqAgg.size}`)
+  console.log(`Reglas de frecuencia derivadas: ${freqAgg.size} (${recalibrated} recalibradas plano→por tipo)`)
   console.log(`Precios tarifa_cye: ${cyePrices.length} ensayos`)
   console.log(`Aliases: ${aliases.size}`)
   console.log(`\n→ ${CURATED}/{frequency_rules,cye_prices,aliases,cye_tests,eval_projects}.json`)

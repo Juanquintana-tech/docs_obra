@@ -120,6 +120,32 @@ function budgetTests(rule: KbFrequencyRule, lot: LotSection): { nTests: number; 
   return { nTests: muestreo, detail: `${rule.freqUnit} (inferida, revisar)`, review: true }
 }
 
+/**
+ * Techos "razonables" por categoría (en su magnitud natural) para sanity-check.
+ * Superarlos NO altera el cálculo; solo emite un aviso para que se revise el dato
+ * de entrada (p.ej. un Totalizados con 61.379 t de acero).
+ */
+const SANITY_MAX: Record<string, { mag: 'volume_m3' | 'tonnage_t' | 'surface_m2' | 'length_m'; max: number }> = {
+  ACERO: { mag: 'tonnage_t', max: 20_000 },
+  ACERO_ACTIVO: { mag: 'tonnage_t', max: 5_000 },
+  ACERO_LAMINADO: { mag: 'tonnage_t', max: 10_000 },
+  HORMIGON: { mag: 'volume_m3', max: 300_000 },
+  ZAHORRA_ARTIFICIAL: { mag: 'volume_m3', max: 2_000_000 },
+  SUELO_ESTABILIZADO: { mag: 'volume_m3', max: 2_000_000 },
+  MEZCLA_BITUMINOSA: { mag: 'tonnage_t', max: 500_000 },
+  TERRAPLEN_RELLENOS: { mag: 'volume_m3', max: 20_000_000 },
+}
+
+function sanityWarn(section: SectionInput, lot: LotSection): string | null {
+  const s = SANITY_MAX[section.categoryCode]
+  if (!s) return null
+  const v = lot[s.mag]
+  if (v != null && v > s.max) {
+    return `Cantidad inusual en "${section.categoryCode}" (tramo ${section.tramo ?? '—'}): ${Math.round(v).toLocaleString('es-ES')} ${s.mag.split('_')[1]} > ${s.max.toLocaleString('es-ES')} esperado — revisar el dato de entrada.`
+  }
+  return null
+}
+
 export function generatePlan(
   sections: SectionInput[],
   kb: Kb,
@@ -130,6 +156,8 @@ export function generatePlan(
 
   for (const section of sections) {
     const lot = toLotSection(section)
+    const sw = sanityWarn(section, lot)
+    if (sw) warnings.push(sw)
     const tramo = section.tramo ?? null
     const cat = section.categoryCode
     const covered = new Set<string>()
