@@ -1236,7 +1236,7 @@
               "descripcion": "Prueba de servicio de la instalación de fontanería, determinando: -Grupo de presión (nivel muestreo 100%): Presiones de tarado Secuencias y alternancias de bombas. Consumo de motores. -Red de tuberías Prueba de resistenc",
               "testId": "C-0037",
               "muestreo": null,
-              "freqUnit": "\"",
+              "freqUnit": "PA",
               "nTests": 1,
               "precioUnitario": 420,
               "importe": 420
@@ -1247,7 +1247,7 @@
               "descripcion": "Prueba de servicio de electricidad e iluminación RBT, determinando: - Medición de la resistencia de aislamiento - Circuitos: Reparto de cargas, caidas de tensión, equipotencialidad - Cuadros eléctricos - Resistencia de p",
               "testId": "C-0038",
               "muestreo": null,
-              "freqUnit": "\"",
+              "freqUnit": "PA",
               "nTests": 1,
               "precioUnitario": 900,
               "importe": 900
@@ -1258,7 +1258,7 @@
               "descripcion": "Prueba de servicio de calefacción y ACS determinando: - Circulación y libre dilatación: Identificación, Deformaciones y expansión - Conductos de distribución: velocidad, cuadales, temperaturas, sondas, compuertas - Clima",
               "testId": "C-0039",
               "muestreo": null,
-              "freqUnit": "\"",
+              "freqUnit": "PA",
               "nTests": 1,
               "precioUnitario": 570,
               "importe": 570
@@ -1269,7 +1269,7 @@
               "descripcion": "Prueba de servicio de contra incendios, determinando: - Detectores - Central de señalización y alarma - Pulsadores - Extintores - Estanqueidad y presiones de las bocas de incendios e hidrantes",
               "testId": "C-0040",
               "muestreo": null,
-              "freqUnit": "\"",
+              "freqUnit": "PA",
               "nTests": 1,
               "precioUnitario": 450,
               "importe": 450
@@ -3475,7 +3475,7 @@
               "descripcion": "Determinación de la Deformación Permanente según UNE EN 12697-22",
               "testId": "T-0320",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "10.000 t y tipo",
               "nTests": 2,
               "precioUnitario": 420,
               "importe": 840
@@ -3850,7 +3850,7 @@
               "descripcion": "Extracción de testigo en mezcla bituminosa en caliente y determinación de la adherencia a cortante entre capas UNE EN 12697-27 y NLT-381",
               "testId": "T-0333",
               "muestreo": 3,
-              "freqUnit": "\"",
+              "freqUnit": "500 m, calzada y mezcla (sin rodadura)",
               "nTests": 120,
               "precioUnitario": 48,
               "importe": 5760
@@ -4003,7 +4003,7 @@
               "descripcion": "Visita de inspección para la realización de ensayos no destructivos de uniones soldadas a tope o fuerza. Examen por ultrasonidos UNE-EN ISO 17640. Realización en obra o taller a < 50 km de obra",
               "testId": "T-0129",
               "muestreo": null,
-              "freqUnit": "\"",
+              "freqUnit": "Muestreo aleatorio",
               "nTests": 5,
               "precioUnitario": 510,
               "importe": 2550
@@ -4014,7 +4014,7 @@
               "descripcion": "Visita de inspección para la determinación del espesor de recubrimiento UNE EN ISO 2808 y/o comprobación de la adherencia del recubrImiento de la estructura metálica UNE EN ISO 2409. Realización en obra o taller a < 50 k",
               "testId": "T-0697",
               "muestreo": null,
-              "freqUnit": "\"",
+              "freqUnit": "Muestreo aleatorio",
               "nTests": 5,
               "precioUnitario": 285,
               "importe": 1425
@@ -4410,7 +4410,7 @@
               "descripcion": "Límites de Atterberg UNE 103103:94 y 103014:93",
               "testId": "T-0182",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 10,
               "precioUnitario": 33,
               "importe": 330
@@ -4421,7 +4421,7 @@
               "descripcion": "Proctor Modificado UNE 103501:94",
               "testId": "T-0144",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 10,
               "precioUnitario": 48,
               "importe": 480
@@ -4432,7 +4432,7 @@
               "descripcion": "Índice CBR en laboratorio, sin incluir Proctor (tres puntos) UNE 103502:95",
               "testId": "T-0145",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 10,
               "precioUnitario": 65,
               "importe": 650
@@ -4443,7 +4443,7 @@
               "descripcion": "Ensayo de hinchamiento libre en edómetro UNE 103601:96",
               "testId": "T-0147",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 10,
               "precioUnitario": 45,
               "importe": 450
@@ -4454,7 +4454,7 @@
               "descripcion": "Ensayo de colapso en suelos NLT 254",
               "testId": "T-0148",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 10,
               "precioUnitario": 45,
               "importe": 450
@@ -4465,7 +4465,7 @@
               "descripcion": "Contenido de materia orgánica en suelos UNE 103204:93",
               "testId": "T-0135",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 10,
               "precioUnitario": 30,
               "importe": 300
@@ -4476,7 +4476,7 @@
               "descripcion": "Contenido de sales solubles en suelos NLT 114-99",
               "testId": "T-0138",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 10,
               "precioUnitario": 30,
               "importe": 300
@@ -4487,7 +4487,7 @@
               "descripcion": "Contenido de yesos en suelos NLT 115-99",
               "testId": "T-0139",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 10,
               "precioUnitario": 30,
               "importe": 300
@@ -4624,7 +4624,7 @@
               "descripcion": "Límites de Atterberg UNE 103103:94 y 103014:93",
               "testId": "T-0182",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 3,
               "precioUnitario": 33,
               "importe": 99
@@ -4635,7 +4635,7 @@
               "descripcion": "Proctor Modificado UNE 103501:94",
               "testId": "T-0144",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 3,
               "precioUnitario": 48,
               "importe": 144
@@ -4646,7 +4646,7 @@
               "descripcion": "Índice CBR en laboratorio, sin incluir Proctor (tres puntos) UNE 103502:95",
               "testId": "T-0145",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 3,
               "precioUnitario": 65,
               "importe": 195
@@ -4657,7 +4657,7 @@
               "descripcion": "Ensayo de hinchamiento libre en edómetro UNE 103601:96",
               "testId": "T-0147",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 3,
               "precioUnitario": 45,
               "importe": 135
@@ -4668,7 +4668,7 @@
               "descripcion": "Ensayo de colapso en suelos NLT 254",
               "testId": "T-0148",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 3,
               "precioUnitario": 45,
               "importe": 135
@@ -4679,7 +4679,7 @@
               "descripcion": "Contenido de materia orgánica en suelos UNE 103204:93",
               "testId": "T-0135",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 3,
               "precioUnitario": 30,
               "importe": 90
@@ -4690,7 +4690,7 @@
               "descripcion": "Contenido de sales solubles en suelos NLT 114-99",
               "testId": "T-0138",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 3,
               "precioUnitario": 30,
               "importe": 90
@@ -4701,7 +4701,7 @@
               "descripcion": "Contenido de yesos en suelos NLT 115-99",
               "testId": "T-0139",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "5.000 m3 y tipo",
               "nTests": 3,
               "precioUnitario": 30,
               "importe": 90
@@ -4775,7 +4775,7 @@
               "descripcion": "Límites de Atterberg UNE 103103, 103104",
               "testId": "T-0182",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "Tipo de material",
               "nTests": 3,
               "precioUnitario": 33,
               "importe": 99
@@ -4786,7 +4786,7 @@
               "descripcion": "Contenido de sulfatos solubles UNE 103201",
               "testId": "T-0205",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "Tipo de material",
               "nTests": 3,
               "precioUnitario": 30,
               "importe": 90
@@ -4797,7 +4797,7 @@
               "descripcion": "Contenido de materia orgánica UNE 103204",
               "testId": "T-0135",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "Tipo de material",
               "nTests": 3,
               "precioUnitario": 30,
               "importe": 90
@@ -4808,7 +4808,7 @@
               "descripcion": "Reactividad potencial de los áridos a los álcalis del cemento UNE 146507-1",
               "testId": "T-0045",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "Tipo de material",
               "nTests": 3,
               "precioUnitario": 150,
               "importe": 450
@@ -4819,7 +4819,7 @@
               "descripcion": "Ensayo de hinchamiento libre UNE 103601. Si se trata de un suelo tolerable",
               "testId": "T-0147",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "Tipo de material",
               "nTests": 3,
               "precioUnitario": 45,
               "importe": 135
@@ -4830,7 +4830,7 @@
               "descripcion": "Ensayo de colapso en suelos NLT-254. Si se trata de un suelo tolerable",
               "testId": "T-0148",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "Tipo de material",
               "nTests": 3,
               "precioUnitario": 45,
               "importe": 135
@@ -4841,7 +4841,7 @@
               "descripcion": "Proctor Modificado UNE 103501-94",
               "testId": "T-0144",
               "muestreo": 1,
-              "freqUnit": "\"",
+              "freqUnit": "Tipo de material",
               "nTests": 3,
               "precioUnitario": 48,
               "importe": 144

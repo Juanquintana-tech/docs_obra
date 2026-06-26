@@ -114,6 +114,37 @@ function parseCombinedFreq(s: string): { muestreo: number | null; freqUnit: stri
   return { muestreo: null, freqUnit: str || null }
 }
 
+/** Marca de "ídem la celda de arriba" usada en las columnas UD de los presupuestos. */
+const DITTO_RE = /^(["“”']+|-"-|[íi]d\.?(em)?|igual)$/i
+function isDitto(s: string): boolean {
+  return DITTO_RE.test(clean(s))
+}
+
+/** Normaliza una unidad de magnitud a forma canónica (m³→m3, tm→t, u→ud…). */
+function canonMagUnit(u: string): string {
+  const x = u.toLowerCase().replace('³', '3').replace('²', '2').trim()
+  if (x === 'tm' || x === 'tn') return 't'
+  if (x === 'u') return 'ud'
+  return x
+}
+
+/**
+ * Estructura el texto de frecuencia (columna UD) para el motor determinista.
+ * "5.000 m3" / "5000 m3" → {per_quantity, 5000, m3}   ·   "Por material" → {per_type}
+ */
+function parseFreqUnit(raw: string): { kind: import('../../kb/types').FreqKind; qty: number | null; unit: string | null } {
+  const s = clean(raw).toLowerCase()
+  if (!s) return { kind: 'other', qty: null, unit: null }
+  const lot = s.match(/([\d.,]+)\s*lote/)
+  if (lot) return { kind: 'per_lot', qty: toNum(lot[1]), unit: 'lote' }
+  const m = s.match(/([\d.,]+)\s*(m3|m2|ml|t|tm|tn|km|kg|ud|u|m)\b/)
+  if (m) return { kind: 'per_quantity', qty: toNum(m[1]), unit: canonMagUnit(m[2]) }
+  if (/jornada|visita|d[íi]a|equipo|despla|moviliz|traslado|fija|sonda/.test(s)) return { kind: 'fixed', qty: null, unit: null }
+  if (/elemento|element|pila|estribo|zapata|pilar|fachada/.test(s)) return { kind: 'per_element', qty: 1, unit: null }
+  if (/tipo|material|mezcla|emulsi[óo]n|f[óo]rmula|huso|serie|clase|procedencia|capa/.test(s)) return { kind: 'per_type', qty: 1, unit: null }
+  return { kind: 'other', qty: null, unit: null }
+}
+
 const IS_SUBSECTION_RE = /^ensayos?\s+(de|control|complet|identif|caracter)|^control\s+de/i
 const IS_NOISE_RE = /^(observ|muestreo|p\.\s*unitario|precio|importe|uds?\.|concepto|medici[óo]n|m[íi]nimo|total|base imponible|iva|n[ºo°]\s*ensayos)/i
 
@@ -137,6 +168,7 @@ function parseBudget(id: string, path: string, sheet: string | undefined): Parse
   let cur: EvalSection | null = null
   let nombre = ''
   let totalBase = 0
+  let lastFreqUnit: string | null = null // para resolver marcas ditto (")
 
   for (let i = headerRow + 1; i < rows.length; i++) {
     const row = rows[i]
@@ -171,6 +203,7 @@ function parseBudget(id: string, path: string, sheet: string | undefined): Parse
           lines: [],
         }
         sections.push(cur)
+        lastFreqUnit = null // el ditto no cruza cabeceras de sección
       }
       continue
     }
@@ -189,7 +222,10 @@ function parseBudget(id: string, path: string, sheet: string | undefined): Parse
       muestreo = f.muestreo; freqUnit = f.freqUnit
     } else if (cm.muestreo >= 0) {
       muestreo = toNum(row[cm.muestreo])
-      freqUnit = clean(row[cm.frequnit]) || null
+      const rawFreq = clean(row[cm.frequnit])
+      if (isDitto(rawFreq)) freqUnit = lastFreqUnit // hereda la unidad de arriba
+      else if (rawFreq) { freqUnit = rawFreq; lastFreqUnit = rawFreq }
+      else freqUnit = null
     }
     const nTests = toNum(row[cm.ntests]) ?? Math.max(1, Math.round(total! / price!))
 
@@ -315,10 +351,22 @@ function main(): void {
 
         // Regla de frecuencia (solo si hay categoría y datos de frecuencia)
         if (s.category && l.muestreo != null && l.freqUnit) {
-          const fk = `${s.category}|${testId}|${normalize(l.freqUnit)}`
+          const pf = parseFreqUnit(l.freqUnit)
+          // Clave canónica: fusiona "5.000 m3"/"5000 m3" y "Por material"/"Por tipo".
+          const canonKey =
+            pf.kind === 'per_quantity' || pf.kind === 'per_lot'
+              ? `${pf.kind}:${pf.qty}:${pf.unit}`
+              : pf.kind === 'other'
+                ? `other:${normalize(l.freqUnit)}`
+                : pf.kind
+          const fk = `${s.category}|${testId}|${canonKey}`
           const existing = freqAgg.get(fk)
           if (existing) existing.sources++
-          else freqAgg.set(fk, { categoryCode: s.category, testId, muestreo: l.muestreo, freqUnit: l.freqUnit, sources: 1, rawDesc: l.descripcion })
+          else freqAgg.set(fk, {
+            categoryCode: s.category, testId, muestreo: l.muestreo,
+            freqUnit: l.freqUnit, freqKind: pf.kind, freqQty: pf.qty, freqMagUnit: pf.unit,
+            sources: 1, rawDesc: l.descripcion,
+          })
         }
       }
     }

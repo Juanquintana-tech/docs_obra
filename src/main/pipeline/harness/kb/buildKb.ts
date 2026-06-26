@@ -66,7 +66,8 @@ function main(): void {
     );
     CREATE TABLE kb_frequency_rules (
       id INTEGER PRIMARY KEY AUTOINCREMENT, category_code TEXT NOT NULL, test_id TEXT NOT NULL,
-      muestreo REAL, freq_unit TEXT, sources INTEGER, raw_desc TEXT
+      muestreo REAL, freq_unit TEXT, freq_kind TEXT, freq_qty REAL, freq_mag_unit TEXT,
+      sources INTEGER, raw_desc TEXT
     );
     CREATE TABLE kb_eval_projects (
       id TEXT PRIMARY KEY, nombre TEXT, archivo TEXT, formato TEXT, total_base REAL
@@ -105,8 +106,8 @@ function main(): void {
     const insAlias = db.prepare('INSERT OR IGNORE INTO kb_aliases VALUES (?,?,?)')
     for (const a of aliases) insAlias.run(a.alias, a.testId, a.source)
 
-    const insRule = db.prepare('INSERT INTO kb_frequency_rules (category_code,test_id,muestreo,freq_unit,sources,raw_desc) VALUES (?,?,?,?,?,?)')
-    for (const r of rules) insRule.run(r.categoryCode, r.testId, r.muestreo, r.freqUnit, r.sources, r.rawDesc)
+    const insRule = db.prepare('INSERT INTO kb_frequency_rules (category_code,test_id,muestreo,freq_unit,freq_kind,freq_qty,freq_mag_unit,sources,raw_desc) VALUES (?,?,?,?,?,?,?,?,?)')
+    for (const r of rules) insRule.run(r.categoryCode, r.testId, r.muestreo, r.freqUnit, r.freqKind, r.freqQty, r.freqMagUnit, r.sources, r.rawDesc)
 
     const insProj = db.prepare('INSERT INTO kb_eval_projects VALUES (?,?,?,?,?)')
     const insLine = db.prepare('INSERT INTO kb_eval_lines (project_id,seccion,section_quantity,section_unit,category_code,descripcion,test_id,muestreo,freq_unit,n_tests,precio_unitario,importe) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
@@ -125,11 +126,18 @@ function main(): void {
     console.log(`  ${t.padEnd(22)} ${count(t)}`)
   }
 
+  // ── Distribución de tipos de frecuencia (calidad de curación) ─────────────
+  console.log(`\nTipos de frecuencia (kb_frequency_rules):`)
+  const kinds = db.prepare('SELECT freq_kind, COUNT(*) c FROM kb_frequency_rules GROUP BY freq_kind ORDER BY c DESC').all() as Array<{ freq_kind: string; c: number }>
+  for (const k of kinds) console.log(`  ${String(k.c).padStart(3)}  ${k.freq_kind}`)
+
   // ── Consulta de demostración del motor determinista ───────────────────────
-  // "Para TERRAPLEN_RELLENOS: ensayos con su frecuencia y precio (CYE > ALAGAL)"
-  console.log(`\nDEMO — TERRAPLEN_RELLENOS (ensayo · muestreo/freq · precio efectivo):`)
+  // "Para TERRAPLEN_RELLENOS con 4.400.000 m3: ensayos, lotes calculados y precio."
+  const SECTION_QTY = 4_400_000
+  console.log(`\nDEMO motor — TERRAPLEN_RELLENOS, sección de ${SECTION_QTY.toLocaleString('es-ES')} m3:`)
+  console.log(`  (lotes = ceil(qty / freq_qty) cuando freq es per_quantity; precio CYE > ALAGAL)`)
   const demo = db.prepare(`
-    SELECT r.test_id, r.muestreo, r.freq_unit, r.sources,
+    SELECT r.muestreo, r.freq_kind, r.freq_qty, r.freq_mag_unit, r.sources,
            COALESCE(pc.price, pa.price) AS price,
            CASE WHEN pc.price IS NOT NULL THEN 'cye' ELSE 'alagal' END AS price_src,
            t.canonical_desc
@@ -137,11 +145,14 @@ function main(): void {
     JOIN kb_tests t ON t.id = r.test_id
     LEFT JOIN kb_prices pc ON pc.test_id = r.test_id AND pc.source = 'tarifa_cye'
     LEFT JOIN kb_prices pa ON pa.test_id = r.test_id AND pa.source = 'alagal'
-    WHERE r.category_code = 'TERRAPLEN_RELLENOS'
+    WHERE r.category_code = 'TERRAPLEN_RELLENOS' AND r.freq_kind = 'per_quantity'
     ORDER BY r.sources DESC LIMIT 8
-  `).all() as Array<{ muestreo: number; freq_unit: string; sources: number; price: number; price_src: string; canonical_desc: string }>
+  `).all() as Array<{ muestreo: number; freq_qty: number; freq_mag_unit: string; sources: number; price: number; price_src: string; canonical_desc: string }>
   for (const d of demo) {
-    console.log(`  ${String(d.price).padStart(5)}€[${d.price_src}] · ${d.muestreo}/${d.freq_unit?.slice(0, 16).padEnd(16)} · (×${d.sources}) ${d.canonical_desc.slice(0, 46)}`)
+    const lots = d.freq_qty ? Math.ceil(SECTION_QTY / d.freq_qty) : 0
+    const nTests = lots * (d.muestreo || 1)
+    const importe = nTests * d.price
+    console.log(`  ${String(nTests).padStart(4)} ens × ${String(d.price).padStart(4)}€ = ${String(Math.round(importe)).padStart(7)}€ [${d.price_src}] · 1/${d.freq_qty} ${d.freq_mag_unit} · ${d.canonical_desc.slice(0, 38)}`)
   }
   db.close()
 }

@@ -187,8 +187,9 @@ interface PlanLine {
 - [x] Importador **presupuestos CYE** (`kb:import-cye`) → 8 proyectos, 4 esquemas de columnas, **226 reglas de frecuencia**, 207 precios `tarifa_cye`, 196 aliases, 103 ensayos CYE-específicos.
 - [x] Build `kb:build` → `kb.sqlite` reproducible (node:sqlite; 7 tablas `kb_*`, 852 tests, 956 precios, 707 líneas eval).
 - [x] **Informe de cobertura**: preciado **100%** (toda línea tiene precio); reutilización ALAGAL **77%**; resto = ensayos CYE-específicos (93 sin norma = eléctricos/saneamiento/edificación, legítimos; ~10 con norma a revisar).
-- [ ] *Pendiente de pulido (iterativo):* normalizar `freq_unit` con comillas-ditto (`"`); revisar los ~10 norm-coded recuperables; resolver prioridad de precio en conflictos.
-- **DoD:** ✅ `kb:build` reproducible + cobertura de preciado 100%. Curación fina queda como tarea continua.
+- [x] **Pulido de curación (2026-06-26):** ditto (`"`) heredado; `freq_unit` estructurado en `{freqKind, freqQty, freqMagUnit}`; fusión de variantes (`5.000`/`5000 m3`, `Por material`/`Por tipo`) → reglas 226→**176**. Clasificadas: 106 per_quantity, 44 per_type, 6 per_element, 5 fixed, 1 per_lot, **13 other** (condicionales legítimas: "Si procede", "Informe"… correctamente marcadas para revisión).
+- [x] Verificado: los ~10 norm-coded no emparejados **no están en ALAGAL** (NLT-329/336/251, UNE 41240…) → CYE-específicos correctos, no hay matching que recuperar.
+- **DoD:** ✅ `kb:build` reproducible + preciado 100% + frecuencias estructuradas y deduplicadas.
 
 ### Etapa 2 — Motor determinista de valoración *(sin LLM)*
 - [ ] Selección de ensayos por `kb_frequency_rules` (categoría + condiciones).
@@ -288,4 +289,5 @@ interface PlanLine {
   - Prioridad de precio: `tarifa_cye` > `price_book` > `alagal`.
   - Discriminador de exclusión: hoja **`Plan de Ensaios`** = generado por la app (inválido). Excluidos ~20 planes + `tmp_obra/*.ppm`.
   - **Ambigüedades pendientes:** hoja definitiva de E5 (`P-1339-20`); confirmar `0414.26 P.xls` como válido de E7; ¿hay más presupuestos CYE fuera de la carpeta?
-- **2026-06-26** — Ambigüedades resueltas (E5→`BASE`, E7→`0414.26 P.xls`, cerrado con 8+ALAGAL) y **Etapa 1 construida**: módulo `src/main/pipeline/kb/` + harness `kb/{importAlagal,importCye,buildKb}.ts`, scripts `kb:import-alagal`/`kb:import-cye`/`kb:build`, fuentes curadas en `resources/knowledge/curated/` y `kb.sqlite` (gitignored). Typecheck verde. **Siguiente: Etapa 2 — motor determinista de valoración** que consulte `kb.sqlite`.
+- **2026-06-26** — Ambigüedades resueltas (E5→`BASE`, E7→`0414.26 P.xls`, cerrado con 8+ALAGAL) y **Etapa 1 construida**: módulo `src/main/pipeline/kb/` + harness `kb/{importAlagal,importCye,buildKb}.ts`, scripts `kb:import-alagal`/`kb:import-cye`/`kb:build`, fuentes curadas en `resources/knowledge/curated/` y `kb.sqlite` (gitignored). Typecheck verde.
+- **2026-06-26** — **Pulido de datos**: `freq_unit` estructurado (`freqKind/freqQty/freqMagUnit`), ditto resuelto, variantes fusionadas (176 reglas). El motor ya calcula lotes vía SQL (`ceil(qty/freqQty)`). **Siguiente: Etapa 2 — motor determinista de valoración**.

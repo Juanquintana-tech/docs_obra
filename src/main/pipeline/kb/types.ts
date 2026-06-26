@@ -52,11 +52,26 @@ export interface KbAlias {
  * "Para la categoría X, el ensayo T se aplica `muestreo` veces por cada `freqUnit`."
  * Ej.: { categoryCode: TERRAPLEN_RELLENOS, testId: T-0007, muestreo: 1, freqUnit: "10.000 m3" }
  */
+/**
+ * Tipo de frecuencia, ya estructurado para el motor determinista:
+ *  - per_quantity: 1 lote por cada `freqQty` `freqMagUnit` (ej. 5000 m3). El motor hace ceil(qty/freqQty).
+ *  - per_lot:      derivada de otros lotes (ej. "1 por 10 lotes ensayados").
+ *  - per_type:     1 por tipo de material / mezcla / fórmula / huso / serie.
+ *  - per_element:  1 por elemento (estructura, pila…).
+ *  - fixed:        coste fijo (jornada, visita, desplazamiento, movilización).
+ *  - other:        no clasificable automáticamente (revisar).
+ */
+export type FreqKind = 'per_quantity' | 'per_lot' | 'per_type' | 'per_element' | 'fixed' | 'other'
+
 export interface KbFrequencyRule {
   categoryCode: string
   testId: string
   muestreo: number // columna MUESTREO (ensayos por lote)
-  freqUnit: string // columna UD ("10.000 m3", "Por material", "10 lotes ensayados"…)
+  freqUnit: string // columna UD original ("10.000 m3", "Por material", "10 lotes ensayados"…)
+  // ── Forma estructurada (curada) ──
+  freqKind: FreqKind
+  freqQty: number | null // cantidad por lote (5000) si per_quantity/per_lot
+  freqMagUnit: string | null // unidad de magnitud canónica (m3, m2, ml, t, ud…)
   /** Cuántos presupuestos CYE respaldan esta regla (confianza). */
   sources: number
   /** Texto original del ensayo (para trazabilidad/curación). */
