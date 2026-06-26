@@ -80,10 +80,13 @@ Proctor, CBR, materia orgánica, sales, yesos) por procedencia/préstamo — no 
 500 m calzada · 3.500 m² (explanada/coronación) · 5.000 m² (relleno <5 m) / 10.000 m² (≥5 m) · fracción diaria · mismo material/equipo.
 **Por lote:** ≥ **7** humedad+densidad in situ + **1** carga con placa estática (UNE 103808) en capa superior de explanada/cimiento/coronación.
 
-**Control de EJECUCIÓN por probetas:** por lote, ≥ **2 amasadas** (mañana/tarde) × ≥ **3 probetas** →
-CBR a 7 d (UNE 103502) para S-EST1/S-EST2, o compresión simple a 7 d (UNE-EN 13286-41) para S-EST3.
+**Control de EJECUCIÓN (512.9.2, FOM/2523/2014) — CONFIRMADO 2ª tanda (3-0):**
+- **Proctor modificado de la mezcla:** cada **10.000 m³** de suelo estabilizado in situ, o **1 vez/semana** si es menor (referencia para compactación, UNE 103501). *(Reverificado: la 1ª tanda lo había refutado por error; el texto literal del Art. 512.9.2 lo confirma.)*
+- **Humedad natural del suelo antes de mezclar:** 2 muestras/día (mañana y tarde), UNE 103300.
+- **Boquillas de inyección de lechada:** comprobación 2 veces/día. **Conglomerante:** consumo controlado en **cada camión**.
+- **Probetas:** por lote, ≥ **2 amasadas** (mañana/tarde) × ≥ **3 probetas** → CBR a 7 d (UNE 103502) para S-EST1/S-EST2, o compresión simple a 7 d (UNE-EN 13286-41) para S-EST3.
 
-> ⚠ **Refutado / no usar:** "Proctor de la mezcla cada 10.000 m³ o semanal" — fue refutado (1-2), reverificar contra 512.9.2 antes de integrar.
+> Nomenclatura FOM/2523/2014 Art. 512: 512.9.1 procedencia · 512.9.2 **ejecución** · 512.9.3 recepción unidad terminada.
 
 ---
 
@@ -99,7 +102,37 @@ Además (542.9.3) **≥1 vez/lote**: 1 juego de **3 probetas** → contenido de 
 
 ---
 
-## 6. Versiones normativas vigentes (etiquetar cada regla con su origen)
+## 6. HORMIGÓN ESTRUCTURAL — EHE-08 / Código Estructural (RD 470/2021) ✅ (2ª tanda)
+
+**Marco:** Código Estructural Art. **57** (control de resistencia; lotes en **57.5.4.1**). EHE-08 Art. **86**.
+
+**Lote (control de resistencia):** se define por límites simultáneos de **volumen (m³)**, **nº de plantas**,
+**superficie (m²)** y **tiempo de hormigonado** (Código Estructural 57.5.4.1 / EHE-08 86.5.4).
+*(Los valores concretos de la tabla —p. ej. 100 m³ / 500-1.000 m² / 2 semanas / 2 plantas— quedaron en duda
+y deben reverificarse contra la tabla vigente antes de fijarlos.)*
+
+**Ensayos por lote (EHE-08 86.5.4.2):** la conformidad se comprueba sobre la media de **2 probetas por
+cada una de las N amasadas** controladas. N (hormigón sin distintivo de calidad): **≥3** si fck≤30, **≥4**
+si 35<fck≤50, **≥6** si fck>50. Con distintivo oficial reconocido, N puede ser **1-2**.
+
+**Consistencia (cono de Abrams, UNE-EN 12350-2):** NO tiene frecuencia fija por volumen. Se hace (86.5.2.1):
+(a) siempre que se fabriquen probetas de resistencia, (b) en todas las amasadas con control indirecto,
+(c) cuando lo indique la Dirección Facultativa o el PPTP.
+
+---
+
+## 7. ACERO PARA ARMADURAS — EHE-08 Art. 87 / Código Estructural Art. 58, 59.2 ✅ (2ª tanda)
+
+**Lote:** mismo suministrador, fabricante, designación y serie; cantidad **máxima 40 toneladas**
+(suministros < 300 t). Código Estructural: Art. 58 (acero pasivo) y 59.2 (ferralla elaborada).
+
+**Ensayos por lote:** **2 probetas** → sección equivalente (≥32.1), características geométricas y de
+adherencia (índice de corruga) y **doblado-desdoblado**; propiedades mecánicas (límite elástico, carga de
+rotura, relación, alargamientos) sobre **≥1 probeta por diámetro**.
+
+---
+
+## 8. Versiones normativas vigentes (etiquetar cada regla con su origen)
 
 - **Terraplenes (330) y rellenos localizados (332):** Orden **FOM/1382/2002**.
 - **Zahorras (510), suelos estabilizados (512), riegos (530/531/532), mezclas bituminosas (542/543):**
@@ -108,20 +141,31 @@ Además (542.9.3) **≥1 vez/lote**: 1 juego de **3 probetas** → contenido de 
 
 ---
 
-## 7. Pendiente (2ª tanda de investigación)
+## 9. Datos recogidos PENDIENTES DE VERIFICACIÓN (límite de sesión en 2ª tanda)
 
-No verificadas en esta ronda — necesarias para completar la BBDD:
-- **HORMIGÓN estructural** — EHE-08 / Código Estructural (RD 470/2021): definición de lote, nº de amasadas, probetas a compresión, control estadístico, cono de Abrams.
-- **ACERO** armaduras/estructural — lotes y ensayos (tracción, doblado, geometría).
-- **ESCOLLERAS** — PG-3 Art. 658.
-- **RIEGOS** de imprimación (Art. 530) y adherencia (Art. 531) — control de dotación.
-- **MARCAS VIALES** — PG-3 Art. 700.
-- **MEZCLAS BITUMINOSAS — fabricación** (tabla 542.16 t/ensayo por tráfico).
-- **TERRAPLENES — identificación del material** (frecuencia por préstamo/procedencia).
+> Vienen de fuentes primarias (BOE/PG-3) pero la verificación adversarial no llegó a ejecutarse
+> (quedó en *abstain* 0-0 por límite de sesión). **NO integrar como confirmado** — reverificar tras reset.
+
+- **MEZCLAS BITUMINOSAS — fabricación (tabla 542.16):** contenido de ligante (UNE-EN 12697-1) y
+  granulometría de áridos recuperados (12697-2) por **toneladas/ensayo** según tráfico y nivel de
+  conformidad (NCF): rodadura/intermedia ≈ 600 t (A) / 300 t (B) / 150 t (C); base ≈ 1.000 / 500 / 250 t.
+- **RIEGOS — imprimación (Art. 530) y adherencia (Art. 531):** lote = menor de 500 m / 3.500 m² /
+  superficie diaria. Dotación media de ligante residual por ≥3 bandejas (secado y pesaje). Dotación
+  mínima: imprimación 500 g/m²; adherencia 200 g/m² (250 si capa superior discontinua/drenante).
+  Tolerancia: imprimación ±15%; adherencia +15%/−10%.
+- **MARCAS VIALES (Art. 700):** dotación (puesta en obra) por bandejas (≈15 pares, cada 200-300 m, par E
+  con esferas / P sin esferas). Garantía (700.8.4): RL, RW, SRT, Qd/β y coordenadas cromáticas (UNE 135204
+  método puntual / UNE-EN 1436 continuo); frecuencia la fija el PPTP / Director.
+
+## 10. Pendiente real (no obtenido)
+
+- **ESCOLLERAS — PG-3 Art. 658**: la fuente devolvió 0 claims (PDF no accesible). No obtenido.
+- **TERRAPLENES — identificación del material** (granulometría/Atterberg/Proctor/CBR por préstamo/procedencia): frecuencia no desglosada.
+- Reverificar la **tabla de lote de hormigón** (valores concretos m³/m²/semanas) y los datos de §9.
 
 ---
 
-## 8. Implicación para el motor (decisión pendiente con el usuario)
+## 11. Implicación para el motor (decisión pendiente con el usuario)
 
 El motor determinista debe pasar de "ensayos por volumen" a un **modelo por lote de dos vías**:
 1. **Fabricación:** nº ensayos = `ceil(volumen / escalón_m³)` por escalón (1.000/5.000/20.000…).
