@@ -96,8 +96,8 @@
       "categoryCode": "MEZCLA_BITUMINOSA",
       "controlType": "fabricacion",
       "source": "PG-3 Art. 542 tabla 542.16 (Orden FOM/2523/2014)",
-      "status": "pending_verification",
-      "notas": "Frecuencia por toneladas según tráfico y nivel de conformidad (NCF). Aprox.: rodadura/intermedia 600(A)/300(B)/150(C) t/ensayo; base 1000/500/250. Reverificar.",
+      "status": "verified",
+      "notas": "Confirmado 3-0 vs BOE. Frecuencia (t/ensayo) por tráfico/capa/NCF: rodadura e intermedia (T00-T2, nivel X) 600(A)/300(B)/150(C); base (T00-T2, nivel Y) y todas las capas (T3-T4, nivel Y) 1000/500/250.",
       "tonnageTiers": [
         { "capa": "rodadura/intermedia", "t_por_ensayo": { "A": 600, "B": 300, "C": 150 }, "tests": ["Contenido de ligante UNE-EN 12697-1", "Granulometría áridos recuperados UNE-EN 12697-2"] },
         { "capa": "base", "t_por_ensayo": { "A": 1000, "B": 500, "C": 250 }, "tests": ["Contenido de ligante UNE-EN 12697-1", "Granulometría áridos recuperados UNE-EN 12697-2"] }
@@ -131,8 +131,8 @@
       "id": "NORM-RIEGO-IMPRIM",
       "categoryCode": "RIEGO_BITUMINOSO",
       "controlType": "ejecucion",
-      "source": "PG-3 Art. 530.7.3 (Orden FOM/2523/2014)",
-      "status": "pending_verification",
+      "source": "PG-3 Art. 530.7/530.8 (Orden FOM/2523/2014)",
+      "status": "verified",
       "lot": { "criteria": "min", "length_m": 500, "surface_m2": 3500, "daily": true },
       "battery": [{ "test": "Dotación media de ligante residual (bandejas, secado y pesaje)", "basis": "perLot", "n": 3, "dotacionMin_g_m2": 500, "tolerancia": "±15%" }]
     },
@@ -140,8 +140,8 @@
       "id": "NORM-RIEGO-ADHER",
       "categoryCode": "RIEGO_BITUMINOSO",
       "controlType": "ejecucion",
-      "source": "PG-3 Art. 531.8.3 (Orden FOM/2523/2014)",
-      "status": "pending_verification",
+      "source": "PG-3 Art. 531.8.3/531.9 (Orden FOM/2523/2014)",
+      "status": "verified",
       "lot": { "criteria": "min", "length_m": 500, "surface_m2": 3500, "daily": true },
       "battery": [{ "test": "Dotación media de ligante residual (bandejas, secado y pesaje)", "basis": "perLot", "n": 3, "dotacionMin_g_m2": 200, "dotacionMin_discontinua_g_m2": 250, "tolerancia": "+15% / -10%" }]
     },
@@ -149,13 +149,29 @@
       "id": "NORM-MARCAS-VIALES",
       "categoryCode": "MARCAS_VIALES",
       "controlType": "ejecucion",
-      "source": "PG-3 Art. 700 (700.x dotación y 700.8.4 garantía)",
-      "status": "pending_verification",
+      "source": "PG-3 Art. 700 (dotación y 700.8.4 garantía)",
+      "status": "verified",
+      "notas": "Método de dotación confirmado 3-0. La FRECUENCIA del control de comportamiento la fija el PPTP/Director, no el artículo.",
       "battery": [
-        { "test": "Dotación (puesta en obra) por bandejas E/P", "basis": "porTramo", "paresBandejas": 15, "cada_m": "200-300" },
-        { "test": "Comportamiento (RL, SRT, Qd/β, coordenadas cromáticas)", "basis": "garantia", "norm": "UNE 135204 (puntual) / UNE-EN 1436 (continuo)", "frecuencia": "la fija el PPTP/Director" }
+        { "test": "Dotación (puesta en obra) por bandejas E/P", "basis": "porTramo", "paresBandejas": 15, "cada_m": "200-300", "durante": "1 h o 3 km tras ajuste" },
+        { "test": "Comportamiento (RL en seco, SRT, Qd/β, coordenadas cromáticas)", "basis": "garantia", "norm": "UNE 135204 (puntual) / UNE-EN 1436 (continuo)", "frecuencia": "la fija el PPTP/Director" }
+      ]
+    },
+    {
+      "id": "NORM-ESCOLLERA-MAT",
+      "categoryCode": "ESCOLLERA",
+      "controlType": "material_acceptance",
+      "source": "PG-3 Art. 658 (Orden FOM/1382/2002)",
+      "status": "verified",
+      "notas": "El Art. 658 NO define control de calidad, lote ni frecuencia de ensayo — solo umbrales de aceptación del material. CUALQUIER frecuencia de ensayo de escollera es PPTP/práctica, NO normativa: para esta categoría la frecuencia debe venir de los presupuestos CYE / pliego particular.",
+      "acceptance": [
+        { "prop": "Densidad aparente seca", "min": "2500 kg/m3" },
+        { "prop": "Absorción de agua UNE 83134", "max": "2%" },
+        { "prop": "Desgaste Los Ángeles UNE-EN 1097-2", "max": 50 },
+        { "prop": "Estabilidad NLT 255 (inmersión) / NLT 260 (ciclos)", "max": "pérdida ≤2%" },
+        { "prop": "Granulometría por curva de pesos del bloque", "rango": "10-200 kg; <100 kg menos del 25% en peso" }
       ]
     }
   ],
-  "_pendiente": ["ESCOLLERAS Art. 658 (no obtenido)", "TERRAPLEN identificación material por préstamo", "verificar tabla lote hormigón", "verificar riegos/marcas (status pending_verification)"]
+  "_pendiente": ["TERRAPLEN identificación material por préstamo/procedencia (frecuencia no desglosada)", "verificar valores concretos de la tabla de lote de hormigón (m3/m2/semanas)"]
 }

@@ -141,31 +141,38 @@ rotura, relación, alargamientos) sobre **≥1 probeta por diámetro**.
 
 ---
 
-## 9. Datos recogidos PENDIENTES DE VERIFICACIÓN (límite de sesión en 2ª tanda)
+## 9. Riegos, marcas viales y fabricación bituminosa ✅ (3ª tanda, confirmado 3-0)
 
-> Vienen de fuentes primarias (BOE/PG-3) pero la verificación adversarial no llegó a ejecutarse
-> (quedó en *abstain* 0-0 por límite de sesión). **NO integrar como confirmado** — reverificar tras reset.
-
-- **MEZCLAS BITUMINOSAS — fabricación (tabla 542.16):** contenido de ligante (UNE-EN 12697-1) y
-  granulometría de áridos recuperados (12697-2) por **toneladas/ensayo** según tráfico y nivel de
-  conformidad (NCF): rodadura/intermedia ≈ 600 t (A) / 300 t (B) / 150 t (C); base ≈ 1.000 / 500 / 250 t.
+- **MEZCLAS BITUMINOSAS — fabricación (tabla 542.16, FOM/2523/2014):** contenido de ligante
+  (UNE-EN 12697-1) y granulometría de áridos recuperados (12697-2) por **toneladas/ensayo** según
+  tráfico/capa/NCF: rodadura e intermedia (T00-T2, nivel X) **600 (A) / 300 (B) / 150 (C)** t;
+  base (T00-T2, nivel Y) y todas las capas (T3-T4, nivel Y) **1.000 / 500 / 250** t.
 - **RIEGOS — imprimación (Art. 530) y adherencia (Art. 531):** lote = menor de 500 m / 3.500 m² /
-  superficie diaria. Dotación media de ligante residual por ≥3 bandejas (secado y pesaje). Dotación
-  mínima: imprimación 500 g/m²; adherencia 200 g/m² (250 si capa superior discontinua/drenante).
-  Tolerancia: imprimación ±15%; adherencia +15%/−10%.
-- **MARCAS VIALES (Art. 700):** dotación (puesta en obra) por bandejas (≈15 pares, cada 200-300 m, par E
-  con esferas / P sin esferas). Garantía (700.8.4): RL, RW, SRT, Qd/β y coordenadas cromáticas (UNE 135204
-  método puntual / UNE-EN 1436 continuo); frecuencia la fija el PPTP / Director.
+  superficie diaria. Dotación media de ligante residual por **≥3 bandejas** (secado y pesaje). Dotación
+  mínima: imprimación **500 g/m²** (530.3); adherencia **200 g/m²** (250 si capa superior discontinua/
+  drenante, 531.3). Tolerancia: imprimación **±15%** (530.8); adherencia **+15%/−10%** (531.9, asimétrica).
+- **MARCAS VIALES (Art. 700):** dotación (puesta en obra) por bandejas E/P (**15 pares**, cada 200-300 m,
+  durante 1 h o 3 km tras el ajuste). Comportamiento en garantía (700.8.4): RL en seco, SRT, Qd/β y
+  coordenadas cromáticas (UNE 135204 puntual / UNE-EN 1436 continuo); **la frecuencia la fija el PPTP/Director**.
 
-## 10. Pendiente real (no obtenido)
+## 10. ESCOLLERAS — Art. 658: SIN frecuencia normativa ✅ (3ª tanda, confirmado 3-0)
 
-- **ESCOLLERAS — PG-3 Art. 658**: la fuente devolvió 0 claims (PDF no accesible). No obtenido.
-- **TERRAPLENES — identificación del material** (granulometría/Atterberg/Proctor/CBR por préstamo/procedencia): frecuencia no desglosada.
-- Reverificar la **tabla de lote de hormigón** (valores concretos m³/m²/semanas) y los datos de §9.
+El Art. 658 (FOM/1382/2002) **no contiene sección de control de calidad ni define lote ni frecuencia**
+(solo 658.1 Definición, .2 Materiales, .3 Ejecución, .4 Medición/abono). Fija **umbrales de aceptación
+del material**: densidad seca ≥ 2.500 kg/m³ · absorción UNE 83134 < 2% · Los Ángeles UNE-EN 1097-2 < 50 ·
+estabilidad NLT 255/260 (pérdida ≤ 2%) · granulometría por **curva de pesos del bloque** (10-200 kg).
+
+> **Implicación:** para ESCOLLERA la frecuencia de ensayo es **PPTP/práctica**, no normativa → se debe
+> tomar de los presupuestos CYE, no de norma. (Único caso así de las categorías cubiertas.)
+
+## 11. Pendiente real (menor)
+
+- **TERRAPLENES — identificación del material** (granulometría/Atterberg/Proctor/CBR por préstamo/procedencia): frecuencia no desglosada en el Art. 330.
+- **HORMIGÓN** — valores concretos de la tabla de lote (m³/m²/semanas/plantas): estructura confirmada, valores a reverificar.
 
 ---
 
-## 11. Implicación para el motor (decisión pendiente con el usuario)
+## 12. Implicación para el motor (decisión pendiente con el usuario)
 
 El motor determinista debe pasar de "ensayos por volumen" a un **modelo por lote de dos vías**:
 1. **Fabricación:** nº ensayos = `ceil(volumen / escalón_m³)` por escalón (1.000/5.000/20.000…).
