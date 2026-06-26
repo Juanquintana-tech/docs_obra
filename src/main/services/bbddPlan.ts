@@ -56,8 +56,9 @@ function norm(): ReturnType<typeof loadNormativeRules> {
 
 /** Genera el plan BBDD desde un documento de obra, agrupado por tramo. */
 export async function generateBBDDPlan(path: string): Promise<BBDDPlanResult> {
-  const { sections, skipped } = await extractSections(path)
+  const { sections, skipped, warning } = await extractSections(path)
   const { lines, totalBase, warnings } = generatePlan(sections, kb(), norm())
+  if (warning) warnings.unshift(warning)
 
   const byTramo = new Map<string, PlanLine[]>()
   for (const l of lines) {

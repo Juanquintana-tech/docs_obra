@@ -10,7 +10,7 @@
  */
 import { extractDocument } from '../extractor'
 import { classifyMaterials } from '../classifier'
-import type { LlmProvider } from '../llm'
+import { createLlmProvider, MiniMaxProvider, type LlmProvider } from '../llm'
 import type { SectionInput } from './engine'
 
 /** Capa de mezcla bituminosa inferida del nombre (selecciona fila de la tabla 542.16). */
@@ -48,12 +48,39 @@ export function materialToSection(m: {
 export interface ExtractedPlanInput {
   sections: SectionInput[]
   skipped: number // materiales OTRO/sin categoría descartados
+  attempts: number // intentos de clasificación necesarios
+  warning?: string // p.ej. documento sin texto, o clasificación vacía tras reintentos
 }
 
-/** Extrae y clasifica un documento de obra → secciones listas para el motor. */
+const MAX_ATTEMPTS = 3
+
+/**
+ * Extrae y clasifica un documento de obra → secciones para el motor.
+ * La clasificación LLM a veces devuelve vacío (respuesta válida pero sin items) y
+ * el fallback Gemini→MiniMax no salta porque no es un error. Reintentamos hasta
+ * obtener materiales; en el último intento forzamos MiniMax como red de seguridad.
+ */
 export async function extractSections(path: string, provider?: LlmProvider): Promise<ExtractedPlanInput> {
   const { text } = await extractDocument(path)
-  const materials = provider ? await classifyMaterials(text, provider) : await classifyMaterials(text)
+  if (text.trim().length < 20) {
+    return { sections: [], skipped: 0, attempts: 0, warning: 'El documento no contiene texto legible (¿PDF escaneado? requiere OCR).' }
+  }
+
+  let materials: Awaited<ReturnType<typeof classifyMaterials>> = []
+  let attempts = 0
+  for (; attempts < MAX_ATTEMPTS && materials.length === 0; attempts++) {
+    // En el último intento, forzar MiniMax (por si Gemini devuelve vacío de forma persistente).
+    const p = provider ?? (attempts === MAX_ATTEMPTS - 1 ? new MiniMaxProvider() : createLlmProvider())
+    try {
+      materials = await classifyMaterials(text, p)
+    } catch {
+      materials = []
+    }
+  }
+
   const valid = materials.filter((m) => m.category && m.category !== 'OTRO')
-  return { sections: valid.map(materialToSection), skipped: materials.length - valid.length }
+  const warning = materials.length === 0
+    ? `La clasificación no devolvió materiales tras ${attempts} intentos — revisar el documento.`
+    : undefined
+  return { sections: valid.map(materialToSection), skipped: materials.length - valid.length, attempts, warning }
 }
