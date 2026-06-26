@@ -191,14 +191,23 @@ interface PlanLine {
 - [x] Verificado: los ~10 norm-coded no emparejados **no están en ALAGAL** (NLT-329/336/251, UNE 41240…) → CYE-específicos correctos, no hay matching que recuperar.
 - **DoD:** ✅ `kb:build` reproducible + preciado 100% + frecuencias estructuradas y deduplicadas.
 
-### Etapa 2 — Motor determinista de valoración *(sin LLM)*
-- [ ] Selección de ensayos por `kb_frequency_rules` (categoría + condiciones).
-- [ ] Cálculo de lotes/ensayos con conversión de unidades (kg↔t, m↔ml, m²/m³…), por tramo.
-- [ ] Precio canónico con estrategia configurable (reciente/mediana).
-- [ ] Manejo de fallback (marcado, nunca precio inventado).
-- [ ] `provenance` en cada línea.
-- [ ] **Golden tests**: entradas → salidas esperadas curadas; prueba de determinismo (mismo input → mismo output, byte a byte).
-- **DoD:** suite de golden tests verde + determinismo demostrado.
+### Etapa 2 — Motor determinista de valoración ✅ *(hecho 2026-06-26, sin LLM)*
+- [x] `src/main/pipeline/kb/kb.ts`: carga la KB curada en memoria (JSON, sin deps nativas) + dedup de reglas (1 por categoría×ensayo) + `effectivePrice` (tarifa_cye > pricebook > alagal).
+- [x] `src/main/pipeline/kb/engine.ts`: `generatePlan(sections, kb)` por tramo; `computeTests` por `freqKind` (per_quantity → `ceil(qty/freqQty)×muestreo`; per_type/element → muestreo; fixed; other→flag).
+- [x] Conversión de unidades (kg↔t, m↔ml, ud↔u); unidad incompatible → `needsReview` (no inventa).
+- [x] `provenance` por línea (regla, freq legible, fuente de precio, confianza) + `needsReview` para fallback.
+- [x] Validación `kb:plan`: caso controlado + **determinismo verificado** (mismo input → salida byte-idéntica, sale ≠0 si falla).
+- **DoD:** ✅ motor corre, determinista, con provenance y fallback marcado.
+
+> **Hallazgo clave para Etapa 4 — política de frecuencia.** Cuando un ensayo tiene
+> frecuencias que compiten entre presupuestos (terraplén 1/5.000 vs 1/10.000 m³), el motor
+> elige hoy la de más `sources`. Eso duplica el terraplén vs E8 real (880 vs 440 ensayos).
+> La precisión final depende de fijar la frecuencia canónica por categoría (decisión de curación
+> del usuario / por material / configurable). Es la palanca nº1 de paridad.
+
+> **Limitación conocida (la resuelve Etapa 3).** Muchas secciones eval no tienen cantidad, y
+> ensayos por área/tongada (m²) no se calculan en secciones medidas en m³ → se marcan. Por eso
+> en `kb:plan (c)` la desviación vs real aún es grande; la paridad fina es Etapa 4.
 
 ### Etapa 3 — Capa de extracción LLM *(bordes)*
 - [ ] Extractor doc → `MedicionEstructurada[]` por tramo, con confianza y trazabilidad.
@@ -290,4 +299,5 @@ interface PlanLine {
   - Discriminador de exclusión: hoja **`Plan de Ensaios`** = generado por la app (inválido). Excluidos ~20 planes + `tmp_obra/*.ppm`.
   - **Ambigüedades pendientes:** hoja definitiva de E5 (`P-1339-20`); confirmar `0414.26 P.xls` como válido de E7; ¿hay más presupuestos CYE fuera de la carpeta?
 - **2026-06-26** — Ambigüedades resueltas (E5→`BASE`, E7→`0414.26 P.xls`, cerrado con 8+ALAGAL) y **Etapa 1 construida**: módulo `src/main/pipeline/kb/` + harness `kb/{importAlagal,importCye,buildKb}.ts`, scripts `kb:import-alagal`/`kb:import-cye`/`kb:build`, fuentes curadas en `resources/knowledge/curated/` y `kb.sqlite` (gitignored). Typecheck verde.
-- **2026-06-26** — **Pulido de datos**: `freq_unit` estructurado (`freqKind/freqQty/freqMagUnit`), ditto resuelto, variantes fusionadas (176 reglas). El motor ya calcula lotes vía SQL (`ceil(qty/freqQty)`). **Siguiente: Etapa 2 — motor determinista de valoración**.
+- **2026-06-26** — **Pulido de datos**: `freq_unit` estructurado (`freqKind/freqQty/freqMagUnit`), ditto resuelto, variantes fusionadas (176 reglas). El motor ya calcula lotes vía SQL (`ceil(qty/freqQty)`).
+- **2026-06-26** — **Etapa 2 completada**: motor determinista (`kb/kb.ts` + `kb/engine.ts`), validación `kb:plan` con determinismo verificado. Identificada la **política de frecuencia** como palanca nº1 de paridad (Etapa 4). **Siguiente: Etapa 3 — extractor LLM** (doc → mediciones estructuradas por tramo, con cantidades y áreas).

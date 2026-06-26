@@ -11,6 +11,7 @@
     "kb:import-alagal": "tsx src/main/pipeline/harness/kb/importAlagal.ts",
     "kb:import-cye": "tsx src/main/pipeline/harness/kb/importCye.ts",
     "kb:build": "tsx src/main/pipeline/harness/kb/buildKb.ts",
+    "kb:plan": "tsx src/main/pipeline/harness/kb/planDemo.ts",
     "rag:demo": "tsx src/main/pipeline/harness/ragDemo.ts",
     "rag:eval": "tsx src/main/pipeline/harness/evaluate.ts",
     "rag:build-embeddings": "tsx src/main/pipeline/harness/buildEmbeddings.ts",
