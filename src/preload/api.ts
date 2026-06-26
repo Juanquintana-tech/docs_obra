@@ -30,6 +30,7 @@ import type { Rules } from '../main/pipeline/planner'
 import type { PriceStrategy } from '../main/pipeline/rag/priceBook'
 import type { AgentIntent } from '../main/services/agent'
 import type { BudgetEditPlan } from '../main/services/budgetAgent'
+import type { BBDDPlanResult } from '../main/services/bbddPlan'
 
 export interface PickedDocument {
   path: string
@@ -72,6 +73,10 @@ export const api = {
     ipcRenderer.invoke('ingest:document', path, strategy),
   ingestText: (text: string, strategy?: PriceStrategy): Promise<IngestResult> =>
     ipcRenderer.invoke('ingest:text', text, strategy),
+
+  // Plan BBDD (motor determinista por lote)
+  bbddGenerate: (path: string): Promise<BBDDPlanResult> =>
+    ipcRenderer.invoke('bbdd:generateFromDoc', path),
   /** Recalcula el plan con otra estrategia de precios (sin re-ingestar el documento). */
   repricePlan: (materials: Material[], strategy: PriceStrategy): Promise<PlanRowInput[]> =>
     ipcRenderer.invoke('pipeline:repricePlan', materials, strategy),

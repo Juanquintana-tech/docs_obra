@@ -9,6 +9,7 @@ import { Ensayos } from './pages/Ensayos'
 import { Radon } from './pages/Radon'
 import { Presupuestos } from './pages/Presupuestos'
 import { ValidacionRag } from './pages/ValidacionRag'
+import { BBDDPlan } from './pages/BBDDPlan'
 
 function App(): JSX.Element {
   return (
@@ -26,6 +27,7 @@ function App(): JSX.Element {
             <Route path="/radon" element={<Radon />} />
             <Route path="/presupuestos" element={<Presupuestos />} />
             <Route path="/validacion" element={<ValidacionRag />} />
+            <Route path="/bbdd" element={<BBDDPlan />} />
           </Routes>
         </main>
       </div>
