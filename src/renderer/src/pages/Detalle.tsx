@@ -3,10 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { eur } from '../lib/format'
 import { PlanTable, EditablePlanTable } from '../components/PlanTable'
+import { BudgetAgentBar } from '../components/BudgetAgentBar'
 import { Ic } from '../components/Icon'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { FormField, DateFormField, InfoRow } from '../components/FormField'
-import type { Obra, PlanRow, ObraInput, Ensayo, ProgressRow } from '../lib/types'
+import type { Obra, PlanRow, ObraInput, Ensayo, ProgressRow, BudgetEditPlan } from '../lib/types'
 
 // ── Tipos de ensayo ──────────────────────────────────────────────────────────
 const TIPO_LABELS: Record<string, string> = {
@@ -30,6 +31,8 @@ export function Detalle(): JSX.Element {
   const [editedRows, setEditedRows] = useState<PlanRow[]>([])
   const [editingPlan, setEditingPlan] = useState(false)
   const [deletedIds, setDeletedIds] = useState<number[]>([])
+  // Descuento propuesto por el agente; se aplica vía applyDiscount al guardar el plan.
+  const [pendingDiscount, setPendingDiscount] = useState<number | null>(null)
   const [ensayos, setEnsayos] = useState<Ensayo[]>([])
   const [progress, setProgress] = useState<ProgressRow[]>([])
   const [tab, setTab] = useState<Tab>('info')
@@ -67,6 +70,7 @@ export function Detalle(): JSX.Element {
   function startEditPlan(): void {
     setEditedRows(rows.map((r) => ({ ...r })))
     setDeletedIds([])
+    setPendingDiscount(null)
     setEditingPlan(true)
     setMsg(null)
   }
@@ -75,7 +79,119 @@ export function Detalle(): JSX.Element {
     setEditingPlan(false)
     setEditedRows(rows)
     setDeletedIds([])
+    setPendingDiscount(null)
     setMsg(null)
+  }
+
+  // ── Agente editor de presupuesto ─────────────────────────────────────────
+  /** Aplica el diff propuesto por el agente al plan en edición (sin tocar la DB). */
+  function applyAgentPlan(plan: BudgetEditPlan): void {
+    // Ids reales a borrar (los negativos son filas aún sin persistir).
+    const realDeletes = plan.operations
+      .filter(
+        (o): o is Extract<BudgetEditPlan['operations'][number], { op: 'delete' }> =>
+          o.op === 'delete'
+      )
+      .flatMap((o) => o.ids.filter((id) => id > 0))
+    if (realDeletes.length) setDeletedIds((prev) => [...prev, ...realDeletes])
+
+    setEditedRows((prev) => {
+      let next = [...prev]
+      let seq = 0
+      const tempId = (): number => -(Date.now() + seq++)
+
+      const makeRow = (
+        material: string,
+        description: string,
+        nTests: number | null | undefined,
+        unitPrice: number | null | undefined,
+        extra: Partial<PlanRow> = {}
+      ): PlanRow => {
+        const nt = nTests ?? 1
+        const up = unitPrice ?? 0
+        return {
+          id: tempId(),
+          obra_id: obraId,
+          row_type: 'test',
+          material,
+          subcategory: '',
+          description,
+          measurement: null,
+          measurement_unit: '',
+          freq_qty: null,
+          freq_unit: '',
+          n_lots: null,
+          tests_per_lot: null,
+          n_tests: nt,
+          unit_price: up,
+          total: Math.round(nt * up * 100) / 100,
+          price_source: 'fallback',
+          rag_score: 0,
+          rag_desc: '',
+          price_min: null,
+          price_max: null,
+          price_n: null,
+          ...extra
+        }
+      }
+
+      // Inserta filas junto a la última de su mismo material (evita cabeceras duplicadas).
+      const insert = (material: string, newRows: PlanRow[]): void => {
+        let lastIdx = -1
+        for (let i = 0; i < next.length; i++) if (next[i].material === material) lastIdx = i
+        if (lastIdx === -1) next = [...next, ...newRows]
+        else next.splice(lastIdx + 1, 0, ...newRows)
+      }
+
+      for (const op of plan.operations) {
+        if (op.op === 'add_category') {
+          insert(
+            op.material,
+            op.tests.map((t) =>
+              makeRow(op.material, t.description, t.n_tests, t.unit_price, {
+                price_source: t.price_source ?? 'fallback',
+                rag_score: t.rag_score ?? 0,
+                price_min: t.price_min ?? null,
+                price_max: t.price_max ?? null,
+                price_n: t.price_n ?? null
+              })
+            )
+          )
+        } else if (op.op === 'add_test') {
+          insert(op.material, [
+            makeRow(op.material, op.description, op.n_tests, op.unit_price, {
+              price_source: op.price_source ?? 'fallback',
+              rag_score: op.rag_score ?? 0,
+              price_min: op.price_min ?? null,
+              price_max: op.price_max ?? null,
+              price_n: op.price_n ?? null
+            })
+          ])
+        } else if (op.op === 'delete') {
+          const ids = new Set(op.ids)
+          next = next.filter((r) => !ids.has(r.id))
+        } else if (op.op === 'update') {
+          next = next.map((r) => {
+            if (r.id !== op.id) return r
+            const nt = op.n_tests ?? r.n_tests
+            const up = op.unit_price ?? r.unit_price
+            return {
+              ...r,
+              description: op.description ?? r.description,
+              n_tests: nt,
+              unit_price: up,
+              total: Math.round(nt * up * 100) / 100
+            }
+          })
+        }
+      }
+      return next
+    })
+
+    const discountOp = plan.operations.find((o) => o.op === 'discount')
+    if (discountOp && discountOp.op === 'discount') {
+      setPendingDiscount(discountOp.pct)
+    }
   }
 
   async function savePlan(): Promise<void> {
@@ -105,9 +221,17 @@ export function Detalle(): JSX.Element {
             total: r.total ?? 0
           }))
       })
+      if (pendingDiscount != null) {
+        await api.applyDiscount(obraId, pendingDiscount)
+      }
       setEditingPlan(false)
       setDeletedIds([])
-      setMsg('Plan actualizado y totales recalculados.')
+      setPendingDiscount(null)
+      setMsg(
+        pendingDiscount != null
+          ? `Plan actualizado y descuento del ${pendingDiscount}% aplicado.`
+          : 'Plan actualizado y totales recalculados.'
+      )
       await reload()
     } catch (e) {
       setMsg(`Error al guardar: ${e instanceof Error ? e.message : String(e)}`)
@@ -186,9 +310,13 @@ export function Detalle(): JSX.Element {
       const newIva = ivaInput / 100
       const newDiscount = discountInput
       await api.updateObraInfo(obraId, {
-        obra: obra.obra, cliente: obra.cliente, ref_lab: obra.ref_lab,
-        fecha: obra.fecha, responsable: obra.responsable,
-        iva_rate: newIva, discount_pct: newDiscount
+        obra: obra.obra,
+        cliente: obra.cliente,
+        ref_lab: obra.ref_lab,
+        fecha: obra.fecha,
+        responsable: obra.responsable,
+        iva_rate: newIva,
+        discount_pct: newDiscount
       })
       if (newDiscount !== prevD) await api.applyDiscount(obraId, newDiscount)
       setEditingCondiciones(false)
@@ -228,7 +356,11 @@ export function Detalle(): JSX.Element {
       {/* ── Cabecera ── */}
       <div className="page-head">
         <div>
-          <button className="btn btn-ghost" onClick={() => navigate('/proyectos')} style={{ marginBottom: 10 }}>
+          <button
+            className="btn btn-ghost"
+            onClick={() => navigate('/proyectos')}
+            style={{ marginBottom: 10 }}
+          >
             ← Proyectos
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -242,14 +374,22 @@ export function Detalle(): JSX.Element {
               <Ic.Edit />
             </button>
           </div>
-          <p>{obra.cliente || '—'} · Ref. {obra.ref_lab || '—'} · {obra.fecha || 's/f'}</p>
+          <p>
+            {obra.cliente || '—'} · Ref. {obra.ref_lab || '—'} · {obra.fecha || 's/f'}
+          </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span className={`badge badge-${obra.status}`}>{obra.status}</span>
           <button className="btn" onClick={toggleArchive}>
-            {obra.status === 'activa'
-              ? <><Ic.Archive /> Archivar</>
-              : <><Ic.Restore /> Activar</>}
+            {obra.status === 'activa' ? (
+              <>
+                <Ic.Archive /> Archivar
+              </>
+            ) : (
+              <>
+                <Ic.Restore /> Activar
+              </>
+            )}
           </button>
           <button className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
             <Ic.Trash /> Eliminar
@@ -259,13 +399,22 @@ export function Detalle(): JSX.Element {
 
       {/* ── Tab bar ── */}
       <div className="tab-bar">
-        <button className={`tab-btn${tab === 'info' ? ' active' : ''}`} onClick={() => goTab('info')}>
+        <button
+          className={`tab-btn${tab === 'info' ? ' active' : ''}`}
+          onClick={() => goTab('info')}
+        >
           Información
         </button>
-        <button className={`tab-btn${tab === 'presupuesto' ? ' active' : ''}`} onClick={() => goTab('presupuesto')}>
+        <button
+          className={`tab-btn${tab === 'presupuesto' ? ' active' : ''}`}
+          onClick={() => goTab('presupuesto')}
+        >
           Presupuesto
         </button>
-        <button className={`tab-btn${tab === 'ensayos' ? ' active' : ''}`} onClick={() => goTab('ensayos')}>
+        <button
+          className={`tab-btn${tab === 'ensayos' ? ' active' : ''}`}
+          onClick={() => goTab('ensayos')}
+        >
           Ensayos {ensayos.length > 0 && <span className="tab-count">{ensayos.length}</span>}
         </button>
       </div>
@@ -274,7 +423,12 @@ export function Detalle(): JSX.Element {
       {msg && (
         <div
           className={`banner ${msg.startsWith('Error') ? 'banner-error' : 'banner-ok'}`}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12
+          }}
         >
           <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{msg}</span>
           <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
@@ -286,7 +440,10 @@ export function Detalle(): JSX.Element {
             <button
               className="btn btn-ghost"
               style={{ padding: '2px 8px', fontSize: 12 }}
-              onClick={() => { setMsg(null); setLastExportPath(null) }}
+              onClick={() => {
+                setMsg(null)
+                setLastExportPath(null)
+              }}
             >
               ✕
             </button>
@@ -320,9 +477,18 @@ export function Detalle(): JSX.Element {
 
           {!editingInfo ? (
             <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 14
+                }}
+              >
                 <h3>Datos del proyecto</h3>
-                <button className="btn" onClick={openInfoEdit}><Ic.Edit /> Editar</button>
+                <button className="btn" onClick={openInfoEdit}>
+                  <Ic.Edit /> Editar
+                </button>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 24px' }}>
                 <InfoRow label="Obra / Proyecto" value={obra.obra} />
@@ -333,23 +499,61 @@ export function Detalle(): JSX.Element {
                 <InfoRow label="IVA" value={`${((obra.iva_rate ?? 0.21) * 100).toFixed(0)} %`} />
                 <InfoRow label="Descuento" value={`${(obra.discount_pct ?? 0).toFixed(1)} %`} />
               </div>
-
             </div>
           ) : (
             infoForm && (
               <div className="card" style={{ borderColor: 'var(--mid)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 14
+                  }}
+                >
                   <h3>Editar datos del proyecto</h3>
-                  <button className="btn btn-ghost" style={{ padding: '4px 8px' }} onClick={() => setEditingInfo(false)}><Ic.Close /></button>
+                  <button
+                    className="btn btn-ghost"
+                    style={{ padding: '4px 8px' }}
+                    onClick={() => setEditingInfo(false)}
+                  >
+                    <Ic.Close />
+                  </button>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  <FormField label="Obra / Proyecto" value={infoForm.obra} onChange={(v) => setInfoForm({ ...infoForm, obra: v })} autoFocus />
-                  <FormField label="Cliente" value={infoForm.cliente ?? ''} onChange={(v) => setInfoForm({ ...infoForm, cliente: v })} />
-                  <FormField label="Ref. Laboratorio" value={infoForm.ref_lab ?? ''} onChange={(v) => setInfoForm({ ...infoForm, ref_lab: v })} />
-                  <DateFormField label="Fecha del plan" value={infoForm.fecha ?? ''} onChange={(v) => setInfoForm({ ...infoForm, fecha: v })} />
-                  <FormField label="Responsable" value={infoForm.responsable ?? ''} onChange={(v) => setInfoForm({ ...infoForm, responsable: v })} />
+                  <FormField
+                    label="Obra / Proyecto"
+                    value={infoForm.obra}
+                    onChange={(v) => setInfoForm({ ...infoForm, obra: v })}
+                    autoFocus
+                  />
+                  <FormField
+                    label="Cliente"
+                    value={infoForm.cliente ?? ''}
+                    onChange={(v) => setInfoForm({ ...infoForm, cliente: v })}
+                  />
+                  <FormField
+                    label="Ref. Laboratorio"
+                    value={infoForm.ref_lab ?? ''}
+                    onChange={(v) => setInfoForm({ ...infoForm, ref_lab: v })}
+                  />
+                  <DateFormField
+                    label="Fecha del plan"
+                    value={infoForm.fecha ?? ''}
+                    onChange={(v) => setInfoForm({ ...infoForm, fecha: v })}
+                  />
+                  <FormField
+                    label="Responsable"
+                    value={infoForm.responsable ?? ''}
+                    onChange={(v) => setInfoForm({ ...infoForm, responsable: v })}
+                  />
                   <div className="field">
-                    <label className="field-label" title="Tipo impositivo aplicado al total del presupuesto">IVA (%)</label>
+                    <label
+                      className="field-label"
+                      title="Tipo impositivo aplicado al total del presupuesto"
+                    >
+                      IVA (%)
+                    </label>
                     <input
                       type="number"
                       className="input"
@@ -357,11 +561,21 @@ export function Detalle(): JSX.Element {
                       max={100}
                       step={1}
                       value={((infoForm.iva_rate ?? 0.21) * 100).toFixed(0)}
-                      onChange={(e) => setInfoForm({ ...infoForm, iva_rate: (parseFloat(e.target.value) || 0) / 100 })}
+                      onChange={(e) =>
+                        setInfoForm({
+                          ...infoForm,
+                          iva_rate: (parseFloat(e.target.value) || 0) / 100
+                        })
+                      }
                     />
                   </div>
                   <div className="field">
-                    <label className="field-label" title="Descuento aplicado al precio de lista de todos los ensayos. Al guardar recalcula el plan.">Descuento (%)</label>
+                    <label
+                      className="field-label"
+                      title="Descuento aplicado al precio de lista de todos los ensayos. Al guardar recalcula el plan."
+                    >
+                      Descuento (%)
+                    </label>
                     <input
                       type="number"
                       className="input"
@@ -369,7 +583,9 @@ export function Detalle(): JSX.Element {
                       max={100}
                       step={0.1}
                       value={infoForm.discount_pct ?? 0}
-                      onChange={(e) => setInfoForm({ ...infoForm, discount_pct: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setInfoForm({ ...infoForm, discount_pct: parseFloat(e.target.value) || 0 })
+                      }
                     />
                     {(infoForm.discount_pct ?? 0) !== prevDiscount && (
                       <span style={{ fontSize: 11, color: 'var(--mid)', marginTop: 2 }}>
@@ -379,9 +595,21 @@ export function Detalle(): JSX.Element {
                   </div>
                 </div>
                 <div className="toolbar" style={{ marginTop: 10, justifyContent: 'flex-end' }}>
-                  <button className="btn" onClick={() => setEditingInfo(false)} disabled={busy}>Cancelar</button>
-                  <button className="btn btn-primary" onClick={saveInfo} disabled={busy || !infoForm.obra.trim()}>
-                    {busy ? 'Guardando…' : <><Ic.Save /> Guardar datos</>}
+                  <button className="btn" onClick={() => setEditingInfo(false)} disabled={busy}>
+                    Cancelar
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={saveInfo}
+                    disabled={busy || !infoForm.obra.trim()}
+                  >
+                    {busy ? (
+                      'Guardando…'
+                    ) : (
+                      <>
+                        <Ic.Save /> Guardar datos
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -396,10 +624,18 @@ export function Detalle(): JSX.Element {
       {tab === 'presupuesto' && (
         <>
           <div className="toolbar">
-            <button className="btn btn-navy" onClick={() => exportDoc('excel')} disabled={busy || editingPlan}>
+            <button
+              className="btn btn-navy"
+              onClick={() => exportDoc('excel')}
+              disabled={busy || editingPlan}
+            >
               <Ic.Download /> Excel
             </button>
-            <button className="btn btn-navy" onClick={() => exportDoc('word')} disabled={busy || editingPlan}>
+            <button
+              className="btn btn-navy"
+              onClick={() => exportDoc('word')}
+              disabled={busy || editingPlan}
+            >
               <Ic.Download /> Word
             </button>
             <span className="spacer" />
@@ -410,7 +646,13 @@ export function Detalle(): JSX.Element {
             ) : (
               <>
                 <button className="btn btn-primary" onClick={savePlan} disabled={busy}>
-                  {busy ? 'Guardando…' : <><Ic.Save /> Guardar cambios</>}
+                  {busy ? (
+                    'Guardando…'
+                  ) : (
+                    <>
+                      <Ic.Save /> Guardar cambios
+                    </>
+                  )}
                 </button>
                 <button className="btn" onClick={cancelEditPlan} disabled={busy}>
                   Cancelar
@@ -421,10 +663,25 @@ export function Detalle(): JSX.Element {
 
           {/* ── Condiciones económicas ── */}
           {(() => {
-            const planTotal = rows.filter(r => r.row_type === 'test').reduce((s, r) => s + (r.total ?? 0), 0)
+            const planTotal = rows
+              .filter((r) => r.row_type === 'test')
+              .reduce((s, r) => s + (r.total ?? 0), 0)
             const liveIva = editingCondiciones ? ivaInput / 100 : (obra.iva_rate ?? 0.21)
             return !editingCondiciones ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, marginBottom: 14, fontSize: 13, flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16,
+                  padding: '10px 14px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  marginBottom: 14,
+                  fontSize: 13,
+                  flexWrap: 'wrap'
+                }}
+              >
                 <span style={{ color: 'var(--text-soft)' }}>IVA:</span>
                 <strong>{((obra.iva_rate ?? 0.21) * 100).toFixed(0)} %</strong>
                 <span style={{ color: 'var(--border)' }}>|</span>
@@ -435,27 +692,69 @@ export function Detalle(): JSX.Element {
                 <strong>{eur(planTotal)}</strong>
                 <span style={{ color: 'var(--border)' }}>|</span>
                 <span style={{ color: 'var(--text-soft)' }}>Total + IVA:</span>
-                <strong style={{ color: 'var(--accent)' }}>{eur(planTotal * (1 + (obra.iva_rate ?? 0.21)))}</strong>
+                <strong style={{ color: 'var(--accent)' }}>
+                  {eur(planTotal * (1 + (obra.iva_rate ?? 0.21)))}
+                </strong>
                 <span style={{ flex: 1 }} />
-                <button className="btn btn-ghost" style={{ padding: '3px 10px', fontSize: 12 }} onClick={openCondicionesEdit} disabled={busy || editingPlan}>
+                <button
+                  className="btn btn-ghost"
+                  style={{ padding: '3px 10px', fontSize: 12 }}
+                  onClick={openCondicionesEdit}
+                  disabled={busy || editingPlan}
+                >
                   <Ic.Edit /> Editar
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--accent)', borderRadius: 8, marginBottom: 14, fontSize: 13, flexWrap: 'wrap' }}>
-                <div className="field" style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 14,
+                  padding: '10px 14px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--accent)',
+                  borderRadius: 8,
+                  marginBottom: 14,
+                  fontSize: 13,
+                  flexWrap: 'wrap'
+                }}
+              >
+                <div
+                  className="field"
+                  style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}
+                >
                   <label style={{ whiteSpace: 'nowrap', color: 'var(--text-soft)' }}>IVA (%)</label>
-                  <input type="number" className="input" min={0} max={100} step={1}
+                  <input
+                    type="number"
+                    className="input"
+                    min={0}
+                    max={100}
+                    step={1}
                     value={ivaInput}
-                    onChange={(e) => setIvaInput(Math.max(0, Math.min(100, Number(e.target.value))))}
+                    onChange={(e) =>
+                      setIvaInput(Math.max(0, Math.min(100, Number(e.target.value))))
+                    }
                     style={{ width: 72 }}
                   />
                 </div>
-                <div className="field" style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <label style={{ whiteSpace: 'nowrap', color: 'var(--text-soft)' }}>Descuento (%)</label>
-                  <input type="number" className="input" min={0} max={100} step={0.1}
+                <div
+                  className="field"
+                  style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 8 }}
+                >
+                  <label style={{ whiteSpace: 'nowrap', color: 'var(--text-soft)' }}>
+                    Descuento (%)
+                  </label>
+                  <input
+                    type="number"
+                    className="input"
+                    min={0}
+                    max={100}
+                    step={0.1}
                     value={discountInput}
-                    onChange={(e) => setDiscountInput(Math.max(0, Math.min(100, Number(e.target.value))))}
+                    onChange={(e) =>
+                      setDiscountInput(Math.max(0, Math.min(100, Number(e.target.value))))
+                    }
                     style={{ width: 72 }}
                   />
                 </div>
@@ -463,20 +762,58 @@ export function Detalle(): JSX.Element {
                 <span style={{ color: 'var(--text-soft)', fontSize: 12 }}>Total:</span>
                 <strong style={{ fontSize: 12 }}>{eur(planTotal)}</strong>
                 <span style={{ color: 'var(--text-soft)', fontSize: 12 }}>+ IVA:</span>
-                <strong style={{ fontSize: 12, color: 'var(--accent)' }}>{eur(planTotal * (1 + liveIva))}</strong>
+                <strong style={{ fontSize: 12, color: 'var(--accent)' }}>
+                  {eur(planTotal * (1 + liveIva))}
+                </strong>
                 {discountInput !== (obra.discount_pct ?? 0) && (
-                  <span style={{ fontSize: 11, color: 'var(--text-soft)' }}>· recalculará precios</span>
+                  <span style={{ fontSize: 11, color: 'var(--text-soft)' }}>
+                    · recalculará precios
+                  </span>
                 )}
                 <span style={{ flex: 1 }} />
-                <button className="btn btn-primary" style={{ padding: '4px 14px', fontSize: 12 }} onClick={saveCondiciones} disabled={busy}>
-                  {busy ? 'Guardando…' : <><Ic.Save /> Guardar</>}
+                <button
+                  className="btn btn-primary"
+                  style={{ padding: '4px 14px', fontSize: 12 }}
+                  onClick={saveCondiciones}
+                  disabled={busy}
+                >
+                  {busy ? (
+                    'Guardando…'
+                  ) : (
+                    <>
+                      <Ic.Save /> Guardar
+                    </>
+                  )}
                 </button>
-                <button className="btn btn-ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setEditingCondiciones(false)} disabled={busy}>
+                <button
+                  className="btn btn-ghost"
+                  style={{ padding: '4px 10px', fontSize: 12 }}
+                  onClick={() => setEditingCondiciones(false)}
+                  disabled={busy}
+                >
                   Cancelar
                 </button>
               </div>
             )
           })()}
+
+          {editingPlan && (
+            <>
+              <BudgetAgentBar obraId={obraId} onApply={applyAgentPlan} />
+              {pendingDiscount != null && (
+                <div className="banner banner-ok" style={{ marginBottom: 12 }}>
+                  Se aplicará un descuento del <b>{pendingDiscount}%</b> al guardar los cambios.{' '}
+                  <button
+                    className="btn btn-sm"
+                    style={{ marginLeft: 8, padding: '2px 8px', fontSize: 11 }}
+                    onClick={() => setPendingDiscount(null)}
+                  >
+                    Quitar
+                  </button>
+                </div>
+              )}
+            </>
+          )}
 
           {editingPlan ? (
             <EditablePlanTable
@@ -488,7 +825,7 @@ export function Detalle(): JSX.Element {
                 setEditedRows((prev) => prev.filter((r) => r.id !== id))
               }}
               onAdd={(sectionStartIdx) => {
-                const tempId = -(Date.now())
+                const tempId = -Date.now()
                 setEditedRows((prev) => {
                   // Recorrer desde sectionStartIdx hacia adelante mientras el material coincida
                   const mat = prev[sectionStartIdx]?.material ?? ''
@@ -526,7 +863,10 @@ export function Detalle(): JSX.Element {
               }}
             />
           ) : (
-            <PlanTable rows={rows} ivaRate={editingCondiciones ? ivaInput / 100 : (obra.iva_rate ?? 0.21)} />
+            <PlanTable
+              rows={rows}
+              ivaRate={editingCondiciones ? ivaInput / 100 : (obra.iva_rate ?? 0.21)}
+            />
           )}
         </>
       )}
@@ -536,7 +876,10 @@ export function Detalle(): JSX.Element {
           title="Eliminar proyecto"
           message={`¿Eliminar "${obra.obra}" y su plan de ensayos? Esta acción no se puede deshacer.`}
           confirmLabel="Sí, eliminar"
-          onConfirm={() => { setConfirmDelete(false); void remove() }}
+          onConfirm={() => {
+            setConfirmDelete(false)
+            void remove()
+          }}
           onCancel={() => setConfirmDelete(false)}
         />
       )}
@@ -572,12 +915,26 @@ export function Detalle(): JSX.Element {
                     <div className="ens-meta">
                       <span className={`badge badge-${e.estado}`}>{e.estado}</span>
                       {e.n_expediente && (
-                        <span style={{ fontSize: 11, color: 'var(--text-soft)', fontFamily: 'monospace' }}>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: 'var(--text-soft)',
+                            fontFamily: 'monospace'
+                          }}
+                        >
                           {e.n_expediente}
                         </span>
                       )}
                       {e.veredicto && (
-                        <span className={e.veredicto === 'CUMPLE' ? 'verdict ok' : e.veredicto === 'NO CUMPLE' ? 'verdict no' : 'verdict'}>
+                        <span
+                          className={
+                            e.veredicto === 'CUMPLE'
+                              ? 'verdict ok'
+                              : e.veredicto === 'NO CUMPLE'
+                                ? 'verdict no'
+                                : 'verdict'
+                          }
+                        >
                           {e.veredicto}
                         </span>
                       )}
@@ -589,7 +946,9 @@ export function Detalle(): JSX.Element {
                   <button
                     className="btn"
                     style={{ flexShrink: 0 }}
-                    onClick={() => navigate('/ensayos/' + obraId, { state: { editEnsayoId: e.id } })}
+                    onClick={() =>
+                      navigate('/ensayos/' + obraId, { state: { editEnsayoId: e.id } })
+                    }
                   >
                     <Ic.Edit /> Editar
                   </button>
@@ -599,9 +958,7 @@ export function Detalle(): JSX.Element {
           )}
 
           {/* ── Vista de avance: plan vs ejecución (P2) ── */}
-          {progress.length > 0 && (
-            <ProgressView progress={progress} />
-          )}
+          {progress.length > 0 && <ProgressView progress={progress} />}
         </>
       )}
     </div>
@@ -625,15 +982,36 @@ function ProgressView({ progress }: { progress: ProgressRow[] }): JSX.Element {
 
   return (
     <div className="card" style={{ marginBottom: 16 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 12
+        }}
+      >
         <h3 style={{ margin: 0 }}>Avance de ejecución</h3>
-        <span style={{ fontSize: 22, fontWeight: 700, color: pct === 100 ? 'var(--ok)' : 'var(--navy)' }}>
+        <span
+          style={{
+            fontSize: 22,
+            fontWeight: 700,
+            color: pct === 100 ? 'var(--ok)' : 'var(--navy)'
+          }}
+        >
           {pct} %
         </span>
       </div>
 
       {/* Barra de progreso */}
-      <div style={{ background: 'var(--bg-alt)', borderRadius: 6, height: 10, marginBottom: 10, overflow: 'hidden' }}>
+      <div
+        style={{
+          background: 'var(--bg-alt)',
+          borderRadius: 6,
+          height: 10,
+          marginBottom: 10,
+          overflow: 'hidden'
+        }}
+      >
         <div
           style={{
             width: `${pct}%`,
@@ -655,11 +1033,21 @@ function ProgressView({ progress }: { progress: ProgressRow[] }): JSX.Element {
         <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: 'var(--bg-alt)' }}>
-              <th style={{ textAlign: 'left', padding: '4px 8px', color: 'var(--text-soft)' }}>Material</th>
-              <th style={{ textAlign: 'left', padding: '4px 8px', color: 'var(--text-soft)' }}>Ensayo</th>
-              <th style={{ textAlign: 'center', padding: '4px 8px', color: 'var(--text-soft)' }}>Planificados</th>
-              <th style={{ textAlign: 'center', padding: '4px 8px', color: 'var(--text-soft)' }}>Vinculados</th>
-              <th style={{ textAlign: 'center', padding: '4px 8px', color: 'var(--text-soft)' }}>Estado</th>
+              <th style={{ textAlign: 'left', padding: '4px 8px', color: 'var(--text-soft)' }}>
+                Material
+              </th>
+              <th style={{ textAlign: 'left', padding: '4px 8px', color: 'var(--text-soft)' }}>
+                Ensayo
+              </th>
+              <th style={{ textAlign: 'center', padding: '4px 8px', color: 'var(--text-soft)' }}>
+                Planificados
+              </th>
+              <th style={{ textAlign: 'center', padding: '4px 8px', color: 'var(--text-soft)' }}>
+                Vinculados
+              </th>
+              <th style={{ textAlign: 'center', padding: '4px 8px', color: 'var(--text-soft)' }}>
+                Estado
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -687,7 +1075,9 @@ function ProgressView({ progress }: { progress: ProgressRow[] }): JSX.Element {
                     </td>
                   )}
                   <td style={{ padding: '4px 8px' }}>{r.description}</td>
-                  <td style={{ padding: '4px 8px', textAlign: 'center', color: 'var(--text-soft)' }}>
+                  <td
+                    style={{ padding: '4px 8px', textAlign: 'center', color: 'var(--text-soft)' }}
+                  >
                     {r.n_tests}
                   </td>
                   <td style={{ padding: '4px 8px', textAlign: 'center' }}>
@@ -699,9 +1089,13 @@ function ProgressView({ progress }: { progress: ProgressRow[] }): JSX.Element {
                   </td>
                   <td style={{ padding: '4px 8px', textAlign: 'center' }}>
                     {r.ensayos_completados > 0 ? (
-                      <span className="verdict ok" style={{ fontSize: 11 }}>✓</span>
+                      <span className="verdict ok" style={{ fontSize: 11 }}>
+                        ✓
+                      </span>
                     ) : r.ensayos_total > 0 ? (
-                      <span className="badge badge-borrador" style={{ fontSize: 11 }}>borrador</span>
+                      <span className="badge badge-borrador" style={{ fontSize: 11 }}>
+                        borrador
+                      </span>
                     ) : (
                       <span style={{ color: 'var(--text-soft)', fontSize: 11 }}>pendiente</span>
                     )}
@@ -715,4 +1109,3 @@ function ProgressView({ progress }: { progress: ProgressRow[] }): JSX.Element {
     </div>
   )
 }
-

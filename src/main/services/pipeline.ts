@@ -6,7 +6,12 @@
 import { extractDocument } from '../pipeline/extractor'
 import { classifyMaterials, classifyLargeDocument, extractObraInfo } from '../pipeline/classifier'
 import type { Material } from '../pipeline/planner'
-import { listSheets, parseBudget, type BudgetSheet, type BudgetImportResult } from '../pipeline/budgetParser'
+import {
+  listSheets,
+  parseBudget,
+  type BudgetSheet,
+  type BudgetImportResult
+} from '../pipeline/budgetParser'
 import { CATEGORY_CTX } from '../pipeline/rag/ragPricer'
 import type { RagMatch } from '../pipeline/rag/types'
 import type { PriceStrategy } from '../pipeline/rag/priceBook'
@@ -55,7 +60,7 @@ function plannerOpts(strategy: PriceStrategy) {
   return {
     priceBookPath: knowledgePath('price_book.json'),
     historicalProjectsPath: knowledgePath('historical_projects.json'),
-    strategy: strategy === 'reciente' ? 'reciente' : 'mediana',
+    strategy: strategy === 'reciente' ? 'reciente' : 'mediana'
   } as const
 }
 
@@ -120,6 +125,20 @@ export async function repricePlan(
   strategy: PriceStrategy
 ): Promise<PlanRowInput[]> {
   return generatePlanLLM(materials, plannerOpts(strategy))
+}
+
+/**
+ * Valora descripciones sueltas de ensayos contra el motor de precios
+ * (price_book → ALAGAL → fallback). Lo usa el agente editor de presupuesto
+ * para poner €/ud reales a los ensayos que añade por lenguaje natural.
+ */
+export async function priceTests(
+  items: { description: string; category?: string }[],
+  strategy: PriceStrategy = 'mediana'
+): Promise<import('./labPricer').LabPriceResult[]> {
+  if (items.length === 0) return []
+  const pricer = await getPricer()
+  return pricer.priceMany(items, strategy)
 }
 
 // ── Consultas RAG (para la pantalla de validación) ──────────────────────────

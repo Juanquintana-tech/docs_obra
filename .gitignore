@@ -13,3 +13,7 @@ resources/knowledge/alagal_embeddings.json
 
 # Embeddings precomputados (archivos grandes, se regeneran localmente)
 resources/knowledge/price_book_embeddings.json
+
+# build artifacts
+*.tsbuildinfo
+resources/knowledge/backups/

@@ -28,6 +28,7 @@ import {
   parseBudgetDocument
 } from './services/pipeline'
 import { interpretCommand } from './services/agent'
+import { interpretBudgetEdit } from './services/budgetAgent'
 import { loadCatalog } from './pipeline/rag/catalog'
 import { scanEnsayo } from './pipeline/ocr/ensayoOcr'
 import type { Rules } from './pipeline/planner'
@@ -59,10 +60,21 @@ function toPlanInput(rows: PlanRow[]): PlanRowInput[] {
 
 function emptyObra(): db.Obra {
   return {
-    id: 0, obra: '', cliente: '', ref_lab: '', fecha: '',
-    coef_baja: 1, total_importe: 0, n_ensayos: 0, n_materiales: 0,
-    responsable: '', price_strategy: 'reciente', iva_rate: 0.21,
-    discount_pct: 0, created_at: '', status: 'activa'
+    id: 0,
+    obra: '',
+    cliente: '',
+    ref_lab: '',
+    fecha: '',
+    coef_baja: 1,
+    total_importe: 0,
+    n_ensayos: 0,
+    n_materiales: 0,
+    responsable: '',
+    price_strategy: 'reciente',
+    iva_rate: 0.21,
+    discount_pct: 0,
+    created_at: '',
+    status: 'activa'
   }
 }
 
@@ -144,9 +156,8 @@ export function registerIpc(): void {
 
   // ── Importación de presupuestos ──
   ipcMain.handle('budget:listSheets', (_e, path: string) => listBudgetSheets(path))
-  ipcMain.handle(
-    'budget:parse',
-    (_e, path: string, sheetName?: string | null) => parseBudgetDocument(path, sheetName)
+  ipcMain.handle('budget:parse', (_e, path: string, sheetName?: string | null) =>
+    parseBudgetDocument(path, sheetName)
   )
 
   // ── Ingesta ──
@@ -208,7 +219,9 @@ export function registerIpc(): void {
     const obra = ensayo.obra_id != null ? db.getObra(ensayo.obra_id) : null
     if (ensayo.obra_id != null && !obra) throw new Error(`Obra ${ensayo.obra_id} no encontrada`)
     const safe = (ensayo.titulo || ensayo.tipo).replace(/[^\w-]+/g, '_').slice(0, 60)
-    return saveWithDialog(`Informe_${safe}.docx`, 'docx', () => buildEnsayoWord(ensayo, obra ?? emptyObra()))
+    return saveWithDialog(`Informe_${safe}.docx`, 'docx', () =>
+      buildEnsayoWord(ensayo, obra ?? emptyObra())
+    )
   })
 
   ipcMain.handle('ensayo:exportExcel', async (_e, ensayoId: number) => {
@@ -217,7 +230,9 @@ export function registerIpc(): void {
     const obra = ensayo.obra_id != null ? db.getObra(ensayo.obra_id) : null
     if (ensayo.obra_id != null && !obra) throw new Error(`Obra ${ensayo.obra_id} no encontrada`)
     const safe = (ensayo.titulo || ensayo.tipo).replace(/[^\w-]+/g, '_').slice(0, 60)
-    return saveWithDialog(`Informe_${safe}.xlsx`, 'xlsx', () => buildEnsayoExcel(ensayo, obra ?? emptyObra()))
+    return saveWithDialog(`Informe_${safe}.xlsx`, 'xlsx', () =>
+      buildEnsayoExcel(ensayo, obra ?? emptyObra())
+    )
   })
 
   // ── Importación JSON del bot de radón ──
@@ -250,7 +265,13 @@ export function registerIpc(): void {
         throw new Error(`No se pudo extraer el ZIP: ${String(e)}`)
       }
       // Buscar radon_data.json en el directorio extraído (puede estar en subdirectorio)
-      const { stdout } = await execFileAsync('find', [tempExtractDir, '-name', 'radon_data.json', '-maxdepth', '3'])
+      const { stdout } = await execFileAsync('find', [
+        tempExtractDir,
+        '-name',
+        'radon_data.json',
+        '-maxdepth',
+        '3'
+      ])
       const found = stdout.trim().split('\n').filter(Boolean)[0]
       if (!found) {
         await rm(tempExtractDir, { recursive: true, force: true })
@@ -317,6 +338,9 @@ export function registerIpc(): void {
   // ── Agente (intérprete de comandos en lenguaje natural) ──
   ipcMain.handle('agent:interpret', (_e, userText: string, fileNames: string[]) =>
     interpretCommand(userText, fileNames)
+  )
+  ipcMain.handle('agent:interpretBudgetEdit', (_e, obraId: number, userText: string) =>
+    interpretBudgetEdit(obraId, userText)
   )
 
   // ── Presupuestos (catálogo y reglas) ──

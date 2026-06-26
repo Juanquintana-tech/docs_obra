@@ -18,12 +18,18 @@ import type {
   ProgressRow
 } from '../main/db'
 import type { PlanRowInput, Material } from '../main/pipeline/types'
-import type { IngestResult, RagStatus, BudgetSheet, BudgetImportResult } from '../main/services/pipeline'
+import type {
+  IngestResult,
+  RagStatus,
+  BudgetSheet,
+  BudgetImportResult
+} from '../main/services/pipeline'
 import type { RagMatch } from '../main/pipeline/rag/types'
 import type { CatalogEntry } from '../main/pipeline/rag/catalog'
 import type { Rules } from '../main/pipeline/planner'
 import type { PriceStrategy } from '../main/pipeline/rag/priceBook'
 import type { AgentIntent } from '../main/services/agent'
+import type { BudgetEditPlan } from '../main/services/budgetAgent'
 
 export interface PickedDocument {
   path: string
@@ -52,8 +58,7 @@ export const api = {
     ipcRenderer.invoke('db:savePriceCorrection', c),
   updatePlanRows: (obraId: number, patches: PlanRowPatch[]): Promise<void> =>
     ipcRenderer.invoke('db:updatePlanRows', obraId, patches),
-  deletePlanRow: (rowId: number): Promise<void> =>
-    ipcRenderer.invoke('db:deletePlanRow', rowId),
+  deletePlanRow: (rowId: number): Promise<void> => ipcRenderer.invoke('db:deletePlanRow', rowId),
   addPlanRow: (obraId: number, data: NewPlanRowData): Promise<number> =>
     ipcRenderer.invoke('db:addPlanRow', obraId, data),
   savePlanEdits: (obraId: number, edits: PlanEdits): Promise<void> =>
@@ -131,15 +136,15 @@ export const api = {
   // ── Agente (intérprete de comandos en lenguaje natural) ──
   interpretCommand: (userText: string, fileNames: string[]): Promise<AgentIntent> =>
     ipcRenderer.invoke('agent:interpret', userText, fileNames),
+  interpretBudgetEdit: (obraId: number, userText: string): Promise<BudgetEditPlan> =>
+    ipcRenderer.invoke('agent:interpretBudgetEdit', obraId, userText),
 
   // ── Progreso de clasificación por chunks (documentos grandes) ──
   /**
    * Suscribe un callback a los eventos de progreso de chunk emitidos por el proceso main
    * durante la ingesta de documentos grandes. Devuelve una función de desuscripción.
    */
-  onIngestProgress: (
-    cb: (data: { done: number; total: number }) => void
-  ): (() => void) => {
+  onIngestProgress: (cb: (data: { done: number; total: number }) => void): (() => void) => {
     const handler = (_e: Electron.IpcRendererEvent, data: { done: number; total: number }): void =>
       cb(data)
     ipcRenderer.on('ingest:chunkProgress', handler)
