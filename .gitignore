@@ -17,3 +17,7 @@ resources/knowledge/price_book_embeddings.json
 # build artifacts
 *.tsbuildinfo
 resources/knowledge/backups/
+
+# BBDD curada (derivada, reconstruible con kb:build)
+resources/knowledge/kb.sqlite
+resources/knowledge/kb.sqlite-*

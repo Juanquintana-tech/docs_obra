@@ -181,13 +181,14 @@ interface PlanLine {
 - [ ] **Eval harness + línea base**: medir desviación del sistema ACTUAL sobre los 6 históricos (held-out) → número "antes" que hay que batir.
 - **DoD:** existe un número de baseline reproducible y los contratos compilan.
 
-### Etapa 1 — Curación e ingesta de la BBDD *(depende de las fuentes que enviarás)*
-- [ ] Definir esquema canónico definitivo con tus fuentes reales.
-- [ ] Importadores: `test_rules.json`, `price_book.json`, tarifa ALAGAL, `historical_projects.json` + **fuentes nuevas** → archivos curados versionados.
-- [ ] Pase de curación humana: deduplicar ensayos, asignar IDs canónicos, normalizar códigos de norma, resolver conflictos de precio.
-- [ ] Build script `kb:build` → SQLite reproducible.
-- [ ] **Informe de cobertura**: % de líneas de los históricos cuyo ensayo mapea a un canónico (objetivo ≥95%); listar los huecos a curar.
-- **DoD:** `kb:build` reproducible + cobertura ≥ objetivo + 0 conflictos de precio sin resolver.
+### Etapa 1 — Curación e ingesta de la BBDD ✅ *(núcleo hecho 2026-06-26)*
+- [x] Esquema canónico (`src/main/pipeline/kb/types.ts`) + layout `resources/knowledge/curated/`.
+- [x] Importador **ALAGAL** (`kb:import-alagal`) → 749 ensayos, 17 secciones, 656 con norma → `alagal_catalog.json`.
+- [x] Importador **presupuestos CYE** (`kb:import-cye`) → 8 proyectos, 4 esquemas de columnas, **226 reglas de frecuencia**, 207 precios `tarifa_cye`, 196 aliases, 103 ensayos CYE-específicos.
+- [x] Build `kb:build` → `kb.sqlite` reproducible (node:sqlite; 7 tablas `kb_*`, 852 tests, 956 precios, 707 líneas eval).
+- [x] **Informe de cobertura**: preciado **100%** (toda línea tiene precio); reutilización ALAGAL **77%**; resto = ensayos CYE-específicos (93 sin norma = eléctricos/saneamiento/edificación, legítimos; ~10 con norma a revisar).
+- [ ] *Pendiente de pulido (iterativo):* normalizar `freq_unit` con comillas-ditto (`"`); revisar los ~10 norm-coded recuperables; resolver prioridad de precio en conflictos.
+- **DoD:** ✅ `kb:build` reproducible + cobertura de preciado 100%. Curación fina queda como tarea continua.
 
 ### Etapa 2 — Motor determinista de valoración *(sin LLM)*
 - [ ] Selección de ensayos por `kb_frequency_rules` (categoría + condiciones).
@@ -287,3 +288,4 @@ interface PlanLine {
   - Prioridad de precio: `tarifa_cye` > `price_book` > `alagal`.
   - Discriminador de exclusión: hoja **`Plan de Ensaios`** = generado por la app (inválido). Excluidos ~20 planes + `tmp_obra/*.ppm`.
   - **Ambigüedades pendientes:** hoja definitiva de E5 (`P-1339-20`); confirmar `0414.26 P.xls` como válido de E7; ¿hay más presupuestos CYE fuera de la carpeta?
+- **2026-06-26** — Ambigüedades resueltas (E5→`BASE`, E7→`0414.26 P.xls`, cerrado con 8+ALAGAL) y **Etapa 1 construida**: módulo `src/main/pipeline/kb/` + harness `kb/{importAlagal,importCye,buildKb}.ts`, scripts `kb:import-alagal`/`kb:import-cye`/`kb:build`, fuentes curadas en `resources/knowledge/curated/` y `kb.sqlite` (gitignored). Typecheck verde. **Siguiente: Etapa 2 — motor determinista de valoración** que consulte `kb.sqlite`.

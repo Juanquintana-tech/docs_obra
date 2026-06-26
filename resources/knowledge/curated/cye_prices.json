@@ -1,0 +1,1660 @@
+{
+  "prices": [
+    {
+      "testId": "T-0133",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 27,
+      "max": 50,
+      "n": 15
+    },
+    {
+      "testId": "T-0182",
+      "source": "tarifa_cye",
+      "price": 33,
+      "min": 27,
+      "max": 40,
+      "n": 25
+    },
+    {
+      "testId": "T-0144",
+      "source": "tarifa_cye",
+      "price": 51,
+      "min": 45,
+      "max": 60,
+      "n": 25
+    },
+    {
+      "testId": "T-0145",
+      "source": "tarifa_cye",
+      "price": 65,
+      "min": 57,
+      "max": 85,
+      "n": 6
+    },
+    {
+      "testId": "T-0147",
+      "source": "tarifa_cye",
+      "price": 45,
+      "min": 42,
+      "max": 60,
+      "n": 10
+    },
+    {
+      "testId": "T-0148",
+      "source": "tarifa_cye",
+      "price": 45,
+      "min": 42,
+      "max": 60,
+      "n": 10
+    },
+    {
+      "testId": "T-0135",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 25,
+      "max": 30,
+      "n": 14
+    },
+    {
+      "testId": "T-0132",
+      "source": "tarifa_cye",
+      "price": 19,
+      "min": 8,
+      "max": 30,
+      "n": 2
+    },
+    {
+      "testId": "T-0138",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 30,
+      "max": 40,
+      "n": 6
+    },
+    {
+      "testId": "T-0139",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 30,
+      "max": 40,
+      "n": 6
+    },
+    {
+      "testId": "T-0173",
+      "source": "tarifa_cye",
+      "price": 9.5,
+      "min": 9,
+      "max": 13,
+      "n": 16
+    },
+    {
+      "testId": "T-0174",
+      "source": "tarifa_cye",
+      "price": 72,
+      "min": 65,
+      "max": 120,
+      "n": 15
+    },
+    {
+      "testId": "T-0024",
+      "source": "tarifa_cye",
+      "price": 21,
+      "min": 12,
+      "max": 30,
+      "n": 2
+    },
+    {
+      "testId": "T-0186",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 27,
+      "max": 35,
+      "n": 7
+    },
+    {
+      "testId": "T-0037",
+      "source": "tarifa_cye",
+      "price": 35,
+      "min": 30,
+      "max": 40,
+      "n": 2
+    },
+    {
+      "testId": "T-0292",
+      "source": "tarifa_cye",
+      "price": 27,
+      "min": 24,
+      "max": 30,
+      "n": 4
+    },
+    {
+      "testId": "T-0034",
+      "source": "tarifa_cye",
+      "price": 60,
+      "min": 45,
+      "max": 450,
+      "n": 12
+    },
+    {
+      "testId": "T-0290",
+      "source": "tarifa_cye",
+      "price": 42,
+      "min": 42,
+      "max": 45,
+      "n": 5
+    },
+    {
+      "testId": "T-0053",
+      "source": "tarifa_cye",
+      "price": 60,
+      "min": 60,
+      "max": 90,
+      "n": 7
+    },
+    {
+      "testId": "T-0109",
+      "source": "tarifa_cye",
+      "price": 75,
+      "min": 54,
+      "max": 81,
+      "n": 12
+    },
+    {
+      "testId": "T-0128",
+      "source": "tarifa_cye",
+      "price": 450,
+      "min": 360,
+      "max": 450,
+      "n": 4
+    },
+    {
+      "testId": "T-0121",
+      "source": "tarifa_cye",
+      "price": 225,
+      "min": 225,
+      "max": 225,
+      "n": 3
+    },
+    {
+      "testId": "T-0509",
+      "source": "tarifa_cye",
+      "price": 195,
+      "min": 195,
+      "max": 275,
+      "n": 3
+    },
+    {
+      "testId": "T-0071",
+      "source": "tarifa_cye",
+      "price": 180,
+      "min": 90,
+      "max": 210,
+      "n": 6
+    },
+    {
+      "testId": "T-0095",
+      "source": "tarifa_cye",
+      "price": 79.5,
+      "min": 69,
+      "max": 90,
+      "n": 2
+    },
+    {
+      "testId": "C-0001",
+      "source": "tarifa_cye",
+      "price": 70,
+      "min": 70,
+      "max": 70,
+      "n": 1
+    },
+    {
+      "testId": "C-0002",
+      "source": "tarifa_cye",
+      "price": 90,
+      "min": 90,
+      "max": 90,
+      "n": 1
+    },
+    {
+      "testId": "C-0003",
+      "source": "tarifa_cye",
+      "price": 115,
+      "min": 80,
+      "max": 150,
+      "n": 2
+    },
+    {
+      "testId": "T-0724",
+      "source": "tarifa_cye",
+      "price": 465,
+      "min": 390,
+      "max": 690,
+      "n": 4
+    },
+    {
+      "testId": "T-0725",
+      "source": "tarifa_cye",
+      "price": 350,
+      "min": 290,
+      "max": 450,
+      "n": 3
+    },
+    {
+      "testId": "T-0502",
+      "source": "tarifa_cye",
+      "price": 280,
+      "min": 280,
+      "max": 280,
+      "n": 1
+    },
+    {
+      "testId": "T-0744",
+      "source": "tarifa_cye",
+      "price": 305,
+      "min": 305,
+      "max": 305,
+      "n": 1
+    },
+    {
+      "testId": "C-0004",
+      "source": "tarifa_cye",
+      "price": 260,
+      "min": 260,
+      "max": 260,
+      "n": 1
+    },
+    {
+      "testId": "C-0005",
+      "source": "tarifa_cye",
+      "price": 310,
+      "min": 310,
+      "max": 310,
+      "n": 1
+    },
+    {
+      "testId": "C-0006",
+      "source": "tarifa_cye",
+      "price": 475,
+      "min": 475,
+      "max": 475,
+      "n": 1
+    },
+    {
+      "testId": "C-0007",
+      "source": "tarifa_cye",
+      "price": 1.8,
+      "min": 1.8,
+      "max": 1.8,
+      "n": 1
+    },
+    {
+      "testId": "C-0008",
+      "source": "tarifa_cye",
+      "price": 2550,
+      "min": 2550,
+      "max": 2550,
+      "n": 1
+    },
+    {
+      "testId": "C-0009",
+      "source": "tarifa_cye",
+      "price": 400,
+      "min": 400,
+      "max": 400,
+      "n": 1
+    },
+    {
+      "testId": "C-0010",
+      "source": "tarifa_cye",
+      "price": 500,
+      "min": 500,
+      "max": 500,
+      "n": 1
+    },
+    {
+      "testId": "C-0011",
+      "source": "tarifa_cye",
+      "price": 215,
+      "min": 215,
+      "max": 215,
+      "n": 1
+    },
+    {
+      "testId": "C-0012",
+      "source": "tarifa_cye",
+      "price": 275,
+      "min": 275,
+      "max": 275,
+      "n": 1
+    },
+    {
+      "testId": "C-0013",
+      "source": "tarifa_cye",
+      "price": 300,
+      "min": 300,
+      "max": 300,
+      "n": 1
+    },
+    {
+      "testId": "C-0014",
+      "source": "tarifa_cye",
+      "price": 900,
+      "min": 900,
+      "max": 900,
+      "n": 1
+    },
+    {
+      "testId": "C-0015",
+      "source": "tarifa_cye",
+      "price": 700,
+      "min": 700,
+      "max": 700,
+      "n": 1
+    },
+    {
+      "testId": "C-0016",
+      "source": "tarifa_cye",
+      "price": 550,
+      "min": 550,
+      "max": 550,
+      "n": 1
+    },
+    {
+      "testId": "C-0017",
+      "source": "tarifa_cye",
+      "price": 475,
+      "min": 475,
+      "max": 475,
+      "n": 1
+    },
+    {
+      "testId": "C-0018",
+      "source": "tarifa_cye",
+      "price": 400,
+      "min": 400,
+      "max": 400,
+      "n": 1
+    },
+    {
+      "testId": "C-0019",
+      "source": "tarifa_cye",
+      "price": 1950,
+      "min": 1950,
+      "max": 1950,
+      "n": 1
+    },
+    {
+      "testId": "C-0020",
+      "source": "tarifa_cye",
+      "price": 250,
+      "min": 250,
+      "max": 250,
+      "n": 1
+    },
+    {
+      "testId": "C-0021",
+      "source": "tarifa_cye",
+      "price": 390,
+      "min": 390,
+      "max": 390,
+      "n": 1
+    },
+    {
+      "testId": "C-0022",
+      "source": "tarifa_cye",
+      "price": 325,
+      "min": 325,
+      "max": 325,
+      "n": 1
+    },
+    {
+      "testId": "C-0023",
+      "source": "tarifa_cye",
+      "price": 750,
+      "min": 750,
+      "max": 750,
+      "n": 1
+    },
+    {
+      "testId": "C-0024",
+      "source": "tarifa_cye",
+      "price": 325,
+      "min": 325,
+      "max": 325,
+      "n": 1
+    },
+    {
+      "testId": "C-0025",
+      "source": "tarifa_cye",
+      "price": 3350,
+      "min": 3350,
+      "max": 3350,
+      "n": 1
+    },
+    {
+      "testId": "C-0026",
+      "source": "tarifa_cye",
+      "price": 350,
+      "min": 350,
+      "max": 350,
+      "n": 1
+    },
+    {
+      "testId": "C-0027",
+      "source": "tarifa_cye",
+      "price": 800,
+      "min": 800,
+      "max": 800,
+      "n": 1
+    },
+    {
+      "testId": "C-0028",
+      "source": "tarifa_cye",
+      "price": 750,
+      "min": 750,
+      "max": 750,
+      "n": 1
+    },
+    {
+      "testId": "C-0029",
+      "source": "tarifa_cye",
+      "price": 270,
+      "min": 270,
+      "max": 270,
+      "n": 1
+    },
+    {
+      "testId": "C-0030",
+      "source": "tarifa_cye",
+      "price": 245,
+      "min": 245,
+      "max": 245,
+      "n": 1
+    },
+    {
+      "testId": "C-0031",
+      "source": "tarifa_cye",
+      "price": 350,
+      "min": 350,
+      "max": 350,
+      "n": 1
+    },
+    {
+      "testId": "C-0032",
+      "source": "tarifa_cye",
+      "price": 400,
+      "min": 400,
+      "max": 400,
+      "n": 1
+    },
+    {
+      "testId": "C-0033",
+      "source": "tarifa_cye",
+      "price": 540,
+      "min": 540,
+      "max": 540,
+      "n": 1
+    },
+    {
+      "testId": "T-0056",
+      "source": "tarifa_cye",
+      "price": 90,
+      "min": 90,
+      "max": 90,
+      "n": 4
+    },
+    {
+      "testId": "T-0111",
+      "source": "tarifa_cye",
+      "price": 100.5,
+      "min": 81,
+      "max": 120,
+      "n": 2
+    },
+    {
+      "testId": "C-0034",
+      "source": "tarifa_cye",
+      "price": 1800,
+      "min": 1800,
+      "max": 1800,
+      "n": 1
+    },
+    {
+      "testId": "C-0035",
+      "source": "tarifa_cye",
+      "price": 1200,
+      "min": 1200,
+      "max": 1200,
+      "n": 1
+    },
+    {
+      "testId": "C-0036",
+      "source": "tarifa_cye",
+      "price": 750,
+      "min": 750,
+      "max": 750,
+      "n": 1
+    },
+    {
+      "testId": "T-0720",
+      "source": "tarifa_cye",
+      "price": 350,
+      "min": 250,
+      "max": 420,
+      "n": 3
+    },
+    {
+      "testId": "C-0037",
+      "source": "tarifa_cye",
+      "price": 420,
+      "min": 420,
+      "max": 420,
+      "n": 1
+    },
+    {
+      "testId": "C-0038",
+      "source": "tarifa_cye",
+      "price": 900,
+      "min": 900,
+      "max": 900,
+      "n": 1
+    },
+    {
+      "testId": "C-0039",
+      "source": "tarifa_cye",
+      "price": 570,
+      "min": 570,
+      "max": 570,
+      "n": 1
+    },
+    {
+      "testId": "C-0040",
+      "source": "tarifa_cye",
+      "price": 450,
+      "min": 450,
+      "max": 450,
+      "n": 1
+    },
+    {
+      "testId": "T-0172",
+      "source": "tarifa_cye",
+      "price": 15,
+      "min": 9,
+      "max": 30,
+      "n": 14
+    },
+    {
+      "testId": "T-0203",
+      "source": "tarifa_cye",
+      "price": 27,
+      "min": 27,
+      "max": 27,
+      "n": 2
+    },
+    {
+      "testId": "T-0205",
+      "source": "tarifa_cye",
+      "price": 35,
+      "min": 30,
+      "max": 48,
+      "n": 4
+    },
+    {
+      "testId": "T-0045",
+      "source": "tarifa_cye",
+      "price": 150,
+      "min": 150,
+      "max": 180,
+      "n": 7
+    },
+    {
+      "testId": "T-0211",
+      "source": "tarifa_cye",
+      "price": 69.5,
+      "min": 60,
+      "max": 76,
+      "n": 8
+    },
+    {
+      "testId": "T-0189",
+      "source": "tarifa_cye",
+      "price": 7,
+      "min": 6,
+      "max": 8,
+      "n": 4
+    },
+    {
+      "testId": "T-0179",
+      "source": "tarifa_cye",
+      "price": 21,
+      "min": 20,
+      "max": 35,
+      "n": 4
+    },
+    {
+      "testId": "T-0181",
+      "source": "tarifa_cye",
+      "price": 45,
+      "min": 45,
+      "max": 45,
+      "n": 1
+    },
+    {
+      "testId": "T-0184",
+      "source": "tarifa_cye",
+      "price": 37.5,
+      "min": 30,
+      "max": 45,
+      "n": 2
+    },
+    {
+      "testId": "T-0185",
+      "source": "tarifa_cye",
+      "price": 27.5,
+      "min": 15,
+      "max": 40,
+      "n": 2
+    },
+    {
+      "testId": "T-0352",
+      "source": "tarifa_cye",
+      "price": 42,
+      "min": 42,
+      "max": 52,
+      "n": 12
+    },
+    {
+      "testId": "T-0320",
+      "source": "tarifa_cye",
+      "price": 88,
+      "min": 42,
+      "max": 420,
+      "n": 50
+    },
+    {
+      "testId": "C-0041",
+      "source": "tarifa_cye",
+      "price": 150,
+      "min": 150,
+      "max": 150,
+      "n": 2
+    },
+    {
+      "testId": "C-0042",
+      "source": "tarifa_cye",
+      "price": 63,
+      "min": 50,
+      "max": 63,
+      "n": 13
+    },
+    {
+      "testId": "T-0321",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 27,
+      "max": 35,
+      "n": 13
+    },
+    {
+      "testId": "T-0319",
+      "source": "tarifa_cye",
+      "price": 87,
+      "min": 66,
+      "max": 90,
+      "n": 13
+    },
+    {
+      "testId": "T-0316",
+      "source": "tarifa_cye",
+      "price": 46.5,
+      "min": 42,
+      "max": 48,
+      "n": 6
+    },
+    {
+      "testId": "T-0305",
+      "source": "tarifa_cye",
+      "price": 47,
+      "min": 42,
+      "max": 48,
+      "n": 7
+    },
+    {
+      "testId": "T-0304",
+      "source": "tarifa_cye",
+      "price": 48,
+      "min": 42,
+      "max": 48,
+      "n": 5
+    },
+    {
+      "testId": "T-0355",
+      "source": "tarifa_cye",
+      "price": 72,
+      "min": 63,
+      "max": 86,
+      "n": 5
+    },
+    {
+      "testId": "T-0332",
+      "source": "tarifa_cye",
+      "price": 49,
+      "min": 39,
+      "max": 55,
+      "n": 4
+    },
+    {
+      "testId": "T-0333",
+      "source": "tarifa_cye",
+      "price": 46.5,
+      "min": 39,
+      "max": 50,
+      "n": 4
+    },
+    {
+      "testId": "T-0327",
+      "source": "tarifa_cye",
+      "price": 27.5,
+      "min": 20,
+      "max": 39,
+      "n": 4
+    },
+    {
+      "testId": "T-0404",
+      "source": "tarifa_cye",
+      "price": 180,
+      "min": 180,
+      "max": 280,
+      "n": 5
+    },
+    {
+      "testId": "T-0055",
+      "source": "tarifa_cye",
+      "price": 72,
+      "min": 48,
+      "max": 75,
+      "n": 38
+    },
+    {
+      "testId": "T-0061",
+      "source": "tarifa_cye",
+      "price": 40,
+      "min": 40,
+      "max": 40,
+      "n": 1
+    },
+    {
+      "testId": "T-0526",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 30,
+      "max": 30,
+      "n": 2
+    },
+    {
+      "testId": "T-0527",
+      "source": "tarifa_cye",
+      "price": 165,
+      "min": 165,
+      "max": 165,
+      "n": 1
+    },
+    {
+      "testId": "T-0528",
+      "source": "tarifa_cye",
+      "price": 65,
+      "min": 65,
+      "max": 65,
+      "n": 1
+    },
+    {
+      "testId": "T-0532",
+      "source": "tarifa_cye",
+      "price": 48,
+      "min": 48,
+      "max": 48,
+      "n": 1
+    },
+    {
+      "testId": "T-0533",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 30,
+      "max": 30,
+      "n": 1
+    },
+    {
+      "testId": "T-0534",
+      "source": "tarifa_cye",
+      "price": 90,
+      "min": 90,
+      "max": 90,
+      "n": 1
+    },
+    {
+      "testId": "T-0535",
+      "source": "tarifa_cye",
+      "price": 165,
+      "min": 165,
+      "max": 165,
+      "n": 1
+    },
+    {
+      "testId": "T-0536",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 30,
+      "max": 30,
+      "n": 1
+    },
+    {
+      "testId": "T-0538",
+      "source": "tarifa_cye",
+      "price": 48,
+      "min": 48,
+      "max": 48,
+      "n": 1
+    },
+    {
+      "testId": "T-0406",
+      "source": "tarifa_cye",
+      "price": 48,
+      "min": 48,
+      "max": 48,
+      "n": 1
+    },
+    {
+      "testId": "T-0407",
+      "source": "tarifa_cye",
+      "price": 345,
+      "min": 300,
+      "max": 390,
+      "n": 2
+    },
+    {
+      "testId": "C-0043",
+      "source": "tarifa_cye",
+      "price": 450,
+      "min": 450,
+      "max": 450,
+      "n": 1
+    },
+    {
+      "testId": "T-0721",
+      "source": "tarifa_cye",
+      "price": 1.5,
+      "min": 1.4,
+      "max": 1.6,
+      "n": 2
+    },
+    {
+      "testId": "T-0719",
+      "source": "tarifa_cye",
+      "price": 150,
+      "min": 150,
+      "max": 150,
+      "n": 1
+    },
+    {
+      "testId": "C-0044",
+      "source": "tarifa_cye",
+      "price": 425,
+      "min": 425,
+      "max": 425,
+      "n": 1
+    },
+    {
+      "testId": "C-0045",
+      "source": "tarifa_cye",
+      "price": 800,
+      "min": 800,
+      "max": 800,
+      "n": 1
+    },
+    {
+      "testId": "C-0046",
+      "source": "tarifa_cye",
+      "price": 420,
+      "min": 420,
+      "max": 420,
+      "n": 1
+    },
+    {
+      "testId": "C-0047",
+      "source": "tarifa_cye",
+      "price": 700,
+      "min": 700,
+      "max": 700,
+      "n": 1
+    },
+    {
+      "testId": "T-0430",
+      "source": "tarifa_cye",
+      "price": 36,
+      "min": 36,
+      "max": 36,
+      "n": 3
+    },
+    {
+      "testId": "T-0424",
+      "source": "tarifa_cye",
+      "price": 90,
+      "min": 90,
+      "max": 90,
+      "n": 3
+    },
+    {
+      "testId": "C-0048",
+      "source": "tarifa_cye",
+      "price": 90,
+      "min": 90,
+      "max": 90,
+      "n": 1
+    },
+    {
+      "testId": "T-0177",
+      "source": "tarifa_cye",
+      "price": 81,
+      "min": 72,
+      "max": 120,
+      "n": 3
+    },
+    {
+      "testId": "C-0049",
+      "source": "tarifa_cye",
+      "price": 480,
+      "min": 480,
+      "max": 485,
+      "n": 3
+    },
+    {
+      "testId": "C-0050",
+      "source": "tarifa_cye",
+      "price": 180,
+      "min": 180,
+      "max": 180,
+      "n": 7
+    },
+    {
+      "testId": "C-0051",
+      "source": "tarifa_cye",
+      "price": 120,
+      "min": 100,
+      "max": 120,
+      "n": 7
+    },
+    {
+      "testId": "C-0052",
+      "source": "tarifa_cye",
+      "price": 5,
+      "min": 5,
+      "max": 5,
+      "n": 1
+    },
+    {
+      "testId": "C-0053",
+      "source": "tarifa_cye",
+      "price": 15,
+      "min": 15,
+      "max": 20,
+      "n": 3
+    },
+    {
+      "testId": "T-0219",
+      "source": "tarifa_cye",
+      "price": 780,
+      "min": 780,
+      "max": 780,
+      "n": 1
+    },
+    {
+      "testId": "T-0228",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 30,
+      "max": 35,
+      "n": 10
+    },
+    {
+      "testId": "T-0199",
+      "source": "tarifa_cye",
+      "price": 49,
+      "min": 40,
+      "max": 50,
+      "n": 4
+    },
+    {
+      "testId": "T-0040",
+      "source": "tarifa_cye",
+      "price": 120,
+      "min": 97,
+      "max": 150,
+      "n": 4
+    },
+    {
+      "testId": "C-0054",
+      "source": "tarifa_cye",
+      "price": 480,
+      "min": 480,
+      "max": 485,
+      "n": 3
+    },
+    {
+      "testId": "C-0055",
+      "source": "tarifa_cye",
+      "price": 45,
+      "min": 45,
+      "max": 45,
+      "n": 1
+    },
+    {
+      "testId": "C-0056",
+      "source": "tarifa_cye",
+      "price": 73.5,
+      "min": 72,
+      "max": 75,
+      "n": 2
+    },
+    {
+      "testId": "T-0392",
+      "source": "tarifa_cye",
+      "price": 24,
+      "min": 24,
+      "max": 30,
+      "n": 3
+    },
+    {
+      "testId": "C-0057",
+      "source": "tarifa_cye",
+      "price": 12,
+      "min": 12,
+      "max": 15,
+      "n": 3
+    },
+    {
+      "testId": "T-0376",
+      "source": "tarifa_cye",
+      "price": 50,
+      "min": 50,
+      "max": 50,
+      "n": 1
+    },
+    {
+      "testId": "C-0058",
+      "source": "tarifa_cye",
+      "price": 185,
+      "min": 185,
+      "max": 185,
+      "n": 10
+    },
+    {
+      "testId": "T-0326",
+      "source": "tarifa_cye",
+      "price": 72,
+      "min": 50,
+      "max": 120,
+      "n": 3
+    },
+    {
+      "testId": "T-0385",
+      "source": "tarifa_cye",
+      "price": 8,
+      "min": 8,
+      "max": 8,
+      "n": 4
+    },
+    {
+      "testId": "C-0059",
+      "source": "tarifa_cye",
+      "price": 150,
+      "min": 150,
+      "max": 150,
+      "n": 3
+    },
+    {
+      "testId": "T-0311",
+      "source": "tarifa_cye",
+      "price": 240,
+      "min": 240,
+      "max": 260,
+      "n": 3
+    },
+    {
+      "testId": "T-0353",
+      "source": "tarifa_cye",
+      "price": 33,
+      "min": 33,
+      "max": 33,
+      "n": 1
+    },
+    {
+      "testId": "T-0351",
+      "source": "tarifa_cye",
+      "price": 38,
+      "min": 38,
+      "max": 38,
+      "n": 1
+    },
+    {
+      "testId": "T-0349",
+      "source": "tarifa_cye",
+      "price": 46,
+      "min": 46,
+      "max": 46,
+      "n": 1
+    },
+    {
+      "testId": "C-0060",
+      "source": "tarifa_cye",
+      "price": 55,
+      "min": 55,
+      "max": 55,
+      "n": 1
+    },
+    {
+      "testId": "T-0350",
+      "source": "tarifa_cye",
+      "price": 30,
+      "min": 30,
+      "max": 30,
+      "n": 1
+    },
+    {
+      "testId": "C-0061",
+      "source": "tarifa_cye",
+      "price": 1480,
+      "min": 1000,
+      "max": 1500,
+      "n": 3
+    },
+    {
+      "testId": "T-0224",
+      "source": "tarifa_cye",
+      "price": 14,
+      "min": 8,
+      "max": 15,
+      "n": 3
+    },
+    {
+      "testId": "C-0062",
+      "source": "tarifa_cye",
+      "price": 4990,
+      "min": 4500,
+      "max": 7850,
+      "n": 3
+    },
+    {
+      "testId": "C-0063",
+      "source": "tarifa_cye",
+      "price": 25,
+      "min": 25,
+      "max": 30,
+      "n": 3
+    },
+    {
+      "testId": "T-0129",
+      "source": "tarifa_cye",
+      "price": 510,
+      "min": 510,
+      "max": 510,
+      "n": 1
+    },
+    {
+      "testId": "T-0697",
+      "source": "tarifa_cye",
+      "price": 285,
+      "min": 285,
+      "max": 285,
+      "n": 1
+    },
+    {
+      "testId": "C-0064",
+      "source": "tarifa_cye",
+      "price": 450,
+      "min": 450,
+      "max": 450,
+      "n": 1
+    },
+    {
+      "testId": "C-0065",
+      "source": "tarifa_cye",
+      "price": 3150,
+      "min": 2150,
+      "max": 3150,
+      "n": 3
+    },
+    {
+      "testId": "C-0066",
+      "source": "tarifa_cye",
+      "price": 20,
+      "min": 17,
+      "max": 20,
+      "n": 3
+    },
+    {
+      "testId": "T-0120",
+      "source": "tarifa_cye",
+      "price": 165,
+      "min": 45,
+      "max": 285,
+      "n": 2
+    },
+    {
+      "testId": "C-0067",
+      "source": "tarifa_cye",
+      "price": 25,
+      "min": 25,
+      "max": 25,
+      "n": 1
+    },
+    {
+      "testId": "C-0068",
+      "source": "tarifa_cye",
+      "price": 400,
+      "min": 400,
+      "max": 400,
+      "n": 1
+    },
+    {
+      "testId": "C-0069",
+      "source": "tarifa_cye",
+      "price": 60,
+      "min": 60,
+      "max": 60,
+      "n": 1
+    },
+    {
+      "testId": "C-0070",
+      "source": "tarifa_cye",
+      "price": 50,
+      "min": 50,
+      "max": 50,
+      "n": 1
+    },
+    {
+      "testId": "C-0071",
+      "source": "tarifa_cye",
+      "price": 90,
+      "min": 90,
+      "max": 90,
+      "n": 1
+    },
+    {
+      "testId": "C-0072",
+      "source": "tarifa_cye",
+      "price": 75,
+      "min": 75,
+      "max": 75,
+      "n": 1
+    },
+    {
+      "testId": "T-0261",
+      "source": "tarifa_cye",
+      "price": 25,
+      "min": 25,
+      "max": 25,
+      "n": 1
+    },
+    {
+      "testId": "T-0269",
+      "source": "tarifa_cye",
+      "price": 18,
+      "min": 18,
+      "max": 18,
+      "n": 1
+    },
+    {
+      "testId": "C-0073",
+      "source": "tarifa_cye",
+      "price": 12,
+      "min": 12,
+      "max": 12,
+      "n": 1
+    },
+    {
+      "testId": "C-0074",
+      "source": "tarifa_cye",
+      "price": 60,
+      "min": 60,
+      "max": 60,
+      "n": 1
+    },
+    {
+      "testId": "C-0075",
+      "source": "tarifa_cye",
+      "price": 25,
+      "min": 25,
+      "max": 25,
+      "n": 1
+    },
+    {
+      "testId": "C-0076",
+      "source": "tarifa_cye",
+      "price": 11,
+      "min": 11,
+      "max": 11,
+      "n": 1
+    },
+    {
+      "testId": "C-0077",
+      "source": "tarifa_cye",
+      "price": 25,
+      "min": 25,
+      "max": 25,
+      "n": 1
+    },
+    {
+      "testId": "T-0263",
+      "source": "tarifa_cye",
+      "price": 25,
+      "min": 25,
+      "max": 25,
+      "n": 1
+    },
+    {
+      "testId": "C-0078",
+      "source": "tarifa_cye",
+      "price": 215,
+      "min": 215,
+      "max": 215,
+      "n": 1
+    },
+    {
+      "testId": "C-0079",
+      "source": "tarifa_cye",
+      "price": 12,
+      "min": 12,
+      "max": 12,
+      "n": 1
+    },
+    {
+      "testId": "C-0080",
+      "source": "tarifa_cye",
+      "price": 15,
+      "min": 15,
+      "max": 15,
+      "n": 1
+    },
+    {
+      "testId": "T-0567",
+      "source": "tarifa_cye",
+      "price": 35,
+      "min": 30,
+      "max": 40,
+      "n": 2
+    },
+    {
+      "testId": "T-0155",
+      "source": "tarifa_cye",
+      "price": 95,
+      "min": 95,
+      "max": 95,
+      "n": 1
+    },
+    {
+      "testId": "T-0162",
+      "source": "tarifa_cye",
+      "price": 150,
+      "min": 150,
+      "max": 150,
+      "n": 1
+    },
+    {
+      "testId": "T-0160",
+      "source": "tarifa_cye",
+      "price": 250,
+      "min": 250,
+      "max": 250,
+      "n": 1
+    },
+    {
+      "testId": "C-0081",
+      "source": "tarifa_cye",
+      "price": 75,
+      "min": 75,
+      "max": 75,
+      "n": 1
+    },
+    {
+      "testId": "C-0082",
+      "source": "tarifa_cye",
+      "price": 45,
+      "min": 45,
+      "max": 45,
+      "n": 1
+    },
+    {
+      "testId": "C-0083",
+      "source": "tarifa_cye",
+      "price": 90,
+      "min": 90,
+      "max": 90,
+      "n": 2
+    },
+    {
+      "testId": "T-0176",
+      "source": "tarifa_cye",
+      "price": 45,
+      "min": 45,
+      "max": 45,
+      "n": 3
+    },
+    {
+      "testId": "C-0084",
+      "source": "tarifa_cye",
+      "price": 480,
+      "min": 480,
+      "max": 480,
+      "n": 1
+    },
+    {
+      "testId": "C-0085",
+      "source": "tarifa_cye",
+      "price": 75,
+      "min": 75,
+      "max": 75,
+      "n": 1
+    },
+    {
+      "testId": "C-0086",
+      "source": "tarifa_cye",
+      "price": 81,
+      "min": 72,
+      "max": 90,
+      "n": 2
+    },
+    {
+      "testId": "T-0064",
+      "source": "tarifa_cye",
+      "price": 142.5,
+      "min": 135,
+      "max": 150,
+      "n": 2
+    },
+    {
+      "testId": "T-0065",
+      "source": "tarifa_cye",
+      "price": 180,
+      "min": 150,
+      "max": 210,
+      "n": 2
+    },
+    {
+      "testId": "T-0105",
+      "source": "tarifa_cye",
+      "price": 100,
+      "min": 100,
+      "max": 100,
+      "n": 1
+    },
+    {
+      "testId": "T-0119",
+      "source": "tarifa_cye",
+      "price": 275,
+      "min": 275,
+      "max": 275,
+      "n": 1
+    },
+    {
+      "testId": "C-0087",
+      "source": "tarifa_cye",
+      "price": 315,
+      "min": 315,
+      "max": 315,
+      "n": 1
+    },
+    {
+      "testId": "C-0088",
+      "source": "tarifa_cye",
+      "price": 275,
+      "min": 275,
+      "max": 275,
+      "n": 1
+    },
+    {
+      "testId": "C-0089",
+      "source": "tarifa_cye",
+      "price": 380,
+      "min": 380,
+      "max": 380,
+      "n": 1
+    },
+    {
+      "testId": "C-0090",
+      "source": "tarifa_cye",
+      "price": 465,
+      "min": 450,
+      "max": 480,
+      "n": 2
+    },
+    {
+      "testId": "C-0091",
+      "source": "tarifa_cye",
+      "price": 54,
+      "min": 54,
+      "max": 54,
+      "n": 1
+    },
+    {
+      "testId": "C-0092",
+      "source": "tarifa_cye",
+      "price": 60,
+      "min": 50,
+      "max": 70,
+      "n": 2
+    },
+    {
+      "testId": "T-0411",
+      "source": "tarifa_cye",
+      "price": 60,
+      "min": 60,
+      "max": 60,
+      "n": 2
+    },
+    {
+      "testId": "C-0093",
+      "source": "tarifa_cye",
+      "price": 1500,
+      "min": 1500,
+      "max": 1500,
+      "n": 2
+    },
+    {
+      "testId": "C-0094",
+      "source": "tarifa_cye",
+      "price": 850,
+      "min": 850,
+      "max": 850,
+      "n": 1
+    },
+    {
+      "testId": "C-0095",
+      "source": "tarifa_cye",
+      "price": 600,
+      "min": 600,
+      "max": 600,
+      "n": 1
+    },
+    {
+      "testId": "C-0096",
+      "source": "tarifa_cye",
+      "price": 240,
+      "min": 240,
+      "max": 240,
+      "n": 1
+    },
+    {
+      "testId": "T-0142",
+      "source": "tarifa_cye",
+      "price": 75,
+      "min": 65,
+      "max": 85,
+      "n": 2
+    },
+    {
+      "testId": "C-0097",
+      "source": "tarifa_cye",
+      "price": 600,
+      "min": 600,
+      "max": 600,
+      "n": 1
+    },
+    {
+      "testId": "C-0098",
+      "source": "tarifa_cye",
+      "price": 500,
+      "min": 500,
+      "max": 500,
+      "n": 1
+    },
+    {
+      "testId": "C-0099",
+      "source": "tarifa_cye",
+      "price": 360,
+      "min": 360,
+      "max": 360,
+      "n": 1
+    },
+    {
+      "testId": "C-0100",
+      "source": "tarifa_cye",
+      "price": 1778.4,
+      "min": 1778.4,
+      "max": 1778.4,
+      "n": 1
+    },
+    {
+      "testId": "T-0425",
+      "source": "tarifa_cye",
+      "price": 115,
+      "min": 115,
+      "max": 115,
+      "n": 1
+    },
+    {
+      "testId": "C-0101",
+      "source": "tarifa_cye",
+      "price": 72,
+      "min": 72,
+      "max": 72,
+      "n": 1
+    },
+    {
+      "testId": "C-0102",
+      "source": "tarifa_cye",
+      "price": 51,
+      "min": 51,
+      "max": 51,
+      "n": 1
+    },
+    {
+      "testId": "C-0103",
+      "source": "tarifa_cye",
+      "price": 510,
+      "min": 510,
+      "max": 510,
+      "n": 1
+    }
+  ]
+}
