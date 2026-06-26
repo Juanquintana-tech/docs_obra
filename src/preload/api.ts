@@ -77,6 +77,9 @@ export const api = {
   // Plan BBDD (motor determinista por lote)
   bbddGenerate: (path: string): Promise<BBDDPlanResult> =>
     ipcRenderer.invoke('bbdd:generateFromDoc', path),
+  // Ingesta con el motor BBDD (mismo IngestResult que el RAG) para Nueva Obra
+  bbddIngest: (path: string, strategy?: PriceStrategy): Promise<IngestResult> =>
+    ipcRenderer.invoke('bbdd:ingestDocument', path, strategy),
   /** Recalcula el plan con otra estrategia de precios (sin re-ingestar el documento). */
   repricePlan: (materials: Material[], strategy: PriceStrategy): Promise<PlanRowInput[]> =>
     ipcRenderer.invoke('pipeline:repricePlan', materials, strategy),

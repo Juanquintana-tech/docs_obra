@@ -60,12 +60,11 @@ const MAX_ATTEMPTS = 3
  * el fallback Gemini→MiniMax no salta porque no es un error. Reintentamos hasta
  * obtener materiales; en el último intento forzamos MiniMax como red de seguridad.
  */
-export async function extractSections(path: string, provider?: LlmProvider): Promise<ExtractedPlanInput> {
-  const { text } = await extractDocument(path)
+/** Clasifica un texto ya extraído → secciones (con reintentos). Reutilizable cuando ya se tiene el texto. */
+export async function classifyToSections(text: string, provider?: LlmProvider): Promise<ExtractedPlanInput> {
   if (text.trim().length < 20) {
     return { sections: [], skipped: 0, attempts: 0, warning: 'El documento no contiene texto legible (¿PDF escaneado? requiere OCR).' }
   }
-
   let materials: Awaited<ReturnType<typeof classifyMaterials>> = []
   let attempts = 0
   for (; attempts < MAX_ATTEMPTS && materials.length === 0; attempts++) {
@@ -77,10 +76,15 @@ export async function extractSections(path: string, provider?: LlmProvider): Pro
       materials = []
     }
   }
-
   const valid = materials.filter((m) => m.category && m.category !== 'OTRO')
   const warning = materials.length === 0
     ? `La clasificación no devolvió materiales tras ${attempts} intentos — revisar el documento.`
     : undefined
   return { sections: valid.map(materialToSection), skipped: materials.length - valid.length, attempts, warning }
+}
+
+/** Extrae y clasifica un documento de obra → secciones para el motor. */
+export async function extractSections(path: string, provider?: LlmProvider): Promise<ExtractedPlanInput> {
+  const { text } = await extractDocument(path)
+  return classifyToSections(text, provider)
 }

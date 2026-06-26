@@ -29,7 +29,7 @@ import {
 } from './services/pipeline'
 import { interpretCommand } from './services/agent'
 import { interpretBudgetEdit } from './services/budgetAgent'
-import { generateBBDDPlan } from './services/bbddPlan'
+import { generateBBDDPlan, ingestDocumentBBDD } from './services/bbddPlan'
 import { loadCatalog } from './pipeline/rag/catalog'
 import { scanEnsayo } from './pipeline/ocr/ensayoOcr'
 import type { Rules } from './pipeline/planner'
@@ -182,6 +182,9 @@ export function registerIpc(): void {
 
   // ── Plan BBDD (motor determinista por lote, Etapa 5) ──
   ipcMain.handle('bbdd:generateFromDoc', (_e, path: string) => generateBBDDPlan(path))
+  ipcMain.handle('bbdd:ingestDocument', (_e, path: string, strategy?: PriceStrategy) =>
+    ingestDocumentBBDD(path, strategy)
+  )
   ipcMain.handle('pipeline:repricePlan', (_e, materials: Material[], strategy: PriceStrategy) =>
     repricePlan(materials, strategy)
   )

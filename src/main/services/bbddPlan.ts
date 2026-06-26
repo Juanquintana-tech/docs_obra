@@ -8,9 +8,14 @@
 import { resolve } from 'path'
 import { loadKb } from '../pipeline/kb/kb'
 import { loadNormativeRules } from '../pipeline/kb/normative'
-import { generatePlan, type PlanLine } from '../pipeline/kb/engine'
-import { extractSections } from '../pipeline/kb/kbExtractor'
+import { generatePlan, type PlanLine, type SectionInput } from '../pipeline/kb/engine'
+import { extractSections, classifyToSections } from '../pipeline/kb/kbExtractor'
+import { extractDocument } from '../pipeline/extractor'
+import { extractObraInfo } from '../pipeline/classifier'
 import { knowledgePath } from '../paths'
+import type { IngestResult } from './pipeline'
+import type { PlanRowInput, Material } from '../pipeline/types'
+import type { PriceStrategy } from '../pipeline/rag/priceBook'
 
 export interface BBDDTramo {
   tramo: string
@@ -84,5 +89,59 @@ export async function generateBBDDPlan(path: string): Promise<BBDDPlanResult> {
     skipped,
     nLines: lines.length,
     nReview: lines.filter((l) => l.needsReview).length,
+  }
+}
+
+// ── Integración en el flujo de Nueva Obra (mismo IngestResult que el motor viejo) ──
+
+function lineToPlanRow(l: PlanLine): PlanRowInput {
+  return {
+    type: 'test',
+    material: l.tramo ?? l.categoryCode,
+    description: l.description,
+    n_tests: l.nTests,
+    unit_price: l.unitPrice ?? 0,
+    total: l.total ?? 0,
+    // price_source guarda la fuente de precio; rag_desc, la procedencia (artículo o presupuesto).
+    price_source: l.provenance.priceSource,
+    rag_score: l.provenance.matchConfidence,
+    rag_desc: l.provenance.source,
+  }
+}
+
+function sectionToMaterial(s: SectionInput): Material {
+  return {
+    material: s.material ?? s.tramo ?? undefined,
+    category: s.categoryCode,
+    quantity: s.quantity,
+    unit: s.unit ?? undefined,
+  }
+}
+
+/**
+ * Variante de ingesta que usa el MOTOR BBDD (determinista por lote) en lugar del RAG.
+ * Devuelve el mismo `IngestResult` → encaja en el flujo de Nueva Obra (revisar/guardar/exportar).
+ */
+export async function ingestDocumentBBDD(
+  path: string,
+  strategy: PriceStrategy = 'mediana'
+): Promise<IngestResult> {
+  const { text, format, needsOcr } = await extractDocument(path)
+  const [obraInfo, extracted] = await Promise.all([extractObraInfo(text), classifyToSections(text)])
+  const { lines, warnings } = generatePlan(extracted.sections, kb(), norm())
+  const plan = lines.map(lineToPlanRow)
+  if (extracted.warning) warnings.unshift(extracted.warning)
+
+  return {
+    obra: {
+      obra: obraInfo.obra ?? '',
+      cliente: obraInfo.cliente ?? '',
+      ref_doc: obraInfo.ref_doc ?? '',
+      municipio: obraInfo.municipio ?? '',
+    },
+    materials: extracted.sections.map(sectionToMaterial),
+    plan,
+    strategy,
+    meta: { format, chars: text.length, needsOcr },
   }
 }
