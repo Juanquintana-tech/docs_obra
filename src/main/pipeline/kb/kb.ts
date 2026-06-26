@@ -24,17 +24,37 @@ function readJson<T>(path: string, key: string): T[] {
   return (JSON.parse(readFileSync(path, 'utf-8')) as Record<string, T[]>)[key] ?? []
 }
 
+/** Umbral de volumen (m3) que separa el escalón de frecuencia (≤ → 1/5.000, > → 1/10.000). */
+export const VOLUME_THRESHOLD = 500_000
+
 /**
- * Entre reglas que compiten para el mismo (categoría, ensayo) —p.ej. terraplén a
- * 1/5.000 m3 vs 1/10.000 m3 en distintos presupuestos— elige una representativa:
- * la respaldada por más presupuestos (`sources`); a igualdad, la más exigente
- * (menor freqQty = más ensayos = criterio conservador de control de calidad).
+ * Colapsa todas las reglas de un (categoría, ensayo) en una sola, eligiendo el "tipo
+ * de frecuencia primario" (el que acumula más `sources`). Si es per_quantity, conserva
+ * en `qtyTiers` todas las frecuencias observadas (p.ej. [5000, 10000]) para que el motor
+ * elija el escalón según el volumen de la sección.
  */
-function selectRule(a: KbFrequencyRule, b: KbFrequencyRule): KbFrequencyRule {
-  if (a.sources !== b.sources) return a.sources > b.sources ? a : b
-  const aq = a.freqQty ?? Infinity
-  const bq = b.freqQty ?? Infinity
-  return aq <= bq ? a : b
+function collapseRules(rules: KbFrequencyRule[]): KbFrequencyRule {
+  // Suma de sources por tipo de frecuencia → tipo primario.
+  const byKind = new Map<string, KbFrequencyRule[]>()
+  for (const r of rules) {
+    if (!byKind.has(r.freqKind)) byKind.set(r.freqKind, [])
+    byKind.get(r.freqKind)!.push(r)
+  }
+  let primary: KbFrequencyRule[] = []
+  let bestSources = -1
+  for (const group of byKind.values()) {
+    const s = group.reduce((a, r) => a + r.sources, 0)
+    if (s > bestSources) { bestSources = s; primary = group }
+  }
+  // Representante: el de más sources dentro del tipo primario.
+  const rep = [...primary].sort((a, b) => b.sources - a.sources)[0]
+  if (rep.freqKind === 'per_quantity' || rep.freqKind === 'per_lot') {
+    const tiers = [...new Set(primary
+      .filter((r) => r.freqMagUnit === rep.freqMagUnit && r.freqQty != null)
+      .map((r) => r.freqQty as number))].sort((a, b) => a - b)
+    return { ...rep, qtyTiers: tiers.length ? tiers : rep.freqQty != null ? [rep.freqQty] : [] }
+  }
+  return rep
 }
 
 export function loadKb(curatedDir = resolve(process.cwd(), 'resources/knowledge/curated')): Kb {
@@ -53,16 +73,18 @@ export function loadKb(curatedDir = resolve(process.cwd(), 'resources/knowledge/
     pricesByTest.get(p.testId)!.push(p)
   }
 
-  // Reglas por categoría, deduplicadas a una por ensayo.
-  const byCatTest = new Map<string, Map<string, KbFrequencyRule>>()
+  // Reglas por categoría, colapsadas a una por ensayo (conservando escalones de frecuencia).
+  const byCatTest = new Map<string, Map<string, KbFrequencyRule[]>>()
   for (const r of rules) {
     if (!byCatTest.has(r.categoryCode)) byCatTest.set(r.categoryCode, new Map())
     const m = byCatTest.get(r.categoryCode)!
-    const prev = m.get(r.testId)
-    m.set(r.testId, prev ? selectRule(prev, r) : r)
+    if (!m.has(r.testId)) m.set(r.testId, [])
+    m.get(r.testId)!.push(r)
   }
   const rulesByCategory = new Map<string, KbFrequencyRule[]>()
-  for (const [cat, m] of byCatTest) rulesByCategory.set(cat, [...m.values()])
+  for (const [cat, m] of byCatTest) {
+    rulesByCategory.set(cat, [...m.values()].map(collapseRules))
+  }
 
   const categories = new Map<string, KbCategory>()
   const testRulesPath = resolve(process.cwd(), 'resources/knowledge/test_rules.json')

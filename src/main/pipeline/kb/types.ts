@@ -72,6 +72,12 @@ export interface KbFrequencyRule {
   freqKind: FreqKind
   freqQty: number | null // cantidad por lote (5000) si per_quantity/per_lot
   freqMagUnit: string | null // unidad de magnitud canónica (m3, m2, ml, t, ud…)
+  /**
+   * Frecuencias observadas para este (categoría, ensayo) en los presupuestos reales
+   * —p.ej. [5000, 10000]—. El motor elige el escalón según el volumen de la sección
+   * (umbral configurable). Solo se rellena en memoria al cargar la KB; no en el JSON.
+   */
+  qtyTiers?: number[]
   /** Cuántos presupuestos CYE respaldan esta regla (confianza). */
   sources: number
   /** Texto original del ensayo (para trazabilidad/curación). */

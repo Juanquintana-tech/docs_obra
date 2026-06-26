@@ -8,7 +8,7 @@
  * Toda cifra sale de la BBDD curada (`kb`) y de aritmética explícita.
  */
 import type { KbFrequencyRule } from './types'
-import { type Kb, effectivePrice } from './kb'
+import { type Kb, effectivePrice, VOLUME_THRESHOLD } from './kb'
 
 // ── Contratos (estables entre etapas, ver PLAN_BBDD.md §4) ──────────────────
 
@@ -44,6 +44,20 @@ export interface PlanLine {
 export interface GenerateOptions {
   /** Redondeo de lotes (por defecto ceil: nunca menos control del normativo). */
   rounding?: 'ceil' | 'round'
+  /** Umbral de volumen (m3) para el escalón de frecuencia. Por defecto VOLUME_THRESHOLD. */
+  volumeThreshold?: number
+}
+
+/**
+ * Elige la frecuencia (m3 por lote) según el volumen de la sección:
+ * ≤ umbral → escalón fino (1/5.000); > umbral → escalón grueso (1/10.000).
+ * Entre las frecuencias realmente observadas (`tiers`), toma la más cercana al objetivo.
+ */
+function resolveFreqQty(tiers: number[], fallback: number, volume: number | null, threshold: number): number {
+  if (tiers.length <= 1) return tiers[0] ?? fallback
+  if (volume == null) return fallback
+  const target = volume > threshold ? 10_000 : 5_000
+  return tiers.reduce((best, t) => (Math.abs(t - target) < Math.abs(best - target) ? t : best))
 }
 
 export interface GenerateResult {
@@ -73,41 +87,45 @@ function convert(qty: number, from: string | null, to: string | null): number | 
 
 // ── Cálculo de nº de ensayos por regla ──────────────────────────────────────
 
-interface Computed { nLots: number | null; nTests: number; note?: string; review: boolean }
+interface Computed { nLots: number | null; nTests: number; freqQtyUsed: number | null; note?: string; review: boolean }
 
-function computeTests(rule: KbFrequencyRule, section: SectionInput, rounding: 'ceil' | 'round'): Computed {
+function computeTests(rule: KbFrequencyRule, section: SectionInput, rounding: 'ceil' | 'round', threshold: number): Computed {
   const muestreo = rule.muestreo && rule.muestreo > 0 ? rule.muestreo : 1
   const round = rounding === 'ceil' ? Math.ceil : Math.round
 
   switch (rule.freqKind) {
     case 'per_quantity':
     case 'per_lot': {
-      if (rule.freqQty == null || rule.freqQty <= 0) {
-        return { nLots: null, nTests: muestreo, note: 'freqQty ausente', review: true }
-      }
       if (section.quantity == null) {
-        return { nLots: null, nTests: muestreo, note: 'cantidad de sección desconocida', review: true }
+        return { nLots: null, nTests: muestreo, freqQtyUsed: rule.freqQty, note: 'cantidad de sección desconocida', review: true }
       }
       const q = convert(section.quantity, section.unit, rule.freqMagUnit)
       if (q == null) {
         return {
           nLots: null,
           nTests: muestreo,
+          freqQtyUsed: rule.freqQty,
           note: `unidad sección (${section.unit ?? '—'}) ≠ unidad frecuencia (${rule.freqMagUnit ?? '—'})`,
           review: true,
         }
       }
-      const nLots = Math.max(1, round(q / rule.freqQty))
-      return { nLots, nTests: nLots * muestreo, review: false }
+      const tiers = rule.qtyTiers ?? (rule.freqQty != null ? [rule.freqQty] : [])
+      const freqQty = resolveFreqQty(tiers, rule.freqQty ?? 0, q, threshold)
+      if (!freqQty || freqQty <= 0) {
+        return { nLots: null, nTests: muestreo, freqQtyUsed: null, note: 'freqQty ausente', review: true }
+      }
+      const nLots = Math.max(1, round(q / freqQty))
+      const note = tiers.length > 1 ? `escalón 1/${freqQty} (de ${tiers.map((t) => `1/${t}`).join(', ')})` : undefined
+      return { nLots, nTests: nLots * muestreo, freqQtyUsed: freqQty, note, review: false }
     }
     case 'per_type':
     case 'per_element':
       // Una sección = un material/elemento → muestreo ensayos.
-      return { nLots: 1, nTests: muestreo, review: false }
+      return { nLots: 1, nTests: muestreo, freqQtyUsed: null, review: false }
     case 'fixed':
-      return { nLots: null, nTests: muestreo, review: false }
+      return { nLots: null, nTests: muestreo, freqQtyUsed: null, review: false }
     default: // 'other' → condicional, no calculable
-      return { nLots: null, nTests: muestreo, note: `frecuencia no estructurada: "${rule.freqUnit}"`, review: true }
+      return { nLots: null, nTests: muestreo, freqQtyUsed: null, note: `frecuencia no estructurada: "${rule.freqUnit}"`, review: true }
   }
 }
 
@@ -115,6 +133,7 @@ function computeTests(rule: KbFrequencyRule, section: SectionInput, rounding: 'c
 
 export function generatePlan(sections: SectionInput[], kb: Kb, opts: GenerateOptions = {}): GenerateResult {
   const rounding = opts.rounding ?? 'ceil'
+  const threshold = opts.volumeThreshold ?? VOLUME_THRESHOLD
   const lines: PlanLine[] = []
   const warnings: string[] = []
 
@@ -127,14 +146,14 @@ export function generatePlan(sections: SectionInput[], kb: Kb, opts: GenerateOpt
 
     for (const rule of rules) {
       const test = kb.tests.get(rule.testId)
-      const c = computeTests(rule, section, rounding)
+      const c = computeTests(rule, section, rounding, threshold)
       const priced = effectivePrice(kb, rule.testId)
 
       const unitPrice = priced?.price ?? null
       const total = unitPrice != null ? Math.round(c.nTests * unitPrice * 100) / 100 : null
       const freqStr =
         rule.freqKind === 'per_quantity' || rule.freqKind === 'per_lot'
-          ? `${rule.muestreo} / ${rule.freqQty} ${rule.freqMagUnit ?? ''}`.trim()
+          ? `${rule.muestreo} / ${c.freqQtyUsed ?? rule.freqQty} ${rule.freqMagUnit ?? ''}`.trim()
           : rule.freqUnit
 
       lines.push({

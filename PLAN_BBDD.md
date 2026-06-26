@@ -199,11 +199,13 @@ interface PlanLine {
 - [x] Validación `kb:plan`: caso controlado + **determinismo verificado** (mismo input → salida byte-idéntica, sale ≠0 si falla).
 - **DoD:** ✅ motor corre, determinista, con provenance y fallback marcado.
 
-> **Hallazgo clave para Etapa 4 — política de frecuencia.** Cuando un ensayo tiene
-> frecuencias que compiten entre presupuestos (terraplén 1/5.000 vs 1/10.000 m³), el motor
-> elige hoy la de más `sources`. Eso duplica el terraplén vs E8 real (880 vs 440 ensayos).
-> La precisión final depende de fijar la frecuencia canónica por categoría (decisión de curación
-> del usuario / por material / configurable). Es la palanca nº1 de paridad.
+> **Política de frecuencia — RESUELTA (2026-06-26, validada con datos).** Análisis de los
+> presupuestos: la frecuencia se engruesa con el **volumen del propio material** (no con el
+> total de obra). Patrón: E4/E5/E6 (≤300k m³) → 1/5.000; E8 (4,4M m³) → 1/10.000. Decisión del
+> usuario: **umbral único 500.000 m³** (≤ → 1/5.000, > → 1/10.000). Implementado en el motor:
+> `kb.ts` conserva los escalones observados por ensayo (`qtyTiers`) y `engine.ts` elige el más
+> cercano al objetivo según el volumen de la sección (`resolveFreqQty`, `VOLUME_THRESHOLD`
+> configurable). Validación: TERRAPLÉN 4,4M m³ → **440 ensayos, igual que E8 real** (antes 880).
 
 > **Limitación conocida (la resuelve Etapa 3).** Muchas secciones eval no tienen cantidad, y
 > ensayos por área/tongada (m²) no se calculan en secciones medidas en m³ → se marcan. Por eso
@@ -300,4 +302,5 @@ interface PlanLine {
   - **Ambigüedades pendientes:** hoja definitiva de E5 (`P-1339-20`); confirmar `0414.26 P.xls` como válido de E7; ¿hay más presupuestos CYE fuera de la carpeta?
 - **2026-06-26** — Ambigüedades resueltas (E5→`BASE`, E7→`0414.26 P.xls`, cerrado con 8+ALAGAL) y **Etapa 1 construida**: módulo `src/main/pipeline/kb/` + harness `kb/{importAlagal,importCye,buildKb}.ts`, scripts `kb:import-alagal`/`kb:import-cye`/`kb:build`, fuentes curadas en `resources/knowledge/curated/` y `kb.sqlite` (gitignored). Typecheck verde.
 - **2026-06-26** — **Pulido de datos**: `freq_unit` estructurado (`freqKind/freqQty/freqMagUnit`), ditto resuelto, variantes fusionadas (176 reglas). El motor ya calcula lotes vía SQL (`ceil(qty/freqQty)`).
-- **2026-06-26** — **Etapa 2 completada**: motor determinista (`kb/kb.ts` + `kb/engine.ts`), validación `kb:plan` con determinismo verificado. Identificada la **política de frecuencia** como palanca nº1 de paridad (Etapa 4). **Siguiente: Etapa 3 — extractor LLM** (doc → mediciones estructuradas por tramo, con cantidades y áreas).
+- **2026-06-26** — **Etapa 2 completada**: motor determinista (`kb/kb.ts` + `kb/engine.ts`), validación `kb:plan` con determinismo verificado.
+- **2026-06-26** — **Política de frecuencia afinada con datos**: escalón por volumen del material, umbral 500.000 m³ (≤→1/5.000, >→1/10.000). El motor (`resolveFreqQty`/`qtyTiers`) replica el E8 real (TERRAPLÉN 4,4M m³ → 440 ensayos). **Siguiente: Etapa 3 — extractor LLM** (doc → mediciones por tramo, con cantidades y áreas), que destraba la paridad de Etapa 4.
