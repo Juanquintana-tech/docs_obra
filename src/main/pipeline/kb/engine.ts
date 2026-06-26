@@ -65,8 +65,9 @@ function toLotSection(s: SectionInput): LotSection {
   const q = s.quantity ?? null
   const isMBC = s.categoryCode === 'MEZCLA_BITUMINOSA'
   let volume_m3: number | null = u === 'm3' ? q : null
-  const tonnage_t: number | null = u === 't' || u === 'tm' ? q : null
-  if (volume_m3 == null && isMBC && tonnage_t != null) volume_m3 = tonnage_t / ASPHALT_DENSITY
+  // Tonelaje: directo (t/tm) o desde masa en kg (÷1000) para categorías por peso (acero…).
+  const tonnage_t: number | null = u === 't' || u === 'tm' ? q : u === 'kg' && q != null ? q / 1000 : null
+  if (volume_m3 == null && isMBC && tonnage_t != null) volume_m3 = tonnage_t * (1 / ASPHALT_DENSITY)
   return {
     categoryCode: s.categoryCode,
     volume_m3,
@@ -78,23 +79,35 @@ function toLotSection(s: SectionInput): LotSection {
   }
 }
 
-/** Escalón de frecuencia para gap-fill per_quantity: usa los tiers observados y el volumen. */
-function pickFreqQty(rule: KbFrequencyRule, volume: number): number {
+/** Escalón de frecuencia para gap-fill per_quantity (solo escalona por volumen m³). */
+function pickFreqQty(rule: KbFrequencyRule, magnitude: number, isVolume: boolean): number {
   const tiers = rule.qtyTiers && rule.qtyTiers.length ? rule.qtyTiers : rule.freqQty != null ? [rule.freqQty] : []
-  if (tiers.length <= 1) return tiers[0] ?? 0
-  const target = volume > VOLUME_THRESHOLD ? 10_000 : 5_000
+  if (tiers.length <= 1 || !isVolume) return rule.freqQty ?? tiers[0] ?? 0
+  const target = magnitude > VOLUME_THRESHOLD ? 10_000 : 5_000
   return tiers.reduce((best, t) => (Math.abs(t - target) < Math.abs(best - target) ? t : best))
+}
+
+/** Magnitud de la sección que corresponde a la unidad de frecuencia del ensayo. */
+function magnitudeFor(unit: string | null, lot: LotSection): { qty: number | null; isVolume: boolean } {
+  const u = (unit ?? '').toLowerCase()
+  if (u === 't' || u === 'tm') return { qty: lot.tonnage_t ?? null, isVolume: false }
+  if (u === 'm2') return { qty: lot.surface_m2 ?? null, isVolume: false }
+  if (u === 'm' || u === 'ml') return { qty: lot.length_m ?? null, isVolume: false }
+  return { qty: lot.volume_m3 ?? null, isVolume: true }
 }
 
 /** Gap-fill: nº de ensayos para un ensayo del presupuesto sin regla normativa. */
 function budgetTests(rule: KbFrequencyRule, lot: LotSection): { nTests: number; detail: string; review: boolean } {
   const muestreo = rule.muestreo && rule.muestreo > 0 ? rule.muestreo : 1
-  // per_quantity: ensayos de identificación/material por volumen (escalón observado).
-  if (rule.freqKind === 'per_quantity' && lot.volume_m3 != null) {
-    const freqQty = pickFreqQty(rule, lot.volume_m3)
-    if (freqQty > 0) {
-      const n = Math.max(1, Math.ceil(lot.volume_m3 / freqQty) * muestreo)
-      return { nTests: n, detail: `${Math.round(lot.volume_m3).toLocaleString('es-ES')}/${freqQty} (inferida)`, review: false }
+  // per_quantity: por la magnitud correcta (m³ / t / m² / m), con escalón si es volumen.
+  if (rule.freqKind === 'per_quantity') {
+    const { qty, isVolume } = magnitudeFor(rule.freqMagUnit, lot)
+    if (qty != null) {
+      const freqQty = pickFreqQty(rule, qty, isVolume)
+      if (freqQty > 0) {
+        const n = Math.max(1, Math.ceil(qty / freqQty) * muestreo)
+        return { nTests: n, detail: `${Math.round(qty).toLocaleString('es-ES')}/${freqQty} ${rule.freqMagUnit ?? ''} (inferida)`, review: false }
+      }
     }
   }
   // per_lot: "1 por N lotes" — derivada de otro control; sin la referencia, no se infla por volumen.
@@ -141,6 +154,9 @@ export function generatePlan(
     const normRules = (normByCat.get(cat) ?? []).filter((r) => r.controlType !== 'material_acceptance')
     for (const rule of normRules) {
       for (const nl of computeRule(lot, rule)) {
+        // Si la norma no pudo calcular (nº=0, p.ej. hormigón sin valores de lote),
+        // no la emitimos ni la marcamos cubierta → el presupuesto la rellena (replica ejemplos).
+        if (nl.nTests === 0) continue
         const m = kb.matchTest(nl.test)
         const testId = m?.testId ?? null
         const priced = testId ? effectivePrice(kb, testId) : null
