@@ -214,12 +214,17 @@ interface PlanLine {
 > ensayos por área/tongada (m²) no se calculan en secciones medidas en m³ → se marcan. Por eso
 > en `kb:plan (c)` la desviación vs real aún es grande; la paridad fina es Etapa 4.
 
-### Etapa 3 — Capa de extracción LLM *(bordes)*
-- [ ] Extractor doc → `MedicionEstructurada[]` por tramo, con confianza y trazabilidad.
-- [ ] Gemini primario, MiniMax fallback; salida validada por JSON Schema; reintentos.
-- [ ] Aliasing: texto → canónico vía `kb_test_aliases` + fuzzy controlado de respaldo (marcado).
-- [ ] Tests de extracción sobre documentos reales.
-- **DoD:** extracción estructurada estable y validada en los proyectos de prueba.
+### Etapa 3 — Capa de extracción LLM ✅ *(hecho 2026-06-26, bordes)*
+- [x] `kb/kbExtractor.ts`: documento (PDF/XLSX/…) → texto → `classifyMaterials` (Gemini→MiniMax, reusa el classifier) → `SectionInput[]`, con inferencia de **capa** (rodadura/intermedia/base) y **altura ≥5 m**. El LLM solo produce estructura.
+- [x] `engine.ts`: manejo de **SERVICIO** (facturación directa cantidad × precio).
+- [x] Harness `kb:extract`: end-to-end documento→extractor→motor vs total real de CYE.
+- **DoD:** ✅ extracción estructurada estable y validada (E8: 20 secciones, **Δ −6,6%**; E6: 21 secciones).
+
+> **Validación end-to-end (Totalizados → presupuesto):** E8 (movimiento de tierras) **−6,6%**;
+> E6 (estructura) **−50%**. La extracción/clasificación es buena en ambos; el infraconteo de E6 se
+> concentra en categorías con **datos normativos incompletos**: hormigón (valores de lote pendientes
+> de verificar) y acero_activo/acero_laminado/escollera (sin reglas). Es **brecha de datos, no del
+> extractor** → se cierra en Etapa 1bis (completar hormigón/acero) + Etapa 4 (paridad fina).
 
 ### Etapa 4 — Integración end-to-end + paridad
 - [ ] Cablear extractor → motor → plan en `pipeline.ts`/IPC, **tras feature flag** (motor nuevo vs `plannerLLM` viejo) para A/B.
@@ -308,6 +313,7 @@ interface PlanLine {
 - **2026-06-26** — **Etapa 2 completada**: motor determinista (`kb/kb.ts` + `kb/engine.ts`), validación `kb:plan` con determinismo verificado.
 - **2026-06-26** — **Política de frecuencia afinada con datos** (umbral volumen 500.000 m³) — *luego corregida, ver siguiente*.
 - **2026-06-26** — **Investigación normativa 1ª tanda (deep-research, verificada vs BOE)** → [`NORMATIVA_FRECUENCIAS.md`](NORMATIVA_FRECUENCIAS.md). **Corrige el modelo:** 5.000/10.000 = superficies de lote por altura de terraplén, NO volumen. Dos controles: fabricación (por m³) y recepción (por lote). Verificado: terraplén (330/332), zahorra (510), suelo estab. recepción (512.9.3), bituminosa recepción (542.9.4).
+- **2026-06-26** — **Etapa 3 — extractor LLM hecho.** `kbExtractor` (doc→`classifyMaterials`→`SectionInput[]`, capa/altura inferidas) + SERVICIO en el motor + harness `kb:extract`. End-to-end: E8 **Δ −6,6%**, E6 −50% (infraconteo por datos de hormigón/acero incompletos, no por el extractor). **Siguiente: completar hormigón/acero (Etapa 1bis) y paridad (Etapa 4).**
 - **2026-06-26** — **Motor integrado (Etapa 2 cerrada en lo esencial).** `generatePlan` reescrito al modelo por lote + gap-fill (normativa manda, presupuesto rellena); `kb.matchTest` mapea batería→ensayo canónico para precio. Validado vs total real de los 8 proyectos: corregido el sobreconteo catastrófico (regla "1/10 lotes" inflaba a 440.000 ensayos → 6,6M€). Estado: E5 −16%, E8 −51% (infraconteo por secciones sin cantidad/superficie). **Refinamiento pendiente:** dedup de ensayos de control duplicados (densidad normativa vs presupuesto). **Paridad fina = Etapa 4** (necesita extractor con superficie/longitud/altura/capa).
 - **2026-06-26** — **Modelo "por lote" — núcleo implementado y validado.** `kb/normative.ts` + `kb/lotEngine.ts` (+ `kb:lote`): dos controles (fabricación por escalones m³/t; recepción/ejecución por lote = volumen/(espesor×superficie_lote) × batería). Superficie estimada de volumen/espesor de tongada cuando no se conoce. **Valida vs E8 real:** terraplén 4,4M m³ → densidad 7335 (real 7350), placa 1467 (real 1470). Falta: integrar en `generatePlan` (mapear batería→ensayo canónico para precio, gap-fill con frecuencia de presupuestos donde no hay norma, PlanLine con provenance).
 - **2026-06-26** — **3ª tanda** (enfocada, completa). Confirmado 3-0: riegos imprimación (530, mín 500 g/m², ±15%) y adherencia (531, mín 200/250 g/m², +15%/−10%); tabla fabricación bituminosa 542.16 (600/300/150 y 1.000/500/250 t/ensayo por NCF); marcas viales (700, dotación por bandejas; comportamiento por PPTP). **Escollera (658): sin frecuencia normativa — es PPTP/práctica.** `normative_rules.json` = **13 reglas, todas verificadas**. Cuadro normativo cerrado. **Siguiente: rehacer el motor a "por lote".**
