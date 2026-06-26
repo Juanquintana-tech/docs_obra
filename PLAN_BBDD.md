@@ -1,0 +1,289 @@
+# CYE — Reescritura del núcleo: de RAG a BBDD curada + motor determinista
+
+> **Branch:** `Cye_BBDD` · **Inicio:** 2026-06-26
+> **Documento estrella polar.** Se actualiza al cerrar cada etapa (sección "Bitácora").
+> Si en algún momento se pierde el contexto, **este archivo es la fuente de verdad** de objetivos,
+> arquitectura y estado.
+
+---
+
+## 1. Objetivo
+
+Sustituir por completo el sistema RAG (TF-IDF + embeddings + `plannerLLM` generativo) por una
+**base de datos curada** sobre la que se ejecutan **consultas estructuradas deterministas**.
+
+**Resultado buscado:** dado el mismo proyecto de entrada, el mismo presupuesto de salida
+(reproducible), con precisión equiparable o superior al presupuesto real de CYE, y con
+**trazabilidad total** de cada cifra (qué regla, qué frecuencia, qué precio y de dónde sale).
+
+### Por qué (dolor actual, de `PLAN.md` §104)
+- Resultado **no determinista** (el LLM genera el plan libremente sección a sección).
+- Desviación **+13,9%** vs presupuesto real CYE (E8 mejoró a −3,9% tras parches, pero frágil).
+- **Desajuste de granularidad**: la App agrupa por categoría global; CYE real desglosa por **tramo/sección** (219 líneas reales vs 124 de la App).
+- Divergencias de **precio** y de **número de lotes**; matching difuso que prioriza mal.
+
+---
+
+## 2. Decisiones de arquitectura (cerradas 2026-06-26)
+
+| Decisión | Elección | Implicación |
+|---|---|---|
+| **Rol del LLM** | LLM mapea → **motor determinista** | El LLM solo extrae intención estructurada y ayuda en el chat. Todo cálculo (ensayos, frecuencias, lotes, precios) lo hace un motor de reglas/SQL. Mismo input → mismo output. |
+| **Alcance** | **BBDD-first con fallback marcado** | La BBDD curada manda. Lo no cubierto se **marca visiblemente** (nunca se inventa precio en silencio). El RAG antiguo solo se borra tras probar paridad (Etapa 7). |
+| **Granularidad** | **Por tramo/sección** (como CYE real) | El modelo de datos y el extractor trabajan a nivel de tramo, no de categoría global. Es la palanca principal para cerrar el gap de precisión. |
+| **Proveedor LLM** | **Gemini Flash primario, MiniMax fallback** | Solo capa de extracción/agente. Núcleo de cálculo agnóstico de proveedor. Claves ya en `.env`. |
+
+### Principio rector
+> **El LLM nunca produce un número que vaya al presupuesto.** Produce *estructura*
+> (categoría, material, tramo, cantidad, unidad, código de norma). Los números (frecuencias,
+> lotes, precios, totales) salen siempre de la BBDD y de aritmética determinista.
+
+---
+
+## 3. Arquitectura objetivo
+
+```
+Documento de proyecto (PDF/XLSX/DOCX)
+        │
+        ▼
+┌─────────────────────────┐   LLM (Gemini→MiniMax)   solo ESTRUCTURA, validado por schema
+│  Extractor de mediciones │ ───────────────────────────────────────────────┐
+│  → MedicionEstructurada[]│   {tramo, categoría, material, cantidad, unidad} │
+└─────────────────────────┘                                                   │
+        │                                                                     │
+        ▼ (aliasing canónico: texto → test_id / categoría canónica)           │
+┌─────────────────────────────────────────────┐                              │
+│  MOTOR DETERMINISTA DE VALORACIÓN (sin LLM)   │ ◀──── consultas ──── BBDD CURADA (SQLite)
+│  · selecciona ensayos aplicables por regla     │                     · categorías + aliases
+│  · calcula nº de lotes y nº de ensayos          │                     · ensayos canónicos
+│  · aplica precio canónico (estrategia)          │                     · reglas de frecuencia
+│  · adjunta PROVENANCE a cada línea              │                     · precios (hist. + fuente)
+└─────────────────────────────────────────────┘                     · estructura de tramos
+        │                                                            · proyectos históricos (eval)
+        ▼
+  PlanLine[] (con provenance + flags de fallback)
+        │
+        ├──▶ UI Detalle (presupuesto por tramo, trazabilidad por línea)
+        ├──▶ Exportación Word/Excel
+        └──▶ Agente conversacional / edición NL (tool-calling sobre el motor)
+```
+
+### Componentes
+- **BBDD curada (SQLite):** se *construye* desde archivos fuente versionados (YAML/JSON en repo) mediante un build script reproducible. Editar el conocimiento = editar fuente + rebuild (diffable en git). Tablas con prefijo `kb_`.
+- **Motor determinista:** funciones puras, testeables con `tsx`, **cero dependencia de red/LLM**.
+- **Capa de extracción LLM:** estrecha, con salida validada por JSON Schema; Gemini primario, MiniMax fallback, reintentos.
+- **Eval harness:** mide desviación vs históricos reales y cobertura de matching. Se ejecuta al cerrar **cada** etapa (guardia anti-regresión).
+
+---
+
+## 4. Modelo de datos curado (propuesta inicial — se afina en Etapa 1 con tus fuentes)
+
+> Fuente de verdad = archivos versionados en `resources/knowledge/curated/` (YAML/JSON).
+> El SQLite es un artefacto **derivado** y rebuildeable.
+
+```
+kb_categories
+  code            TEXT PK        -- TERRAPLEN_RELLENOS, HORMIGON, ...
+  name            TEXT
+  default_unit    TEXT           -- m3, m2, ml, ud, t...
+  keywords        JSON           -- aliases para clasificación
+  norm_refs       JSON           -- PG-3 Art.330, etc.
+
+kb_tests                          -- catálogo CANÓNICO de ensayos (identidad única)
+  id              TEXT PK        -- T-0001
+  canonical_desc  TEXT
+  norm_codes      JSON           -- ["UNE 103501:94", ...]
+  subcategory     TEXT           -- Caracterización, Compactación, ...
+  unit_of_test    TEXT
+
+kb_test_aliases                   -- mapea texto libre → ensayo canónico (sustituye al fuzzy)
+  alias           TEXT
+  test_id         TEXT FK
+  source          TEXT           -- de dónde vino el alias
+
+kb_frequency_rules                -- lógica normativa de "cuántos ensayos"
+  id              INTEGER PK
+  category_code   TEXT FK
+  test_id         TEXT FK
+  freq_qty        REAL           -- 1
+  freq_unit       TEXT           -- "10000 m3"
+  tests_per_lot   REAL
+  min_tests       INTEGER        -- piso (p.ej. siempre ≥1 si aplica)
+  conditions      JSON           -- {material:"...", capa:"...", solo_si:...}
+  priority        INTEGER
+  norm_ref        TEXT
+
+kb_prices                         -- precio por ensayo (con histórico y fuente)
+  test_id         TEXT FK
+  reciente        REAL
+  mediana         REAL
+  min             REAL
+  max             REAL
+  n               INTEGER
+  source          TEXT           -- pricebook | tarifa_cye | alagal | manual
+  valid_from      TEXT
+
+kb_section_templates              -- cómo desglosar una categoría en tramos/secciones
+  category_code   TEXT FK
+  rule            JSON           -- criterio de partición por tramo/capa
+
+kb_hist_projects / kb_hist_lines  -- proyectos reales (calibración + EVAL, no runtime fuzzy)
+```
+
+### Contratos TypeScript (núcleo, estables entre etapas)
+```ts
+// Salida del extractor (lo único que produce el LLM)
+interface MedicionEstructurada {
+  tramo: string | null
+  categoryCode: string          // canónica
+  material: string
+  quantity: number
+  unit: string
+  confidence: number            // 0..1
+  source: { page?: number; cell?: string }  // trazabilidad al documento
+}
+
+// Procedencia de cada línea del plan (clave para confianza y debug)
+interface Provenance {
+  ruleId: number | null         // qué regla de frecuencia
+  freq: string | null           // "1 / 10000 m3"
+  priceSource: 'pricebook' | 'tarifa_cye' | 'alagal' | 'manual' | 'fallback'
+  matchConfidence: number       // alias exacto = 1.0
+  notes?: string
+}
+
+interface PlanLine {
+  tramo: string | null
+  testId: string | null         // null si fallback no resuelto
+  description: string
+  nLots: number | null
+  nTests: number
+  unitPrice: number | null      // null = pendiente de preciar (fallback)
+  total: number | null
+  provenance: Provenance
+  needsReview: boolean          // true para fallback / baja confianza
+}
+```
+
+---
+
+## 5. Plan por etapas
+
+> Cada etapa tiene **Definición de Hecho (DoD)** y se cierra ejecutando el eval harness.
+> No se avanza a la siguiente sin DoD verde.
+
+### Etapa 0 — Fundamentos y línea base *(este documento + andamiaje)*
+- [x] Branch `Cye_BBDD`.
+- [x] `PLAN_BBDD.md` (este doc): objetivos, arquitectura, contratos, métricas.
+- [ ] Glosario de dominio (sección 8) consensuado.
+- [ ] Esqueleto de migraciones `kb_*` y layout `resources/knowledge/curated/`.
+- [ ] Contratos TS (`MedicionEstructurada`, `PlanLine`, `Provenance`) en código.
+- [ ] **Eval harness + línea base**: medir desviación del sistema ACTUAL sobre los 6 históricos (held-out) → número "antes" que hay que batir.
+- **DoD:** existe un número de baseline reproducible y los contratos compilan.
+
+### Etapa 1 — Curación e ingesta de la BBDD *(depende de las fuentes que enviarás)*
+- [ ] Definir esquema canónico definitivo con tus fuentes reales.
+- [ ] Importadores: `test_rules.json`, `price_book.json`, tarifa ALAGAL, `historical_projects.json` + **fuentes nuevas** → archivos curados versionados.
+- [ ] Pase de curación humana: deduplicar ensayos, asignar IDs canónicos, normalizar códigos de norma, resolver conflictos de precio.
+- [ ] Build script `kb:build` → SQLite reproducible.
+- [ ] **Informe de cobertura**: % de líneas de los históricos cuyo ensayo mapea a un canónico (objetivo ≥95%); listar los huecos a curar.
+- **DoD:** `kb:build` reproducible + cobertura ≥ objetivo + 0 conflictos de precio sin resolver.
+
+### Etapa 2 — Motor determinista de valoración *(sin LLM)*
+- [ ] Selección de ensayos por `kb_frequency_rules` (categoría + condiciones).
+- [ ] Cálculo de lotes/ensayos con conversión de unidades (kg↔t, m↔ml, m²/m³…), por tramo.
+- [ ] Precio canónico con estrategia configurable (reciente/mediana).
+- [ ] Manejo de fallback (marcado, nunca precio inventado).
+- [ ] `provenance` en cada línea.
+- [ ] **Golden tests**: entradas → salidas esperadas curadas; prueba de determinismo (mismo input → mismo output, byte a byte).
+- **DoD:** suite de golden tests verde + determinismo demostrado.
+
+### Etapa 3 — Capa de extracción LLM *(bordes)*
+- [ ] Extractor doc → `MedicionEstructurada[]` por tramo, con confianza y trazabilidad.
+- [ ] Gemini primario, MiniMax fallback; salida validada por JSON Schema; reintentos.
+- [ ] Aliasing: texto → canónico vía `kb_test_aliases` + fuzzy controlado de respaldo (marcado).
+- [ ] Tests de extracción sobre documentos reales.
+- **DoD:** extracción estructurada estable y validada en los proyectos de prueba.
+
+### Etapa 4 — Integración end-to-end + paridad
+- [ ] Cablear extractor → motor → plan en `pipeline.ts`/IPC, **tras feature flag** (motor nuevo vs `plannerLLM` viejo) para A/B.
+- [ ] Correr sobre los 6 históricos (held-out) y medir desviación vs CYE real.
+- [ ] **Objetivo de precisión acordado** (propuesta: ±5% total de obra y cobertura de líneas ≥95%).
+- **DoD:** paridad alcanzada (bate el baseline de Etapa 0 y cumple el objetivo).
+
+### Etapa 5 — UI: presupuesto por tramo + trazabilidad + curación
+- [ ] `Detalle`: plan agrupado por tramo/sección; provenance por línea ("regla X · freq Y · precio fuente Z").
+- [ ] Líneas de fallback marcadas para preciado manual.
+- [ ] (Opcional) UI de curación de la KB (ensayos/precios/reglas), o edición en fuentes + rebuild.
+- **DoD:** un presupuesto generado es legible y auditable por línea desde la UI.
+
+### Etapa 6 — Agente conversacional + bucle de aprendizaje *(sobre el motor)*
+- [ ] Agente tool-calling para "¿por qué este ensayo?" y edición NL — **las herramientas son las consultas deterministas del motor** (respuestas fundamentadas, no inventadas).
+- [ ] Correcciones de precio/regla desde la UI → realimentan las fuentes curadas (bucle de aprendizaje).
+- **DoD:** el chat responde citando regla+fuente; una corrección persiste y cambia el siguiente cálculo.
+
+### Etapa 7 — Retirada del RAG antiguo + limpieza
+- [ ] Eliminar embeddings (49 MB + 23 MB), TF-IDF, `ragPricer`, `plannerLLM`, `embeddingsProcess/Worker`.
+- [ ] Quitar archivos grandes de `resources/`, actualizar build y `.gitignore`.
+- [ ] Eval final + actualización de `PLAN.md` y este doc.
+- **DoD:** build limpio sin el RAG viejo, eval final ≥ objetivo, tamaño del bundle reducido.
+
+---
+
+## 6. Cómo NO perder contexto ni objetivos entre etapas
+
+1. **Este documento es la estrella polar.** Sección "Bitácora" al final: al cerrar cada etapa se anota qué se hizo, decisiones tomadas, métricas y preguntas abiertas.
+2. **Eval harness en cada cierre de etapa** con tabla de métricas histórica → guardia anti-regresión (si una etapa empeora el número, no se mergea).
+3. **Provenance obligatoria en cada línea** → toda cifra es explicable y depurable. La trazabilidad *es* la confianza.
+4. **Glosario de dominio** (sección 8) para terminología estable.
+5. **Criterios de aceptación (DoD) explícitos** por etapa; no se avanza sin verde.
+6. **Fuentes curadas versionadas** → el conocimiento es diffable en git, no opaco en un binario.
+
+---
+
+## 7. Métricas y objetivos (se rellenan al avanzar)
+
+| Métrica | Baseline (sistema actual) | Objetivo | Etapa 4 | Final |
+|---|---|---|---|---|
+| Desviación total vs CYE real (media |%|) | _(medir en Etapa 0)_ | ≤ ±5% | — | — |
+| Cobertura de matching (líneas → canónico) | — | ≥ 95% | — | — |
+| Determinismo (mismo input→output) | ❌ (LLM libre) | ✅ 100% | — | — |
+| Líneas en fallback sin preciar | — | minimizar/visible | — | — |
+
+---
+
+## 8. Glosario de dominio
+
+- **Ensayo:** prueba de control de calidad (p.ej. Proctor Modificado UNE 103501).
+- **Categoría:** familia de material/obra (TERRAPLEN_RELLENOS, HORMIGON…).
+- **Tramo / sección:** subdivisión de obra; CYE real presupuesta por tramo.
+- **Lote:** unidad de medición que dispara un conjunto de ensayos según frecuencia.
+- **Frecuencia:** regla normativa "1 ensayo por cada X unidades" (PG-3 / UNE).
+- **price_book / tarifa CYE / ALAGAL:** fuentes de precio (prioridad: CYE > pricebook > ALAGAL).
+- **Provenance:** procedencia auditable de cada línea (regla, frecuencia, fuente de precio, confianza).
+- **Fallback marcado:** ensayo no cubierto por la BBDD; se muestra pero no se inventa precio.
+
+---
+
+## 9. Riesgos y mitigaciones
+
+| Riesgo | Mitigación |
+|---|---|
+| Cobertura insuficiente de la BBDD curada | Informe de cobertura en Etapa 1; fallback marcado; curación iterativa. |
+| El extractor LLM clasifica mal el tramo/categoría | Validación por schema + confianza + revisión humana de baja confianza; aliasing curado. |
+| Reglas de frecuencia incompletas para categorías nuevas | `kb_frequency_rules` versionado y ampliable; tests golden por categoría. |
+| Pérdida de cobertura al borrar el RAG | Borrado solo en Etapa 7, tras paridad demostrada. |
+| Conflictos de precio entre fuentes | Prioridad explícita (CYE>pricebook>ALAGAL) + resolución en curación. |
+
+---
+
+## 10. Bitácora
+
+- **2026-06-26** — Etapa 0 iniciada. Branch creada, decisiones de arquitectura cerradas, este documento redactado.
+- **2026-06-26** — Fuentes analizadas → [`INVENTARIO_FUENTES.md`](INVENTARIO_FUENTES.md). Hallazgos clave:
+  - Distinguir **presupuesto de obra (input)** de **presupuesto de ensayos CYE (oro)**: los sueltos (`G2156C`, `Orbital`, `pres3012`) son de obra → solo input de prueba.
+  - Catálogo canónico de precios = **ALAGAL** (749 ensayos, 17 categorías, 705 con norma).
+  - Oro = **8 presupuestos CYE** (E1–E6 ya conocidos + **E7/E8 nuevos**), mayoría formato A (con frecuencia MUESTREO+UD).
+  - Prioridad de precio: `tarifa_cye` > `price_book` > `alagal`.
+  - Discriminador de exclusión: hoja **`Plan de Ensaios`** = generado por la app (inválido). Excluidos ~20 planes + `tmp_obra/*.ppm`.
+  - **Ambigüedades pendientes:** hoja definitiva de E5 (`P-1339-20`); confirmar `0414.26 P.xls` como válido de E7; ¿hay más presupuestos CYE fuera de la carpeta?
