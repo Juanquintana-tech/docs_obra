@@ -239,7 +239,10 @@ interface PlanLine {
 - [ ] (Diferido) UI de curación de la KB / edición por el cliente con persistencia de correcciones.
 - **DoD:** ✅ build+typecheck verdes; render/clic en vivo pendiente de `npm run dev` (entorno de desarrollo headless).
 
-### Etapa 6 — Agente conversacional + bucle de aprendizaje *(sobre el motor)*
+### Etapa 6 — Chat "¿por qué este ensayo?" + bucle de aprendizaje *(sobre el motor)*
+- [x] **"¿por qué este ensayo?" (determinista)**: en Presupuesto BBDD, clic en línea → explicación citada desde la provenance (motivo/artículo, cálculo de lotes, fuente de precio, confianza). Sin LLM → sin alucinación.
+- [ ] (Opcional) chat en lenguaje natural (LLM con tool-calling sobre el motor) para preguntas libres.
+- [ ] Bucle de correcciones del cliente (precio/regla → realimenta la BBDD curada).
 - [ ] Agente tool-calling para "¿por qué este ensayo?" y edición NL — **las herramientas son las consultas deterministas del motor** (respuestas fundamentadas, no inventadas).
 - [ ] Correcciones de precio/regla desde la UI → realimentan las fuentes curadas (bucle de aprendizaje).
 - **DoD:** el chat responde citando regla+fuente; una corrección persiste y cambia el siguiente cálculo.
