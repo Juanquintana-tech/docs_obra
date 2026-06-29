@@ -1924,6 +1924,50 @@
       "freqMagUnit": null,
       "sources": 1,
       "rawDesc": "Ensayo de choque sobre barreras metálicas de seguridad UNE EN 1317-1 y UNE EN 1317-2"
+    },
+    {
+      "categoryCode": "CUBIERTA",
+      "testId": "T-0724",
+      "muestreo": 1,
+      "freqUnit": "500 m2",
+      "freqKind": "per_quantity",
+      "freqQty": 500,
+      "freqMagUnit": "m2",
+      "sources": 1,
+      "rawDesc": "Prueba de estanqueidad in situ de cubierta por inundación o aspersores, verificación de evacuación de aguas"
+    },
+    {
+      "categoryCode": "BARANDILLA",
+      "testId": "T-0744",
+      "muestreo": 1,
+      "freqUnit": "30 ml",
+      "freqKind": "per_quantity",
+      "freqQty": 30,
+      "freqMagUnit": "ml",
+      "sources": 1,
+      "rawDesc": "Ensayo estático de empuje horizontal in situ en barandilla sin incluir elemento de reacción CTE DB-SE"
+    },
+    {
+      "categoryCode": "FALSO_TECHO",
+      "testId": "T-0502",
+      "muestreo": 1,
+      "freqUnit": "500 m2",
+      "freqKind": "per_quantity",
+      "freqQty": 500,
+      "freqMagUnit": "m2",
+      "sources": 1,
+      "rawDesc": "Ensayo de adherencia in situ arrancamiento tracción perpendicular de subestructura de falsos techos suspendidos UNE EN 1348"
+    },
+    {
+      "categoryCode": "MORTERO",
+      "testId": "T-0095",
+      "muestreo": 1,
+      "freqUnit": "100 m2",
+      "freqKind": "per_quantity",
+      "freqQty": 100,
+      "freqMagUnit": "m2",
+      "sources": 1,
+      "rawDesc": "Toma de muestras de mortero de cemento, fabricación, conservación y rotura a flexotracción y compresión de probetas prismáticas UNE-EN 1015-11"
     }
   ]
 }

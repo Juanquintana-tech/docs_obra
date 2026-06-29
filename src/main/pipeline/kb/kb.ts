@@ -105,6 +105,19 @@ export function loadKb(curatedDir = resolve(process.cwd(), 'resources/knowledge/
   }
 
   // Índice para el emparejador (código de norma + tokens de descripción).
+  // Aliases: descripción real de presupuesto → testId (para matching de queries cortas)
+  const aliasesPath = resolve(curatedDir, 'aliases.json')
+  const rawAliases = existsSync(aliasesPath)
+    ? (JSON.parse(readFileSync(aliasesPath, 'utf-8')) as { aliases: { alias: string; testId: string }[] }).aliases
+    : []
+  // Por testId → lista de conjuntos de tokens de sus aliases
+  const aliasTokensByTest = new Map<string, Set<string>[]>()
+  for (const a of rawAliases) {
+    const tokens = new Set(normalize(a.alias).split(/\s+/).filter((w) => w.length > 3))
+    if (!aliasTokensByTest.has(a.testId)) aliasTokensByTest.set(a.testId, [])
+    aliasTokensByTest.get(a.testId)!.push(tokens)
+  }
+
   const byNorm = new Map<string, string[]>()
   const tokensByTest = new Map<string, Set<string>>()
   for (const t of tests.values()) {
@@ -122,6 +135,20 @@ export function loadKb(curatedDir = resolve(process.cwd(), 'resources/knowledge/
     const union = new Set([...qTokens, ...et]).size
     return union ? inter / union : 0
   }
+  // Cobertura alias: fracción de tokens de la query presentes en algún alias del ensayo.
+  // Útil cuando la query es corta y Jaccard cae por denominador grande.
+  const aliasCoverage = (qTokens: Set<string>, testId: string): number => {
+    const sets = aliasTokensByTest.get(testId)
+    if (!sets || qTokens.size === 0) return 0
+    let best = 0
+    for (const at of sets) {
+      let inter = 0
+      for (const w of qTokens) if (at.has(w)) inter++
+      const cov = inter / qTokens.size
+      if (cov > best) best = cov
+    }
+    return best
+  }
   const matchTest = (desc: string): TestMatch | null => {
     const qTokens = new Set(normalize(desc).split(/\s+/).filter((w) => w.length > 3))
     const normCands = new Set<string>()
@@ -133,7 +160,16 @@ export function loadKb(curatedDir = resolve(process.cwd(), 'resources/knowledge/
     }
     let best = '', bestJ = -1
     for (const id of tests.keys()) { const j = jaccard(qTokens, id); if (j > bestJ) { bestJ = j; best = id } }
-    return best && bestJ >= 0.4 ? { testId: best, confidence: bestJ } : null
+    if (best && bestJ >= 0.4) return { testId: best, confidence: bestJ }
+
+    // Fallback alias: busca el ensayo cuyas aliases cubren mejor la query corta.
+    // Umbral 0.85: al menos 85% de los tokens de la query deben aparecer en el alias.
+    let bestAlias = '', bestCov = 0
+    for (const id of tests.keys()) {
+      const cov = aliasCoverage(qTokens, id)
+      if (cov > bestCov) { bestCov = cov; bestAlias = id }
+    }
+    return bestAlias && bestCov >= 0.85 ? { testId: bestAlias, confidence: bestCov * 0.65 } : null
   }
 
   return { tests, pricesByTest, rulesByCategory, categories, matchTest }

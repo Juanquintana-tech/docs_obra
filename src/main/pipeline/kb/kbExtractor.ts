@@ -38,6 +38,7 @@ export function materialToSection(m: {
     tramo: m.material ?? m.description ?? null,
     categoryCode: m.category ?? 'OTRO',
     material: m.material ?? null,
+    description: m.description ?? null,
     quantity: m.quantity ?? null,
     unit: m.unit ?? null,
     capa: m.category === 'MEZCLA_BITUMINOSA' ? inferCapa(name) : null,

@@ -18,6 +18,8 @@ export interface SectionInput {
   tramo?: string | null
   categoryCode: string
   material?: string | null
+  /** Descripción completa del ítem (usada en SERVICIO para matching contra la KB). */
+  description?: string | null
   quantity: number | null
   unit: string | null
   surface_m2?: number | null
@@ -174,7 +176,7 @@ export function generatePlan(
 
     // 0) SERVICIO: el ítem ES el ensayo/servicio → se factura cantidad × precio (sin batería).
     if (cat === 'SERVICIO') {
-      const desc = section.material ?? section.tramo ?? 'Servicio'
+      const desc = section.description ?? section.material ?? section.tramo ?? 'Servicio'
       const m = kb.matchTest(desc)
       const priced = m ? effectivePrice(kb, m.testId) : null
       const nTests = Math.max(1, Math.round(section.quantity ?? 1))
