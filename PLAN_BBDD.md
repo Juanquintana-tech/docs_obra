@@ -247,13 +247,13 @@ interface PlanLine {
 - [ ] Correcciones de precio/regla desde la UI → realimentan las fuentes curadas (bucle de aprendizaje).
 - **DoD:** el chat responde citando regla+fuente; una corrección persiste y cambia el siguiente cálculo.
 
-### Etapa 7 — Retirada del RAG antiguo + limpieza
-- [ ] Eliminar embeddings (49 MB + 23 MB), TF-IDF, `ragPricer`, `plannerLLM`, `embeddingsProcess/Worker`.
-- [ ] Quitar archivos grandes de `resources/`, actualizar build y `.gitignore`.
-- [ ] Eval final + actualización de `PLAN.md` y este doc.
-- **DoD:** build limpio sin el RAG viejo, eval final ≥ objetivo, tamaño del bundle reducido.
-
----
+### Etapa 7 — Retirada del RAG antiguo + limpieza ✅ *(hecho 2026-06-29)*
+- [x] Backup del proyecto en `~/Desktop/backups_obra/` antes de borrar.
+- [x] Eliminados: motor RAG (`rag/{ragPricer,tfidf,embeddings,reranker,priceBook,historicalProjects,types,*Embeddings}`), `plannerLLM`, `labPricer`, `embeddingsProcess/Worker`, página Validación RAG, 14 harness, y **72 MB de embeddings JSON**.
+- [x] Recableado a BBDD: ingest (doc/texto), reprice, pricing del agente (budgetAgent), IPC. Selector de motor de Nueva Obra retirado (BBDD único).
+- [x] Conservado en `rag/`: `normalize`, `normCodes`, `catalog` (genéricos, usados por el motor/Presupuestos). `PriceStrategy` → `pipeline/types`.
+- [x] Limpieza de scripts npm muertos y de la config de build. typecheck (node+web) + build verdes.
+- **DoD:** ✅ build limpio sin el RAG; motor BBDD único; ~72 MB menos.
 
 ## 6. Cómo NO perder contexto ni objetivos entre etapas
 
@@ -303,6 +303,9 @@ interface PlanLine {
 ---
 
 ## 10. Bitácora
+
+- **2026-06-29** — **Etapa 7: RAG eliminado.** Backup en `~/Desktop/backups_obra/`. Borrado motor RAG/embeddings/plannerLLM/labPricer/ValidaciónRAG/14 harness + 72 MB de embeddings. Ingest/reprice/agente recableados al motor BBDD; selector de motor retirado (BBDD único). Conservados normalize/normCodes/catalog. typecheck+build verdes. Pendiente opcional: desinstalar dep `@xenova/transformers` (ya sin uso).
+
 
 - **2026-06-26** — Etapa 0 iniciada. Branch creada, decisiones de arquitectura cerradas, este documento redactado.
 - **2026-06-26** — Fuentes analizadas → [`INVENTARIO_FUENTES.md`](INVENTARIO_FUENTES.md). Hallazgos clave:
