@@ -230,10 +230,10 @@ function CatalogTab(): JSX.Element {
                 : row.hasOverride ? { background: '#f0f7ff' } : {}
               return (
                 <tr key={row.testId} style={rowStyle}>
-                  <td style={{ ...tdMono, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <td style={tdMono}>
                     {row.testId}
-                    {row.hasOverride && <span title="Override activo" style={{ color: '#4a7fd4', fontSize: 10 }}>✦</span>}
-                    {row.isNew && <span title="Creado por el usuario" style={{ color: '#16a34a', fontSize: 10 }}>★</span>}
+                    {row.hasOverride && <span title="Override activo" style={{ color: '#4a7fd4', fontSize: 10, marginLeft: 3 }}>✦</span>}
+                    {row.isNew && <span title="Creado por el usuario" style={{ color: '#16a34a', fontSize: 10, marginLeft: 3 }}>★</span>}
                   </td>
                   <td style={{ textAlign: 'left' }}>
                     {isEditing
