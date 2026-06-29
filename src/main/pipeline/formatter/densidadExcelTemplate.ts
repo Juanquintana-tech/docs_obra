@@ -161,6 +161,7 @@ export function fillDensidadTemplate(
   // Excel los muestra en lugar de releer las celdas, de modo que la gráfica aparece
   // vacía o incorrecta. Al borrar el bloque numCache Excel lo reconstruye al abrir.
   clearChartCache(zip)
+  adjustChartAxes(zip, rows, Number(datos.compactacion_min ?? 100))
 
   // ── Quitar las macros VBA huérfanas ──────────────────────────────────────────
   // La plantilla es la versión vaciada de un .xls con macros (AdjustGraf, Espec,
@@ -185,8 +186,7 @@ export function fillDensidadTemplate(
   return zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' })
 }
 
-/** Borra los bloques <c:numCache> de todos los chart*.xml y elimina los límites fijos
- *  de eje (c:min / c:max dentro de c:scaling) para que Excel auto-escale y recalcule
+/** Borra los bloques <c:numCache> de todos los chart*.xml para que Excel recalcule
  *  la gráfica desde las referencias de celda al abrir el fichero. */
 function clearChartCache(zip: PizZip): void {
   const chartDir = 'xl/charts/'
@@ -196,13 +196,53 @@ function clearChartCache(zip: PizZip): void {
       const f = zip.file(name)
       if (!f) return
       let xml = f.asText()
-      // Elimina el caché de datos de cada serie
       xml = xml.replace(/<c:numCache>[\s\S]*?<\/c:numCache>/g, '')
-      // Elimina límites fijos de eje para que Excel auto-escale según los datos reales
-      xml = xml.replace(/<c:min val="[^"]*"\/>/g, '')
-      xml = xml.replace(/<c:max val="[^"]*"\/>/g, '')
       zip.file(name, xml)
     })
+}
+
+/**
+ * Calcula límites de eje inteligentes para las gráficas de % compactación e inyecta
+ * los valores en chart1.xml y chart3.xml, dejando chart2 (densidad/humedad) intacto.
+ *
+ * Estrategia:
+ *  - min_eje = floor(min(valores_reales, compactacion_min) - 8), mínimo 60
+ *  - max_eje = ceil(max(valores_reales, compactacion_min) + 4), mínimo compactacion_min+5
+ */
+function adjustChartAxes(zip: PizZip, rows: DensidadRow[], compactacionMin: number): void {
+  // Calcular % compactación por fila (d_situ / d_max * 100)
+  const pcts: number[] = rows
+    .map(r => {
+      const d = typeof r.d_situ === 'number' ? r.d_situ : parseFloat(String(r.d_situ ?? ''))
+      const dm = typeof r.d_max === 'number' ? r.d_max : parseFloat(String(r.d_max ?? ''))
+      return isFinite(d) && isFinite(dm) && dm > 0 ? (d / dm) * 100 : NaN
+    })
+    .filter(v => isFinite(v))
+
+  const minVal = pcts.length ? Math.min(...pcts) : compactacionMin
+  const maxVal = pcts.length ? Math.max(...pcts) : compactacionMin + 2
+
+  const axisMin = Math.max(60, Math.floor(Math.min(minVal, compactacionMin) - 8))
+  const axisMax = Math.ceil(Math.max(maxVal, compactacionMin) + 4)
+
+  // Reemplaza <c:min> y <c:max> dentro del bloque <c:valAx> (eje de valor)
+  const applyLimits = (xml: string): string =>
+    xml.replace(
+      /(<c:valAx>[\s\S]*?<c:scaling>)([\s\S]*?)(<\/c:scaling>[\s\S]*?<\/c:valAx>)/g,
+      (_match, before, scaling, after) => {
+        const base = scaling
+          .replace(/<c:min[^/]*\/>/g, '')
+          .replace(/<c:max[^/]*\/>/g, '')
+          .replace(/<c:orientation[^/]*\/>/, `<c:orientation val="minMax"/>`)
+        return `${before}${base}<c:min val="${axisMin}"/><c:max val="${axisMax}"/>${after}`
+      }
+    )
+
+  for (const name of ['xl/charts/chart1.xml', 'xl/charts/chart3.xml']) {
+    const f = zip.file(name)
+    if (!f) continue
+    zip.file(name, applyLimits(f.asText()))
+  }
 }
 
 /** Anula las llamadas a macros VBA inexistentes en hoja de datos y marcos de gráfica.
