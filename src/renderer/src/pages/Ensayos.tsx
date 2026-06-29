@@ -322,7 +322,7 @@ export function defaultRadonDatos(): Record<string, unknown> {
       norma: 'IS-47 CSN + PE-CYE-39 (ISO 11665-4)'
     },
     lotes: [],
-    detectores: []
+    detectores: Array.from({ length: 5 }, (_, i) => emptyDetector(i + 1))
   }
 }
 
@@ -1038,7 +1038,7 @@ function applyOcrResult(
   }
 
   if (tipo === 'granulometria') {
-    type GranuOcr = { cabecera?: Record<string, string | null>; masas?: (string | null)[] }
+    type GranuOcr = { cabecera?: Record<string, string | null>; masas?: (string | null)[]; fragmentos_masa?: string | null }
     const granu = ocr as GranuOcr
     const cab = (current.cabecera as Record<string, string>) ?? {}
     const newCab = { ...cab }
@@ -1049,7 +1049,8 @@ function applyOcrResult(
     return {
       ...current,
       cabecera: newCab,
-      ...(masas.length > 0 ? { masas } : {})
+      ...(masas.length > 0 ? { masas } : {}),
+      ...(granu.fragmentos_masa != null && granu.fragmentos_masa !== '' ? { fragmentos_masa: granu.fragmentos_masa } : {})
     }
   }
 

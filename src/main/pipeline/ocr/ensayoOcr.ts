@@ -60,6 +60,7 @@ export interface GranulometriaOcrResult {
     fecha_ensayo: string | null
   }
   masas: string[] // valor de "Masa Mi kg" por piedra, en orden
+  fragmentos_masa: string | null // masa total de fragmentos < 1,5 kg (al pie del formulario)
 }
 
 export interface TomaHormigonOcrResult {
@@ -249,6 +250,9 @@ INSTRUCCIONES:
 - Ignora completamente las columnas de clasificación — son ceros calculados.
 - Ignora la columna "LTA Masa Mi kg-Dimensiones" (notas dimensionales ocasionales).
 - No incluyas filas vacías ni sin valor de masa.
+- Al pie del formulario (última página) puede aparecer una fila con "Fragment" o "Fragmento" o \
+"Masa de fragmentos < 1,5 kg" o similar: extrae ese valor numérico en "fragmentos_masa". \
+NO lo pongas en "masas" ni en "muestra".
 
 Devuelve este JSON exacto (sin campos extra):
 {
@@ -258,7 +262,8 @@ Devuelve este JSON exacto (sin campos extra):
     "localizacion": string | null,
     "fecha_ensayo": string | null
   },
-  "masas": ["19,4", "10,60", "23,20", ...]
+  "masas": ["19,4", "10,60", "23,20", ...],
+  "fragmentos_masa": string | null
 }
 Añade también "_conf" al nivel raíz: objeto plano con la confianza de cada campo escalar extraído \
 (notación punto para anidados). Valores: "high" = claramente legible, "mid" = con dudas, \
