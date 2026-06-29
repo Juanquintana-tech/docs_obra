@@ -37,4 +37,6 @@ export interface PlanRowInput {
   price_max?: number | null
   /** nº de presupuestos históricos en los que aparece este ensayo */
   price_n?: number | null
+  /** motor BBDD: la línea requiere revisión (sin precio, fallback, frecuencia no calculable…) */
+  needs_review?: boolean
 }

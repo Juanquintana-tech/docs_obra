@@ -109,6 +109,7 @@ function lineToPlanRow(l: PlanLine): PlanRowInput {
     price_source: l.provenance.priceSource,
     rag_score: l.provenance.matchConfidence,
     rag_desc: provText,
+    needs_review: l.needsReview,
   }
 }
 

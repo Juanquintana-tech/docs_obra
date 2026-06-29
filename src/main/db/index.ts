@@ -52,6 +52,7 @@ export interface PlanRow {
   price_min: number | null
   price_max: number | null
   price_n: number | null
+  needs_review?: number
 }
 
 export interface ObraInput {
@@ -108,11 +109,11 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
     `INSERT INTO plan_rows
        (obra_id, row_type, material, subcategory, description, measurement,
         measurement_unit, freq_qty, freq_unit, n_lots, tests_per_lot, n_tests,
-        unit_price, unit_price_base, total, price_source, rag_score, rag_desc, price_min, price_max, price_n)
+        unit_price, unit_price_base, total, price_source, rag_score, rag_desc, price_min, price_max, price_n, needs_review)
      VALUES
        (@obra_id, @row_type, @material, @subcategory, @description, @measurement,
         @measurement_unit, @freq_qty, @freq_unit, @n_lots, @tests_per_lot, @n_tests,
-        @unit_price, @unit_price, @total, @price_source, @rag_score, @rag_desc, @price_min, @price_max, @price_n)`
+        @unit_price, @unit_price, @total, @price_source, @rag_score, @rag_desc, @price_min, @price_max, @price_n, @needs_review)`
   )
 
   const tx = db.transaction(() => {
@@ -155,7 +156,8 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
         rag_desc: row.rag_desc ?? '',
         price_min: row.price_min ?? null,
         price_max: row.price_max ?? null,
-        price_n: row.price_n ?? null
+        price_n: row.price_n ?? null,
+        needs_review: row.needs_review ? 1 : 0
       })
     }
     return obraId

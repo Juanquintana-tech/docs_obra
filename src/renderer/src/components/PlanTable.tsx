@@ -16,9 +16,12 @@ export interface PlanTableRow {
   total?: number | null
   price_source?: string
   rag_score?: number
+  rag_desc?: string
   price_min?: number | null
   price_max?: number | null
   price_n?: number | null
+  /** motor BBDD: línea a revisar (resaltado) */
+  needs_review?: number | boolean
 }
 
 // ── Tipos para el modo edición ────────────────────────────────────────────────
@@ -87,6 +90,13 @@ function Confidence({
         {rangeLabel && (
           <span style={{ fontSize: '0.78em', opacity: 0.75, fontWeight: 'normal' }}>{rangeLabel}</span>
         )}
+      </span>
+    )
+  }
+  if (source === 'tarifa_cye') {
+    return (
+      <span className="badge badge-pricebook" title={`Precio de tarifa CYE · confianza ${((score ?? 0) * 100).toFixed(0)}%`}>
+        ● Tarifa CYE {score != null ? `${(score * 100).toFixed(0)}%` : ''}
       </span>
     )
   }
@@ -160,6 +170,7 @@ function PlanTableInner({
 }): JSX.Element {
   // Estado de edición: map de id → campos editados
   const [edits, setEdits] = useState<Record<number, EditState>>({})
+  const [openRow, setOpenRow] = useState<number | null>(null) // fila con "¿Por qué?" desplegado (lectura)
 
   // Mapa inicial derivado de las filas: se recalcula solo cuando cambian rows o editable.
   const baseEdits = useMemo<Record<number, EditState>>(() => {
@@ -279,9 +290,18 @@ function PlanTableInner({
     }
 
     if (!editable) {
+      const rr = r as PlanTableRow
+      const review = !!rr.needs_review
+      const hasWhy = !!rr.rag_desc
+      const isOpen = openRow === i
       trs.push(
-        <tr key={`r-${i}`}>
-          <td>{r.description}</td>
+        <tr
+          key={`r-${i}`}
+          onClick={hasWhy ? () => setOpenRow(isOpen ? null : i) : undefined}
+          className={review ? 'row-review' : undefined}
+          style={{ cursor: hasWhy ? 'pointer' : undefined, background: review ? 'var(--warn-bg, #fff8e6)' : undefined }}
+        >
+          <td>{hasWhy ? (isOpen ? '▾ ' : '▸ ') : ''}{review && '⚠ '}{r.description}</td>
           <td className="num">{num(r.measurement)} {r.measurement_unit}</td>
           <td className="num">{num(r.n_lots)}</td>
           <td className="num">{num(r.n_tests)}</td>
@@ -298,6 +318,17 @@ function PlanTableInner({
           </td>
         </tr>
       )
+      if (hasWhy && isOpen) {
+        trs.push(
+          <tr key={`why-${i}`}>
+            <td colSpan={7} style={{ background: 'var(--bg-soft, #f6f8fb)', padding: '8px 14px', fontSize: 12, lineHeight: 1.5 }}>
+              <strong>¿Por qué este ensayo?</strong> {rr.rag_desc}
+              {rr.rag_score != null && <span className="muted"> · confianza {Math.round((rr.rag_score) * 100)}%</span>}
+              {review && <span style={{ color: 'var(--warn, #b8860b)' }}> · ⚠ requiere revisión</span>}
+            </td>
+          </tr>
+        )
+      }
     } else {
       const er = (r as EditableRow)
       if (er.row_type !== 'test') return
