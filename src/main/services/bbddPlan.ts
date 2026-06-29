@@ -95,17 +95,20 @@ export async function generateBBDDPlan(path: string): Promise<BBDDPlanResult> {
 // ── Integración en el flujo de Nueva Obra (mismo IngestResult que el motor viejo) ──
 
 function lineToPlanRow(l: PlanLine): PlanRowInput {
+  const p = l.provenance
+  // Procedencia legible y completa para Detalle: artículo/fuente · control · cálculo.
+  const provText = [p.source, p.control, p.detail].filter(Boolean).join(' · ')
   return {
     type: 'test',
-    material: l.tramo ?? l.categoryCode,
+    material: l.tramo ?? l.categoryCode, // PlanTable agrupa por material → agrupa por tramo
     description: l.description,
     n_tests: l.nTests,
     unit_price: l.unitPrice ?? 0,
     total: l.total ?? 0,
-    // price_source guarda la fuente de precio; rag_desc, la procedencia (artículo o presupuesto).
+    // price_source = fuente de precio; rag_score = confianza; rag_desc = procedencia completa.
     price_source: l.provenance.priceSource,
     rag_score: l.provenance.matchConfidence,
-    rag_desc: l.provenance.source,
+    rag_desc: provText,
   }
 }
 
