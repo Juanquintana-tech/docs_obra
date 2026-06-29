@@ -223,8 +223,8 @@ function injectChartData(zip: PizZip, rows: DensidadRow[], compactacionMin: numb
   const pcts: (number | null)[] = Array.from({ length: TOTAL }, (_, i) => {
     const r = rows[i]
     if (!r) return null
-    const d = typeof r.d_situ === 'number' ? r.d_situ : parseFloat(String(r.d_situ ?? ''))
-    const dm = typeof r.d_max === 'number' ? r.d_max : parseFloat(String(r.d_max ?? ''))
+    const d = typeof r.d_situ === 'number' ? r.d_situ : parseFloat(String(r.d_situ ?? '').replace(',', '.'))
+    const dm = typeof r.d_max === 'number' ? r.d_max : parseFloat(String(r.d_max ?? '').replace(',', '.'))
     return isFinite(d) && isFinite(dm) && dm > 0 ? (d / dm) * 100 : null
   })
 
@@ -279,14 +279,17 @@ function injectChartData(zip: PizZip, rows: DensidadRow[], compactacionMin: numb
         return `${a}${cleaned.replace(/<\/c:f>/, `</c:f>${cache}`)}${b}`
       })
 
-    // Ajustar límites del eje Y
+    // Ajustar límites y unidad principal del eje Y
+    const range = axisMax - axisMin
+    const majorUnit = range <= 15 ? 2 : range <= 30 ? 5 : range <= 60 ? 10 : 20
     xml = xml.replace(
-      /(<c:valAx>[\s\S]*?<c:scaling>)([\s\S]*?)(<\/c:scaling>[\s\S]*?<\/c:valAx>)/g,
-      (_m, before, scaling, after) => {
+      /(<c:valAx>[\s\S]*?<c:scaling>)([\s\S]*?)(<\/c:scaling>)([\s\S]*?)(<\/c:valAx>)/g,
+      (_m, before, scaling, closingScale, rest, closingAx) => {
         const base = scaling
           .replace(/<c:min[^/]*\/>/g, '')
           .replace(/<c:max[^/]*\/>/g, '')
-        return `${before}${base}<c:min val="${axisMin}"/><c:max val="${axisMax}"/>${after}`
+        const restClean = rest.replace(/<c:majorUnit[^/]*\/>/g, '')
+        return `${before}${base}<c:min val="${axisMin}"/><c:max val="${axisMax}"/>${closingScale}${restClean}<c:majorUnit val="${majorUnit}"/>${closingAx}`
       })
 
     zip.file(name, xml)
