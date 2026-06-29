@@ -147,5 +147,6 @@ export async function ingestDocumentBBDD(
     plan,
     strategy,
     meta: { format, chars: text.length, needsOcr },
+    warnings,
   }
 }

@@ -70,6 +70,8 @@ export interface IngestResult {
   plan: PlanRowInput[]
   strategy: PriceStrategy
   meta: { format: string; chars: number; needsOcr: boolean }
+  /** Avisos del motor (sanity-check de cantidades, categorías sin reglas…). Solo motor BBDD. */
+  warnings?: string[]
 }
 
 /** PDF/Word/Excel → texto → (obra, materiales) → plan generado por LLM. */
