@@ -247,6 +247,23 @@ interface PlanLine {
 - [ ] Correcciones de precio/regla desde la UI → realimentan las fuentes curadas (bucle de aprendizaje).
 - **DoD:** el chat responde citando regla+fuente; una corrección persiste y cambia el siguiente cálculo.
 
+### Etapa 8 — Curación KB y análisis comparativo categórico ✅ *(hecho 2026-06-29)*
+- [x] **Diagnóstico de precios 0,00€:** ensayos con descripciones cortas (≤2 tokens) no alcanzaban el umbral Jaccard. Solución: fallback de cobertura por alias (recall-biased, umbral 0.85, confianza = cov×0.65).
+- [x] **4 categorías sin reglas** (BARANDILLA, CUBIERTA, MORTERO, FALSO_TECHO): añadidas a `frequency_rules.json` con ensayo principal y frecuencia de referencia.
+- [x] **SERVICIO a 0,00€:** `section.material` era el keyword corto ("fontanería") usado para matching. Añadido campo `description` a `SectionInput` y propagado desde `materialToSection()` para usar la descripción completa del presupuesto.
+- [x] **Enriquecimiento KB desde 7 presupuestos CYE reales:** 317 candidatos → 117 aliases limpios añadidos a `aliases.json` (196→316 entradas) tras dedup y filtro de confianza.
+- [x] **Harness `compareCategories.ts`:** eval categórico sobre los 8 proyectos de referencia sin LLM — compara testIds generados por el motor vs CYE ground truth (⛔/➕/✅ por categoría).
+- [x] **Limpieza masiva de `frequency_rules.json`** (182→119 reglas):
+  - HORMIGON: eliminados 13 tests incorrectos (solados T-0526..T-0538, bordillos, hormigón proyectado T-0064/T-0065, péndulo T-0404); añadidos T-0053 toma muestra y T-0109 acero armaduras.
+  - ACERO: eliminados 7 tests de categoría equivocada (radón C-0034/C-0035, acústica C-0036, cubierta T-0724/T-0725, mortero T-0095, resbaladicidad T-0509).
+  - MEZCLA_BITUMINOSA: añadidos T-0376 dotación, C-0058, T-0034 Los Ángeles, T-0349/T-0350/T-0351/T-0355 emulsión.
+  - MARCAS_VIALES: añadidos T-0407 retroreflexión, C-0065/C-0066 medición km.
+  - 54 duplicados eliminados.
+- [x] **Bug null testId en RIEGO_BITUMINOSO:** la regla normativa PG-3 Art.530 generaba una línea "dotación media ligante residual" sin match en KB. Añadido alias → T-0376; null corregido.
+- [x] README.md actualizado a arquitectura BBDD (eliminadas referencias obsoletas al RAG).
+- **Métricas post-curación:** HORMIGON 17→7 tests; MEZCLA_BITUMINOSA 5→12; ACERO exacto en E6; MARCAS_VIALES 8/11 en E6. Pendiente: integración end-to-end (Etapa 4), SERVICIO project-specific.
+- **DoD:** ✅ KB curada con datos de 7 presupuestos reales; harness categórico operativo; null corregido; README actualizado.
+
 ### Etapa 7 — Retirada del RAG antiguo + limpieza ✅ *(hecho 2026-06-29)*
 - [x] Backup del proyecto en `~/Desktop/backups_obra/` antes de borrar.
 - [x] Eliminados: motor RAG (`rag/{ragPricer,tfidf,embeddings,reranker,priceBook,historicalProjects,types,*Embeddings}`), `plannerLLM`, `labPricer`, `embeddingsProcess/Worker`, página Validación RAG, 14 harness, y **72 MB de embeddings JSON**.
@@ -304,6 +321,7 @@ interface PlanLine {
 
 ## 10. Bitácora
 
+- **2026-06-29** — **Etapa 8: Curación KB y harness categórico.** aliases.json 196→316; frequency_rules.json 182→119 (eliminados tests de categoría equivocada en HORMIGON/ACERO, añadidos en MEZCLA/MARCAS, 54 duplicados); null testId en RIEGO corregido vía alias T-0376; README reescrito a arquitectura BBDD. Commits: `b58a28e`, `18b29f6`, `7dffe70`.
 - **2026-06-29** — **Etapa 7: RAG eliminado.** Backup en `~/Desktop/backups_obra/`. Borrado motor RAG/embeddings/plannerLLM/labPricer/ValidaciónRAG/14 harness + 72 MB de embeddings. Ingest/reprice/agente recableados al motor BBDD; selector de motor retirado (BBDD único). Conservados normalize/normCodes/catalog. typecheck+build verdes. Pendiente opcional: desinstalar dep `@xenova/transformers` (ya sin uso).
 
 
