@@ -52,6 +52,7 @@ export async function buildEnsayoExcel(ensayo: Ensayo, obra: Obra): Promise<Buff
   // toma_hormigon y radon_trazas generan el Excel con ExcelJS directamente (sin plantilla)
   if (ensayo.tipo === 'toma_hormigon') return generateInformeExcel(ensayo, obra, '')
   if (ensayo.tipo === 'radon_trazas') return generateInformeExcel(ensayo, obra, '')
+  if (ensayo.tipo === 'radon_continuo') return generateInformeExcel(ensayo, obra, '')
   const tpl =
     ensayo.tipo === 'placa_carga'
       ? templatePath('plantilla_placa_carga.xlsx')

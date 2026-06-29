@@ -358,3 +358,27 @@ export function radonSummary(datos: Record<string, unknown>): RadonSummary | nul
     veredicto
   }
 }
+
+// ── Concentración de radón continuo (ISO 11665-8 / IS-47 CSN) ─────────────────
+
+export interface RadonContinuoSummary {
+  rac_media: number | null
+  rac_max: number | null
+  rac_min: number | null
+  nivel_referencia: number
+  veredicto: 'CUMPLE' | 'NO CUMPLE' | ''
+}
+
+export function radonContinuoSummary(datos: Record<string, unknown>): RadonContinuoSummary {
+  const nivel = toNum(datos.nivel_referencia) ?? 300
+  const rac_media = toNum(datos.rac_media)
+  const rac_max = toNum(datos.rac_max)
+  const rac_min = toNum(datos.rac_min)
+
+  let veredicto: 'CUMPLE' | 'NO CUMPLE' | '' = ''
+  if (rac_media !== null) {
+    veredicto = rac_media > nivel ? 'NO CUMPLE' : 'CUMPLE'
+  }
+
+  return { rac_media, rac_max, rac_min, nivel_referencia: nivel, veredicto }
+}

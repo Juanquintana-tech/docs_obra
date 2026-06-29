@@ -16,6 +16,7 @@ import { fillDensidadWord } from './formatter/densidadWordTemplate'
 import { fillAlbaranWord } from './formatter/albaranWordTemplate'
 import { fillAlbaranPlantaWord } from './formatter/albaranPlantaWordTemplate'
 import { fillRadonWord } from './formatter/radonWordTemplate'
+import { fillRadonContinuoWord } from './formatter/radonContinuoWordTemplate'
 import type { Ensayo, Obra } from '../db'
 import {
   type DensidadInput,
@@ -44,6 +45,8 @@ export async function generateInformeWord(
     return fillAlbaranPlantaWord(ensayo, obra, logoPath)
   if (ensayo.tipo === 'radon_trazas')
     return fillRadonWord(ensayo, obra, logoPath)
+  if (ensayo.tipo === 'radon_continuo')
+    return fillRadonContinuoWord(ensayo, obra, logoPath)
   throw new Error(`Tipo de ensayo no soportado: ${ensayo.tipo}`)
 }
 
