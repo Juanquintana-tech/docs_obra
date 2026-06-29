@@ -129,6 +129,11 @@ export const api = {
   pickRadonPhoto: (): Promise<string | null> => ipcRenderer.invoke('radon:pickPhoto'),
   openRadonPhoto: (path: string): Promise<void> => ipcRenderer.invoke('radon:openPhoto', path),
 
+  // ── Catálogo KB editable ──
+  getCatalogTests: (): Promise<unknown[]> => ipcRenderer.invoke('catalog:getTests'),
+  upsertCatalogOverride: (override: unknown): Promise<void> => ipcRenderer.invoke('catalog:upsertOverride', override),
+  deleteCatalogOverride: (testId: string): Promise<void> => ipcRenderer.invoke('catalog:deleteOverride', testId),
+
   // ── Presupuestos (catálogo y reglas) ──
   getCatalog: (): Promise<CatalogEntry[]> => ipcRenderer.invoke('presup:getCatalog'),
   getRules: (): Promise<Rules> => ipcRenderer.invoke('presup:getRules'),

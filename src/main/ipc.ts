@@ -338,6 +338,22 @@ export function registerIpc(): void {
     interpretBudgetEdit(obraId, userText)
   )
 
+  // ── Catálogo KB editable ──
+  ipcMain.handle('catalog:getTests', async () => {
+    const { getCatalogEntries } = await import('./services/bbddPlan')
+    return getCatalogEntries()
+  })
+  ipcMain.handle('catalog:upsertOverride', async (_e, override: db.CatalogOverrideRow) => {
+    db.upsertCatalogOverride(override)
+    const { invalidateKbCache } = await import('./services/bbddPlan')
+    invalidateKbCache()
+  })
+  ipcMain.handle('catalog:deleteOverride', async (_e, testId: string) => {
+    db.deleteCatalogOverride(testId)
+    const { invalidateKbCache } = await import('./services/bbddPlan')
+    invalidateKbCache()
+  })
+
   // ── Presupuestos (catálogo y reglas) ──
   ipcMain.handle('presup:getCatalog', () => loadCatalog(knowledgePath('tarifas_alagal.xlsx')))
   ipcMain.handle('presup:getRules', async () => {

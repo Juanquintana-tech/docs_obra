@@ -7,6 +7,7 @@
  */
 import { resolve } from 'path'
 import { loadKb, effectivePrice } from '../pipeline/kb/kb'
+import * as db from '../db'
 import { loadNormativeRules } from '../pipeline/kb/normative'
 import { generatePlan, type PlanLine, type SectionInput } from '../pipeline/kb/engine'
 import { extractSections, classifyToSections, materialToSection } from '../pipeline/kb/kbExtractor'
@@ -50,9 +51,21 @@ function curatedDir(): string {
   }
 }
 function kb(): ReturnType<typeof loadKb> {
-  if (!_kb) _kb = loadKb(curatedDir())
+  if (!_kb) {
+    const overrides = db.getCatalogOverrides().map((o) => ({
+      testId: o.test_id,
+      canonicalDesc: o.canonical_desc,
+      priceTarifaCye: o.price_tarifa_cye,
+      disabled: o.disabled === 1,
+      isNew: o.is_new === 1,
+      categoryCode: o.category_code
+    }))
+    _kb = loadKb(curatedDir(), overrides)
+  }
   return _kb
 }
+
+export function invalidateKbCache(): void { _kb = null }
 function norm(): ReturnType<typeof loadNormativeRules> {
   if (!_norm) _norm = loadNormativeRules(curatedDir())
   return _norm
@@ -206,4 +219,62 @@ export async function priceTestsBBDD(items: { description: string; category?: st
 /** Lista de códigos de categoría conocidos (para el agente editor de presupuesto). */
 export function kbCategories(): string[] {
   return [...kb().categories.keys()]
+}
+
+// ── Catálogo editable ─────────────────────────────────────────────────────────
+
+export interface KbCatalogRow {
+  testId: string
+  canonicalDesc: string
+  origin: 'alagal' | 'cye'
+  section: string | null
+  priceTarifaCye: number | null
+  pricePricebook: number | null
+  priceAlagal: number | null
+  hasOverride: boolean
+  isNew: boolean
+  disabled: boolean
+}
+
+export function getCatalogEntries(): KbCatalogRow[] {
+  const k = kb()
+  const overridesMap = new Map(db.getCatalogOverrides().map((o) => [o.test_id, o]))
+  const result: KbCatalogRow[] = []
+
+  for (const [id, test] of k.tests) {
+    const prices = k.pricesByTest.get(id) ?? []
+    const ov = overridesMap.get(id)
+    result.push({
+      testId: id,
+      canonicalDesc: test.canonicalDesc,
+      origin: test.origin,
+      section: test.alagalSection,
+      priceTarifaCye: prices.find((p) => p.source === 'tarifa_cye')?.price ?? null,
+      pricePricebook: prices.find((p) => p.source === 'pricebook')?.price ?? null,
+      priceAlagal: prices.find((p) => p.source === 'alagal')?.price ?? null,
+      hasOverride: !!ov,
+      isNew: ov?.is_new === 1,
+      disabled: false
+    })
+  }
+
+  // Incluir también los ensayos deshabilitados (para poder reactivarlos desde la UI).
+  for (const [id, ov] of overridesMap) {
+    if (ov.disabled === 1 && !k.tests.has(id)) {
+      result.push({
+        testId: id,
+        canonicalDesc: ov.canonical_desc ?? id,
+        origin: 'cye',
+        section: ov.category_code ?? null,
+        priceTarifaCye: ov.price_tarifa_cye ?? null,
+        pricePricebook: null,
+        priceAlagal: null,
+        hasOverride: true,
+        isNew: ov.is_new === 1,
+        disabled: true
+      })
+    }
+  }
+
+  return result.sort((a, b) => a.testId.localeCompare(b.testId))
 }

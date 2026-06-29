@@ -357,6 +357,42 @@ export function savePlanEdits(obraId: number, edits: PlanEdits): void {
  * Recalcula unit_price desde unit_price_base (sin acumular descuentos anteriores)
  * y actualiza discount_pct en la obra. Operación atómica.
  */
+// ── Catálogo: overrides de usuario sobre la KB curada ────────────────────────
+
+export interface CatalogOverrideRow {
+  test_id: string
+  canonical_desc: string | null
+  price_tarifa_cye: number | null
+  disabled: number
+  is_new: number
+  category_code: string | null
+  created_at: string
+  updated_at: string
+}
+
+export function getCatalogOverrides(): CatalogOverrideRow[] {
+  return getDb().prepare('SELECT * FROM catalog_overrides').all() as CatalogOverrideRow[]
+}
+
+export function upsertCatalogOverride(row: Omit<CatalogOverrideRow, 'created_at' | 'updated_at'>): void {
+  getDb().prepare(`
+    INSERT INTO catalog_overrides
+      (test_id, canonical_desc, price_tarifa_cye, disabled, is_new, category_code, updated_at)
+    VALUES
+      (@test_id, @canonical_desc, @price_tarifa_cye, @disabled, @is_new, @category_code, datetime('now','localtime'))
+    ON CONFLICT(test_id) DO UPDATE SET
+      canonical_desc   = excluded.canonical_desc,
+      price_tarifa_cye = excluded.price_tarifa_cye,
+      disabled         = excluded.disabled,
+      category_code    = excluded.category_code,
+      updated_at       = datetime('now','localtime')
+  `).run(row)
+}
+
+export function deleteCatalogOverride(testId: string): void {
+  getDb().prepare('DELETE FROM catalog_overrides WHERE test_id = ?').run(testId)
+}
+
 export function applyDiscount(obraId: number, discountPct: number): void {
   const db = getDb()
   db.transaction(() => {

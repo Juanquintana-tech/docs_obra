@@ -17,6 +17,15 @@ export interface TestMatch {
   confidence: number
 }
 
+export interface KbCatalogOverride {
+  testId: string
+  canonicalDesc?: string | null
+  priceTarifaCye?: number | null
+  disabled?: boolean
+  isNew?: boolean
+  categoryCode?: string | null
+}
+
 export interface Kb {
   tests: Map<string, KbTest>
   /** test_id → precios por fuente (tarifa_cye / alagal / pricebook). */
@@ -66,7 +75,10 @@ function collapseRules(rules: KbFrequencyRule[]): KbFrequencyRule {
   return rep
 }
 
-export function loadKb(curatedDir = resolve(process.cwd(), 'resources/knowledge/curated')): Kb {
+export function loadKb(
+  curatedDir = resolve(process.cwd(), 'resources/knowledge/curated'),
+  overrides: KbCatalogOverride[] = []
+): Kb {
   const alagalPath = resolve(curatedDir, 'alagal_catalog.json')
   const alagal = JSON.parse(readFileSync(alagalPath, 'utf-8')) as { tests: KbTest[]; prices: KbPrice[] }
   const cyeTests = readJson<KbTest>(resolve(curatedDir, 'cye_tests.json'), 'tests')
@@ -80,6 +92,33 @@ export function loadKb(curatedDir = resolve(process.cwd(), 'resources/knowledge/
   for (const p of [...alagal.prices, ...cyePrices]) {
     if (!pricesByTest.has(p.testId)) pricesByTest.set(p.testId, [])
     pricesByTest.get(p.testId)!.push(p)
+  }
+
+  // ── Aplicar overrides del usuario (catálogo editable) ────────────────────
+  for (const ov of overrides) {
+    if (ov.disabled) {
+      tests.delete(ov.testId)
+      pricesByTest.delete(ov.testId)
+      continue
+    }
+    if (ov.isNew && ov.canonicalDesc) {
+      tests.set(ov.testId, {
+        id: ov.testId,
+        canonicalDesc: ov.canonicalDesc,
+        normCodes: [],
+        alagalSection: ov.categoryCode ?? null,
+        alagalCode: null,
+        origin: 'cye'
+      })
+    } else if (ov.canonicalDesc) {
+      const t = tests.get(ov.testId)
+      if (t) tests.set(ov.testId, { ...t, canonicalDesc: ov.canonicalDesc })
+    }
+    if (ov.priceTarifaCye != null) {
+      const ps = (pricesByTest.get(ov.testId) ?? []).filter((p) => p.source !== 'tarifa_cye')
+      ps.unshift({ testId: ov.testId, source: 'tarifa_cye', price: ov.priceTarifaCye })
+      pricesByTest.set(ov.testId, ps)
+    }
   }
 
   // Reglas por categoría, colapsadas a una por ensayo (conservando escalones de frecuencia).
