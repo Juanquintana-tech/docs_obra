@@ -39,6 +39,7 @@ export type BudgetOp =
       unit_price?: number | null
     }
   | { op: 'discount'; pct: number }
+  | { op: 'discount_to_target'; target: number }
 
 export interface BudgetEditPlan {
   operations: BudgetOp[]
@@ -61,7 +62,8 @@ OPERACIONES disponibles (incluye solo las necesarias):
 • add_test — añade un ensayo a una categoría existente o nueva. Campos: "material", "category", "description", "n_tests".
 • delete — elimina ensayos. Campo: "ids": [.. ids exactos de las filas del plan ..]. Resuelve la descripción que da el usuario contra el plan y devuelve los ids que coinciden.
 • update — modifica un ensayo existente. Campos: "id" y los campos a cambiar ("description", "n_tests", "unit_price").
-• discount — descuento porcentual sobre TODO el presupuesto. Campo: "pct" (0–100). Úsalo siempre que el usuario pida un descuento global; no toques precios fila a fila para esto.
+• discount — descuento porcentual sobre TODO el presupuesto. Campo: "pct" (0–100). Úsalo cuando el usuario indique un porcentaje ("10%", "15 por ciento").
+• discount_to_target — descuento para que el total final sea una cantidad exacta. Campo: "target" (importe en €). Úsalo cuando el usuario diga cosas como "que el total sea 95000€", "ajusta el presupuesto a 80000 euros", "deja el presupuesto en X€". NO calcules tú el porcentaje: devuelve el target y el sistema lo calcula automáticamente.
 
 REGLAS:
 - NO inventes precios: omite "unit_price" en add_category/add_test salvo que el usuario indique un importe explícito ("a 45€", "45 euros/ud"). El sistema valora los ensayos nuevos automáticamente.
@@ -80,9 +82,10 @@ ESQUEMA:
     { "op": "add_test", "material": "ACERO", "category": "ACERO", "description": "Ensayo de tracción", "n_tests": 2 },
     { "op": "delete", "ids": [12, 13] },
     { "op": "update", "id": 7, "n_tests": 6 },
-    { "op": "discount", "pct": 10 }
+    { "op": "discount", "pct": 10 },
+    { "op": "discount_to_target", "target": 95000 }
   ],
-  "summary": "Añadir categoría Hormigón con 1 ensayo y aplicar 10% de descuento.",
+  "summary": "Añadir categoría Hormigón con 1 ensayo y ajustar el total a 95.000€.",
   "warnings": ["No encontré ningún ensayo llamado 'placa de carga' para eliminar."]
 }`
 
@@ -120,7 +123,7 @@ export async function interpretBudgetEdit(
 
   const raw = await gemini.chat(SYSTEM, user, {
     maxTokens: 2048,
-    timeoutMs: 20_000,
+    timeoutMs: 40_000,
     tag: 'budget-agent'
   })
 
@@ -163,6 +166,28 @@ export async function interpretBudgetEdit(
     }
     if (op.op === 'discount') {
       const pct = Math.max(0, Math.min(100, Number(op.pct) || 0))
+      operations.push({ op: 'discount', pct })
+      continue
+    }
+    if (op.op === 'discount_to_target') {
+      const target = Number(op.target)
+      if (!target || target <= 0) {
+        warnings.push('El importe objetivo del descuento debe ser mayor que 0€.')
+        continue
+      }
+      const currentTotal = rows.reduce((sum, r) => sum + (r.n_tests ?? 1) * (r.unit_price ?? 0), 0)
+      if (currentTotal <= 0) {
+        warnings.push('El presupuesto está vacío; no se puede calcular el descuento por importe.')
+        continue
+      }
+      if (target >= currentTotal) {
+        warnings.push(
+          `El importe objetivo (${target.toLocaleString('es-ES')}€) es igual o mayor que el total actual (${Math.round(currentTotal).toLocaleString('es-ES')}€); no se aplica descuento.`
+        )
+        continue
+      }
+      // 6 decimales: el error residual por ROUND fila a fila queda < 5 céntimos.
+      const pct = Math.round(((1 - target / currentTotal) * 100) * 1e6) / 1e6
       operations.push({ op: 'discount', pct })
       continue
     }

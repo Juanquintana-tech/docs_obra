@@ -72,7 +72,7 @@ export async function interpretCommand(
 
   const raw = await gemini.chat(SYSTEM, parts.join('\n\n'), {
     maxTokens: 512,
-    timeoutMs: 15_000,
+    timeoutMs: 30_000,
     tag: 'agent-intent'
   })
 
