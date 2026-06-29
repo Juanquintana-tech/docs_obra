@@ -1,4 +1,4 @@
-import { useState, type JSX } from 'react'
+import { useState, Fragment, type JSX } from 'react'
 import { api } from '../lib/api'
 import { eur, num } from '../lib/format'
 import { Ic } from '../components/Icon'
@@ -57,7 +57,22 @@ function srcBadge(p: PlanLine['provenance']): JSX.Element {
   return <span className={cls} title={p.detail ?? ''}>{p.kind === 'normativa' ? p.source : p.source}</span>
 }
 
+/** Explicación determinista de por qué una línea está en el plan (desde su provenance). */
+function explainLine(l: PlanLine): { porque: string; cuantos: string; precio: string; confianza: string } {
+  const p = l.provenance
+  const porque = p.kind === 'normativa'
+    ? `Exigido por normativa: ${p.source}${p.control ? ` (control de ${p.control})` : ''}.`
+    : `Incluido según el histórico de presupuestos de CYE para esta categoría${p.source && p.source !== 'presupuesto CYE (histórico)' ? ` (${p.source})` : ''}.`
+  const cuantos = `${num(l.nTests)} ensayo(s)${p.detail ? ` — ${p.detail}` : ''}.`
+  const precio = l.unitPrice == null
+    ? 'Sin precio en la BBDD: a preciar manualmente.'
+    : `${eur(l.unitPrice)}/ensayo · fuente de precio: ${p.priceSource}. Importe: ${eur(l.total ?? 0)}.`
+  const confianza = `Confianza del emparejamiento ensayo→catálogo: ${Math.round((p.matchConfidence ?? 0) * 100)}%.`
+  return { porque, cuantos, precio, confianza }
+}
+
 function PlanView({ result }: { result: BBDDPlanResult }): JSX.Element {
+  const [open, setOpen] = useState<string | null>(null)
   return (
     <>
       <div className="kpis">
@@ -83,6 +98,7 @@ function PlanView({ result }: { result: BBDDPlanResult }): JSX.Element {
             <h3 style={{ margin: 0 }}>{t.tramo}</h3>
             <span className="muted">{t.nLines} líneas{t.nReview > 0 ? ` · ${t.nReview} ⚠` : ''} · {eur(t.subtotal)}</span>
           </div>
+          <p className="muted" style={{ fontSize: 11, margin: '0 0 4px' }}>Haz clic en una línea para ver <strong>por qué está en el plan</strong>.</p>
           <table className="plan-table">
             <thead>
               <tr>
@@ -94,15 +110,37 @@ function PlanView({ result }: { result: BBDDPlanResult }): JSX.Element {
               </tr>
             </thead>
             <tbody>
-              {t.lines.map((l, j) => (
-                <tr key={j} style={l.needsReview ? { background: 'var(--warn-bg, #fff8e6)' } : undefined}>
-                  <td>{l.needsReview && '⚠ '}{l.description}</td>
-                  <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{num(l.nTests)}</td>
-                  <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{l.unitPrice == null ? '—' : eur(l.unitPrice)}</td>
-                  <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{l.total == null ? '—' : eur(l.total)}</td>
-                  <td>{srcBadge(l.provenance)} <span className="muted" style={{ fontSize: 11 }}>{l.provenance.priceSource}</span></td>
-                </tr>
-              ))}
+              {t.lines.map((l, j) => {
+                const key = `${i}-${j}`
+                const ex = explainLine(l)
+                return (
+                  <Fragment key={key}>
+                    <tr
+                      onClick={() => setOpen(open === key ? null : key)}
+                      style={{ cursor: 'pointer', background: l.needsReview ? 'var(--warn-bg, #fff8e6)' : undefined }}
+                    >
+                      <td>{open === key ? '▾ ' : '▸ '}{l.needsReview && '⚠ '}{l.description}</td>
+                      <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{num(l.nTests)}</td>
+                      <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{l.unitPrice == null ? '—' : eur(l.unitPrice)}</td>
+                      <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{l.total == null ? '—' : eur(l.total)}</td>
+                      <td>{srcBadge(l.provenance)} <span className="muted" style={{ fontSize: 11 }}>{l.provenance.priceSource}</span></td>
+                    </tr>
+                    {open === key && (
+                      <tr>
+                        <td colSpan={5} style={{ background: 'var(--bg-soft, #f6f8fb)', padding: '10px 14px' }}>
+                          <strong style={{ fontSize: 12 }}>¿Por qué este ensayo?</strong>
+                          <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontSize: 12, lineHeight: 1.5 }}>
+                            <li><strong>Motivo:</strong> {ex.porque}</li>
+                            <li><strong>Cantidad:</strong> {ex.cuantos}</li>
+                            <li><strong>Precio:</strong> {ex.precio}</li>
+                            <li><strong>Confianza:</strong> {ex.confianza}</li>
+                          </ul>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                )
+              })}
             </tbody>
           </table>
         </div>
