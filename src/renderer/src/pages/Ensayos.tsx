@@ -118,7 +118,7 @@ const GRUPOS: Array<{
 /** Tipos que tienen informe Word disponible. */
 export const WORD_TIPOS = new Set(['albaran_ensayos', 'densidad_in_situ', 'placa_carga', 'toma_hormigon', 'informe_hormigon', 'albaran_planta', 'radon_trazas'])
 /** Tipos con export a Excel. */
-const EXCEL_TIPOS = new Set(['densidad_in_situ', 'placa_carga', 'granulometria', 'informe_hormigon'])
+const EXCEL_TIPOS = new Set(['densidad_in_situ', 'placa_carga', 'granulometria', 'informe_hormigon', 'radon_trazas'])
 
 // ── Valores por defecto de presiones de placa ────────────────────────────────
 

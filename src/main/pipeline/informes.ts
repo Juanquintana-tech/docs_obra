@@ -9,6 +9,7 @@ import { fillDensidadTemplate } from './formatter/densidadExcelTemplate'
 import { fillPlacaTemplate } from './formatter/placaExcelTemplate'
 import { fillGranulometriaTemplate } from './formatter/granulometriaExcelTemplate'
 import { fillTomaHormigonTemplate } from './formatter/tomaHormigonExcelTemplate'
+import { fillRadonTrazasTemplate } from './formatter/radonTrazasExcelTemplate'
 import { fillTomaHormigonWord } from './formatter/tomaHormigonWordTemplate'
 import { fillPlacaWord } from './formatter/placaWordTemplate'
 import { fillDensidadWord } from './formatter/densidadWordTemplate'
@@ -68,5 +69,7 @@ export async function generateInformeExcel(
     )
   if (ensayo.tipo === 'toma_hormigon' || ensayo.tipo === 'informe_hormigon')
     return fillTomaHormigonTemplate(datos, obra)
+  if (ensayo.tipo === 'radon_trazas')
+    return fillRadonTrazasTemplate(ensayo.datos, obra)
   throw new Error(`Informe Excel no disponible para tipo: ${ensayo.tipo}`)
 }

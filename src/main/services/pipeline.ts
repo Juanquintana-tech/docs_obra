@@ -49,8 +49,9 @@ export async function buildEnsayoWord(ensayo: Ensayo, obra: Obra): Promise<Buffe
 }
 
 export async function buildEnsayoExcel(ensayo: Ensayo, obra: Obra): Promise<Buffer> {
-  // toma_hormigon no usa plantilla — genera el Excel con ExcelJS directamente
+  // toma_hormigon y radon_trazas generan el Excel con ExcelJS directamente (sin plantilla)
   if (ensayo.tipo === 'toma_hormigon') return generateInformeExcel(ensayo, obra, '')
+  if (ensayo.tipo === 'radon_trazas') return generateInformeExcel(ensayo, obra, '')
   const tpl =
     ensayo.tipo === 'placa_carga'
       ? templatePath('plantilla_placa_carga.xlsx')
