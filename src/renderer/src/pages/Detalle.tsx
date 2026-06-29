@@ -820,6 +820,35 @@ export function Detalle(): JSX.Element {
               rows={editedRows}
               ivaRate={editingCondiciones ? ivaInput / 100 : (obra.iva_rate ?? 0.21)}
               onChange={setEditedRows}
+              onAddCategory={() => {
+                const tempId = -Date.now()
+                setEditedRows((prev) => [
+                  ...prev,
+                  {
+                    id: tempId,
+                    obra_id: obraId,
+                    row_type: 'test',
+                    material: 'NUEVA CATEGORÍA',
+                    subcategory: '',
+                    description: '',
+                    measurement: null,
+                    measurement_unit: '',
+                    freq_qty: null,
+                    freq_unit: '',
+                    n_lots: null,
+                    tests_per_lot: null,
+                    n_tests: 0,
+                    unit_price: 0,
+                    total: 0,
+                    price_source: 'fallback',
+                    rag_score: 0,
+                    rag_desc: '',
+                    price_min: null,
+                    price_max: null,
+                    price_n: null
+                  }
+                ])
+              }}
               onDelete={(id) => {
                 setDeletedIds((prev) => [...prev, id])
                 setEditedRows((prev) => prev.filter((r) => r.id !== id))
