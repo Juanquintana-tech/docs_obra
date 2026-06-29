@@ -160,8 +160,7 @@ export function fillDensidadTemplate(
   // Los chart*.xml llevan <c:numCache> con datos hardcodeados de la plantilla vacía.
   // Excel los muestra en lugar de releer las celdas, de modo que la gráfica aparece
   // vacía o incorrecta. Al borrar el bloque numCache Excel lo reconstruye al abrir.
-  clearChartCache(zip)
-  adjustChartAxes(zip, rows, Number(datos.compactacion_min ?? 100))
+  injectChartData(zip, rows, Number(datos.compactacion_min ?? 100))
 
   // ── Quitar las macros VBA huérfanas ──────────────────────────────────────────
   // La plantilla es la versión vaciada de un .xls con macros (AdjustGraf, Espec,
@@ -186,62 +185,111 @@ export function fillDensidadTemplate(
   return zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' })
 }
 
-/** Borra los bloques <c:numCache> de todos los chart*.xml para que Excel recalcule
- *  la gráfica desde las referencias de celda al abrir el fichero. */
-function clearChartCache(zip: PizZip): void {
-  const chartDir = 'xl/charts/'
-  Object.keys(zip.files)
-    .filter(name => name.startsWith(chartDir) && name.endsWith('.xml') && !name.includes('_rels'))
-    .forEach(name => {
-      const f = zip.file(name)
-      if (!f) return
-      let xml = f.asText()
-      xml = xml.replace(/<c:numCache>[\s\S]*?<\/c:numCache>/g, '')
-      zip.file(name, xml)
-    })
+/**
+ * Construye un bloque numCache XML con los valores proporcionados.
+ * Las posiciones sin valor (undefined/NaN) se emiten como puntos vacíos omitidos.
+ */
+function buildNumCache(values: (number | null)[], formatCode = '0.0'): string {
+  const pts = values
+    .map((v, i) => (v !== null && isFinite(v) ? `<c:pt idx="${i}"><c:v>${Math.round(v * 10) / 10}</c:v></c:pt>` : ''))
+    .join('')
+  return `<c:numCache><c:formatCode>${formatCode}</c:formatCode><c:ptCount val="${values.length}"/>${pts}</c:numCache>`
 }
 
 /**
- * Calcula límites de eje inteligentes para las gráficas de % compactación e inyecta
- * los valores en chart1.xml y chart3.xml, dejando chart2 (densidad/humedad) intacto.
- *
- * Estrategia:
- *  - min_eje = floor(min(valores_reales, compactacion_min) - 8), mínimo 60
- *  - max_eje = ceil(max(valores_reales, compactacion_min) + 4), mínimo compactacion_min+5
+ * Construye un bloque strCache XML para el eje de categorías (nº de ensayo).
  */
-function adjustChartAxes(zip: PizZip, rows: DensidadRow[], compactacionMin: number): void {
-  // Calcular % compactación por fila (d_situ / d_max * 100)
-  const pcts: number[] = rows
-    .map(r => {
-      const d = typeof r.d_situ === 'number' ? r.d_situ : parseFloat(String(r.d_situ ?? ''))
-      const dm = typeof r.d_max === 'number' ? r.d_max : parseFloat(String(r.d_max ?? ''))
-      return isFinite(d) && isFinite(dm) && dm > 0 ? (d / dm) * 100 : NaN
-    })
-    .filter(v => isFinite(v))
+function buildStrCache(values: (string | number | null)[]): string {
+  const pts = values
+    .map((v, i) => (v !== null && v !== '' ? `<c:pt idx="${i}"><c:v>${v}</c:v></c:pt>` : ''))
+    .join('')
+  return `<c:strCache><c:ptCount val="${values.length}"/>${pts}</c:strCache>`
+}
 
-  const minVal = pcts.length ? Math.min(...pcts) : compactacionMin
-  const maxVal = pcts.length ? Math.max(...pcts) : compactacionMin + 2
+/**
+ * Inyecta numCache con los valores reales del ensayo en chart1 y chart3 (% compactación)
+ * y ajusta los límites del eje Y para que la gráfica se vea con margen adecuado.
+ *
+ * Series chart1/chart3:
+ *   DATINF!$L$26:$L$41 → categorías (nº ensayo)
+ *   DATINF!$M$26:$M$41 → Lote (% compactación individual)
+ *   DATINF!$O$26:$O$41 → Media Lote (media del lote)
+ *   DATINF!$P$26:$P$41 → Especificación (= compactacion_min)
+ */
+function injectChartData(zip: PizZip, rows: DensidadRow[], compactacionMin: number): void {
+  const TOTAL = DATA_MAX_ROWS // 16 slots en el chart
 
+  // Calcular % compactación por fila
+  const pcts: (number | null)[] = Array.from({ length: TOTAL }, (_, i) => {
+    const r = rows[i]
+    if (!r) return null
+    const d = typeof r.d_situ === 'number' ? r.d_situ : parseFloat(String(r.d_situ ?? ''))
+    const dm = typeof r.d_max === 'number' ? r.d_max : parseFloat(String(r.d_max ?? ''))
+    return isFinite(d) && isFinite(dm) && dm > 0 ? (d / dm) * 100 : null
+  })
+
+  const validPcts = pcts.filter((v): v is number => v !== null)
+  const media = validPcts.length ? validPcts.reduce((a, b) => a + b, 0) / validPcts.length : null
+
+  // Categorías: nº de ensayo (1..n para los que existen, null el resto)
+  const cats: (number | null)[] = Array.from({ length: TOTAL }, (_, i) =>
+    i < rows.length ? (Number(rows[i].n) || i + 1) : null
+  )
+
+  // Series: media (línea plana) y especificación (línea plana)
+  const medias: (number | null)[] = pcts.map(v => (v !== null ? media : null))
+  const specs: (number | null)[] = pcts.map(v => (v !== null ? compactacionMin : null))
+
+  // Límites del eje Y
+  const minVal = validPcts.length ? Math.min(...validPcts) : compactacionMin
+  const maxVal = validPcts.length ? Math.max(...validPcts) : compactacionMin + 2
   const axisMin = Math.max(60, Math.floor(Math.min(minVal, compactacionMin) - 8))
   const axisMax = Math.ceil(Math.max(maxVal, compactacionMin) + 4)
 
-  // Reemplaza <c:min> y <c:max> dentro del bloque <c:valAx> (eje de valor)
-  const applyLimits = (xml: string): string =>
-    xml.replace(
-      /(<c:valAx>[\s\S]*?<c:scaling>)([\s\S]*?)(<\/c:scaling>[\s\S]*?<\/c:valAx>)/g,
-      (_match, before, scaling, after) => {
-        const base = scaling
-          .replace(/<c:min[^/]*\/>/g, '')
-          .replace(/<c:max[^/]*\/>/g, '')
-          .replace(/<c:orientation[^/]*\/>/, `<c:orientation val="minMax"/>`)
-        return `${before}${base}<c:min val="${axisMin}"/><c:max val="${axisMax}"/>${after}`
-      }
-    )
+  const catCache  = buildStrCache(cats)
+  const loteCache  = buildNumCache(pcts)
+  const mediaCache = buildNumCache(medias)
+  const specCache  = buildNumCache(specs, 'General')
 
   for (const name of ['xl/charts/chart1.xml', 'xl/charts/chart3.xml']) {
     const f = zip.file(name)
     if (!f) continue
-    zip.file(name, applyLimits(f.asText()))
+    let xml = f.asText()
+
+    // Inyectar numCache/strCache en cada <c:numRef> o <c:cat>/<c:val> según la fórmula
+    xml = xml.replace(/(<c:cat>[\s\S]*?<c:numRef>)([\s\S]*?)(<\/c:numRef>[\s\S]*?<\/c:cat>)/g,
+      (_, a, inner, b) => `${a}${inner.replace(/<c:numCache>[\s\S]*?<\/c:numCache>/, '').replace(/<\/c:f>/, `</c:f>${catCache}`)}${b}`)
+    xml = xml.replace(/(<c:cat>[\s\S]*?<c:strRef>)([\s\S]*?)(<\/c:strRef>[\s\S]*?<\/c:cat>)/g,
+      (_, a, inner, b) => `${a}${inner.replace(/<c:strCache>[\s\S]*?<\/c:strCache>/, '').replace(/<\/c:f>/, `</c:f>${catCache}`)}${b}`)
+
+    // Inyectar numCache en cada serie de valor según la referencia de fórmula
+    const seriesMap: Record<string, string> = {
+      'DATINF!$M$': loteCache,
+      'DATINF!$O$': mediaCache,
+      'DATINF!$P$': specCache,
+    }
+    xml = xml.replace(/(<c:val>[\s\S]*?<c:numRef>)([\s\S]*?)(<\/c:numRef>[\s\S]*?<\/c:val>)/g,
+      (match, a, inner, b) => {
+        const fMatch = inner.match(/<c:f>([^<]+)<\/c:f>/)
+        if (!fMatch) return match
+        const formula = fMatch[1]
+        const cache = Object.entries(seriesMap).find(([k]) => formula.includes(k))?.[1]
+        if (!cache) return match
+        const cleaned = inner.replace(/<c:numCache>[\s\S]*?<\/c:numCache>/, '')
+        return `${a}${cleaned.replace(/<\/c:f>/, `</c:f>${cache}`)}${b}`
+      })
+
+    // Ajustar límites del eje Y
+    xml = xml.replace(
+      /(<c:valAx>[\s\S]*?<c:scaling>)([\s\S]*?)(<\/c:scaling>[\s\S]*?<\/c:valAx>)/g,
+      (_m, before, scaling, after) => {
+        const base = scaling
+          .replace(/<c:min[^/]*\/>/g, '')
+          .replace(/<c:max[^/]*\/>/g, '')
+        return `${before}${base}<c:min val="${axisMin}"/><c:max val="${axisMax}"/>${after}`
+      })
+
+    zip.file(name, xml)
   }
 }
 
