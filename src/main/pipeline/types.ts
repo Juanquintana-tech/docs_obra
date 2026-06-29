@@ -4,6 +4,9 @@
  * La capa de DB importa estos tipos, no al revés.
  */
 
+/** Estrategia de precio (histórico). 'importado' es interna del flujo de importación. */
+export type PriceStrategy = 'reciente' | 'mediana' | 'max' | 'min' | 'importado'
+
 /** Material clasificado (salida del classifier, entrada del planner). */
 export interface Material {
   material?: string

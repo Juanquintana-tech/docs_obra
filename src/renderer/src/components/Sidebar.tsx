@@ -37,8 +37,7 @@ const TOOLS: NavDef[] = [
   {
     section: 'Herramientas',
     items: [
-      { path: '/bbdd', label: 'Presupuesto BBDD', ico: <Ic.Upload /> },
-      { path: '/validacion', label: 'Validación RAG', ico: <Ic.Validacion /> }
+      { path: '/bbdd', label: 'Presupuesto BBDD', ico: <Ic.Upload /> }
     ]
   }
 ]

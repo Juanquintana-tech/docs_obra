@@ -6,16 +6,15 @@
  * estructura; los números salen de la BBDD curada.
  */
 import { resolve } from 'path'
-import { loadKb } from '../pipeline/kb/kb'
+import { loadKb, effectivePrice } from '../pipeline/kb/kb'
 import { loadNormativeRules } from '../pipeline/kb/normative'
 import { generatePlan, type PlanLine, type SectionInput } from '../pipeline/kb/engine'
-import { extractSections, classifyToSections } from '../pipeline/kb/kbExtractor'
+import { extractSections, classifyToSections, materialToSection } from '../pipeline/kb/kbExtractor'
 import { extractDocument } from '../pipeline/extractor'
 import { extractObraInfo } from '../pipeline/classifier'
 import { knowledgePath } from '../paths'
 import type { IngestResult } from './pipeline'
-import type { PlanRowInput, Material } from '../pipeline/types'
-import type { PriceStrategy } from '../pipeline/rag/priceBook'
+import type { PlanRowInput, Material, PriceStrategy } from '../pipeline/types'
 
 export interface BBDDTramo {
   tramo: string
@@ -149,4 +148,62 @@ export async function ingestDocumentBBDD(
     meta: { format, chars: text.length, needsOcr },
     warnings,
   }
+}
+
+/** Texto pegado → motor BBDD (mismo IngestResult). */
+export async function ingestTextBBDD(text: string, strategy: PriceStrategy = 'mediana'): Promise<IngestResult> {
+  const [obraInfo, extracted] = await Promise.all([extractObraInfo(text), classifyToSections(text)])
+  const { lines, warnings } = generatePlan(extracted.sections, kb(), norm())
+  if (extracted.warning) warnings.unshift(extracted.warning)
+  return {
+    obra: {
+      obra: obraInfo.obra ?? '', cliente: obraInfo.cliente ?? '',
+      ref_doc: obraInfo.ref_doc ?? '', municipio: obraInfo.municipio ?? '',
+    },
+    materials: extracted.sections.map(sectionToMaterial),
+    plan: lines.map(lineToPlanRow),
+    strategy,
+    meta: { format: 'txt', chars: text.length, needsOcr: false },
+    warnings,
+  }
+}
+
+/** Re-valora unos materiales con el motor BBDD (sin re-extraer). */
+export function repricePlanBBDD(materials: Material[]): PlanRowInput[] {
+  const sections = materials.map((m) => materialToSection(m))
+  const { lines } = generatePlan(sections, kb(), norm())
+  return lines.map(lineToPlanRow)
+}
+
+export interface PriceQuote {
+  precio: number | null
+  source: string
+  score: number
+  min?: number | null
+  max?: number | null
+  n?: number | null
+}
+
+/** Valora descripciones sueltas de ensayos contra la BBDD curada (para el agente NL). */
+export async function priceTestsBBDD(items: { description: string; category?: string }[]): Promise<PriceQuote[]> {
+  const k = kb()
+  return items.map((it) => {
+    const m = k.matchTest(it.description)
+    if (!m) return { precio: null, source: 'fallback', score: 0 }
+    const p = effectivePrice(k, m.testId)
+    const cye = (k.pricesByTest.get(m.testId) ?? []).find((x) => x.source === 'tarifa_cye')
+    return {
+      precio: p?.price ?? null,
+      source: p?.source ?? 'fallback',
+      score: m.confidence,
+      min: cye?.min ?? null,
+      max: cye?.max ?? null,
+      n: cye?.n ?? null,
+    }
+  })
+}
+
+/** Lista de códigos de categoría conocidos (para el agente editor de presupuesto). */
+export function kbCategories(): string[] {
+  return [...kb().categories.keys()]
 }

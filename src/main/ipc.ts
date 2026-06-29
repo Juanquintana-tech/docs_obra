@@ -15,13 +15,8 @@ import { writableKnowledgePath } from './paths'
 import type { PlanRowInput } from './pipeline/types'
 import type { ObraInfo } from './pipeline/formatter'
 import {
-  ingestDocument,
-  ingestText,
-  repricePlan,
   buildExcel,
   buildWord,
-  ragStatus,
-  ragFindMatches,
   buildEnsayoWord,
   buildEnsayoExcel,
   listBudgetSheets,
@@ -29,12 +24,12 @@ import {
 } from './services/pipeline'
 import { interpretCommand } from './services/agent'
 import { interpretBudgetEdit } from './services/budgetAgent'
-import { generateBBDDPlan, ingestDocumentBBDD } from './services/bbddPlan'
+import { generateBBDDPlan, ingestDocumentBBDD, ingestTextBBDD, repricePlanBBDD } from './services/bbddPlan'
 import { loadCatalog } from './pipeline/rag/catalog'
 import { scanEnsayo } from './pipeline/ocr/ensayoOcr'
 import type { Rules } from './pipeline/planner'
 import type { Material } from './pipeline/types'
-import type { PriceStrategy } from './pipeline/rag/priceBook'
+import type { PriceStrategy } from './pipeline/types'
 import { knowledgePath } from './paths'
 
 /** Mapea filas de la DB (row_type) al contrato del pipeline (type) para el formatter. */
@@ -171,33 +166,26 @@ export function registerIpc(): void {
     if (canceled || filePaths.length === 0) return null
     return { path: filePaths[0], name: basename(filePaths[0]) }
   })
-  ipcMain.handle('ingest:document', (e, path: string, strategy?: PriceStrategy) =>
-    ingestDocument(path, strategy, (done, total) => {
-      e.sender.send('ingest:chunkProgress', { done, total })
-    })
+  // Ingesta → motor BBDD determinista (el RAG/plannerLLM se retiró).
+  ipcMain.handle('ingest:document', (_e, path: string, strategy?: PriceStrategy) =>
+    ingestDocumentBBDD(path, strategy)
   )
   ipcMain.handle('ingest:text', (_e, text: string, strategy?: PriceStrategy) =>
-    ingestText(text, strategy)
+    ingestTextBBDD(text, strategy)
   )
 
-  // ── Plan BBDD (motor determinista por lote, Etapa 5) ──
+  // ── Plan BBDD (motor determinista por lote) ──
   ipcMain.handle('bbdd:generateFromDoc', (_e, path: string) => generateBBDDPlan(path))
   ipcMain.handle('bbdd:ingestDocument', (_e, path: string, strategy?: PriceStrategy) =>
     ingestDocumentBBDD(path, strategy)
   )
-  ipcMain.handle('pipeline:repricePlan', (_e, materials: Material[], strategy: PriceStrategy) =>
-    repricePlan(materials, strategy)
+  ipcMain.handle('pipeline:repricePlan', (_e, materials: Material[]) =>
+    repricePlanBBDD(materials)
   )
 
   // ── Entregables ──
   ipcMain.handle('export:excel', (_e, obraId: number) => exportDeliverable(obraId, 'excel'))
   ipcMain.handle('export:word', (_e, obraId: number) => exportDeliverable(obraId, 'word'))
-
-  // ── RAG (pantalla de validación) ──
-  ipcMain.handle('rag:status', () => ragStatus())
-  ipcMain.handle('rag:findMatches', (_e, query: string, category?: string, n?: number) =>
-    ragFindMatches(query, category ?? '', n)
-  )
 
   // ── Ensayos (informes de campo) ──
   ipcMain.handle('ensayo:getAll', (_e, obraId: number | null, tipo?: string) =>

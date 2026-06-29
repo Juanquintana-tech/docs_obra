@@ -9,8 +9,7 @@
  * (price_book → ALAGAL → fallback) para que entren con €/ud reales.
  */
 import { GeminiProvider } from '../pipeline/llm/gemini'
-import { CATEGORY_CTX } from '../pipeline/rag/ragPricer'
-import { priceTests } from './pipeline'
+import { priceTestsBBDD as priceTests, kbCategories } from './bbddPlan'
 import * as db from '../db'
 
 // ── Contrato de operaciones ────────────────────────────────────────────────
@@ -21,7 +20,7 @@ export interface BudgetNewTest {
   /** €/ud si el usuario lo indicó explícitamente; si no, lo rellena el motor de precios. */
   unit_price?: number | null
   // Campos resueltos por el motor de precios (los rellena el backend, no el LLM):
-  price_source?: 'pricebook' | 'alagal' | 'fallback'
+  price_source?: string
   rag_score?: number
   price_min?: number | null
   price_max?: number | null
@@ -49,7 +48,7 @@ export interface BudgetEditPlan {
 
 // ── Prompt ───────────────────────────────────────────────────────────────────
 
-const CATEGORIES = Object.keys(CATEGORY_CTX)
+const CATEGORIES = kbCategories()
 
 const SYSTEM = `Eres el editor de presupuestos de CYE, software de control de calidad en obras de construcción (España).
 Recibes el PLAN DE ENSAYOS actual de una obra y una instrucción del usuario.

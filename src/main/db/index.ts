@@ -3,7 +3,7 @@ import { join } from 'path'
 import Database from 'better-sqlite3'
 import { migrate } from './migrations'
 import type { PlanRowInput } from '../pipeline/types'
-import type { PriceStrategy } from '../pipeline/rag/priceBook'
+import type { PriceStrategy } from '../pipeline/types'
 
 // La forma de fila que produce el pipeline vive en el contrato del pipeline.
 export type { PlanRowInput } from '../pipeline/types'
@@ -46,7 +46,7 @@ export interface PlanRow {
   n_tests: number
   unit_price: number
   total: number
-  price_source: 'pricebook' | 'alagal' | 'fallback'
+  price_source: string
   rag_score: number
   rag_desc: string
   price_min: number | null

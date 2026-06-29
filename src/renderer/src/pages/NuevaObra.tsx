@@ -65,7 +65,6 @@ export function NuevaObra(): JSX.Element {
   const [genPhase, setGenPhase] = useState<GenPhase>('idle')
   const [genResult, setGenResult] = useState<IngestResult | null>(null)
   const [strategy, setStrategy] = useState<PriceStrategy>('reciente')
-  const [engine, setEngine] = useState<'bbdd' | 'rag'>('bbdd')
   const [repricing, setRepricing] = useState(false)
   const [pastedText, setPastedText] = useState('')
   const repriceSeq = useRef(0)
@@ -160,14 +159,14 @@ export function NuevaObra(): JSX.Element {
   const doIngest = useCallback(async (path: string, name: string): Promise<void> => {
     setError(null); setFileName(name); setElapsed(0); setChunkInfo(null); setGenPhase('ingesting')
     try {
-      const r = engine === 'bbdd' ? await api.bbddIngest(path, strategy) : await api.ingestDocument(path, strategy)
+      const r = await api.bbddIngest(path, strategy)
       setProgress(100)
       await new Promise((res) => setTimeout(res, 350))
       setGenResult(r)
       setObra(r.obra.obra); setCliente(r.obra.cliente); setRefLab(r.obra.ref_doc)
       setGenPhase('review')
     } catch (e) { setError(errorMessage(e)); setGenPhase('idle') }
-  }, [strategy, engine])
+  }, [strategy])
 
   // Auto-ingest cuando se llega desde el CommandBar con un archivo ya seleccionado
   useEffect(() => {
@@ -364,21 +363,6 @@ export function NuevaObra(): JSX.Element {
           ════════════════════════════════════════════════════════════ */}
       {mode === 'generate' && genPhase === 'idle' && (
         <>
-          <div className="cluster" style={{ justifyContent: 'flex-end', gap: 8, marginBottom: 10 }}>
-            <span style={{ fontSize: 12, color: 'var(--text-soft)' }}>Motor:</span>
-            <div className="btn-group">
-              <button
-                className={`btn btn-sm${engine === 'bbdd' ? ' active' : ''}`}
-                onClick={() => setEngine('bbdd')}
-                title="Motor determinista sobre la base de datos curada (normativa PG-3/EHE). Trazable y reproducible."
-              >BBDD (nuevo)</button>
-              <button
-                className={`btn btn-sm${engine === 'rag' ? ' active' : ''}`}
-                onClick={() => setEngine('rag')}
-                title="Motor anterior (RAG generativo)."
-              >RAG (actual)</button>
-            </div>
-          </div>
           <div
             className={`ingest-zone${dragOver ? ' drag-over' : ''}`}
             onClick={pickAndIngest}

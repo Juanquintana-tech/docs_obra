@@ -20,14 +20,12 @@ import type {
 import type { PlanRowInput, Material } from '../main/pipeline/types'
 import type {
   IngestResult,
-  RagStatus,
   BudgetSheet,
   BudgetImportResult
 } from '../main/services/pipeline'
-import type { RagMatch } from '../main/pipeline/rag/types'
 import type { CatalogEntry } from '../main/pipeline/rag/catalog'
 import type { Rules } from '../main/pipeline/planner'
-import type { PriceStrategy } from '../main/pipeline/rag/priceBook'
+import type { PriceStrategy } from '../main/pipeline/types'
 import type { AgentIntent } from '../main/services/agent'
 import type { BudgetEditPlan } from '../main/services/budgetAgent'
 import type { BBDDPlanResult } from '../main/services/bbddPlan'
@@ -88,11 +86,6 @@ export const api = {
   exportExcel: (obraId: number): Promise<string | null> =>
     ipcRenderer.invoke('export:excel', obraId),
   exportWord: (obraId: number): Promise<string | null> => ipcRenderer.invoke('export:word', obraId),
-
-  // ── RAG (validación) ──
-  ragStatus: (): Promise<RagStatus> => ipcRenderer.invoke('rag:status'),
-  ragFindMatches: (query: string, category?: string, n?: number): Promise<RagMatch[]> =>
-    ipcRenderer.invoke('rag:findMatches', query, category, n),
 
   // ── Ensayos (informes de campo) ──
   getEnsayos: (obraId: number | null, tipo?: string): Promise<Ensayo[]> =>
