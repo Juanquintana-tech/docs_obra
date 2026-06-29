@@ -185,7 +185,8 @@ export function fillDensidadTemplate(
   return zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' })
 }
 
-/** Borra los bloques <c:numCache> de todos los chart*.xml para que Excel recalcule
+/** Borra los bloques <c:numCache> de todos los chart*.xml y elimina los límites fijos
+ *  de eje (c:min / c:max dentro de c:scaling) para que Excel auto-escale y recalcule
  *  la gráfica desde las referencias de celda al abrir el fichero. */
 function clearChartCache(zip: PizZip): void {
   const chartDir = 'xl/charts/'
@@ -194,9 +195,13 @@ function clearChartCache(zip: PizZip): void {
     .forEach(name => {
       const f = zip.file(name)
       if (!f) return
-      // Elimina cada bloque <c:numCache>…</c:numCache> completo
-      const cleaned = f.asText().replace(/<c:numCache>[\s\S]*?<\/c:numCache>/g, '')
-      zip.file(name, cleaned)
+      let xml = f.asText()
+      // Elimina el caché de datos de cada serie
+      xml = xml.replace(/<c:numCache>[\s\S]*?<\/c:numCache>/g, '')
+      // Elimina límites fijos de eje para que Excel auto-escale según los datos reales
+      xml = xml.replace(/<c:min val="[^"]*"\/>/g, '')
+      xml = xml.replace(/<c:max val="[^"]*"\/>/g, '')
+      zip.file(name, xml)
     })
 }
 
