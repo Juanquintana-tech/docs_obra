@@ -1968,6 +1968,39 @@
       "freqMagUnit": "m2",
       "sources": 1,
       "rawDesc": "Toma de muestras de mortero de cemento, fabricación, conservación y rotura a flexotracción y compresión de probetas prismáticas UNE-EN 1015-11"
+    },
+    {
+      "categoryCode": "FACHADA",
+      "testId": "T-0725",
+      "muestreo": 1,
+      "freqUnit": "500 m2",
+      "freqKind": "per_quantity",
+      "freqQty": 500,
+      "freqMagUnit": "m2",
+      "sources": 1,
+      "rawDesc": "Prueba de estanqueidad in situ del conjunto fachada-carpintería mediante batería de rociadores"
+    },
+    {
+      "categoryCode": "RESBALADICIDAD",
+      "testId": "T-0509",
+      "muestreo": 1,
+      "freqUnit": "500 m2",
+      "freqKind": "per_quantity",
+      "freqQty": 500,
+      "freqMagUnit": "m2",
+      "sources": 1,
+      "rawDesc": "Visita para determinación in situ de la resistencia al deslizamiento con péndulo TRRL sobre pavimento acabado UNE ENV 12633"
+    },
+    {
+      "categoryCode": "PANEL_SANDWICH",
+      "testId": "C-0003",
+      "muestreo": 1,
+      "freqUnit": "1000 m2",
+      "freqKind": "per_quantity",
+      "freqQty": 1000,
+      "freqMagUnit": "m2",
+      "sources": 1,
+      "rawDesc": "Determinación del espesor del panel de las chapas y del aislante, densidad del aislante y espesor de recubrimiento"
     }
   ]
 }
