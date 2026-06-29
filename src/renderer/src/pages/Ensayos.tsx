@@ -1701,12 +1701,10 @@ function PlacaForm({
                 )}
               </td>
             </tr>
-            <tr className={ratioOk === true ? 'cond-ok' : ratioOk === false ? 'cond-no' : ''}>
-              <td>Ev2/Ev1 (≤ {ratioMax.toFixed(1)})</td>
+            <tr>
+              <td>Ev2/Ev1</td>
               <td>{ratio !== null ? ratio.toFixed(1).replace('.', ',') : '—'}</td>
-              <td className="cond-verdict">
-                {ratioOk === true ? '✓ CUMPLE' : ratioOk === false ? '✗ NO CUMPLE' : '—'}
-              </td>
+              <td className="cond-verdict">—</td>
             </tr>
           </tbody>
         </table>

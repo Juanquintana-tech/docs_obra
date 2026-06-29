@@ -322,8 +322,7 @@ export function computePlaca(input: PlacaInput): PlacaResult {
   const ev2 = calcEvCiclo(c2, radio_mm, true) // c2: E49 usa ROUND(AVERAGE,2) en high
   const ratio = ev1 && ev2 && ev1 > 0 ? Math.round((ev2 / ev1) * 10) / 10 : null
 
-  const cumple = ratio !== null && ratio <= ratio_max
-
+  // Criterio Ev2/Ev1 ≤ 2.2 desactivado temporalmente
   return {
     ciclo1: c1,
     descarga: desc,
@@ -333,7 +332,7 @@ export function computePlaca(input: PlacaInput): PlacaResult {
     ratio,
     ratio_max,
     radio_mm,
-    veredicto: ratio !== null ? (cumple ? 'CUMPLE' : 'NO CUMPLE') : ''
+    veredicto: ''
   }
 }
 

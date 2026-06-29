@@ -156,15 +156,14 @@ export function placaSummary(datos: Record<string, unknown>): PlacaSummary {
   const ev1 = calcEvCiclo(c1, radio, false)
   const ev2 = calcEvCiclo(c2, radio, true)
   const ratio = ev1 && ev2 && ev1 > 0 ? Math.round((ev2 / ev1) * 10) / 10 : null
-  const cumple = ratio !== null ? ratio <= ratioMax : null
-
+  // Criterio Ev2/Ev1 ≤ 2.2 desactivado temporalmente
   return {
     ev1,
     ev2,
     ratio,
     ratioMax,
-    cumple,
-    veredicto: ratio !== null ? (cumple ? 'CUMPLE' : 'NO CUMPLE') : ''
+    cumple: null,
+    veredicto: ''
   }
 }
 
