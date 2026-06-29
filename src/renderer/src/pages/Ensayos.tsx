@@ -3414,9 +3414,11 @@ function RadonForm({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
           <div className="sec-label" style={{ marginBottom: 0 }}>Detectores ({detectores.length})</div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* TODO: restaurar cuando el bot soporte radón trazas
             <button className="btn" onClick={handleImportJson} style={{ background: 'var(--color-purple, #6B21A8)', color: '#fff', borderColor: 'transparent' }}>
               📥 Importar desde bot
             </button>
+            */}
             <span style={{ fontSize: 13, color: 'var(--text-soft)' }}>Añadir:</span>
             <input
               type="number" min={1} max={100}
