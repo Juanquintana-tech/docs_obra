@@ -45,17 +45,6 @@
       "rawDesc": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5, determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 y cálculo del contenido en huecos UNE EN 12697-8"
     },
     {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0320",
-      "muestreo": 1,
-      "freqUnit": "6.000 t",
-      "freqKind": "per_quantity",
-      "freqQty": 6000,
-      "freqMagUnit": "t",
-      "sources": 8,
-      "rawDesc": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla"
-    },
-    {
       "categoryCode": "SUELO_ESTABILIZADO",
       "testId": "T-0135",
       "muestreo": 1,
@@ -197,39 +186,6 @@
       "freqMagUnit": "m2",
       "sources": 5,
       "rawDesc": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 14 puntos"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0320",
-      "muestreo": 1,
-      "freqUnit": "500 t",
-      "freqKind": "per_quantity",
-      "freqQty": 500,
-      "freqMagUnit": "t",
-      "sources": 5,
-      "rawDesc": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0321",
-      "muestreo": 1,
-      "freqUnit": "500 t",
-      "freqKind": "per_quantity",
-      "freqQty": 500,
-      "freqMagUnit": "t",
-      "sources": 5,
-      "rawDesc": "Análisis granulométrico de áridos recuperados UNE EN 12697-1"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0319",
-      "muestreo": 1,
-      "freqUnit": "500 t",
-      "freqKind": "per_quantity",
-      "freqQty": 500,
-      "freqMagUnit": "t",
-      "sources": 5,
-      "rawDesc": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8"
     },
     {
       "categoryCode": "TERRAPLEN_RELLENOS",
@@ -386,72 +342,6 @@
       "rawDesc": "Determinación de la dotación de ligante residual UNE EN 12697-3"
     },
     {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0320",
-      "muestreo": 1,
-      "freqUnit": "2.000 tn",
-      "freqKind": "per_quantity",
-      "freqQty": 2000,
-      "freqMagUnit": "t",
-      "sources": 4,
-      "rawDesc": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla"
-    },
-    {
-      "categoryCode": "SUELO_ESTABILIZADO",
-      "testId": "T-0182",
-      "muestreo": 1,
-      "freqUnit": "5.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 5000,
-      "freqMagUnit": "m3",
-      "sources": 4,
-      "rawDesc": "Límites de Atterberg UNE 103103, 103104"
-    },
-    {
-      "categoryCode": "SUELO_ESTABILIZADO",
-      "testId": "T-0144",
-      "muestreo": 1,
-      "freqUnit": "5.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 5000,
-      "freqMagUnit": "m3",
-      "sources": 4,
-      "rawDesc": "Proctor Modificado UNE 103501-94"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0320",
-      "muestreo": 1,
-      "freqUnit": "5.000 m2",
-      "freqKind": "per_quantity",
-      "freqQty": 5000,
-      "freqMagUnit": "m2",
-      "sources": 4,
-      "rawDesc": "Determinación de la dotación de ligante residual UNE EN 12697-3"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "C-0042",
-      "muestreo": 1,
-      "freqUnit": "500 t",
-      "freqKind": "per_quantity",
-      "freqQty": 500,
-      "freqMagUnit": "t",
-      "sources": 4,
-      "rawDesc": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfica"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0320",
-      "muestreo": 1,
-      "freqUnit": "10.000 t y tipo",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "t",
-      "sources": 4,
-      "rawDesc": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla"
-    },
-    {
       "categoryCode": "RIEGO_BITUMINOSO",
       "testId": "T-0385",
       "muestreo": 2,
@@ -461,28 +351,6 @@
       "freqMagUnit": null,
       "sources": 4,
       "rawDesc": "Indice de penetración (sin incluir ensayos) de betún asfáltico NLT-181"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0320",
-      "muestreo": 1,
-      "freqUnit": "3.000 t",
-      "freqKind": "per_quantity",
-      "freqQty": 3000,
-      "freqMagUnit": "t",
-      "sources": 4,
-      "rawDesc": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "C-0042",
-      "muestreo": 1,
-      "freqUnit": "Muestra",
-      "freqKind": "other",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 4,
-      "rawDesc": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfica"
     },
     {
       "categoryCode": "HORMIGON",
@@ -749,39 +617,6 @@
       "rawDesc": "Granulometría por tamizado del árido fino UNE-EN 933-1"
     },
     {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0526",
-      "muestreo": 1,
-      "freqUnit": "Por Tipo",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 2,
-      "rawDesc": "Determinación de la absorción de agua UNE-EN 1339, 13748-1, 13748-2"
-    },
-    {
-      "categoryCode": "SUELO_ESTABILIZADO",
-      "testId": "T-0133",
-      "muestreo": 1,
-      "freqUnit": "5.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 5000,
-      "freqMagUnit": "m3",
-      "sources": 2,
-      "rawDesc": "Análisis granulométrico por tamizado UNE 103101"
-    },
-    {
-      "categoryCode": "SUELO_ESTABILIZADO",
-      "testId": "T-0228",
-      "muestreo": 1,
-      "freqUnit": "5.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 5000,
-      "freqMagUnit": "m3",
-      "sources": 2,
-      "rawDesc": "Análisis granulométrico por tamizado UNE EN 933-1"
-    },
-    {
       "categoryCode": "ZAHORRA_ARTIFICIAL",
       "testId": "T-0144",
       "muestreo": 1,
@@ -827,17 +662,6 @@
     },
     {
       "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0320",
-      "muestreo": 1,
-      "freqUnit": "15.000 t",
-      "freqKind": "per_quantity",
-      "freqQty": 15000,
-      "freqMagUnit": "t",
-      "sources": 2,
-      "rawDesc": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
       "testId": "T-0326",
       "muestreo": 4,
       "freqUnit": "6.000 t [calibrado: plano→por tipo]",
@@ -871,39 +695,6 @@
     },
     {
       "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0133",
-      "muestreo": 1,
-      "freqUnit": "Por material",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 2,
-      "rawDesc": "Análisis granulométrico de pedraplén compactado UNE103101-95"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0173",
-      "muestreo": 5,
-      "freqUnit": "5.000 m2 y tongada",
-      "freqKind": "per_quantity",
-      "freqQty": 5000,
-      "freqMagUnit": "m2",
-      "sources": 2,
-      "rawDesc": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 10 puntos"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0174",
-      "muestreo": 1,
-      "freqUnit": "5.000 m2 y tongada",
-      "freqKind": "per_quantity",
-      "freqQty": 5000,
-      "freqMagUnit": "m2",
-      "sources": 2,
-      "rawDesc": "Ensayo de carga con placa doble ciclo NLT-357. Sin incluir elemento de reacción"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
       "testId": "T-0176",
       "muestreo": 1,
       "freqUnit": "Si procede",
@@ -912,17 +703,6 @@
       "freqMagUnit": null,
       "sources": 2,
       "rawDesc": "Ensayo de placa de carga dinámica UNE 103807-2:2008 correlacionado con el estático (no es necesario elemento de reacción) (mínimo facturable 5 por desplazamiento)"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0320",
-      "muestreo": 1,
-      "freqUnit": "10.000 m2",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m2",
-      "sources": 2,
-      "rawDesc": "Determinación de la dotación de ligante residual UNE EN 12697-3"
     },
     {
       "categoryCode": "ZAHORRA_ARTIFICIAL",
@@ -1002,28 +782,6 @@
       "rawDesc": "Desplazamiento de equipo para el cálculo del CRT en obra 2 meses después de la puesta en servicio No incluye señalización que será por cuenta del Contratista"
     },
     {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0064",
-      "muestreo": 3,
-      "freqUnit": "100 m3 [calibrado: plano→por tipo]",
-      "freqKind": "per_type",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 2,
-      "rawDesc": "Toma de muestra en artesa de 35x35 cm, curado en cámara húmeda, extracción de doce (12) testigos de 60 mm en artesa y ensayo a compresión a 4 edades (3,7, 28 y 90 días) según lo establecido en UNE EN 14488-1, UNE 83605 y"
-    },
-    {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0065",
-      "muestreo": 1,
-      "freqUnit": "Tipo de gunita",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 2,
-      "rawDesc": "Determinación de la capacidad de absorción de energía sobre una probeta plana de 600x600x100 mm reforzada con fibras según lo establecido en UNE EN 14488-5, incluyendo la determinación de la respuesta carga - flecha y el"
-    },
-    {
       "categoryCode": "ACERO",
       "testId": "C-0090",
       "muestreo": 4,
@@ -1068,17 +826,6 @@
       "rawDesc": "Ensayos ópticos sobre la señal, incluyendo la medición de coordenadas cromáticas, factor de luminancia y coeficiente de retroreflexión UNE 135334 (hasta un máximo de 10 señales)"
     },
     {
-      "categoryCode": "SUELO_ESTABILIZADO",
-      "testId": "T-0182",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 2,
-      "rawDesc": "Límites de Atterberg UNE 103103, 103104"
-    },
-    {
       "categoryCode": "HORMIGON",
       "testId": "T-0071",
       "muestreo": 1,
@@ -1090,17 +837,6 @@
       "rawDesc": "Determinación de la profundidad al agua bajo presión del hormigón para un ambiente IIIc (3 probetas) UNE EN 12390-8"
     },
     {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0056",
-      "muestreo": 3,
-      "freqUnit": "500 m2",
-      "freqKind": "per_quantity",
-      "freqQty": 500,
-      "freqMagUnit": "m2",
-      "sources": 1,
-      "rawDesc": "Determinación de la consistencia del hormigón fresco (Cono de Abrams) UNE EN 12350-2 Toma de muestra de hormigón fresco y fabricación de 5 probetas cilíndricas de 15x30 cm UNE EN 12390-2 Curado en cámara húmeda y refrend"
-    },
-    {
       "categoryCode": "ACERO",
       "testId": "T-0111",
       "muestreo": 5,
@@ -1110,83 +846,6 @@
       "freqMagUnit": null,
       "sources": 1,
       "rawDesc": "Determinación de características geométricas UNE EN 15630-1 y UNE EN 10080 Determinación de las características mecánicas en el ensayo de tracción UNE EN ISO 15630-1 Aptitud al doblado-desdoblado UNE EN ISO 15630-1"
-    },
-    {
-      "categoryCode": "ACERO",
-      "testId": "T-0724",
-      "muestreo": 1,
-      "freqUnit": "1",
-      "freqKind": "other",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Prueba de estanqueidad \"in situ\" de cubiertas no inundables, según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión de informe."
-    },
-    {
-      "categoryCode": "ACERO",
-      "testId": "T-0095",
-      "muestreo": 3,
-      "freqUnit": "100 m2 [calibrado: plano→por tipo]",
-      "freqKind": "per_type",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Toma de muestras, fabricación, conservación y rotura a flexotracción y a compresión de 3 probetas prismáticas UNE-EN 1015-11"
-    },
-    {
-      "categoryCode": "ACERO",
-      "testId": "T-0509",
-      "muestreo": 1,
-      "freqUnit": "Visita",
-      "freqKind": "fixed",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Visita para determinación \"in situ\" de la resistencia al deslizamiento con péndulo TRRL sobre pavimento acabado y en condiciones de uso, incluida la redacción de informe UNE-ENV 12633, UNE 41901, UNE 41902"
-    },
-    {
-      "categoryCode": "ACERO",
-      "testId": "C-0034",
-      "muestreo": 1,
-      "freqUnit": "Informe",
-      "freqKind": "other",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Informe sobre cumplimiento de la envolvente que nos permitirá detectar anomalías y problemas ocultos (filtraciones de aire, deficiencias de sellado, humedades, etc.) en el edificio, reaizando las siguientes pruebas: - Pr"
-    },
-    {
-      "categoryCode": "ACERO",
-      "testId": "T-0725",
-      "muestreo": 1,
-      "freqUnit": "Por fachada",
-      "freqKind": "per_element",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Prueba de estanqueidad \"in situ\" del conjunto fachada-carpintería mediante batería de rociadores según procedimiento ALAGAL 1-ECC-01. Incluido reportaje fotográfico y emisión de informe."
-    },
-    {
-      "categoryCode": "ACERO",
-      "testId": "C-0035",
-      "muestreo": 1,
-      "freqUnit": "Informe",
-      "freqKind": "other",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Informe de mediciones de la concentración de radón a edificio terminado, mediante la instalación y deinstalación de 15 detectores de trazas, un período de exposicón de tres meses"
-    },
-    {
-      "categoryCode": "ACERO",
-      "testId": "C-0036",
-      "muestreo": 1,
-      "freqUnit": "Informe",
-      "freqKind": "other",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Informe de mediciones de parámetros acústicos según DB HR: - Aislamiento a ruido aéreo de elementos de separación entre estancias - Aislamiento a ruido aéreo de elementos de fachada - Aislamiento a ruido de impacto de su"
     },
     {
       "categoryCode": "SERVICIO",
@@ -1256,17 +915,6 @@
     },
     {
       "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "T-0174",
-      "muestreo": 1,
-      "freqUnit": "5000 m2",
-      "freqKind": "per_quantity",
-      "freqQty": 5000,
-      "freqMagUnit": "m2",
-      "sources": 1,
-      "rawDesc": "Carga con placa estática de 30 cm, NLT 357/ UNE 103808"
-    },
-    {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
       "testId": "T-0173",
       "muestreo": 7,
       "freqUnit": "5000 m2",
@@ -1275,39 +923,6 @@
       "freqMagUnit": "m2",
       "sources": 1,
       "rawDesc": "Densidad y humedad “in situ” por isótopos radiactivos UNE 103900"
-    },
-    {
-      "categoryCode": "RIEGO_BITUMINOSO",
-      "testId": "T-0332",
-      "muestreo": 3,
-      "freqUnit": "3.500 m2, calzada y mezcla (SIN RODADURA)",
-      "freqKind": "per_quantity",
-      "freqQty": 3500,
-      "freqMagUnit": "m2",
-      "sources": 1,
-      "rawDesc": "Extracción de testigo en mezcla bituminosa en caliente: espesor y densidad UNE EN 12697-27, -30,-6)"
-    },
-    {
-      "categoryCode": "RIEGO_BITUMINOSO",
-      "testId": "T-0333",
-      "muestreo": 3,
-      "freqUnit": "3.500 m2, calzada y mezcla (SIN RODADURA)",
-      "freqKind": "per_quantity",
-      "freqQty": 3500,
-      "freqMagUnit": "m2",
-      "sources": 1,
-      "rawDesc": "Extracción de testigo en mezcla bituminosa en caliente y determinación de la adherencia a cortante entre capas UNE EN 12697-27 y NLT-381"
-    },
-    {
-      "categoryCode": "RIEGO_BITUMINOSO",
-      "testId": "T-0327",
-      "muestreo": 3,
-      "freqUnit": "3.500 m2, CAPA RODADURA",
-      "freqKind": "per_quantity",
-      "freqQty": 3500,
-      "freqMagUnit": "m2",
-      "sources": 1,
-      "rawDesc": "Macrotextura superficial UNE EN 13036-1 Mínimo facturable por desplazamiento 9 ensayos"
     },
     {
       "categoryCode": "HORMIGON",
@@ -1321,105 +936,6 @@
       "rawDesc": "Contenido de aire ocluido UNE EN 12350-7"
     },
     {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0404",
-      "muestreo": 3,
-      "freqUnit": "1.000 m2 [calibrado: plano→por tipo]",
-      "freqKind": "per_type",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Visita de inspección de media jornada para la determinación \"in situ\" de las características superficiales del pavimento: resbaladicidad mediante péndulo TRRL y macrotextura mediante círculo de arena UNE EN 13036-1 y 412"
-    },
-    {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0527",
-      "muestreo": 1,
-      "freqUnit": "Por Tipo",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Determinación de la resistencia al desgaste, por rozamiento UNE-EN 1339, 13748-1, 13748-2"
-    },
-    {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0528",
-      "muestreo": 1,
-      "freqUnit": "Por Tipo",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Determinación de la resistencia a flexión UNE-EN 1339, 13748-1, 13748-2"
-    },
-    {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0532",
-      "muestreo": 1,
-      "freqUnit": "Por Tipo",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Determinación de la Resistencia al deslizamiento/resbalamiento en laboratorio UNE-EN 1339, 13748-1, 13748-2"
-    },
-    {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0533",
-      "muestreo": 1,
-      "freqUnit": "Por Tipo",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Dimensiones y tolerancias UNE-EN 1340"
-    },
-    {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0534",
-      "muestreo": 1,
-      "freqUnit": "Por Tipo",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Resistencia a la flexión de bordillos UNE-EN 1340"
-    },
-    {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0535",
-      "muestreo": 1,
-      "freqUnit": "Por Tipo",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Determinación de la resistencia al desgaste, por rozamiento UNE-EN 1340"
-    },
-    {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0536",
-      "muestreo": 1,
-      "freqUnit": "Por Tipo",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Determinación del coeficiente de absorción de agua UNE-EN 1340"
-    },
-    {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0538",
-      "muestreo": 1,
-      "freqUnit": "Por Tipo",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Determinación de la Resistencia al deslizamiento/resbalamiento en laboratorio UNE-EN 1340"
-    },
-    {
       "categoryCode": "MARCAS_VIALES",
       "testId": "T-0406",
       "muestreo": 1,
@@ -1429,17 +945,6 @@
       "freqMagUnit": "ml",
       "sources": 1,
       "rawDesc": "Determinación individual del peso de pintura y del peso microesferas aplicadas x m2 UNE 135274-94"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0144",
-      "muestreo": 1,
-      "freqUnit": "Por material",
-      "freqKind": "per_type",
-      "freqQty": 1,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Granulometría de pedraplén compactado UNE 103501"
     },
     {
       "categoryCode": "TERRAPLEN_RELLENOS",
@@ -1475,28 +980,6 @@
       "rawDesc": "Humedad de un suelo mediante secado en estufa"
     },
     {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "C-0057",
-      "muestreo": 1,
-      "freqUnit": "Día",
-      "freqKind": "fixed",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Ud. Determinación del espesor de zahorra mediante la inspección de calicatas manuales"
-    },
-    {
-      "categoryCode": "HORMIGON",
-      "testId": "T-0071",
-      "muestreo": 1,
-      "freqUnit": "Si procede",
-      "freqKind": "other",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Determinación de la profundidad de penetración del agua bajo presión sobre 3 probetas cilíndricas de 15x30 cm a la edad de 28 días UNE EN 12390-8"
-    },
-    {
       "categoryCode": "MARCAS_VIALES",
       "testId": "C-0064",
       "muestreo": 3,
@@ -1506,127 +989,6 @@
       "freqMagUnit": null,
       "sources": 1,
       "rawDesc": "Dotación individual de microesferas y pintura en marcas viales sobre 15 pares de bandejas taradas"
-    },
-    {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "T-0189",
-      "muestreo": 1,
-      "freqUnit": "2.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 2000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Humedad natural UNE 103300:93"
-    },
-    {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "T-0186",
-      "muestreo": 1,
-      "freqUnit": "2.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 2000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Granulometría por tamizado, UNE-EN 933-1:98"
-    },
-    {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "T-0179",
-      "muestreo": 1,
-      "freqUnit": "2.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 2000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Evaluación finos. Ensayo equivalente de arena UNE-EN 933-8:00"
-    },
-    {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "T-0182",
-      "muestreo": 1,
-      "freqUnit": "2.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 2000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Límites de Atterberg, UNE 103103:94, 103104:93"
-    },
-    {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "T-0144",
-      "muestreo": 1,
-      "freqUnit": "2.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 2000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Próctor Modificado, UNE 103501:94"
-    },
-    {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "T-0392",
-      "muestreo": 1,
-      "freqUnit": "2.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 2000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Limpieza superficial. Contenido de impurezas NLT-172:86"
-    },
-    {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "T-0292",
-      "muestreo": 1,
-      "freqUnit": "2.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 2000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Caras de fractura UNE EN 933-5"
-    },
-    {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "T-0034",
-      "muestreo": 1,
-      "freqUnit": "2.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 2000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Desgaste de Los Ángeles EN 1097-2"
-    },
-    {
-      "categoryCode": "ZAHORRA_ARTIFICIAL",
-      "testId": "T-0290",
-      "muestreo": 1,
-      "freqUnit": "2.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 2000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Índice de Lajas del árido grueso UNE-EN 933-3:97"
-    },
-    {
-      "categoryCode": "MEZCLA_BITUMINOSA",
-      "testId": "T-0326",
-      "muestreo": 4,
-      "freqUnit": "2.000 t [calibrado: plano→por tipo]",
-      "freqKind": "per_type",
-      "freqQty": null,
-      "freqMagUnit": null,
-      "sources": 1,
-      "rawDesc": "Determinación de escurrimiento de ligante UNE EN 12697-18"
-    },
-    {
-      "categoryCode": "ACERO",
-      "testId": "T-0109",
-      "muestreo": 3,
-      "freqUnit": "30 t",
-      "freqKind": "per_quantity",
-      "freqQty": 30,
-      "freqMagUnit": "t",
-      "sources": 1,
-      "rawDesc": "Determinación de características geométricas y mecánicas de acero corrugado (doblado-desdoblado y tracción) UNE EN ISO 15630-1, ISO 6892 y UNE EN 10080"
     },
     {
       "categoryCode": "ACERO",
@@ -1707,105 +1069,6 @@
     },
     {
       "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0133",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Granulometría de suelos por tamizado UNE 103101:95"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0182",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Límites de Atterberg UNE 103103:94 y 103014:93"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0144",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Proctor Modificado UNE 103501:94"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0145",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Índice CBR en laboratorio, sin incluir Proctor (tres puntos) UNE 103502:95"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0147",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Ensayo de hinchamiento libre en edómetro UNE 103601:96"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0148",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Ensayo de colapso en suelos NLT 254"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0135",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Contenido de materia orgánica en suelos UNE 103204:93"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0138",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Contenido de sales solubles en suelos NLT 114-99"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0139",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Contenido de yesos en suelos NLT 115-99"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
       "testId": "T-0425",
       "muestreo": 1,
       "freqUnit": "Por material",
@@ -1814,94 +1077,6 @@
       "freqMagUnit": null,
       "sources": 1,
       "rawDesc": "Estabilidad de los áridos y fragmentos de roca frente a la acción de los ciclos de humedad-sequedad NLT-260"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0173",
-      "muestreo": 5,
-      "freqUnit": "10.000 m2 y tongada",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m2",
-      "sources": 1,
-      "rawDesc": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 10 puntos"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0174",
-      "muestreo": 1,
-      "freqUnit": "10.000 m2 y tongada",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m2",
-      "sources": 1,
-      "rawDesc": "Ensayo de carga con placa doble ciclo NLT-357. Sin incluir elemento de reacción"
-    },
-    {
-      "categoryCode": "TERRAPLEN_RELLENOS",
-      "testId": "T-0176",
-      "muestreo": 1,
-      "freqUnit": "10.000 m2 y tongada",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m2",
-      "sources": 1,
-      "rawDesc": "Ensayo de placa de carga dinámica UNE 103807-2:2008 correlacionado con el estático (no es necesario elemento de reacción) (mínimo facturable 5 por desplazamiento)"
-    },
-    {
-      "categoryCode": "SUELO_ESTABILIZADO",
-      "testId": "T-0133",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Análisis granulométrico por tamizado UNE 103101"
-    },
-    {
-      "categoryCode": "SUELO_ESTABILIZADO",
-      "testId": "T-0144",
-      "muestreo": 1,
-      "freqUnit": "20.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 20000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Proctor Modificado UNE 103501-94"
-    },
-    {
-      "categoryCode": "SUELO_ESTABILIZADO",
-      "testId": "T-0228",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Análisis granulométrico por tamizado UNE EN 933-1"
-    },
-    {
-      "categoryCode": "SUELO_ESTABILIZADO",
-      "testId": "T-0144",
-      "muestreo": 1,
-      "freqUnit": "10.000 m3",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m3",
-      "sources": 1,
-      "rawDesc": "Proctor Modificado UNE 103501-94"
-    },
-    {
-      "categoryCode": "RIEGO_BITUMINOSO",
-      "testId": "T-0320",
-      "muestreo": 1,
-      "freqUnit": "10.000 m2",
-      "freqKind": "per_quantity",
-      "freqQty": 10000,
-      "freqMagUnit": "m2",
-      "sources": 1,
-      "rawDesc": "Determinación de la dotación de ligante residual UNE EN 12697-3"
     },
     {
       "categoryCode": "BULON",
@@ -2001,6 +1176,86 @@
       "freqMagUnit": "m2",
       "sources": 1,
       "rawDesc": "Determinación del espesor del panel de las chapas y del aislante, densidad del aislante y espesor de recubrimiento"
+    },
+    {
+      "categoryCode": "MEZCLA_BITUMINOSA",
+      "testId": "T-0376",
+      "freqKind": "per_quantity",
+      "freqQty": 300,
+      "freqMagUnit": "t",
+      "sources": 3
+    },
+    {
+      "categoryCode": "MEZCLA_BITUMINOSA",
+      "testId": "C-0058",
+      "freqKind": "per_type",
+      "sources": 3
+    },
+    {
+      "categoryCode": "MEZCLA_BITUMINOSA",
+      "testId": "T-0034",
+      "freqKind": "per_type",
+      "sources": 2
+    },
+    {
+      "categoryCode": "MEZCLA_BITUMINOSA",
+      "testId": "T-0351",
+      "freqKind": "per_type",
+      "sources": 2
+    },
+    {
+      "categoryCode": "MEZCLA_BITUMINOSA",
+      "testId": "T-0349",
+      "freqKind": "per_type",
+      "sources": 2
+    },
+    {
+      "categoryCode": "MEZCLA_BITUMINOSA",
+      "testId": "T-0350",
+      "freqKind": "per_type",
+      "sources": 2
+    },
+    {
+      "categoryCode": "MEZCLA_BITUMINOSA",
+      "testId": "T-0355",
+      "freqKind": "per_type",
+      "sources": 2
+    },
+    {
+      "categoryCode": "MARCAS_VIALES",
+      "testId": "T-0407",
+      "freqKind": "per_type",
+      "sources": 4
+    },
+    {
+      "categoryCode": "MARCAS_VIALES",
+      "testId": "C-0065",
+      "freqKind": "per_quantity",
+      "freqQty": 1,
+      "freqMagUnit": "km",
+      "sources": 3
+    },
+    {
+      "categoryCode": "MARCAS_VIALES",
+      "testId": "C-0066",
+      "freqKind": "per_quantity",
+      "freqQty": 1,
+      "freqMagUnit": "km",
+      "sources": 3
+    },
+    {
+      "categoryCode": "HORMIGON",
+      "testId": "T-0053",
+      "freqKind": "per_quantity",
+      "freqQty": 100,
+      "freqMagUnit": "m3",
+      "sources": 4
+    },
+    {
+      "categoryCode": "HORMIGON",
+      "testId": "T-0109",
+      "freqKind": "per_type",
+      "sources": 3
     }
   ]
 }

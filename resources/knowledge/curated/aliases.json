@@ -1564,6 +1564,21 @@
       "alias": "Ensayo estático de empuje horizontal en barandilla In Situ (sin incluir elemento de reacción), CTE / basada en UNE 85238:1991\nMínimo facturable por desplazamiento 2 ensayos",
       "testId": "T-0744",
       "source": "E9"
+    },
+    {
+      "alias": "dotacion media ligante residual bandejas secado pesaje",
+      "testId": "T-0376",
+      "confidence": 0.95
+    },
+    {
+      "alias": "dotacion media ligante riego",
+      "testId": "T-0376",
+      "confidence": 0.9
+    },
+    {
+      "alias": "muestreo bandejas dotacion riego",
+      "testId": "T-0376",
+      "confidence": 0.9
     }
   ]
 }
