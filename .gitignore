@@ -21,3 +21,14 @@ resources/knowledge/backups/
 # BBDD curada (derivada, reconstruible con kb:build)
 resources/knowledge/kb.sqlite
 resources/knowledge/kb.sqlite-*
+
+# Archivos de test / artefactos de desarrollo en raíz
+placa_baked_test.xlsx
+
+# Scripts de debug/inspección de desarrollo (no son código de producción)
+# Se mantiene solo buildPresupuestoTemplate.js (referenciado en package.json)
+scripts/
+!scripts/buildPresupuestoTemplate.js
+
+# Templates de informe generados (los fuente .xls se versionan; los .xlsx son derivados)
+resources/templates/Informe placa *.xlsx

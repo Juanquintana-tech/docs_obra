@@ -3,12 +3,9 @@
  * Todos los payloads son objetos planos serializables.
  */
 import { ipcMain, dialog, BrowserWindow, shell, app } from 'electron'
-import { writeFile, readFile, copyFile, mkdir, rm } from 'fs/promises'
+import { writeFile, readFile, copyFile, mkdir, rm, readdir } from 'fs/promises'
 import { basename, dirname, join, extname } from 'path'
-import { execFile } from 'child_process'
-import { promisify } from 'util'
-
-const execFileAsync = promisify(execFile)
+import PizZip from 'pizzip'
 import * as db from './db'
 import type { PlanRow, ObraInput, EnsayoInput, PlanRowPatch, NewPlanRowData, PlanEdits } from './db'
 import { writableKnowledgePath } from './paths'
@@ -254,20 +251,20 @@ export function registerIpc(): void {
       tempExtractDir = join(app.getPath('userData'), 'radon-fotos', String(ts), 'extracted')
       await mkdir(tempExtractDir, { recursive: true })
       try {
-        await execFileAsync('unzip', ['-o', pickedPath, '-d', tempExtractDir])
+        const zipData = await readFile(pickedPath)
+        const zip = new PizZip(zipData)
+        for (const [relPath, entry] of Object.entries(zip.files)) {
+          if (entry.dir) continue
+          const outPath = join(tempExtractDir, relPath)
+          await mkdir(dirname(outPath), { recursive: true })
+          await writeFile(outPath, Buffer.from(entry.asUint8Array()))
+        }
       } catch (e) {
         await rm(tempExtractDir, { recursive: true, force: true })
         throw new Error(`No se pudo extraer el ZIP: ${String(e)}`)
       }
       // Buscar radon_data.json en el directorio extraído (puede estar en subdirectorio)
-      const { stdout } = await execFileAsync('find', [
-        tempExtractDir,
-        '-name',
-        'radon_data.json',
-        '-maxdepth',
-        '3'
-      ])
-      const found = stdout.trim().split('\n').filter(Boolean)[0]
+      const found = await findFileRecursive(tempExtractDir, 'radon_data.json', 3)
       if (!found) {
         await rm(tempExtractDir, { recursive: true, force: true })
         throw new Error('No se encontró radon_data.json dentro del ZIP.')
@@ -372,4 +369,22 @@ export function registerIpc(): void {
     const { invalidateRulesCache } = await import('./services/pipeline')
     invalidateRulesCache()
   })
+}
+
+async function findFileRecursive(
+  dir: string,
+  name: string,
+  maxDepth: number
+): Promise<string | null> {
+  if (maxDepth < 0) return null
+  const entries = await readdir(dir, { withFileTypes: true })
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name)
+    if (entry.isFile() && entry.name === name) return fullPath
+    if (entry.isDirectory()) {
+      const found = await findFileRecursive(fullPath, name, maxDepth - 1)
+      if (found) return found
+    }
+  }
+  return null
 }
