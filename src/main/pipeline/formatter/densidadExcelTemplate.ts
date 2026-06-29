@@ -156,6 +156,12 @@ export function fillDensidadTemplate(
   wbXml = wbXml.replace(/<workbookView /, '<workbookView activeTab="1" ')
   zip.file('xl/workbook.xml', wbXml)
 
+  // ── Limpiar caché de gráficas ────────────────────────────────────────────────
+  // Los chart*.xml llevan <c:numCache> con datos hardcodeados de la plantilla vacía.
+  // Excel los muestra en lugar de releer las celdas, de modo que la gráfica aparece
+  // vacía o incorrecta. Al borrar el bloque numCache Excel lo reconstruye al abrir.
+  clearChartCache(zip)
+
   // ── Quitar las macros VBA huérfanas ──────────────────────────────────────────
   // La plantilla es la versión vaciada de un .xls con macros (AdjustGraf, Espec,
   // Pred, VerInf, SaveAs) cuyo código VBA ya NO está en el fichero. Sus llamadas
@@ -177,6 +183,21 @@ export function fillDensidadTemplate(
   bakeFormulas(zip)
 
   return zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' })
+}
+
+/** Borra los bloques <c:numCache> de todos los chart*.xml para que Excel recalcule
+ *  la gráfica desde las referencias de celda al abrir el fichero. */
+function clearChartCache(zip: PizZip): void {
+  const chartDir = 'xl/charts/'
+  Object.keys(zip.files)
+    .filter(name => name.startsWith(chartDir) && name.endsWith('.xml') && !name.includes('_rels'))
+    .forEach(name => {
+      const f = zip.file(name)
+      if (!f) return
+      // Elimina cada bloque <c:numCache>…</c:numCache> completo
+      const cleaned = f.asText().replace(/<c:numCache>[\s\S]*?<\/c:numCache>/g, '')
+      zip.file(name, cleaned)
+    })
 }
 
 /** Anula las llamadas a macros VBA inexistentes en hoja de datos y marcos de gráfica.
