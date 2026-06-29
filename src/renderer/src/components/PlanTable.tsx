@@ -1,4 +1,4 @@
-import { useState, useMemo, type JSX } from 'react'
+import { useState, useMemo, useEffect, useRef, type JSX } from 'react'
 import { eur, num, IVA_RATE } from '../lib/format'
 import { Ic } from './Icon'
 import type { PlanRow } from '../lib/types'
@@ -16,9 +16,12 @@ export interface PlanTableRow {
   total?: number | null
   price_source?: string
   rag_score?: number
+  rag_desc?: string
   price_min?: number | null
   price_max?: number | null
   price_n?: number | null
+  /** motor BBDD: línea a revisar (resaltado) */
+  needs_review?: number | boolean
 }
 
 // ── Tipos para el modo edición ────────────────────────────────────────────────
@@ -90,6 +93,13 @@ function Confidence({
       </span>
     )
   }
+  if (source === 'tarifa_cye') {
+    return (
+      <span className="badge badge-pricebook" title={`Precio de tarifa CYE · confianza ${((score ?? 0) * 100).toFixed(0)}%`}>
+        ● Tarifa CYE {score != null ? `${(score * 100).toFixed(0)}%` : ''}
+      </span>
+    )
+  }
   if (source === 'alagal') {
     return (
       <span
@@ -120,6 +130,7 @@ interface EditableProps {
   onChange: (rows: EditableRow[]) => void
   onDelete?: (id: number) => void
   onAdd?: (sectionStartIdx: number) => void
+  onAddCategory?: () => void
 }
 
 /** Tabla de solo lectura (modo normal). */
@@ -128,7 +139,7 @@ export function PlanTable({ rows, ivaRate }: Props): JSX.Element {
 }
 
 /** Tabla editable (modo edición en Detalle). */
-export function EditablePlanTable({ rows, ivaRate, onChange, onDelete, onAdd }: EditableProps): JSX.Element {
+export function EditablePlanTable({ rows, ivaRate, onChange, onDelete, onAdd, onAddCategory }: EditableProps): JSX.Element {
   return (
     <PlanTableInner
       rows={rows}
@@ -136,6 +147,7 @@ export function EditablePlanTable({ rows, ivaRate, onChange, onDelete, onAdd }: 
       onChangeEditable={onChange}
       onDelete={onDelete}
       onAdd={onAdd}
+      onAddCategory={onAddCategory}
       ivaRate={ivaRate}
     />
   )
@@ -149,6 +161,7 @@ function PlanTableInner({
   onChangeEditable,
   onDelete,
   onAdd,
+  onAddCategory,
   ivaRate = IVA_RATE
 }: {
   rows: PlanTableRow[]
@@ -156,10 +169,28 @@ function PlanTableInner({
   onChangeEditable: (rows: EditableRow[]) => void
   onDelete?: (id: number) => void
   onAdd?: (sectionStartIdx: number) => void
+  onAddCategory?: () => void
   ivaRate?: number
 }): JSX.Element {
   // Estado de edición: map de id → campos editados
   const [edits, setEdits] = useState<Record<number, EditState>>({})
+  const [openRow, setOpenRow] = useState<number | null>(null) // fila con "¿Por qué?" desplegado (lectura)
+
+  // Auto-scroll a filas recién añadidas
+  const rowRefs = useRef<Map<number, HTMLTableRowElement | null>>(new Map())
+  const prevRowIds = useRef<Set<number>>(new Set())
+  useEffect(() => {
+    if (!editable) return
+    const currentIds = new Set((rows as EditableRow[]).map((r) => r.id))
+    let newId: number | null = null
+    for (const id of currentIds) {
+      if (!prevRowIds.current.has(id)) { newId = id; break }
+    }
+    prevRowIds.current = currentIds
+    if (newId !== null) {
+      rowRefs.current.get(newId)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [rows, editable])
 
   // Mapa inicial derivado de las filas: se recalcula solo cuando cambian rows o editable.
   const baseEdits = useMemo<Record<number, EditState>>(() => {
@@ -183,6 +214,15 @@ function PlanTableInner({
   // edits tiene prioridad sobre baseEdits; si edits está vacío usamos baseEdits.
   const activeEdits: Record<number, EditState> =
     Object.keys(edits).length === 0 ? baseEdits : edits
+
+  // Validación: bloquea añadir más filas si hay nuevas sin nombre/descripción.
+  const hasUnnamedSection = editable && (rows as EditableRow[]).some(
+    (r) => r.id < 0 && (r.material.trim() === '' || r.material.trim() === 'NUEVA CATEGORÍA')
+  )
+  const hasUnnamedTest = editable && (rows as EditableRow[]).some(
+    (r) => r.id < 0 && (activeEdits[r.id]?.description ?? r.description ?? '').trim() === ''
+  )
+  const canAddMore = !hasUnnamedSection && !hasUnnamedTest
 
   function setField(id: number, field: keyof Omit<EditState, 'total'>, val: string): void {
     // Tomar el estado actual (editado o base) para la fila
@@ -253,16 +293,45 @@ function PlanTableInner({
     if (r.material !== currentMat) {
       currentMat = r.material ?? null
       const mat = r.material ?? ''
+      const isNewSection = editable && (r as EditableRow).id < 0
+      const needsName = isNewSection && (mat.trim() === '' || mat.trim().toUpperCase() === 'NUEVA CATEGORÍA')
       const label = mat.toUpperCase() + (r.measurement ? `  —  ${num(r.measurement)} ${r.measurement_unit ?? ''}` : '')
       if (editable && onAdd) {
         trs.push(
           <tr className="section" key={`s-${i}`}>
-            <td colSpan={8} style={{ userSelect: 'none' }}>{label}</td>
+            <td colSpan={8} style={{ userSelect: isNewSection ? 'auto' : 'none', padding: isNewSection ? '2px 8px' : undefined }}>
+              {isNewSection ? (
+                <input
+                  className="plan-input plan-input-desc"
+                  value={mat}
+                  placeholder="Nombre de la categoría (obligatorio)"
+                  title="Nombre de la categoría"
+                  style={{
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    width: '100%',
+                    background: 'transparent',
+                    border: needsName ? '1.5px solid var(--danger, #e53e3e)' : '1.5px solid transparent',
+                    color: 'inherit',
+                    fontSize: 'inherit'
+                  }}
+                  onChange={(ev) => {
+                    const newMat = ev.target.value
+                    const updated = (rows as EditableRow[]).map((row) =>
+                      row.material === mat ? { ...row, material: newMat } : row
+                    )
+                    onChangeEditable(updated)
+                  }}
+                />
+              ) : label}
+            </td>
             <td style={{ padding: '0 4px', textAlign: 'center' }}>
               <button
                 className="btn-add-row"
-                title={`A\u00f1adir l\u00ednea en "${mat}"`}
-                onClick={() => onAdd(i)}
+                title={canAddMore ? `Añadir línea en "${mat}"` : 'Completa los campos vacíos antes de añadir'}
+                disabled={!canAddMore}
+                style={!canAddMore ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+                onClick={() => canAddMore && onAdd(i)}
               >
                 +
               </button>
@@ -279,9 +348,18 @@ function PlanTableInner({
     }
 
     if (!editable) {
+      const rr = r as PlanTableRow
+      const review = !!rr.needs_review
+      const hasWhy = !!rr.rag_desc
+      const isOpen = openRow === i
       trs.push(
-        <tr key={`r-${i}`}>
-          <td>{r.description}</td>
+        <tr
+          key={`r-${i}`}
+          onClick={hasWhy ? () => setOpenRow(isOpen ? null : i) : undefined}
+          className={review ? 'row-review' : undefined}
+          style={{ cursor: hasWhy ? 'pointer' : undefined, background: review ? 'var(--warn-bg, #fff8e6)' : undefined }}
+        >
+          <td>{hasWhy ? (isOpen ? '▾ ' : '▸ ') : ''}{review && '⚠ '}{r.description}</td>
           <td className="num">{num(r.measurement)} {r.measurement_unit}</td>
           <td className="num">{num(r.n_lots)}</td>
           <td className="num">{num(r.n_tests)}</td>
@@ -298,20 +376,76 @@ function PlanTableInner({
           </td>
         </tr>
       )
+      if (hasWhy && isOpen) {
+        const hasRange = rr.price_min != null && rr.price_max != null && rr.price_min !== rr.price_max
+        trs.push(
+          <tr key={`why-${i}`}>
+            <td colSpan={7} style={{ padding: 0, background: '#eef3fb', borderLeft: '3px solid #4a7fd4' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                <tbody>
+                  {rr.rag_desc && (
+                    <tr>
+                      <td style={{ padding: '7px 14px', fontWeight: 600, whiteSpace: 'nowrap', width: 160, color: 'var(--text-soft)' }}>¿Por qué este ensayo?</td>
+                      <td style={{ padding: '7px 14px', lineHeight: 1.5, textAlign: 'left' }}>{rr.rag_desc}</td>
+                    </tr>
+                  )}
+                  {rr.rag_score != null && (
+                    <tr style={{ borderTop: '1px solid var(--border, #dde3ea)' }}>
+                      <td style={{ padding: '7px 14px', fontWeight: 600, whiteSpace: 'nowrap', color: 'var(--text-soft)' }}>Confianza</td>
+                      <td style={{ padding: '7px 14px', textAlign: 'left' }}>{Math.round(rr.rag_score * 100)}%</td>
+                    </tr>
+                  )}
+                  {rr.price_source && (
+                    <tr style={{ borderTop: '1px solid var(--border, #dde3ea)' }}>
+                      <td style={{ padding: '7px 14px', fontWeight: 600, whiteSpace: 'nowrap', color: 'var(--text-soft)' }}>Origen del precio</td>
+                      <td style={{ padding: '7px 14px', textAlign: 'left' }}>
+                        <Confidence source={rr.price_source} score={rr.rag_score} min={rr.price_min} max={rr.price_max} n={rr.price_n} />
+                      </td>
+                    </tr>
+                  )}
+                  {hasRange && (
+                    <tr style={{ borderTop: '1px solid var(--border, #dde3ea)' }}>
+                      <td style={{ padding: '7px 14px', fontWeight: 600, whiteSpace: 'nowrap', color: 'var(--text-soft)' }}>Rango histórico</td>
+                      <td style={{ padding: '7px 14px', textAlign: 'left' }}>
+                        {eur(rr.price_min)} – {eur(rr.price_max)}
+                        {rr.price_n != null && <span className="muted"> ({rr.price_n} presupuesto{rr.price_n !== 1 ? 's' : ''})</span>}
+                      </td>
+                    </tr>
+                  )}
+                  {review && (
+                    <tr style={{ borderTop: '1px solid var(--border, #dde3ea)' }}>
+                      <td style={{ padding: '7px 14px', fontWeight: 600, whiteSpace: 'nowrap', color: 'var(--warn, #b8860b)' }}>⚠ Estado</td>
+                      <td style={{ padding: '7px 14px', textAlign: 'left', color: 'var(--warn, #b8860b)' }}>Requiere revisión manual</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        )
+      }
     } else {
       const er = (r as EditableRow)
       if (er.row_type !== 'test') return
       const e = activeEdits[er.id] ?? baseEdits[er.id]
       const totalOk = e.total >= 0
+      const isNewRow = er.id < 0
+      const descEmpty = isNewRow && (e?.description ?? '').trim() === ''
 
       trs.push(
-        <tr key={`r-${i}`} className={totalOk ? '' : 'row-warn'}>
+        <tr
+          key={`r-${i}`}
+          className={totalOk ? '' : 'row-warn'}
+          ref={(el) => { if (el) rowRefs.current.set(er.id, el); else rowRefs.current.delete(er.id) }}
+        >
           <td>
             <input
               className="plan-input plan-input-desc"
               value={e.description}
+              placeholder={isNewRow ? 'Descripción del ensayo (obligatorio)' : undefined}
               onChange={(ev) => setField(er.id, 'description', ev.target.value)}
               title="Descripción"
+              style={descEmpty ? { border: '1.5px solid var(--danger, #e53e3e)' } : undefined}
             />
           </td>
           <td>
@@ -388,9 +522,22 @@ function PlanTableInner({
           <span style={{ fontSize: 12, color: 'var(--text-soft)' }}>
             Edita los campos y pulsa <b>Recalcular</b> para actualizar los totales (N lotes × ens./lote = Nº uds.).
           </span>
-          <button className="btn btn-primary" style={{ marginLeft: 'auto' }} onClick={() => { recalcAll() }}>
-            <Ic.Refresh /> Recalcular
-          </button>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+            {onAddCategory && (
+              <button
+                className="btn btn-secondary"
+                title={canAddMore ? 'Añadir nueva categoría' : 'Completa los campos vacíos antes de añadir'}
+                disabled={!canAddMore}
+                style={!canAddMore ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+                onClick={() => canAddMore && onAddCategory()}
+              >
+                + Nueva categoría
+              </button>
+            )}
+            <button className="btn btn-primary" onClick={() => { recalcAll() }}>
+              <Ic.Refresh /> Recalcular
+            </button>
+          </div>
         </div>
       )}
       <table className="plan-table">

@@ -3,7 +3,7 @@ import { join } from 'path'
 import Database from 'better-sqlite3'
 import { migrate } from './migrations'
 import type { PlanRowInput } from '../pipeline/types'
-import type { PriceStrategy } from '../pipeline/rag/priceBook'
+import type { PriceStrategy } from '../pipeline/types'
 
 // La forma de fila que produce el pipeline vive en el contrato del pipeline.
 export type { PlanRowInput } from '../pipeline/types'
@@ -46,12 +46,13 @@ export interface PlanRow {
   n_tests: number
   unit_price: number
   total: number
-  price_source: 'pricebook' | 'alagal' | 'fallback'
+  price_source: string
   rag_score: number
   rag_desc: string
   price_min: number | null
   price_max: number | null
   price_n: number | null
+  needs_review?: number
 }
 
 export interface ObraInput {
@@ -108,11 +109,11 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
     `INSERT INTO plan_rows
        (obra_id, row_type, material, subcategory, description, measurement,
         measurement_unit, freq_qty, freq_unit, n_lots, tests_per_lot, n_tests,
-        unit_price, unit_price_base, total, price_source, rag_score, rag_desc, price_min, price_max, price_n)
+        unit_price, unit_price_base, total, price_source, rag_score, rag_desc, price_min, price_max, price_n, needs_review)
      VALUES
        (@obra_id, @row_type, @material, @subcategory, @description, @measurement,
         @measurement_unit, @freq_qty, @freq_unit, @n_lots, @tests_per_lot, @n_tests,
-        @unit_price, @unit_price, @total, @price_source, @rag_score, @rag_desc, @price_min, @price_max, @price_n)`
+        @unit_price, @unit_price, @total, @price_source, @rag_score, @rag_desc, @price_min, @price_max, @price_n, @needs_review)`
   )
 
   const tx = db.transaction(() => {
@@ -155,7 +156,8 @@ export function saveObra(info: ObraInput, planRows: PlanRowInput[]): number {
         rag_desc: row.rag_desc ?? '',
         price_min: row.price_min ?? null,
         price_max: row.price_max ?? null,
-        price_n: row.price_n ?? null
+        price_n: row.price_n ?? null,
+        needs_review: row.needs_review ? 1 : 0
       })
     }
     return obraId
@@ -355,6 +357,42 @@ export function savePlanEdits(obraId: number, edits: PlanEdits): void {
  * Recalcula unit_price desde unit_price_base (sin acumular descuentos anteriores)
  * y actualiza discount_pct en la obra. Operación atómica.
  */
+// ── Catálogo: overrides de usuario sobre la KB curada ────────────────────────
+
+export interface CatalogOverrideRow {
+  test_id: string
+  canonical_desc: string | null
+  price_tarifa_cye: number | null
+  disabled: number
+  is_new: number
+  category_code: string | null
+  created_at: string
+  updated_at: string
+}
+
+export function getCatalogOverrides(): CatalogOverrideRow[] {
+  return getDb().prepare('SELECT * FROM catalog_overrides').all() as CatalogOverrideRow[]
+}
+
+export function upsertCatalogOverride(row: Omit<CatalogOverrideRow, 'created_at' | 'updated_at'>): void {
+  getDb().prepare(`
+    INSERT INTO catalog_overrides
+      (test_id, canonical_desc, price_tarifa_cye, disabled, is_new, category_code, updated_at)
+    VALUES
+      (@test_id, @canonical_desc, @price_tarifa_cye, @disabled, @is_new, @category_code, datetime('now','localtime'))
+    ON CONFLICT(test_id) DO UPDATE SET
+      canonical_desc   = excluded.canonical_desc,
+      price_tarifa_cye = excluded.price_tarifa_cye,
+      disabled         = excluded.disabled,
+      category_code    = excluded.category_code,
+      updated_at       = datetime('now','localtime')
+  `).run(row)
+}
+
+export function deleteCatalogOverride(testId: string): void {
+  getDb().prepare('DELETE FROM catalog_overrides WHERE test_id = ?').run(testId)
+}
+
 export function applyDiscount(obraId: number, discountPct: number): void {
   const db = getDb()
   db.transaction(() => {

@@ -1,0 +1,177 @@
+{
+  "_schema": {
+    "descripcion": "Reglas de frecuencia de ensayo ancladas a normativa (PG-3, EHE-08/Código Estructural). AUTORIDAD de la frecuencia; el precio viene de tarifa_cye/alagal. Ver NORMATIVA_FRECUENCIAS.md.",
+    "controlType": "fabricacion = por volumen producido (m3) en escalones | recepcion/ejecucion = por LOTE (= menor de varios criterios) con batería fija de ensayos",
+    "lot.criteria": "'min' = el lote es el MENOR de los criterios presentes (length_m, surface_m2, daily)",
+    "surface_m2": "puede ser un número o un objeto por zona/altura (coronacion / altura_lt_5m / altura_ge_5m)",
+    "battery[].basis": "perLot = n por lote | per_m = 1 cada X m | per_lot_group = 1 cada X lotes",
+    "volumeTiers[].every_m3": "1 ensayo del grupo por cada X m3 producidos (o el periodo orDaily/orWeekly/orMonthly)",
+    "status": "verified = confirmado 3-0 vs BOE | pending_verification = de fuente primaria pero sin verificación adversarial (reverificar)"
+  },
+  "version": "2026-06-26",
+  "rules": [
+    {
+      "id": "NORM-TERRAPLEN-RECEP",
+      "categoryCode": "TERRAPLEN_RELLENOS",
+      "controlType": "recepcion",
+      "source": "PG-3 Art. 330.6.5.3 (Orden FOM/1382/2002)",
+      "status": "verified",
+      "lot": { "criteria": "min", "length_m": 500, "surface_m2": { "coronacion": 3500, "altura_lt_5m": 5000, "altura_ge_5m": 10000 }, "daily": true, "tongada": true },
+      "battery": [
+        { "test": "Densidad y humedad in situ", "basis": "perLot", "n": 5, "norm": "ASTM D6938 / NLT 109" },
+        { "test": "Densidad y humedad in situ (bandas de borde)", "basis": "per_m", "every": 100, "perBand": 2 },
+        { "test": "Ensayo de carga con placa NLT 357", "basis": "perLot", "n": 1, "zone": "coronacion", "elsewhere": "1 cada 5 lotes o alternativo correlacionado (huella)" }
+      ],
+      "notas": "Ensayos de IDENTIFICACIÓN del material (granulometría, Atterberg, Proctor, CBR, materia orgánica, sales, yesos) por préstamo/procedencia: frecuencia PENDIENTE de desglose."
+    },
+    {
+      "id": "NORM-ZAHORRA-FAB",
+      "categoryCode": "ZAHORRA_ARTIFICIAL",
+      "controlType": "fabricacion",
+      "source": "PG-3 Art. 510.9.2.1 (Orden FOM/2523/2014)",
+      "status": "verified",
+      "reduccion": "El Director puede reducir la frecuencia a la mitad si material homogéneo o tras 10 lotes aprobados.",
+      "volumeTiers": [
+        { "every_m3": 1000, "orDaily": true, "minMuestras": 2, "tests": ["Granulometría UNE-EN 933-1", "Humedad natural UNE-EN 1097-5"] },
+        { "every_m3": 5000, "orWeekly": true, "tests": ["Proctor modificado UNE-EN 13286-2", "Equivalente de arena UNE-EN 933-8", "Límites/IP UNE 103103/103104 (si procede)", "Finos del árido grueso UNE-EN 933-1"] },
+        { "every_m3": 20000, "orMonthly": true, "tests": ["Índice de lajas UNE-EN 933-3", "Caras de fractura UNE-EN 933-5", "Coef. Los Ángeles UNE-EN 1097-2", "Azufre total UNE-EN 1744-1"] }
+      ]
+    },
+    {
+      "id": "NORM-ZAHORRA-RECEP",
+      "categoryCode": "ZAHORRA_ARTIFICIAL",
+      "controlType": "recepcion",
+      "source": "PG-3 Art. 510.9.3 (Orden FOM/2523/2014)",
+      "status": "verified",
+      "lot": { "criteria": "min", "length_m": 500, "surface_m2": 3500, "daily": true, "tongada": true },
+      "battery": [
+        { "test": "Densidad y humedad in situ", "basis": "perLot", "n": 7, "min": "≥1 por hectómetro" },
+        { "test": "Ensayo de carga con placa 300 mm UNE 103808", "basis": "perLot", "n": 1 }
+      ]
+    },
+    {
+      "id": "NORM-SUELOEST-EJEC",
+      "categoryCode": "SUELO_ESTABILIZADO",
+      "controlType": "ejecucion",
+      "source": "PG-3 Art. 512.9.2 (Orden FOM/2523/2014)",
+      "status": "verified",
+      "volumeTiers": [
+        { "every_m3": 10000, "orWeekly": true, "tests": ["Proctor modificado de la mezcla UNE 103501 (referencia compactación)"] }
+      ],
+      "daily": [
+        { "test": "Humedad natural del suelo UNE 103300", "n": 2, "cuando": "mañana y tarde" },
+        { "test": "Comprobación de boquillas de inyección", "n": 2 }
+      ],
+      "perTruck": [{ "test": "Consumo de conglomerante" }],
+      "battery": [
+        { "test": "Probetas CBR 7d (S-EST1/2) UNE 103502 o compresión 7d (S-EST3) UNE-EN 13286-41", "basis": "perLot", "amasadas": 2, "probetasPorAmasada": 3 }
+      ]
+    },
+    {
+      "id": "NORM-SUELOEST-RECEP",
+      "categoryCode": "SUELO_ESTABILIZADO",
+      "controlType": "recepcion",
+      "source": "PG-3 Art. 512.9.3 (Orden FOM/2523/2014)",
+      "status": "verified",
+      "lot": { "criteria": "min", "length_m": 500, "surface_m2": { "explanada_coronacion": 3500, "altura_lt_5m": 5000, "altura_ge_5m": 10000 }, "daily": true, "capa": true },
+      "battery": [
+        { "test": "Densidad y humedad in situ", "basis": "perLot", "n": 7 },
+        { "test": "Carga con placa estática UNE 103808", "basis": "perLot", "n": 1, "zone": "capa superior explanada/cimiento/coronación" }
+      ]
+    },
+    {
+      "id": "NORM-MBC-RECEP",
+      "categoryCode": "MEZCLA_BITUMINOSA",
+      "controlType": "recepcion",
+      "source": "PG-3 Art. 542.9.4 y 542.9.3 (Orden FOM/2523/2014)",
+      "status": "verified",
+      "lot": { "criteria": "min", "length_m": 500, "surface_m2": 3500, "daily": true, "capa": true },
+      "battery": [
+        { "test": "Testigos: densidad aparente y espesor UNE-EN 12697-6", "basis": "perLot", "n": 3 },
+        { "test": "Juego de 3 probetas: huecos UNE-EN 12697-8 + densidad UNE-EN 12697-6", "basis": "perLot", "n": 1 }
+      ]
+    },
+    {
+      "id": "NORM-MBC-FAB",
+      "categoryCode": "MEZCLA_BITUMINOSA",
+      "controlType": "fabricacion",
+      "source": "PG-3 Art. 542 tabla 542.16 (Orden FOM/2523/2014)",
+      "status": "verified",
+      "notas": "Confirmado 3-0 vs BOE. Frecuencia (t/ensayo) por tráfico/capa/NCF: rodadura e intermedia (T00-T2, nivel X) 600(A)/300(B)/150(C); base (T00-T2, nivel Y) y todas las capas (T3-T4, nivel Y) 1000/500/250.",
+      "tonnageTiers": [
+        { "capa": "rodadura/intermedia", "t_por_ensayo": { "A": 600, "B": 300, "C": 150 }, "tests": ["Contenido de ligante UNE-EN 12697-1", "Granulometría áridos recuperados UNE-EN 12697-2"] },
+        { "capa": "base", "t_por_ensayo": { "A": 1000, "B": 500, "C": 250 }, "tests": ["Contenido de ligante UNE-EN 12697-1", "Granulometría áridos recuperados UNE-EN 12697-2"] }
+      ]
+    },
+    {
+      "id": "NORM-HORMIGON-RESIST",
+      "categoryCode": "HORMIGON",
+      "controlType": "recepcion",
+      "source": "Código Estructural Art. 57.5.4.1 (RD 470/2021) / EHE-08 Art. 86.5.4.2",
+      "status": "verified",
+      "lot": { "criteria": "min", "porVolumen_m3": true, "porPlantas": true, "porSuperficie_m2": true, "porTiempoHormigonado": true, "valoresConcretos": "PENDIENTE reverificar tabla (p. ej. 100 m3 / 500-1000 m2 / 2 semanas / 2 plantas)" },
+      "battery": [
+        { "test": "Probetas a compresión", "basis": "perLot", "amasadas_N": "≥3 si fck≤30; ≥4 si 35<fck≤50; ≥6 si fck>50 (sin distintivo); 1-2 con distintivo", "probetasPorAmasada": 2 },
+        { "test": "Consistencia cono de Abrams UNE-EN 12350-2", "basis": "evento", "cuando": "al fabricar probetas / control indirecto / cuando indique DF" }
+      ]
+    },
+    {
+      "id": "NORM-ACERO-ARMAD",
+      "categoryCode": "ACERO",
+      "controlType": "recepcion",
+      "source": "EHE-08 Art. 87 / Código Estructural Art. 58 y 59.2",
+      "status": "verified",
+      "lot": { "criteria": "max_tonnage", "t_max": 40, "por": "suministrador/fabricante/designación/serie (suministros <300 t)" },
+      "battery": [
+        { "test": "Sección equivalente + características geométricas/adherencia (corruga) + doblado-desdoblado", "basis": "perLot", "probetas": 2 },
+        { "test": "Propiedades mecánicas (límite elástico, carga rotura, alargamiento)", "basis": "perDiametro", "probetas": 1 }
+      ]
+    },
+    {
+      "id": "NORM-RIEGO-IMPRIM",
+      "categoryCode": "RIEGO_BITUMINOSO",
+      "controlType": "ejecucion",
+      "source": "PG-3 Art. 530.7/530.8 (Orden FOM/2523/2014)",
+      "status": "verified",
+      "lot": { "criteria": "min", "length_m": 500, "surface_m2": 3500, "daily": true },
+      "battery": [{ "test": "Dotación media de ligante residual (bandejas, secado y pesaje)", "basis": "perLot", "n": 3, "dotacionMin_g_m2": 500, "tolerancia": "±15%" }]
+    },
+    {
+      "id": "NORM-RIEGO-ADHER",
+      "categoryCode": "RIEGO_BITUMINOSO",
+      "controlType": "ejecucion",
+      "source": "PG-3 Art. 531.8.3/531.9 (Orden FOM/2523/2014)",
+      "status": "verified",
+      "lot": { "criteria": "min", "length_m": 500, "surface_m2": 3500, "daily": true },
+      "battery": [{ "test": "Dotación media de ligante residual (bandejas, secado y pesaje)", "basis": "perLot", "n": 3, "dotacionMin_g_m2": 200, "dotacionMin_discontinua_g_m2": 250, "tolerancia": "+15% / -10%" }]
+    },
+    {
+      "id": "NORM-MARCAS-VIALES",
+      "categoryCode": "MARCAS_VIALES",
+      "controlType": "ejecucion",
+      "source": "PG-3 Art. 700 (dotación y 700.8.4 garantía)",
+      "status": "verified",
+      "notas": "Método de dotación confirmado 3-0. La FRECUENCIA del control de comportamiento la fija el PPTP/Director, no el artículo.",
+      "battery": [
+        { "test": "Dotación (puesta en obra) por bandejas E/P", "basis": "porTramo", "paresBandejas": 15, "cada_m": "200-300", "durante": "1 h o 3 km tras ajuste" },
+        { "test": "Comportamiento (RL en seco, SRT, Qd/β, coordenadas cromáticas)", "basis": "garantia", "norm": "UNE 135204 (puntual) / UNE-EN 1436 (continuo)", "frecuencia": "la fija el PPTP/Director" }
+      ]
+    },
+    {
+      "id": "NORM-ESCOLLERA-MAT",
+      "categoryCode": "ESCOLLERA",
+      "controlType": "material_acceptance",
+      "source": "PG-3 Art. 658 (Orden FOM/1382/2002)",
+      "status": "verified",
+      "notas": "El Art. 658 NO define control de calidad, lote ni frecuencia de ensayo — solo umbrales de aceptación del material. CUALQUIER frecuencia de ensayo de escollera es PPTP/práctica, NO normativa: para esta categoría la frecuencia debe venir de los presupuestos CYE / pliego particular.",
+      "acceptance": [
+        { "prop": "Densidad aparente seca", "min": "2500 kg/m3" },
+        { "prop": "Absorción de agua UNE 83134", "max": "2%" },
+        { "prop": "Desgaste Los Ángeles UNE-EN 1097-2", "max": 50 },
+        { "prop": "Estabilidad NLT 255 (inmersión) / NLT 260 (ciclos)", "max": "pérdida ≤2%" },
+        { "prop": "Granulometría por curva de pesos del bloque", "rango": "10-200 kg; <100 kg menos del 25% en peso" }
+      ]
+    }
+  ],
+  "_pendiente": ["TERRAPLEN identificación material por préstamo/procedencia (frecuencia no desglosada)", "verificar valores concretos de la tabla de lote de hormigón (m3/m2/semanas)"]
+}

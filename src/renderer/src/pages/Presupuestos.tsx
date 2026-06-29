@@ -1,12 +1,24 @@
 /**
- * Página Presupuestos — visualiza el catálogo ALAGAL y edita las reglas de ensayo.
- * Los cambios en las reglas se guardan en test_rules.json y se aplican al siguiente presupuesto.
+ * Página Presupuestos — catálogo KB editable y reglas de ensayo.
  */
-import { useEffect, useMemo, useState, type JSX } from 'react'
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { api } from '../lib/api'
 import { Ic } from '../components/Icon'
-import type { CatalogEntry } from '../../../main/pipeline/rag/catalog'
+import { eur } from '../lib/format'
 import type { Rules, CategoryRule, TestRule } from '../../../main/pipeline/planner'
+
+interface KbCatalogRow {
+  testId: string
+  canonicalDesc: string
+  origin: 'alagal' | 'cye'
+  section: string | null
+  priceTarifaCye: number | null
+  pricePricebook: number | null
+  priceAlagal: number | null
+  hasOverride: boolean
+  isNew: boolean
+  disabled: boolean
+}
 
 const CAT_LABELS: Record<string, string> = {
   TERRAPLEN_RELLENOS: 'Terraplén y rellenos',
@@ -28,7 +40,7 @@ export function Presupuestos(): JSX.Element {
       <div className="page-head">
         <div>
           <h1>Presupuestos</h1>
-          <p>Catálogo de tarifas ALAGAL y reglas de ensayo que alimentan el cálculo de precios</p>
+          <p>Catálogo editable de ensayos y reglas que alimentan el motor de presupuestos</p>
         </div>
       </div>
 
@@ -37,7 +49,7 @@ export function Presupuestos(): JSX.Element {
           className={`tab-btn${tab === 'catalog' ? ' active' : ''}`}
           onClick={() => setTab('catalog')}
         >
-          <Ic.Catalog /> Catálogo ALAGAL
+          <Ic.Catalog /> Catálogo de ensayos
         </button>
         <button
           className={`tab-btn${tab === 'rules' ? ' active' : ''}`}
@@ -53,59 +65,148 @@ export function Presupuestos(): JSX.Element {
   )
 }
 
-// ── Tab: Catálogo ALAGAL ──────────────────────────────────────────────────────
+// ── Tab: Catálogo de ensayos (KB editable) ────────────────────────────────────
+
+const EMPTY_NEW: Partial<KbCatalogRow> = { testId: '', canonicalDesc: '', priceTarifaCye: null, section: null }
 
 function CatalogTab(): JSX.Element {
-  const [entries, setEntries] = useState<CatalogEntry[]>([])
+  const [entries, setEntries] = useState<KbCatalogRow[]>([])
   const [loading, setLoading] = useState(true)
   const [q, setQ] = useState('')
-  const [catFilter, setCatFilter] = useState('')
+  const [originFilter, setOriginFilter] = useState<'' | 'cye' | 'alagal'>('')
+  const [showDisabled, setShowDisabled] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editBuf, setEditBuf] = useState<{ desc: string; price: string }>({ desc: '', price: '' })
+  const [newRow, setNewRow] = useState<Partial<KbCatalogRow> | null>(null)
+  const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null)
+  const newRowRef = useRef<HTMLTableRowElement>(null)
 
-  useEffect(() => {
-    api
-      .getCatalog()
-      .then(setEntries)
+  const load = (): void => {
+    setLoading(true)
+    api.getCatalogTests()
+      .then((rows) => setEntries(rows as KbCatalogRow[]))
       .catch(() => setEntries([]))
       .finally(() => setLoading(false))
-  }, [])
+  }
 
-  const categories = useMemo(() => {
-    return [...new Set(entries.map((e) => e.categoria).filter(Boolean))].sort()
-  }, [entries])
+  useEffect(load, [])
+
+  const sections = useMemo(
+    () => [...new Set(entries.map((e) => e.section).filter(Boolean))].sort() as string[],
+    [entries]
+  )
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase()
     return entries.filter((e) => {
-      const matchQ =
-        !term || e.descripcion.toLowerCase().includes(term) || e.codigo.toLowerCase().includes(term)
-      const matchCat = !catFilter || e.categoria === catFilter
-      return matchQ && matchCat
+      if (!showDisabled && e.disabled) return false
+      if (originFilter && e.origin !== originFilter) return false
+      if (!term) return true
+      return e.testId.toLowerCase().includes(term) || e.canonicalDesc.toLowerCase().includes(term)
     })
-  }, [entries, q, catFilter])
+  }, [entries, q, originFilter, showDisabled])
+
+  function flash(text: string, ok = true): void {
+    setMsg({ text, ok })
+    setTimeout(() => setMsg(null), 3500)
+  }
+
+  function startEdit(row: KbCatalogRow): void {
+    setEditingId(row.testId)
+    setEditBuf({ desc: row.canonicalDesc, price: row.priceTarifaCye != null ? String(row.priceTarifaCye) : '' })
+  }
+
+  async function saveEdit(row: KbCatalogRow): Promise<void> {
+    const price = editBuf.price.trim() === '' ? null : parseFloat(editBuf.price.replace(',', '.'))
+    await api.upsertCatalogOverride({
+      test_id: row.testId,
+      canonical_desc: editBuf.desc.trim() || row.canonicalDesc,
+      price_tarifa_cye: price != null && !isNaN(price) ? price : null,
+      disabled: 0,
+      is_new: row.isNew ? 1 : 0,
+      category_code: row.section ?? ''
+    })
+    setEditingId(null)
+    load()
+    flash('Cambio guardado. El próximo presupuesto usará los valores actualizados.')
+  }
+
+  async function resetOverride(testId: string): Promise<void> {
+    await api.deleteCatalogOverride(testId)
+    load()
+    flash('Override eliminado — se usa el valor base de la KB.')
+  }
+
+  async function toggleDisable(row: KbCatalogRow): Promise<void> {
+    if (row.disabled) {
+      await api.deleteCatalogOverride(row.testId)
+      flash('Ensayo reactivado.')
+    } else {
+      await api.upsertCatalogOverride({
+        test_id: row.testId,
+        canonical_desc: row.canonicalDesc,
+        price_tarifa_cye: row.priceTarifaCye ?? null,
+        disabled: 1,
+        is_new: row.isNew ? 1 : 0,
+        category_code: row.section ?? ''
+      })
+      flash('Ensayo deshabilitado — no aparecerá en futuros presupuestos.', false)
+    }
+    load()
+  }
+
+  async function saveNew(): Promise<void> {
+    if (!newRow?.testId?.trim() || !newRow?.canonicalDesc?.trim()) return
+    await api.upsertCatalogOverride({
+      test_id: newRow.testId!.trim().toUpperCase(),
+      canonical_desc: newRow.canonicalDesc!.trim(),
+      price_tarifa_cye: newRow.priceTarifaCye ?? null,
+      disabled: 0,
+      is_new: 1,
+      category_code: newRow.section ?? ''
+    })
+    setNewRow(null)
+    load()
+    flash('Nuevo ensayo añadido al catálogo.')
+  }
 
   if (loading) return <div className="empty">Cargando catálogo…</div>
 
+  const tdSoft: React.CSSProperties = { fontSize: 12, color: 'var(--text-soft)' }
+  const tdMono: React.CSSProperties = { fontFamily: 'monospace', fontSize: 12 }
+
   return (
     <div>
-      <div style={{ display: 'flex', gap: 10, marginBottom: 16, alignItems: 'center' }}>
+      {msg && (
+        <div className={`banner ${msg.ok ? 'banner-ok' : 'banner-warn'}`} style={{ marginBottom: 12 }}>
+          {msg.text}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: 10, marginBottom: 12, alignItems: 'center', flexWrap: 'wrap' }}>
         <input
           className="input"
-          style={{ flex: 1 }}
+          style={{ flex: 1, minWidth: 200 }}
           placeholder="Buscar por código o descripción…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <select className="select" value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
-          <option value="">Todas las categorías</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
+        <select className="select" value={originFilter} onChange={(e) => setOriginFilter(e.target.value as '' | 'cye' | 'alagal')}>
+          <option value="">Todos los orígenes</option>
+          <option value="cye">Solo CYE</option>
+          <option value="alagal">Solo ALAGAL</option>
         </select>
-        <span style={{ color: 'var(--text-soft)', fontSize: 13, whiteSpace: 'nowrap' }}>
-          {filtered.length} de {entries.length} entradas
-        </span>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
+          <input type="checkbox" checked={showDisabled} onChange={(e) => setShowDisabled(e.target.checked)} />
+          Mostrar deshabilitados
+        </label>
+        <span style={tdSoft}>{filtered.length} de {entries.filter(e => showDisabled || !e.disabled).length}</span>
+        <button
+          className="btn btn-secondary"
+          onClick={() => { setNewRow({ ...EMPTY_NEW }); setTimeout(() => newRowRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50) }}
+        >
+          + Nuevo ensayo
+        </button>
       </div>
 
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -114,28 +215,93 @@ function CatalogTab(): JSX.Element {
             <tr>
               <th style={{ width: 90 }}>Código</th>
               <th style={{ textAlign: 'left' }}>Descripción</th>
-              <th style={{ width: 120 }}>Categoría</th>
-              <th style={{ width: 90 }}>Precio (€)</th>
+              <th style={{ width: 90 }}>Origen</th>
+              <th style={{ width: 105, textAlign: 'right' }}>Tarifa CYE</th>
+              <th style={{ width: 95, textAlign: 'right' }}>Histórico</th>
+              <th style={{ width: 95, textAlign: 'right' }}>ALAGAL</th>
+              <th style={{ width: 120, textAlign: 'center' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.slice(0, 500).map((e) => (
-              <tr key={e.codigo}>
-                <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{e.codigo}</td>
-                <td style={{ textAlign: 'left' }}>{e.descripcion}</td>
-                <td style={{ fontSize: 12, color: 'var(--text-soft)' }}>{e.categoria || '—'}</td>
-                <td className="num" style={{ fontWeight: 600 }}>
-                  {e.precio.toFixed(2).replace('.', ',')} €
+            {filtered.slice(0, 600).map((row) => {
+              const isEditing = editingId === row.testId
+              const rowStyle: React.CSSProperties = row.disabled
+                ? { opacity: 0.45, background: 'var(--bg-soft, #f6f8fb)' }
+                : row.hasOverride ? { background: '#f0f7ff' } : {}
+              return (
+                <tr key={row.testId} style={rowStyle}>
+                  <td style={tdMono}>
+                    {row.testId}
+                    {row.hasOverride && <span title="Override activo" style={{ color: '#4a7fd4', fontSize: 10, marginLeft: 3 }}>✦</span>}
+                    {row.isNew && <span title="Creado por el usuario" style={{ color: '#16a34a', fontSize: 10, marginLeft: 3 }}>★</span>}
+                  </td>
+                  <td style={{ textAlign: 'left' }}>
+                    {isEditing
+                      ? <input className="plan-input plan-input-desc" style={{ width: '100%' }} value={editBuf.desc} onChange={(e) => setEditBuf((b) => ({ ...b, desc: e.target.value }))} />
+                      : row.canonicalDesc}
+                  </td>
+                  <td style={tdSoft}>{row.origin}</td>
+                  <td className="num">
+                    {isEditing
+                      ? <input className="plan-input plan-input-price" style={{ width: 80 }} placeholder="€/ud" value={editBuf.price} onChange={(e) => setEditBuf((b) => ({ ...b, price: e.target.value }))} />
+                      : row.priceTarifaCye != null ? eur(row.priceTarifaCye) : <span style={tdSoft}>—</span>}
+                  </td>
+                  <td className="num" style={tdSoft}>{row.pricePricebook != null ? eur(row.pricePricebook) : '—'}</td>
+                  <td className="num" style={tdSoft}>{row.priceAlagal != null ? eur(row.priceAlagal) : '—'}</td>
+                  <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    {isEditing ? (
+                      <>
+                        <button className="btn btn-primary" style={{ padding: '3px 10px', fontSize: 12 }} onClick={() => saveEdit(row)}>✓</button>
+                        {' '}
+                        <button className="btn" style={{ padding: '3px 8px', fontSize: 12 }} onClick={() => setEditingId(null)}>✕</button>
+                      </>
+                    ) : (
+                      <>
+                        <button className="btn" style={{ padding: '3px 8px', fontSize: 12 }} title="Editar" onClick={() => startEdit(row)}>✎</button>
+                        {' '}
+                        {row.hasOverride && (
+                          <button className="btn" style={{ padding: '3px 8px', fontSize: 12, color: 'var(--text-soft)' }} title="Restablecer a valor base" onClick={() => resetOverride(row.testId)}>↺</button>
+                        )}
+                        {' '}
+                        <button
+                          className="btn"
+                          style={{ padding: '3px 8px', fontSize: 12, color: row.disabled ? 'var(--ok, #16a34a)' : 'var(--danger, #e53e3e)' }}
+                          title={row.disabled ? 'Reactivar' : 'Deshabilitar'}
+                          onClick={() => toggleDisable(row)}
+                        >
+                          {row.disabled ? '▶' : '⊘'}
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
+            {newRow !== null && (
+              <tr ref={newRowRef} style={{ background: '#f0fff4' }}>
+                <td>
+                  <input className="plan-input" style={{ width: 80, fontFamily: 'monospace', fontSize: 12 }} placeholder="U-XXXX" value={newRow.testId ?? ''} onChange={(e) => setNewRow((r) => ({ ...r, testId: e.target.value }))} />
+                </td>
+                <td>
+                  <input className="plan-input plan-input-desc" style={{ width: '100%' }} placeholder="Descripción del ensayo (obligatorio)" value={newRow.canonicalDesc ?? ''} onChange={(e) => setNewRow((r) => ({ ...r, canonicalDesc: e.target.value }))} />
+                </td>
+                <td style={tdSoft}>cye</td>
+                <td>
+                  <input className="plan-input plan-input-price" style={{ width: 80 }} placeholder="€/ud" value={newRow.priceTarifaCye != null ? String(newRow.priceTarifaCye) : ''} onChange={(e) => setNewRow((r) => ({ ...r, priceTarifaCye: parseFloat(e.target.value.replace(',', '.')) || null }))} />
+                </td>
+                <td /><td />
+                <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                  <button className="btn btn-primary" style={{ padding: '3px 10px', fontSize: 12 }} disabled={!newRow.testId?.trim() || !newRow.canonicalDesc?.trim()} onClick={saveNew}>✓</button>
+                  {' '}
+                  <button className="btn" style={{ padding: '3px 8px', fontSize: 12 }} onClick={() => setNewRow(null)}>✕</button>
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
-        {filtered.length > 500 && (
-          <div
-            style={{ padding: 12, textAlign: 'center', color: 'var(--text-soft)', fontSize: 13 }}
-          >
-            Mostrando 500 de {filtered.length} entradas. Usa el buscador para filtrar.
+        {filtered.length > 600 && (
+          <div style={{ padding: 12, textAlign: 'center', ...tdSoft }}>
+            Mostrando 600 de {filtered.length}. Usa el buscador para filtrar.
           </div>
         )}
       </div>

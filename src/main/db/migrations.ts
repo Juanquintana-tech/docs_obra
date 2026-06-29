@@ -175,6 +175,27 @@ export const MIGRATIONS: Array<(db: Database) => void> = [
       CREATE INDEX idx_ensayos_obra     ON ensayos(obra_id);
       CREATE INDEX idx_ensayos_plan_row ON ensayos(plan_row_id);
     `)
+  },
+
+  // ── v9 — motor BBDD: marca de "a revisar" por línea (para resaltado en UI) ─
+  (db) => {
+    db.exec(`ALTER TABLE plan_rows ADD COLUMN needs_review INTEGER DEFAULT 0;`)
+  },
+
+  // ── v10 — catálogo editable: overrides de usuario sobre la KB curada ─────
+  (db) => {
+    db.exec(`
+      CREATE TABLE catalog_overrides (
+        test_id           TEXT PRIMARY KEY,
+        canonical_desc    TEXT,
+        price_tarifa_cye  REAL,
+        disabled          INTEGER NOT NULL DEFAULT 0,
+        is_new            INTEGER NOT NULL DEFAULT 0,
+        category_code     TEXT DEFAULT '',
+        created_at        TEXT DEFAULT (datetime('now','localtime')),
+        updated_at        TEXT DEFAULT (datetime('now','localtime'))
+      );
+    `)
   }
 ]
 

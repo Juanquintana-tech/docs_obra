@@ -1,0 +1,1584 @@
+{
+  "aliases": [
+    {
+      "alias": "Granulometría de suelos por tamizado UNE 103101",
+      "testId": "T-0133",
+      "source": "E1"
+    },
+    {
+      "alias": "Límites de Atterberg UNE 103103 y 103104",
+      "testId": "T-0182",
+      "source": "E1"
+    },
+    {
+      "alias": "Proctor Modificado UNE 103501",
+      "testId": "T-0144",
+      "source": "E1"
+    },
+    {
+      "alias": "Índice CBR en laboratorio, sin incluir Proctor (tres puntos) UNE 103502",
+      "testId": "T-0145",
+      "source": "E1"
+    },
+    {
+      "alias": "Ensayo de hinchamiento libre en edómetro UNE 103601",
+      "testId": "T-0147",
+      "source": "E1"
+    },
+    {
+      "alias": "Ensayo de colapso en suelos NLT 254",
+      "testId": "T-0148",
+      "source": "E8"
+    },
+    {
+      "alias": "Contenido de materia orgánica en suelos UNE 103204",
+      "testId": "T-0135",
+      "source": "E4"
+    },
+    {
+      "alias": "% Humedad por secado en estufa UNE 103300-93",
+      "testId": "T-0132",
+      "source": "E1"
+    },
+    {
+      "alias": "Contenido de sales solubles en suelos NLT 114",
+      "testId": "T-0138",
+      "source": "E1"
+    },
+    {
+      "alias": "Contenido de yesos en suelos NLT 115",
+      "testId": "T-0139",
+      "source": "E1"
+    },
+    {
+      "alias": "Densidad y humedad \"in situ\" por isótopos radiactivos UNE 103900 Mínimo facturable por desplazamiento 10 puntos",
+      "testId": "T-0173",
+      "source": "E1"
+    },
+    {
+      "alias": "Ensayo de carga con placa doble ciclo UNE 103808 Sin incluir elemento de reacción",
+      "testId": "T-0174",
+      "source": "E1"
+    },
+    {
+      "alias": "Humedad natural UNE EN 1097-5:2009",
+      "testId": "T-0024",
+      "source": "E1"
+    },
+    {
+      "alias": "Granulometría por tamizado, UNE-EN 933-1:2012",
+      "testId": "T-0186",
+      "source": "E1"
+    },
+    {
+      "alias": "Equivalente de arena UNE EN 933-8",
+      "testId": "T-0037",
+      "source": "E7"
+    },
+    {
+      "alias": "Límites de Atterberg, UNE 103103:94, 103104:93",
+      "testId": "T-0182",
+      "source": "E8"
+    },
+    {
+      "alias": "Próctor Modificado, UNE 103501:94",
+      "testId": "T-0144",
+      "source": "E8"
+    },
+    {
+      "alias": "Caras de fractura UNE EN 933-5:1999/A1:2005",
+      "testId": "T-0292",
+      "source": "E1"
+    },
+    {
+      "alias": "Desgaste de Los Ángeles EN 1097-2:2010",
+      "testId": "T-0034",
+      "source": "E1"
+    },
+    {
+      "alias": "Ud. Índice de Lajas del árido grueso UNE-EN 933-3:2012",
+      "testId": "T-0290",
+      "source": "E1"
+    },
+    {
+      "alias": "Densidad y humedad \"in situ\" por isótopos radiactivos UNE 103900 Mínimo facturable por desplazamiento 14 puntos",
+      "testId": "T-0173",
+      "source": "E1"
+    },
+    {
+      "alias": "Toma de muestra (incluyendo desplazamiento y traslado de muestras desde el laboratorio), medida de asentamiento, fabricación de cinco (5) probetas normalizadas, curado y ensayo a compresión UNE-EN 12350-1, UNE-EN 12350-2",
+      "testId": "T-0053",
+      "source": "E1"
+    },
+    {
+      "alias": "Ensayo completo de una muestra de acero para armaduras pasivas, incluyendo tracción (con medida de Agt), doblado/desdoblado y características geométricas UNE-EN 36068, UNE-EN ISO 15630-1 e ISO 6892",
+      "testId": "T-0109",
+      "source": "E3"
+    },
+    {
+      "alias": "Visita para realización de ensayo no destructivo de uniones soldadas. Inspector Nivel 2. Examen mediante líquidos penetrantes UNE-EN 3452-1",
+      "testId": "T-0128",
+      "source": "E1"
+    },
+    {
+      "alias": "Visita para la determinación del espesor de la película (galvanizado, recubrimiento, intumescente, etc.) en obra por métodos no destructivos UNE-EN ISO 1461, 2808, etc.",
+      "testId": "T-0121",
+      "source": "E1"
+    },
+    {
+      "alias": "Visita para determinación \"in situ\" de la resistencia al deslizamiento con péndulo TRRL sobre pavimento acabado y en condiciones de uso, incluida la redacción de informe UNE-ENV 12633, UNE 41901, UNE 41902",
+      "testId": "T-0509",
+      "source": "E2"
+    },
+    {
+      "alias": "Ensayo de profundidad de penetración del agua bajo presión UNE-EN 12390-8, incluyendo la fabricación de 3 probetas cilíndricas de 15x30 cm",
+      "testId": "T-0071",
+      "source": "E1"
+    },
+    {
+      "alias": "Ensayo completo de una muestra de malla electrosoldada para armaduras pasivas, incluyendo tracción (con medida de Agt), doblado/desdoblado, características geométricas y despegue de nudos UNE-EN 36068, UNE-EN ISO 15630-2",
+      "testId": "T-0109",
+      "source": "E1"
+    },
+    {
+      "alias": "Toma de muestras de mortero de cemento, fabricación, conservación y rotura a flexotracción y a compresión de 3 probetas prismáticas UNE-EN 1015-11",
+      "testId": "T-0095",
+      "source": "E1"
+    },
+    {
+      "alias": "Prueba de estanqueidad \"in situ\" de cubiertas por inundación, verificación de la correcta evacuación de desagües y canalones, según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión de informe Los ",
+      "testId": "T-0724",
+      "source": "E1"
+    },
+    {
+      "alias": "Prueba de estanqueidad \"in situ\" de cubiertas no inundables por aspersores, verificación de la correcta evacuación de desagües y canalones, según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión d",
+      "testId": "T-0724",
+      "source": "E1"
+    },
+    {
+      "alias": "Prueba de estanqueidad \"in situ\" del conjunto fachada-carpintería mediante batería de rociadores según procedimiento ALAGAL 1-ECC-01. Incluido reportaje fotográfico y emisión de informe. Los medios auxiliares correrán a ",
+      "testId": "T-0725",
+      "source": "E1"
+    },
+    {
+      "alias": "Ensayo de adherencia in situ/arrancamiento (tracción perpendicular) de la subestructura de los falsos techos suspendidos UNE EN 1348",
+      "testId": "T-0502",
+      "source": "E1"
+    },
+    {
+      "alias": "Ensayo estático de empuje horizontal en barandilla In Situ (sin incluir elemento de reacción), CTE / basada en UNE 85238:1991 Mínimo facturable por desplazamiento 2 ensayos",
+      "testId": "T-0744",
+      "source": "E1"
+    },
+    {
+      "alias": "Determinación de la consistencia del hormigón fresco (Cono de Abrams) UNE EN 12350-2 Toma de muestra de hormigón fresco y fabricación de 5 probetas cilíndricas de 15x30 cm UNE EN 12390-2 Curado en cámara húmeda y refrend",
+      "testId": "T-0056",
+      "source": "E2"
+    },
+    {
+      "alias": "Determinación de la profundidad al agua bajo presión del hormigón para un ambiente IIIc (3 probetas) UNE EN 12390-8",
+      "testId": "T-0071",
+      "source": "E2"
+    },
+    {
+      "alias": "Determinación de características geométricas UNE EN 15630-1 y UNE EN 10080 Determinación de las características mecánicas en el ensayo de tracción UNE EN ISO 15630-1 Aptitud al doblado-desdoblado UNE EN ISO 15630-1",
+      "testId": "T-0111",
+      "source": "E2"
+    },
+    {
+      "alias": "Prueba de estanqueidad \"in situ\" de cubiertas no inundables , según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión de informe.",
+      "testId": "T-0724",
+      "source": "E7"
+    },
+    {
+      "alias": "Toma de muestras, fabricación, conservación y rotura a flexotracción y a compresión de 3 probetas prismáticas UNE-EN 1015-11",
+      "testId": "T-0095",
+      "source": "E2"
+    },
+    {
+      "alias": "Prueba de estanqueidad \"in situ\" del conjunto fachada-carpintería mediante batería de rociadores según procedimiento ALAGAL 1-ECC-01. Incluido reportaje fotográfico y emisión de informe.",
+      "testId": "T-0725",
+      "source": "E7"
+    },
+    {
+      "alias": "Prueba de estanqueidad de aparatos, red horizontal, arquetas y pozos según DB-HS-5, CTE y Estanqueidad de la red UNE EN 1610 “Instalación y pruebas de acometidas y redes de saneamiento”.",
+      "testId": "T-0720",
+      "source": "E2"
+    },
+    {
+      "alias": "Toma de muestra (incluyendo desplazamiento y traslado de muestras desde el laboratorio), medida de asentamiento, fabricación de cuatro (5) probetas, curado, ajuste de caras y ensayo a compresión UNE-EN 12350-1, UNE-EN 12",
+      "testId": "T-0053",
+      "source": "E3"
+    },
+    {
+      "alias": "Densidad por el método de la arena UNE 103503:95 y Humedad por secado en estufa UNE 103300:93. Calibración método nuclear",
+      "testId": "T-0172",
+      "source": "E8"
+    },
+    {
+      "alias": "Análisis granulométrico por tamizado UNE 103101",
+      "testId": "T-0133",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación de Límites de Atterberg UNE 103103, UNE 103104",
+      "testId": "T-0203",
+      "source": "E4"
+    },
+    {
+      "alias": "Ensayo de apisonado: proctor modificado UNE 103501",
+      "testId": "T-0144",
+      "source": "E4"
+    },
+    {
+      "alias": "Índice CBR Laboratorio SIN PROCTOR (3 puntos), con compactación PN o PM UNE 103502",
+      "testId": "T-0145",
+      "source": "E4"
+    },
+    {
+      "alias": "Medida de hinchamiento libre en edómetro UNE 103601",
+      "testId": "T-0147",
+      "source": "E4"
+    },
+    {
+      "alias": "Asiento en ensayo de colapso NLT 254",
+      "testId": "T-0148",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación de Sales Solubles en Suelos NLT 114",
+      "testId": "T-0138",
+      "source": "E4"
+    },
+    {
+      "alias": "Contenido de yesos NLT 115",
+      "testId": "T-0139",
+      "source": "E4"
+    },
+    {
+      "alias": "Densidad y humedad “in situ” por isótopos radiactivos UNE 103900",
+      "testId": "T-0173",
+      "source": "E4"
+    },
+    {
+      "alias": "Carga con placa estática de 30 cm, NLT 357/ UNE 103808",
+      "testId": "T-0174",
+      "source": "E4"
+    },
+    {
+      "alias": "Medida de hinchamiento libre en edómetro UNE 103601. SI SE TRATA DE SUELO TOLERABLE",
+      "testId": "T-0147",
+      "source": "E4"
+    },
+    {
+      "alias": "Ensayo de colapso en suelos NLT-254. SI SE TRATA DE SUELO TOLERABLE",
+      "testId": "T-0148",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación del contenido de sulfatos solubles UNE 103201",
+      "testId": "T-0205",
+      "source": "E4"
+    },
+    {
+      "alias": "Reactividad potencial de los áridos a los álcalis del cemento UNE 146507-1",
+      "testId": "T-0045",
+      "source": "E8"
+    },
+    {
+      "alias": "Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla, NLT-305-310",
+      "testId": "T-0211",
+      "source": "E4"
+    },
+    {
+      "alias": "Ensayo de carga con placa doble ciclo NLT-357. Sin incluir elemento de reacción",
+      "testId": "T-0174",
+      "source": "E8"
+    },
+    {
+      "alias": "Granulometría por tamizado, UNE-EN 933-1",
+      "testId": "T-0186",
+      "source": "E4"
+    },
+    {
+      "alias": "Humedad natural UNE 103300",
+      "testId": "T-0189",
+      "source": "E4"
+    },
+    {
+      "alias": "Límites de Atterberg UNE 103103, UNE 103104",
+      "testId": "T-0182",
+      "source": "E4"
+    },
+    {
+      "alias": "Evaluación finos. Ensayo equivalente de arena UNE-EN 933-8",
+      "testId": "T-0179",
+      "source": "E4"
+    },
+    {
+      "alias": "Ensayo de apisonado proctor modificado UNE 103500 / UNE-EN 13286-2",
+      "testId": "T-0181",
+      "source": "E4"
+    },
+    {
+      "alias": "Coeficiente desgaste Los Angeles UNE EN 1097-2",
+      "testId": "T-0034",
+      "source": "E7"
+    },
+    {
+      "alias": "Indice de lajas UNE EN 933-3",
+      "testId": "T-0184",
+      "source": "E7"
+    },
+    {
+      "alias": "Determinación porcentaje de caras de fractura de las partículas de árido grueso UNE EN 933-5",
+      "testId": "T-0185",
+      "source": "E4"
+    },
+    {
+      "alias": "Agua en emulsiones bituminosas UNE EN 1428",
+      "testId": "T-0352",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación de la dotación de ligante residual UNE EN 12697-3",
+      "testId": "T-0320",
+      "source": "E8"
+    },
+    {
+      "alias": "Contenido de ligante de una mezcla bituminosa UNE EN 12697-2",
+      "testId": "T-0320",
+      "source": "E8"
+    },
+    {
+      "alias": "Análisis granulométrico de áridos recuperados UNE EN 12697-1",
+      "testId": "T-0321",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5, determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 y Cálculo del contenido en huecos UNE EN 12697-8",
+      "testId": "T-0319",
+      "source": "E6"
+    },
+    {
+      "alias": "Determinación de la Sensibilidad al agua UNE EN 12697-12 sobre la mezcla",
+      "testId": "T-0320",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación de la Deformación Permanente según UNE EN 12697-22",
+      "testId": "T-0320",
+      "source": "E8"
+    },
+    {
+      "alias": "Penetración de betún asfáltico UNE EN 1426",
+      "testId": "T-0316",
+      "source": "E8"
+    },
+    {
+      "alias": "Punto de reblandecimiento anillo y bola UNE EN 1427",
+      "testId": "T-0305",
+      "source": "E4"
+    },
+    {
+      "alias": "Penetracion de materiales bituminosos UNE EN 1426-00",
+      "testId": "T-0304",
+      "source": "E8"
+    },
+    {
+      "alias": "Agua en emulsiones bituminosas UNE EN 1428-00",
+      "testId": "T-0352",
+      "source": "E8"
+    },
+    {
+      "alias": "Residuo por destilación de las emulsiones bituminosas UNE EN 1431-00",
+      "testId": "T-0355",
+      "source": "E8"
+    },
+    {
+      "alias": "Extracción de testigo en mezcla bituminosa en caliente: espesor y densidad UNE EN 12697-27, -30,-6",
+      "testId": "T-0332",
+      "source": "E8"
+    },
+    {
+      "alias": "Extracción de testigo en mezcla bituminosa en caliente y determinación de la adherencia a cortante entre capas UNE EN 12697-27 y NLT-381",
+      "testId": "T-0333",
+      "source": "E8"
+    },
+    {
+      "alias": "Macrotextura superficial UNE EN 13036-1 Mínimo facturable por desplazamiento 9 ensayos",
+      "testId": "T-0327",
+      "source": "E4"
+    },
+    {
+      "alias": "Inspección de media jornada para la determinación del coeficiente de resistencia al deslizamiento con péndulo PTV según UNE EN 13036-4 Método alternativo al equipo de medida del CRT No incluye señalización que será por c",
+      "testId": "T-0404",
+      "source": "E5"
+    },
+    {
+      "alias": "Toma de muestras de hormigón fresco HF-3,5, incluyendo muestreo del hormigón, medida del asiento de cono, fabricación de tres probetas prismáticas de 15x15x60 cm, curado y rotura a dos edades, UNE EN 12390-2, 12390-5, 12",
+      "testId": "T-0055",
+      "source": "E4"
+    },
+    {
+      "alias": "Granulometría por tamizado del árido fino UNE-EN 933-1",
+      "testId": "T-0186",
+      "source": "E4"
+    },
+    {
+      "alias": "Granulometría por tamizado del árido grueso UNE-EN 933-1",
+      "testId": "T-0186",
+      "source": "E4"
+    },
+    {
+      "alias": "Contenido de aire ocluido UNE EN 12350-7",
+      "testId": "T-0061",
+      "source": "E4"
+    },
+    {
+      "alias": "Toma de muestra, medida de Cono, fabricación de cinco (5) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNEEN 123",
+      "testId": "T-0055",
+      "source": "E4"
+    },
+    {
+      "alias": "Visita de inspección de media jornada para la determinación \"in situ\" de las características superficiales del pavimento: resbaladicidad mediante péndulo TRRL y macrotextura mediante círculo de arena UNE EN 13036-1 y 412",
+      "testId": "T-0404",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación de la absorción de agua UNE-EN 1339, 13748-1, 13748-2",
+      "testId": "T-0526",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación de la resistencia al desgaste, por rozamiento UNE-EN 1339, 13748-1, 13748-2",
+      "testId": "T-0527",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación de la resistencia a flexión UNE-EN 1339, 13748-1, 13748-2",
+      "testId": "T-0528",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación del coeficiente de absorción UNE EN 1339, UNE EN 13748-1, UNE EN 13748-2",
+      "testId": "T-0526",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación de la Resistencia al deslizamiento/resbalamiento en laboratorio UNE-EN 1339, 13748-1, 13748-2",
+      "testId": "T-0532",
+      "source": "E4"
+    },
+    {
+      "alias": "Dimensiones y tolerancias UNE-EN 1340",
+      "testId": "T-0533",
+      "source": "E4"
+    },
+    {
+      "alias": "Resistencia a la flexión de bordillos UNE-EN 1340",
+      "testId": "T-0534",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación de la resistencia al desgaste, por rozamiento UNE-EN 1340",
+      "testId": "T-0535",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación del coeficiente de absorción de agua UNE-EN 1340",
+      "testId": "T-0536",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación de la Resistencia al deslizamiento/resbalamiento en laboratorio UNE-EN 1340",
+      "testId": "T-0538",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación individual del peso de pintura y del peso microesferas aplicadas x m2 UNE 135274-94",
+      "testId": "T-0406",
+      "source": "E4"
+    },
+    {
+      "alias": "Inspección de media jornada para determinación de la visibilidad de las marcas viales horizontales mediante retroreflectómetro horizontal según UNE EN 1436 determinando los coeficientes de luminancia QD y RL",
+      "testId": "T-0407",
+      "source": "E4"
+    },
+    {
+      "alias": "Inspección de media jornada para la determinación del coeficiente de resistencia al deslizamiento con péndulo PTV según UNE EN 13036-4 Método alternativo al equipo de medida del CRT",
+      "testId": "T-0404",
+      "source": "E4"
+    },
+    {
+      "alias": "Determinación de características geométricas y mecánicas de acero corrugado (doblado-desdoblado y tracción) UNE EN ISO 15630-1, ISO 6892 y UNE EN 10080",
+      "testId": "T-0109",
+      "source": "E8"
+    },
+    {
+      "alias": "Prueba de estanqueidad con aire (método \"L\") de la red según la UNE EN 1610:2016 y Emisión de Acta de la Prueba. Para la realización de la prueba, CYE aportará los siguientes medios: - Obturadores neumáticos (ciegos y co",
+      "testId": "T-0720",
+      "source": "E4"
+    },
+    {
+      "alias": "Inspección de canalización nueva, de diámetro >200 mm, mediante videocámara por circuito cerrado de televisión e inclinómetro para determinación de pendientes instantáneas, acompañado con informe que incluye: Video de la",
+      "testId": "T-0721",
+      "source": "E4"
+    },
+    {
+      "alias": "Supervisión Prueba de presión/estanqueidad en tramo de la red (PPTG para Abastecimiento de Agua ó UNE-EN 805:00)",
+      "testId": "T-0719",
+      "source": "E4"
+    },
+    {
+      "alias": "Granulometría de suelos por tamizado UNE 103101:95",
+      "testId": "T-0133",
+      "source": "E8"
+    },
+    {
+      "alias": "Límites de Atterberg UNE 103103:94 y 103014:93",
+      "testId": "T-0182",
+      "source": "E8"
+    },
+    {
+      "alias": "Índice CBR en laboratorio, sin incluir Proctor (tres puntos) UNE 103502:95",
+      "testId": "T-0145",
+      "source": "E8"
+    },
+    {
+      "alias": "Ensayo de hinchamiento libre en edómetro UNE 103601:96",
+      "testId": "T-0147",
+      "source": "E8"
+    },
+    {
+      "alias": "Contenido de materia orgánica en suelos UNE 103204:93",
+      "testId": "T-0135",
+      "source": "E8"
+    },
+    {
+      "alias": "Contenido de sales solubles en suelos NLT 114-99",
+      "testId": "T-0138",
+      "source": "E8"
+    },
+    {
+      "alias": "Contenido de yesos en suelos NLT 115-99",
+      "testId": "T-0139",
+      "source": "E8"
+    },
+    {
+      "alias": "Indice de forma Art 331 PG-3",
+      "testId": "T-0430",
+      "source": "E8"
+    },
+    {
+      "alias": "Ensayo de desmoronamiento frente al agua NLT 255",
+      "testId": "T-0424",
+      "source": "E8"
+    },
+    {
+      "alias": "Granulometría de pedraplén compactado UNE 103501",
+      "testId": "T-0144",
+      "source": "E5"
+    },
+    {
+      "alias": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 10 puntos",
+      "testId": "T-0173",
+      "source": "E8"
+    },
+    {
+      "alias": "Ensayo de Huella en terrenos NLT 256-99. Sin incluir elemento de reacción PARA EL CASO DE PEDRAPLENES O TODO-UNO",
+      "testId": "T-0177",
+      "source": "E5"
+    },
+    {
+      "alias": "Límites de Atterberg UNE 103103, 103104",
+      "testId": "T-0182",
+      "source": "E8"
+    },
+    {
+      "alias": "Contenido de sulfatos solubles UNE 103201",
+      "testId": "T-0205",
+      "source": "E8"
+    },
+    {
+      "alias": "Contenido de materia orgánica UNE 103204",
+      "testId": "T-0135",
+      "source": "E8"
+    },
+    {
+      "alias": "Ensayo de hinchamiento libre UNE 103601. Si se trata de un suelo tolerable",
+      "testId": "T-0147",
+      "source": "E8"
+    },
+    {
+      "alias": "Ensayo de colapso en suelos NLT-254. Si se trata de un suelo tolerable",
+      "testId": "T-0148",
+      "source": "E8"
+    },
+    {
+      "alias": "Ud. Fabricación de 3 probetas y determinación de resistencia a compresión simple a 7 días de la mezcla, NLT-305-310",
+      "testId": "T-0211",
+      "source": "E8"
+    },
+    {
+      "alias": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017 Mínimo facturable por desplazamiento 14 puntos",
+      "testId": "T-0173",
+      "source": "E8"
+    },
+    {
+      "alias": "Jornada para medida de la deflexión mediante el ensayo de viga Benkelman NLT-356. Sin incluir elemento de reacción",
+      "testId": "T-0219",
+      "source": "E5"
+    },
+    {
+      "alias": "Humedad de un suelo mediante secado en estufa",
+      "testId": "T-0132",
+      "source": "E5"
+    },
+    {
+      "alias": "Análisis granulométrico por tamizado UNE EN 933-1",
+      "testId": "T-0228",
+      "source": "E8"
+    },
+    {
+      "alias": "Contenido de sulfatos solubles en ácido UNE EN 1744-1",
+      "testId": "T-0199",
+      "source": "E8"
+    },
+    {
+      "alias": "Compuestos totales de azufre UNE EN 1744-1",
+      "testId": "T-0040",
+      "source": "E8"
+    },
+    {
+      "alias": "Penetracion de materiales bituminosos UNE EN 1426",
+      "testId": "T-0304",
+      "source": "E5"
+    },
+    {
+      "alias": "Humedad natural UNE 103300:93",
+      "testId": "T-0189",
+      "source": "E8"
+    },
+    {
+      "alias": "Granulometría por tamizado, UNE-EN 933-1:98",
+      "testId": "T-0186",
+      "source": "E8"
+    },
+    {
+      "alias": "Evaluación finos. Ensayo equivalente de arena UNE-EN 933-8:00",
+      "testId": "T-0179",
+      "source": "E8"
+    },
+    {
+      "alias": "Limpieza superficial. Contenido de impurezas NLT-172:86",
+      "testId": "T-0392",
+      "source": "E8"
+    },
+    {
+      "alias": "Caras de fractura UNE EN 933-5",
+      "testId": "T-0292",
+      "source": "E8"
+    },
+    {
+      "alias": "Desgaste de Los Ángeles EN 1097-2",
+      "testId": "T-0034",
+      "source": "E8"
+    },
+    {
+      "alias": "Índice de Lajas del árido grueso UNE-EN 933-3:97",
+      "testId": "T-0290",
+      "source": "E8"
+    },
+    {
+      "alias": "Ensayos de densidad y humedad \"in situ\", UNE 103503:95, Isótopos Radiactivos ASTM D-3017 (mínimo facturable 1 lote n=5 determinaciones por desplazamiento)",
+      "testId": "T-0172",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación de la dotación de ligante residual mediante calicata de 30x30 cm UNE EN 12697-3",
+      "testId": "T-0320",
+      "source": "E8"
+    },
+    {
+      "alias": "Toma sobre 3 bandejas y determinar la dotación media de ligante y árido",
+      "testId": "T-0376",
+      "source": "E5"
+    },
+    {
+      "alias": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5 Determinación de la densidad aparente sobre 3 probetas UNE EN 12697-6 Cálculo del contenido en huecos UNE EN 12697-8",
+      "testId": "T-0319",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación de escurrimiento de ligante UNE EN 12697-18",
+      "testId": "T-0326",
+      "source": "E8"
+    },
+    {
+      "alias": "Punto de reblandecimiento (anillo y bola) de betún asfáltico UNE EN 1427",
+      "testId": "T-0305",
+      "source": "E8"
+    },
+    {
+      "alias": "Indice de penetración (sin incluir ensayos) de betún asfáltico NLT-181",
+      "testId": "T-0385",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación de las propiedades de tracción de los ligantes modificados por el método fuerza-ductilidad a una temperatura UNE EN 13589",
+      "testId": "T-0311",
+      "source": "E8"
+    },
+    {
+      "alias": "Tamizado emulsiones bituminosas UNE EN 1429",
+      "testId": "T-0353",
+      "source": "E5"
+    },
+    {
+      "alias": "Carga de las partículas de las emulsiones bituminosas UNE EN 1430",
+      "testId": "T-0351",
+      "source": "E5"
+    },
+    {
+      "alias": "Índice de rotura UNE EN 13075-1",
+      "testId": "T-0349",
+      "source": "E5"
+    },
+    {
+      "alias": "Caracterización de las propiedades perceptibles",
+      "testId": "T-0350",
+      "source": "E5"
+    },
+    {
+      "alias": "Contenido de fluidificante por destilación UNE EN 1431",
+      "testId": "T-0355",
+      "source": "E5"
+    },
+    {
+      "alias": "Km de carril medido para la medición del IRI NLT-330",
+      "testId": "T-0224",
+      "source": "E8"
+    },
+    {
+      "alias": "Macrotextura superficial UNE EN 13036-1 Mínimo facturable por desplazamiento 10 ensayos",
+      "testId": "T-0327",
+      "source": "E8"
+    },
+    {
+      "alias": "Toma de muestra, medida de Cono, fabricación de cinco (5) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12",
+      "testId": "T-0055",
+      "source": "E5"
+    },
+    {
+      "alias": "Determinación de la profundidad de penetración del agua bajo presión sobre 3 probetas cilíndricas de 15x30 cm a la edad de 28 días UNE EN 12390-8",
+      "testId": "T-0071",
+      "source": "E8"
+    },
+    {
+      "alias": "Visita de inspección para la realización de ensayos no destructivos de uniones soldadas en ángulo. Inspección por líquidos penetrantes UNE-EN 3452-1. Realización en obra o taller a < 50 km de obra",
+      "testId": "T-0128",
+      "source": "E5"
+    },
+    {
+      "alias": "Visita de inspección para la realización de ensayos no destructivos de uniones soldadas a tope o fuerza. Examen por ultrasonidos UNE-EN ISO 17640. Realización en obra o taller a < 50 km de obra",
+      "testId": "T-0129",
+      "source": "E5"
+    },
+    {
+      "alias": "Visita de inspección para la determinación del espesor de recubrimiento UNE EN ISO 2808 y/o comprobación de la adherencia del recubrImiento de la estructura metálica UNE EN ISO 2409. Realización en obra o taller a < 50 k",
+      "testId": "T-0697",
+      "source": "E5"
+    },
+    {
+      "alias": "Visita de inspección para la determinación del espesor de galvanizado in situ por métodos no destructivos UNE EN ISO 1461",
+      "testId": "T-0120",
+      "source": "E5"
+    },
+    {
+      "alias": "Toma de muestra inalterada con tomamuestra tipo abierto",
+      "testId": "T-0261",
+      "source": "E6"
+    },
+    {
+      "alias": "Testigo parafinado",
+      "testId": "T-0269",
+      "source": "E6"
+    },
+    {
+      "alias": "Ensayo de penetración estándar SPT",
+      "testId": "T-0263",
+      "source": "E6"
+    },
+    {
+      "alias": "Análisis granulométrico de suelos",
+      "testId": "T-0228",
+      "source": "E6"
+    },
+    {
+      "alias": "Resistencia a compresión simple de suelos",
+      "testId": "T-0567",
+      "source": "E6"
+    },
+    {
+      "alias": "Ensayo de corte directo en suelos, consolidado y drenado",
+      "testId": "T-0155",
+      "source": "E6"
+    },
+    {
+      "alias": "Ensayo triaxial en suelos, sin consolidar y sin drenar",
+      "testId": "T-0162",
+      "source": "E6"
+    },
+    {
+      "alias": "Ensayo triaxial en suelos, consolidado y drenado",
+      "testId": "T-0160",
+      "source": "E6"
+    },
+    {
+      "alias": "Resistencia a compresión simple de rocas",
+      "testId": "T-0567",
+      "source": "E6"
+    },
+    {
+      "alias": "Análisis granulométrico de pedraplén compactado UNE103101-95",
+      "testId": "T-0133",
+      "source": "E8"
+    },
+    {
+      "alias": "Ensayo de placa de carga dinámica UNE 103807-2:2008 correlacionado con el estático (no es necesario elemento de reacción) (mínimo facturable 5 por desplazamiento)",
+      "testId": "T-0176",
+      "source": "E8"
+    },
+    {
+      "alias": "Ensayo de Huella en terrenos NLT 256-99. Sin incluir elemento de reacción PARA EL CASO DE PEDRAPLENES",
+      "testId": "T-0177",
+      "source": "E8"
+    },
+    {
+      "alias": "Ud. Ensayo de Carga con Placa, NLT-357. No se Incluye camión u otro elemento de reacción que será aportado el peticionario a su cargo. Mínimo facturable por desplazamiento 2 Unidades por desplazamiento",
+      "testId": "T-0174",
+      "source": "E8"
+    },
+    {
+      "alias": "Coeficiente de Pulimento Acelerado UNE EN 1097-8",
+      "testId": "T-0034",
+      "source": "E8"
+    },
+    {
+      "alias": "Toma de muestra, medida de Cono, fabricación de cinco (5) probetas cilíndricas o cúbicas, curado, densidad, ajuste de las caras y ensayo a compresión a dos edades, UNE-EN 12350-1 y 2, UNE-EN 12390-1, 2, 3 y 7",
+      "testId": "T-0055",
+      "source": "E6"
+    },
+    {
+      "alias": "Toma de muestra en artesa de 35x35 cm, curado en cámara húmeda, extracción de doce (12) testigos de 60 mm en artesa y ensayo a compresión a 4 edades (3,7, 28 y 90 días) según lo establecido en UNE EN 14488-1, UNE 83605 y",
+      "testId": "T-0064",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación de la capacidad de absorción de energía sobre una probeta plana de 600x600x100 mm reforzada con fibras según lo establecido en UNE EN 14488-5, incluyendo la determinación de la respuesta carga - flecha y el",
+      "testId": "T-0065",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación de características mecánicas de acero activo (tracción) UNE EN ISO 15630-3 y ISO 6892",
+      "testId": "T-0105",
+      "source": "E6"
+    },
+    {
+      "alias": "Ensayo a tracción de una probeta de acero en perfiles (incluso mecanizado de probetas prismaticas y alargamiento a la rotura) UNE EN 10002. Ensayo de flexión por choque (resiliencia) a temperatura ambiente (20ºC), por 3 ",
+      "testId": "T-0119",
+      "source": "E6"
+    },
+    {
+      "alias": "Ud de inspección de la visibilidad de las marcas viales horizontales mediante retroreflectómetro horizontal según UNE EN 1436 determinando: -Visibilidad Diurna: Coefiente de luminancia en iluminación difusa sobre pavimen",
+      "testId": "T-0407",
+      "source": "E6"
+    },
+    {
+      "alias": "Resistencia al deslizamiento SRT \"in situ\" UNE EN 1436",
+      "testId": "T-0411",
+      "source": "E8"
+    },
+    {
+      "alias": "Inspección de canalización nueva de saneamiento mediante videocámara por circuito cerrado e inclinómetro. Se incluye informe con video de la inspección realizada en formato digital y actas de inspección con instantáneas ",
+      "testId": "T-0721",
+      "source": "E6"
+    },
+    {
+      "alias": "Prueba de estanqueidad con aire (método L) en tubería de saneamiento de hormigón en el rango de Ø 200 - 1.000 mm entre pozos, según norma UNE-EN 1610",
+      "testId": "T-0720",
+      "source": "E6"
+    },
+    {
+      "alias": "Ensayo de apisonado proctor modificado UNE 103 501",
+      "testId": "T-0142",
+      "source": "E7"
+    },
+    {
+      "alias": "Determinación de límites de Atterberg UNE 103 103, 102104",
+      "testId": "T-0142",
+      "source": "E7"
+    },
+    {
+      "alias": "Determinación del porcentaje de caras de fractura de las partículas de árido grueso UNE EN 933-5",
+      "testId": "T-0185",
+      "source": "E7"
+    },
+    {
+      "alias": "Analisis granulométrico UNE EN 933-1",
+      "testId": "T-0228",
+      "source": "E7"
+    },
+    {
+      "alias": "Humedad natural UNE EN 1097-5",
+      "testId": "T-0024",
+      "source": "E7"
+    },
+    {
+      "alias": "Determinación \"in situ\" de la densidad de un suelo por el método de la arena y humedad en estufa UNE 103503, 103300",
+      "testId": "T-0172",
+      "source": "E7"
+    },
+    {
+      "alias": "Ensayo de carga con placa determinando módulos de compresibilidad para viales. No incluyen preparación del dispositivo a reacción NLT 357",
+      "testId": "T-0174",
+      "source": "E7"
+    },
+    {
+      "alias": "Toma de muestras de hormigón fresco, incluyendo muestreo del hormigón, medida del asiento de cono, fabricación de hasta 5 probetas, curado y rotura a compresión UNE EN 12390-2,3 y 12350-2",
+      "testId": "T-0053",
+      "source": "E7"
+    },
+    {
+      "alias": "Ensayo completo de una muestra de acero para armaduras pasivas, incluyendo tracción (con medida de Agt), doblado/desdoblado y características geométricas (UNE 36068, 36065, EN 10002 ó UNE EN ISO 15630-1, ISO 6892 y UNE E",
+      "testId": "T-0109",
+      "source": "E7"
+    },
+    {
+      "alias": "Estabilidad de los áridos y fragmentos de roca frente a la acción de los ciclos de humedad-sequedad NLT-260",
+      "testId": "T-0425",
+      "source": "E8"
+    },
+    {
+      "alias": "Desgaste de Los Ángeles según UNE EN 1097-2",
+      "testId": "T-0034",
+      "source": "E8"
+    },
+    {
+      "alias": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 1",
+      "testId": "T-0055",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación de características geométricas y mecánicas de acero activo (tracción) UNE EN ISO 15630-3 y ISO 6892",
+      "testId": "T-0111",
+      "source": "E8"
+    },
+    {
+      "alias": "Determinación del espesor de galvanizado in situ por métodos no destructivos UNE EN ISO 1461",
+      "testId": "T-0120",
+      "source": "E8"
+    },
+    {
+      "alias": "Inspección para determinación de la himedad mediante higrómetro de contacto",
+      "testId": "C-0001",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo arrancamiento en pavimentos y recrecidos",
+      "testId": "C-0002",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de estanqueidad en instalación de Saneamiento",
+      "testId": "C-0005",
+      "source": "E9"
+    },
+    {
+      "alias": "Saneamiento prueba de circulación de la red general. Mediante el accionamiento de los aparatos, se comprobará que no hay estancamientos y que no existen fugas en los puntos visibles.",
+      "testId": "C-0006",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita para inspección de tubería de saneamiento diámetro superior a 250 mm mediante equipo robotizado equipado con cámara CCTV.\nMínimo facturable 500 m por visita",
+      "testId": "C-0007",
+      "source": "E9"
+    },
+    {
+      "alias": "Comprobación de la continuidad del conductor de protección.\nEn las tomas de corriente del edificio se comprobará que existe una continuidad del conductor de protección de tal forma que se asegura que cualquier equipo de clase I conectado a una toma se garantizará la continuidad de la puesta a tierra de sus masas.",
+      "testId": "C-0010",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de funcionamiento de puesta a tierra de pararrayos\nA realizar en la misma visita",
+      "testId": "C-0011",
+      "source": "E9"
+    },
+    {
+      "alias": "Pruebas finales de centros de transformación. Se realizará una verificación de las medidas de seguridad del centro y el estado y características del local. (ventilaciones, contactos, distancias, medidas de seguridad, accesos,...).",
+      "testId": "C-0012",
+      "source": "E9"
+    },
+    {
+      "alias": "Pruebas eléctricas del grupo electrógeno.\nConsiste en la comprobación del correcto funcionamiento del grupo, la conmutación y acoplamiento y desacoplamiento del grupo a la instalación. Se realizarán comprobaciones en carga y en vacío. Se medirán también los parámetros eléctricos de salida (tensión, frecuencia e intensidad).",
+      "testId": "C-0013",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayos de conductores de líneas de Media Tensión según UNE-211006.",
+      "testId": "C-0014",
+      "source": "E9"
+    },
+    {
+      "alias": "Iluminación, pruebas de funcionamiento.\nSe verificará el funcionamiento de los sistemas de iluminación, accionamiento de los mecanismos, sensores de presencia, sistema de control de iluminación del alumbrado próximo a las ventanas en función de la iluminación exterior, etc.",
+      "testId": "C-0015",
+      "source": "E9"
+    },
+    {
+      "alias": "Pruebas de servicio en antenas TV/FM.\nEn las tomas de televisión se verificará el nivel de señal existente y se comprobará que cumple con los mínimos establecidos por la normativa.",
+      "testId": "C-0017",
+      "source": "E9"
+    },
+    {
+      "alias": "Pruebas de servicio de instalación de control de accesos.",
+      "testId": "C-0018",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de servicio de instalación fotovoltaica",
+      "testId": "C-0021",
+      "source": "E9"
+    },
+    {
+      "alias": "Supervisión de prueba de presión y estanqueidad de la red de fontanería y agua fría del edificio.",
+      "testId": "C-0022",
+      "source": "E9"
+    },
+    {
+      "alias": "Supervisión de prueba de presión y estanqueidad de la red de fontanería y agua caliente del edificio.",
+      "testId": "C-0024",
+      "source": "E9"
+    },
+    {
+      "alias": "Se realizará una prueba de prestaciones térmicas (temperatura y humedad) en todas las estancias climatizadas, control de los equipos instalados, caudales en un porcentaje de las rejillas, medidas de seguridad en la sala de máquinas, prueba de libre dilatación de la red hidráulica y rendimientos de la caldera.",
+      "testId": "C-0025",
+      "source": "E9"
+    },
+    {
+      "alias": "Supervisión de prueba de presión en circuito hidráulico de refrigeración.",
+      "testId": "C-0026",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de servicio de la instalación de ventilación.",
+      "testId": "C-0027",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de servicio y funcionamiento de los equipos de producción térmica",
+      "testId": "C-0028",
+      "source": "E9"
+    },
+    {
+      "alias": "Supervisión de prueba de presión en circuito de tubería de producción térmica.",
+      "testId": "C-0029",
+      "source": "E9"
+    },
+    {
+      "alias": "Pruebas de servicio de aparatos elevadores. Comprobación del funcionamiento del equipo, enclavamientos mecánicos y eléctricos, medidas de seguridad, nivelado de la cabina, ventilación  del hueco, deslizamiento de los cables, paracaídas, etc.",
+      "testId": "C-0030",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo Blower Door, para medir el volumen de infiltraciones de aire, en edificación de hasta 100 m² de superficie útil, durante la ejecución de la obra, una vez cerrada la envolvente.",
+      "testId": "C-0033",
+      "source": "E9"
+    },
+    {
+      "alias": "Informe sobre cumplimiento de la envolvente que nos permitirá detectar anomalías y problemas ocultos (filtraciones de aire, deficiencias de sellado, humedades, etc.) en el edificio, reaizando las siguientes pruebas:\n- Prueba blower door\n- Análisis de trasmitancias térmica mediante termoflujómetro\n- Inspección con cámara termográfica a comprobación de aislamientos térmicos, sobrecargas de tensión, filtraciones de aire, puentes térmicos, etc.",
+      "testId": "C-0034",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de servicio de electricidad e iluminación RBT, determinando:\n- Medición de la resistencia de aislamiento\n- Circuitos: Reparto de cargas, caidas de tensión, equipotencialidad\n- Cuadros eléctricos\n- Resistencia de puesta a tierra\n- Iluminación: Intensidad luminosa, alumbrado de emergencia e interruptores",
+      "testId": "C-0038",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de servicio de calefacción y ACS determinando:\n- Circulación y libre dilatación: Identificación, Deformaciones y expansión\n- Conductos de distribución: velocidad, cuadales, temperaturas, sondas, compuertas\n- Climatizadores, enfriadores: Bombas, regulación, Caudales y temperatura\n- ACS: temperaturas y prevención de legionela",
+      "testId": "C-0039",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de servicio de contra incendios, determinando:\n- Detectores\n- Central de señalización y alarma\n- Pulsadores\n- Extintores\n- Estanqueidad y presiones de las bocas de incendios e hidrantes",
+      "testId": "C-0040",
+      "source": "E9"
+    },
+    {
+      "alias": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfica",
+      "testId": "C-0042",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba estática a realizar en obra, sobre una barandilla, para la determinación de la fuerza horizontal que resiste según\nCTE DB SE-AE. Incluso desplazamiento a obra e informe de resultados",
+      "testId": "C-0043",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita para la supervisión de la prueba de funcionamiento de instalación de riego con comprobación de apertura de electroválvulas, accionamiento de aspersores y la correcta cobertura de la superficie ajardinada.",
+      "testId": "C-0044",
+      "source": "E9"
+    },
+    {
+      "alias": "P.A. para visitas para la realización de prueba de funcionamiento de la instalación de alumbrado con la comprobación de los siguientes parámetros:\n- Puesta a tierra\n- Equipotencialidad\n- Protección diferencial\n- Aislamiento F-N\n- Consumos\n- Caída de tensión\n- Protecciones contra sobreintensidades\n- Funcionamiento general de cuadro de protección y\nmaniobra.\nSe incluye la elaboración de los informes correspondientes",
+      "testId": "C-0045",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita para la medición en horario nocturno de los niveles de iluminación en los diferentes ambientes de la obra.",
+      "testId": "C-0046",
+      "source": "E9"
+    },
+    {
+      "alias": "P.A. para visitas para la realización de prueba de funcionamiento de red semafórica con comprobación de temporización, activación de pulsadores y coordinación entre diferentes puntos y funcionamiento eléctrico de la instalación e redacción del informe correspondiente",
+      "testId": "C-0047",
+      "source": "E9"
+    },
+    {
+      "alias": "Estudio de dosificación de una mezcla de suelo estabilizado incluyendo: Fabricación de cuatro series de cuatro probetas con 4 porcentajes de cemento",
+      "testId": "C-0049",
+      "source": "E9"
+    },
+    {
+      "alias": "Comprobación de la fórmula de trabajo: fabricación de 3 probetas y rotura a compresión a 7 días con el % de cemento óptimo",
+      "testId": "C-0050",
+      "source": "E9"
+    },
+    {
+      "alias": "Determinación del espesor de la capa estabilizada mediante ejecución de calicata y rociado con fenolftaleína",
+      "testId": "C-0053",
+      "source": "E9"
+    },
+    {
+      "alias": "Estudio de dosificación de una mezcla de suelo cemento incluyendo: Fabricación de cuatro series de cuatro probetas con 4 porcentajes de cemento",
+      "testId": "C-0054",
+      "source": "E9"
+    },
+    {
+      "alias": "Extracción de testigo para comprobación de espesor de la mezcla de suelo cemento",
+      "testId": "C-0056",
+      "source": "E9"
+    },
+    {
+      "alias": "Ud. Determinación del espesor de zahorra mediante la inspección de calicatas manuales",
+      "testId": "C-0057",
+      "source": "E9"
+    },
+    {
+      "alias": "Comprobación de las caracteristicas y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinación de la densidad aparente, determinación de la densidad máxima, cálculo de contenido de huecos, determinación del contenido de ligante y de la granulometría de los áridos extraídos",
+      "testId": "C-0058",
+      "source": "E9"
+    },
+    {
+      "alias": "Recuperación elástica de betún modificado NLT-329",
+      "testId": "C-0059",
+      "source": "E9"
+    },
+    {
+      "alias": "Desplazamiento de equipo APL para determinación del IRI en obra",
+      "testId": "C-0061",
+      "source": "E9"
+    },
+    {
+      "alias": "Km. de resistencia al deslizamiento CRT NLT-336",
+      "testId": "C-0063",
+      "source": "E9"
+    },
+    {
+      "alias": "Desplazamiento de equipo ECODYN para la medida de la retrorreflexión en obra\nNo incluye señalización que será por cuenta del Contratista",
+      "testId": "C-0065",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo presiométrico con ciclo intermedio",
+      "testId": "C-0078",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo de durabilidad (SDT) NLT 251",
+      "testId": "C-0083",
+      "source": "E9"
+    },
+    {
+      "alias": "Estudio de dosificación de una mezcla de gravacemento incluyendo: Fabricación de cuatro series de cuatro probetas con 4 porcentajes de cemento",
+      "testId": "C-0084",
+      "source": "E9"
+    },
+    {
+      "alias": "Extracción de testigo para comprobación de espesor de la mezcla de gravacemento",
+      "testId": "C-0085",
+      "source": "E9"
+    },
+    {
+      "alias": "Realización de ensayo de integridad estructural por Crosshole de pilote instrumentado con 4 tubos incluyendo el desplazamiento de personal y equipo a obra y la elaboración del correspondiente informe\nMínimo facturable por desplazamiento 5 pilotes",
+      "testId": "C-0086",
+      "source": "E9"
+    },
+    {
+      "alias": "Realización de ensayo de integridad estructural por Crosshole de pilote instrumentado con 4 tubos incluyendo el desplazamiento de personal y equipo a obra y la elaboración del correspondiente informe\nMínimo facturable por desplazamiento 6 pilotes",
+      "testId": "C-0086",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita para la medición del espesor de pintura mediante corrientes inducidas S/ UNE ISO 28,08-00.\nPasarela 1, pasarela 2",
+      "testId": "C-0087",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita para ensayo de adherencia de pintura sobre estructura metálica mediante corte por enrejado. (método destructivo)",
+      "testId": "C-0088",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita de inspección por técnico para la realización del control de soldaduras mediante partículas magnéticas por técnico nivel II con emisión de informe. Mínimo 8 cordones inspeccionados por visita",
+      "testId": "C-0089",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita de inspección por técnico para la realización del control de soldaduras en la estructura metálica mediante ultrasonidos con emisión de Informe. Mínimo 8 cordones inspeccionados por visita",
+      "testId": "C-0089",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita de inspección por técnico para la realización del control de soldaduras en la estructura metálica mediante inspección visual, UNE-EN 970 por técnico END nivel II con emisión de Informe",
+      "testId": "C-0090",
+      "source": "E9"
+    },
+    {
+      "alias": "Toma de muestra de mortero/lechada de cemento, fabricación de probetas de 4x4x16 cm y rotura a compresión y flexión a tres edades",
+      "testId": "C-0091",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayos ópticos sobre la señal, incluyendo la medición de coordenadas cromáticas, factor de luminancia y coeficiente de retroreflexión UNE 135334 (hasta un máximo de 10 señales)",
+      "testId": "C-0093",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de funcionamiento de instalación de alumbrado exterior, comprobando funcionamiento general de la instalación, puesta a tierra y equipotencialidad, protecciones y cumplimiento de ITC-BT 09",
+      "testId": "C-0094",
+      "source": "E9"
+    },
+    {
+      "alias": "Realización de prueba de estanqueidad de tubería de abastecimiento de agua en reposición de servicios",
+      "testId": "C-0096",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita de inspección para la realización del ensayo de impedancia mecánica de pilotes prefabricados para comprobación de la integridad estructural de los mismos",
+      "testId": "C-0097",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita de inspección para la realización del control de uniones soldadas mediante ensayos no destructivos: Líquidos penetrantes o partículas magnéticas",
+      "testId": "C-0098",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita de inspección para la determinación del índice de resbaladicidad de los pavimentos acabados",
+      "testId": "C-0099",
+      "source": "E9"
+    },
+    {
+      "alias": "Supervisión de las pruebas de funcionamiento de las instalaciones, en presencia del Instalador, de: saneamiento, fontanería, electricidad e iluminación, contra incendios, ACS, gas, telecomunicaciones y climatización.",
+      "testId": "C-0100",
+      "source": "E9"
+    },
+    {
+      "alias": "Extracción de testigo para comprobación de esperor de la mezcla de suelo cemento",
+      "testId": "C-0101",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo de arrancamiento hasta la carga de servicio. Mínimo por desplazamiento 5 ensayos. Si fuesen necesarios medios de elevación correrán a cargo del Peticionario",
+      "testId": "C-0102",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo de choque sobre barreras metálicas de seguridad UNE EN 1317-1 y UNE EN 1317-2",
+      "testId": "C-0103",
+      "source": "E9"
+    },
+    {
+      "alias": "Partículas trituradas según UNE EN 933-5",
+      "testId": "T-0030",
+      "source": "E9"
+    },
+    {
+      "alias": "Coeficiente desgaste Los Ángeles UNE-EN 1097-2",
+      "testId": "T-0034",
+      "source": "E9"
+    },
+    {
+      "alias": "Equivalente de arena según UNE EN 933-8",
+      "testId": "T-0037",
+      "source": "E9"
+    },
+    {
+      "alias": "Toma de muestra (incluyendo desplazamiento y traslado de muestras desde el laboratorio), medida de asentamiento, fabricación de cuatro (5) probetas, curado, ajuste de caras y ensayo a compresión UNE-EN 12350-1, UNE-EN 12350-2, UNE-EN 12390-2, UNE-EN 12390-3",
+      "testId": "T-0053",
+      "source": "E9"
+    },
+    {
+      "alias": "Toma de muestra (incluyendo desplazamiento y traslado de muestras desde el laboratorio), medida de asentamiento, fabricación de cinco (5) probetas normalizadas, curado y ensayo a compresión UNE-EN 12350-1, UNE-EN 12350-2, UNE-EN 12390-2, UNE-EN 12390-3",
+      "testId": "T-0053",
+      "source": "E9"
+    },
+    {
+      "alias": "Toma de muestras de hormigón fresco HF-3,5, incluyendo muestreo del hormigón, medida del asiento de cono,\nfabricación de tres probetas prismáticas de 15x15x60 cm, curado y rotura a dos edades, UNE EN 12390-2, 12390-5, 12350-1 y 12350-2",
+      "testId": "T-0055",
+      "source": "E9"
+    },
+    {
+      "alias": "Toma de muestra, medida de Cono, fabricación de cinco (5) probetas de 15x30 cm, curado, refrentado y ensayo a\ncompresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNEEN 12390-3:03",
+      "testId": "T-0055",
+      "source": "E9"
+    },
+    {
+      "alias": "Toma de muestra, medida de Cono, fabricación de cuatro (4) probetas de 15x30 cm, curado, refrentado y ensayo a compresión a dos edades, UNE-EN 12350-1:06, UNE-EN 12350-2:06, UNE-EN 12390-1:01, UNE-EN 12390-2:01, UNE-EN 12390-3:03",
+      "testId": "T-0055",
+      "source": "E9"
+    },
+    {
+      "alias": "Determinación de la consistencia del hormigón fresco (Cono de Abrams) UNE EN 12350-2\nToma de muestra de hormigón fresco y fabricación de 5 probetas cilíndricas de 15x30 cm UNE EN 12390-2\nCurado en cámara húmeda y refrendado y rotura a compresión a 3 edades de las probetas UNE EN 12390-3\nDeterminación de la densidad de la probeta previo a su rotura UNE EN 12390-7",
+      "testId": "T-0056",
+      "source": "E9"
+    },
+    {
+      "alias": "Toma de muestra en artesa de 35x35 cm, curado en cámara húmeda, extracción de doce (12) testigos de 60 mm en artesa y ensayo a compresión a 4 edades (3,7, 28 y 90 días) según lo establecido en UNE EN 14488-1, UNE 83605 y UNE EN 12390-3",
+      "testId": "T-0064",
+      "source": "E9"
+    },
+    {
+      "alias": "Determinación de la capacidad de absorción de energía sobre una probeta plana de 600x600x100 mm reforzada con fibras según lo establecido en UNE EN 14488-5, incluyendo la determinación de la respuesta carga - flecha y el cálculo del diagrama de energía – fecha para la determinación de la capacidad de absorción de energía entre 0 y 25 mm de fecha.",
+      "testId": "T-0065",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo completo de una muestra de acero para armaduras pasivas, incluyendo tracción (con medida de Agt), doblado/desdoblado y características geométricas (UNE 36068, 36065, EN 10002 ó UNE EN ISO 15630-1, ISO 6892 y UNE EN 10080).",
+      "testId": "T-0109",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo completo de una muestra de malla electrosoldada para armaduras pasivas, incluyendo tracción (con medida de Agt), doblado/desdoblado, características geométricas y despegue de nudos UNE-EN 36068, UNE-EN ISO 15630-2 e ISO 6892",
+      "testId": "T-0109",
+      "source": "E9"
+    },
+    {
+      "alias": "Determinación de características geométricas UNE EN 15630-1 y UNE EN 10080\nDeterminación de las características mecánicas en el ensayo de tracción UNE EN ISO 15630-1\nAptitud al doblado-desdoblado UNE EN ISO 15630-1",
+      "testId": "T-0111",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo a tracción de una probeta de acero en perfiles (incluso mecanizado de probetas prismaticas y alargamiento a la rotura) UNE EN 10002. Ensayo de flexión por choque (resiliencia) a temperatura ambiente (20ºC), por 3 probetas UNE 7475 Parte 1/92 Parte 2/93.\nPasarela 1, pasarela 2 y armado de micropilotes",
+      "testId": "T-0119",
+      "source": "E9"
+    },
+    {
+      "alias": "Determinación del espesor de galvanizado in situ por métodos no destructivos UNE EN  ISO 1461",
+      "testId": "T-0120",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita para realización de ensayo no destructivo de uniones soldadas. Inspector Nivel 2. \nExamen mediante líquidos penetrantes UNE-EN 3452-1",
+      "testId": "T-0128",
+      "source": "E9"
+    },
+    {
+      "alias": "Análisis granulométrico por tamizado  UNE 103 10 1",
+      "testId": "T-0142",
+      "source": "E9"
+    },
+    {
+      "alias": "Medida de hinchamiento libre en edómetro UNE 103 601",
+      "testId": "T-0142",
+      "source": "E9"
+    },
+    {
+      "alias": "Densidad por el método de la arena UNE 103503:95 y Humedad por secado en estufa UNE 103300:93. Calibración\nmétodo nuclear",
+      "testId": "T-0172",
+      "source": "E9"
+    },
+    {
+      "alias": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017\nMínimo facturable por desplazamiento 10 puntos",
+      "testId": "T-0173",
+      "source": "E9"
+    },
+    {
+      "alias": "Densidad y humedad \"in situ\" por isótopos radiactivos ASTM D-3017\nMínimo facturable por desplazamiento 14 puntos",
+      "testId": "T-0173",
+      "source": "E9"
+    },
+    {
+      "alias": "Densidad y humedad \"in situ\" por isótopos radiactivos UNE 103900\nMínimo facturable por desplazamiento 10 puntos",
+      "testId": "T-0173",
+      "source": "E9"
+    },
+    {
+      "alias": "Densidad y humedad \"in situ\" por isótopos radiactivos UNE 103900\nMínimo facturable por desplazamiento 14 puntos",
+      "testId": "T-0173",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo de carga con placa doble ciclo UNE 103808\nSin incluir elemento de reacción",
+      "testId": "T-0174",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo de Huella en terrenos NLT 256-99. Sin incluir elemento de reacción \nPARA EL CASO DE PEDRAPLENES",
+      "testId": "T-0177",
+      "source": "E9"
+    },
+    {
+      "alias": "Granulometría  por tamizado, UNE-EN 933-1",
+      "testId": "T-0186",
+      "source": "E9"
+    },
+    {
+      "alias": "Contenido de Materia Orgánica Oxidable Método Pemanganato Potásico UNE UNE 103204/93  y UNE 103204/93 ERRATUM",
+      "testId": "T-0187",
+      "source": "E9"
+    },
+    {
+      "alias": "Determinación de límites de Atterberg UNE 103103, 103104",
+      "testId": "T-0203",
+      "source": "E9"
+    },
+    {
+      "alias": "Granulometría en corriente de aire según UNE EN 933-10",
+      "testId": "T-0301",
+      "source": "E9"
+    },
+    {
+      "alias": "Densidad aparente según la UNE EN 1097-3",
+      "testId": "T-0302",
+      "source": "E9"
+    },
+    {
+      "alias": "Índice de penetraciónUNE EN 12591 (Anejo A), UNE EN 13924",
+      "testId": "T-0306",
+      "source": "E9"
+    },
+    {
+      "alias": "Determinación de la densidad máxima de la mezcla UNE EN 12697-5\nDeterminación de la densidad aparente sobre 3 probetas UNE EN 12697-6\nCálculo del contenido en huecos UNE EN 12697-8",
+      "testId": "T-0319",
+      "source": "E9"
+    },
+    {
+      "alias": "Macrotextura superficial UNE EN 13036-1\nMínimo facturable por desplazamiento 10 ensayos",
+      "testId": "T-0327",
+      "source": "E9"
+    },
+    {
+      "alias": "Extracción de testigo en mezcla bituminosa en caliente: espesor y densidad UNE EN 12697-27, -30,-6)",
+      "testId": "T-0332",
+      "source": "E9"
+    },
+    {
+      "alias": "Inspección de media jornada para la determinación del coeficiente de resistencia al deslizamiento con péndulo PTV según UNE EN 13036-4\nMétodo alternativo al equipo de medida del CRT\nNo incluye señalización que será por cuenta del Contratista",
+      "testId": "T-0404",
+      "source": "E9"
+    },
+    {
+      "alias": "Inspección de media jornada para la determinación del coeficiente de resistencia al deslizamiento con péndulo PTV\nsegún UNE EN 13036-4 Método alternativo al equipo de medida del CRT No incluye señalización que será por cuenta del Contratista",
+      "testId": "T-0404",
+      "source": "E9"
+    },
+    {
+      "alias": "Visita de inspección de media jornada para la determinación \"in situ\" de las características superficiales del pavimento:\nresbaladicidad mediante péndulo TRRL y macrotextura mediante círculo de arena UNE EN 13036-1 y 41201",
+      "testId": "T-0404",
+      "source": "E9"
+    },
+    {
+      "alias": "Inspección de media jornada para la determinación del coeficiente de resistencia al deslizamiento con péndulo PTV\nsegún UNE EN 13036-4 Método alternativo al equipo de medida del CRT",
+      "testId": "T-0404",
+      "source": "E9"
+    },
+    {
+      "alias": "Ud de inspección de la visibilidad de las marcas viales horizontales mediante retroreflectómetro horizontal según UNE EN 1436 determinando: \n-Visibilidad Diurna: Coefiente de luminancia en iluminación difusa sobre pavimento (Qd)\n-Visibilidad Nocturna: Coeficiente de luminancia retrorreflejada o retrorreflexión en seco (RL)\nNo se incluye la señalización que será por cuenta del Contratista",
+      "testId": "T-0407",
+      "source": "E9"
+    },
+    {
+      "alias": "Inspección de media jornada para determinación de la visibilidad de las marcas viales horizontales mediante\nretroreflectómetro horizontal según UNE EN 1436 determinando los coeficientes de luminancia QD y RL",
+      "testId": "T-0407",
+      "source": "E9"
+    },
+    {
+      "alias": "Jornada para determinación \"in situ\" de la resistencia al deslizamiento con péndulo TRRL",
+      "testId": "T-0509",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de estanqueidad de aparatos, red horizontal, arquetas y pozos según DB-HS-5, CTE y Estanqueidad de la red  UNE EN 1610 “Instalación y pruebas de acometidas y redes de saneamiento”.",
+      "testId": "T-0720",
+      "source": "E9"
+    },
+    {
+      "alias": "Inspección de canalización nueva, de diámetro >200 mm, mediante videocámara por circuito cerrado de televisión e\ninclinómetro para determinación de pendientes instantáneas, acompañado con informe que incluye: Video de la inspección en formato digital y actas de inspección.",
+      "testId": "T-0721",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de estanqueidad con aire (método \"L\") de la red según la UNE EN 1610:2016 y Emisión de Acta de la Prueba.\nPara la realización de la prueba, CYE aportará los siguientes medios:\n- Obturadores neumáticos (ciegos y con bypass) en los rangos 150-1.600 mm con presión de inflado 2,5 bar\n- Equipo completo de control de inflado y llenado de tubería\n- Compresor de aire y generador trifásicos de 3 kW y 13,5 kVA respectivamente\n- Trípode y torno rescatador de personas y elevación de cargas\n- Equipos de protección y seguridad (detectores multigas, sondas de muestreo y autorescatadores de oxígeno químico)\n- Manómetros diferenciales calibrados con resolución 0,1 bar\n- Dos operadores con formación específica en prevención de riesgos laborales en espacios confinados",
+      "testId": "T-0722",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de estanqueidad \"in situ\" de cubiertas no inundables, según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión de informe.",
+      "testId": "T-0724",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de estanqueidad \"in situ\" de cubiertas por inundación, verificación de la correcta evacuación de desagües y canalones, según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión de informe\nLos trabajos de inundación correrán a cargo del Cliente",
+      "testId": "T-0724",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de estanqueidad \"in situ\" de cubiertas no inundables por aspersores, verificación de la correcta evacuación de desagües y canalones, según procedimiento ALAGAL 3-ECNI-01. Incluido reportaje fotográfico y emisión de informe\nLos medios auxiliares correrán a cargo del Cliente",
+      "testId": "T-0724",
+      "source": "E9"
+    },
+    {
+      "alias": "Prueba de estanqueidad \"in situ\" del conjunto fachada-carpintería mediante batería de rociadores según procedimiento ALAGAL 1-ECC-01. Incluido reportaje fotográfico y emisión de informe. Los medios auxiliares correrán a cargo del Cliente.\nMínimo facturable por desplazamiento 2 ensayos",
+      "testId": "T-0725",
+      "source": "E9"
+    },
+    {
+      "alias": "Medida de la exposición de radón con cincuenta (50) detectores pasivos y posterior estimación de la concentración de radón para una duración de exposición entre 60-90 días, que incluye la instalación y desinstalación de los detectores, el procesado y lectura de los mismos una vez se reciban en el laboratorio y la redacción y emisión del informe en soporte electrónico según ISO 11665-4",
+      "testId": "T-0740",
+      "source": "E9"
+    },
+    {
+      "alias": "Ensayo estático de empuje horizontal en barandilla In Situ (sin incluir elemento de reacción), CTE / basada en UNE 85238:1991\nMínimo facturable por desplazamiento 2 ensayos",
+      "testId": "T-0744",
+      "source": "E9"
+    },
+    {
+      "alias": "dotacion media ligante residual bandejas secado pesaje",
+      "testId": "T-0376",
+      "confidence": 0.95
+    },
+    {
+      "alias": "dotacion media ligante riego",
+      "testId": "T-0376",
+      "confidence": 0.9
+    },
+    {
+      "alias": "muestreo bandejas dotacion riego",
+      "testId": "T-0376",
+      "confidence": 0.9
+    }
+  ]
+}

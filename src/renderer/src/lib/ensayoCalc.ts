@@ -156,15 +156,14 @@ export function placaSummary(datos: Record<string, unknown>): PlacaSummary {
   const ev1 = calcEvCiclo(c1, radio, false)
   const ev2 = calcEvCiclo(c2, radio, true)
   const ratio = ev1 && ev2 && ev1 > 0 ? Math.round((ev2 / ev1) * 10) / 10 : null
-  const cumple = ratio !== null ? ratio <= ratioMax : null
-
+  // Criterio Ev2/Ev1 ≤ 2.2 desactivado temporalmente
   return {
     ev1,
     ev2,
     ratio,
     ratioMax,
-    cumple,
-    veredicto: ratio !== null ? (cumple ? 'CUMPLE' : 'NO CUMPLE') : ''
+    cumple: null,
+    veredicto: ''
   }
 }
 
@@ -358,4 +357,28 @@ export function radonSummary(datos: Record<string, unknown>): RadonSummary | nul
     nivel_referencia: nivel,
     veredicto
   }
+}
+
+// ── Concentración de radón continuo (ISO 11665-8 / IS-47 CSN) ─────────────────
+
+export interface RadonContinuoSummary {
+  rac_media: number | null
+  rac_max: number | null
+  rac_min: number | null
+  nivel_referencia: number
+  veredicto: 'CUMPLE' | 'NO CUMPLE' | ''
+}
+
+export function radonContinuoSummary(datos: Record<string, unknown>): RadonContinuoSummary {
+  const nivel = toNum(datos.nivel_referencia) ?? 300
+  const rac_media = toNum(datos.rac_media)
+  const rac_max = toNum(datos.rac_max)
+  const rac_min = toNum(datos.rac_min)
+
+  let veredicto: 'CUMPLE' | 'NO CUMPLE' | '' = ''
+  if (rac_media !== null) {
+    veredicto = rac_media > nivel ? 'NO CUMPLE' : 'CUMPLE'
+  }
+
+  return { rac_media, rac_max, rac_min, nivel_referencia: nivel, veredicto }
 }

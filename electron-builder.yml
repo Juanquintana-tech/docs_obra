@@ -18,6 +18,8 @@ extraResources:
     to: knowledge
   - from: resources/templates
     to: templates
+  - from: .env
+    to: .env
 win:
   executableName: cye-electron
 nsis:

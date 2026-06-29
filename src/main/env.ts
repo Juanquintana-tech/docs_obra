@@ -5,15 +5,15 @@ import { is } from '@electron-toolkit/utils'
 
 /**
  * Carga variables de un fichero .env (KEY=VALUE) sin pisar las ya definidas.
- * Busca en dos sitios:
- *   - dev: <raíz del proyecto>/.env
- *   - empaquetado: <userData>/.env  (donde el usuario puede dejar su API key
- *     tras instalar la app, sin recompilar)
+ * Busca en los siguientes sitios (orden de prioridad, primero en ganar):
+ *   - dev:         <raíz del proyecto>/.env
+ *   - empaquetado: <userData>/.env           (override del usuario)
+ *                  <resourcesPath>/.env      (empaquetado por CI desde GitHub Secrets)
  */
 export function loadDotenv(): void {
   const candidates = is.dev
     ? [join(app.getAppPath(), '.env')]
-    : [join(app.getPath('userData'), '.env')]
+    : [join(app.getPath('userData'), '.env'), join(process.resourcesPath, '.env')]
 
   for (const path of candidates) {
     if (!existsSync(path)) continue

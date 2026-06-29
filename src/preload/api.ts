@@ -20,16 +20,15 @@ import type {
 import type { PlanRowInput, Material } from '../main/pipeline/types'
 import type {
   IngestResult,
-  RagStatus,
   BudgetSheet,
   BudgetImportResult
 } from '../main/services/pipeline'
-import type { RagMatch } from '../main/pipeline/rag/types'
 import type { CatalogEntry } from '../main/pipeline/rag/catalog'
 import type { Rules } from '../main/pipeline/planner'
-import type { PriceStrategy } from '../main/pipeline/rag/priceBook'
+import type { PriceStrategy } from '../main/pipeline/types'
 import type { AgentIntent } from '../main/services/agent'
 import type { BudgetEditPlan } from '../main/services/budgetAgent'
+import type { BBDDPlanResult } from '../main/services/bbddPlan'
 
 export interface PickedDocument {
   path: string
@@ -72,6 +71,13 @@ export const api = {
     ipcRenderer.invoke('ingest:document', path, strategy),
   ingestText: (text: string, strategy?: PriceStrategy): Promise<IngestResult> =>
     ipcRenderer.invoke('ingest:text', text, strategy),
+
+  // Plan BBDD (motor determinista por lote)
+  bbddGenerate: (path: string): Promise<BBDDPlanResult> =>
+    ipcRenderer.invoke('bbdd:generateFromDoc', path),
+  // Ingesta con el motor BBDD (mismo IngestResult que el RAG) para Nueva Obra
+  bbddIngest: (path: string, strategy?: PriceStrategy): Promise<IngestResult> =>
+    ipcRenderer.invoke('bbdd:ingestDocument', path, strategy),
   /** Recalcula el plan con otra estrategia de precios (sin re-ingestar el documento). */
   repricePlan: (materials: Material[], strategy: PriceStrategy): Promise<PlanRowInput[]> =>
     ipcRenderer.invoke('pipeline:repricePlan', materials, strategy),
@@ -80,11 +86,6 @@ export const api = {
   exportExcel: (obraId: number): Promise<string | null> =>
     ipcRenderer.invoke('export:excel', obraId),
   exportWord: (obraId: number): Promise<string | null> => ipcRenderer.invoke('export:word', obraId),
-
-  // ── RAG (validación) ──
-  ragStatus: (): Promise<RagStatus> => ipcRenderer.invoke('rag:status'),
-  ragFindMatches: (query: string, category?: string, n?: number): Promise<RagMatch[]> =>
-    ipcRenderer.invoke('rag:findMatches', query, category, n),
 
   // ── Ensayos (informes de campo) ──
   getEnsayos: (obraId: number | null, tipo?: string): Promise<Ensayo[]> =>
@@ -127,6 +128,11 @@ export const api = {
     ipcRenderer.invoke('radon:importJson'),
   pickRadonPhoto: (): Promise<string | null> => ipcRenderer.invoke('radon:pickPhoto'),
   openRadonPhoto: (path: string): Promise<void> => ipcRenderer.invoke('radon:openPhoto', path),
+
+  // ── Catálogo KB editable ──
+  getCatalogTests: (): Promise<unknown[]> => ipcRenderer.invoke('catalog:getTests'),
+  upsertCatalogOverride: (override: unknown): Promise<void> => ipcRenderer.invoke('catalog:upsertOverride', override),
+  deleteCatalogOverride: (testId: string): Promise<void> => ipcRenderer.invoke('catalog:deleteOverride', testId),
 
   // ── Presupuestos (catálogo y reglas) ──
   getCatalog: (): Promise<CatalogEntry[]> => ipcRenderer.invoke('presup:getCatalog'),

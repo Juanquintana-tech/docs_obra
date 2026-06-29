@@ -21,7 +21,8 @@ import {
   tomaHormigonSummary,
   cargaToTension,
   toNum,
-  radonSummary
+  radonSummary,
+  radonContinuoSummary
 } from '../lib/ensayoCalc'
 import type { Ensayo, EnsayoInput, Obra, PlanRow } from '../lib/types'
 import './Ensayos.css'
@@ -57,6 +58,10 @@ const TIPOS: Record<string, { label: string; norma: string }> = {
   radon_trazas: {
     label: 'Concentración de radón (trazas CR-39)',
     norma: 'ISO 11665-4 · IS-47 CSN · PE-CYE-39'
+  },
+  radon_continuo: {
+    label: 'Concentración de radón (continuo)',
+    norma: 'ISO 11665-8 · IS-47 CSN · PE-CYE-39'
   }
 }
 
@@ -107,18 +112,22 @@ const GRUPOS: Array<{
   },
   {
     id: 'radon',
-    label: 'Radón (trazas CR-39)',
-    desc: 'ISO 11665-4 · IS-47 CSN — Exposición pasiva, lectura microscópica',
+    label: 'Radón',
+    desc: 'Trazas CR-39 · Medición continua',
     color: '#6B21A8',
     abrev: 'Rn',
-    tipos: ['radon_trazas']
+    tipos: ['radon_trazas', 'radon_continuo'],
+    subLabels: {
+      radon_trazas: 'Radón Trazas (CR-39)',
+      radon_continuo: 'Radón Continuo'
+    }
   }
 ]
 
 /** Tipos que tienen informe Word disponible. */
-export const WORD_TIPOS = new Set(['albaran_ensayos', 'densidad_in_situ', 'placa_carga', 'toma_hormigon', 'informe_hormigon', 'albaran_planta', 'radon_trazas'])
+export const WORD_TIPOS = new Set(['albaran_ensayos', 'densidad_in_situ', 'placa_carga', 'toma_hormigon', 'informe_hormigon', 'albaran_planta', 'radon_trazas', 'radon_continuo'])
 /** Tipos con export a Excel. */
-const EXCEL_TIPOS = new Set(['densidad_in_situ', 'placa_carga', 'granulometria', 'informe_hormigon'])
+const EXCEL_TIPOS = new Set(['densidad_in_situ', 'placa_carga', 'granulometria', 'informe_hormigon', 'radon_trazas'])
 
 // ── Valores por defecto de presiones de placa ────────────────────────────────
 
@@ -322,7 +331,35 @@ export function defaultRadonDatos(): Record<string, unknown> {
       norma: 'IS-47 CSN + PE-CYE-39 (ISO 11665-4)'
     },
     lotes: [],
-    detectores: []
+    detectores: Array.from({ length: 5 }, (_, i) => emptyDetector(i + 1))
+  }
+}
+
+export function defaultRadonContinuoDatos(): Record<string, unknown> {
+  return {
+    equipo: { tipo: 'AlphaGUARD', modelo: '', numero_serie: '', n_certificado: '', fecha_calibracion: '', factor_calibracion: null },
+    edificio: '',
+    planta: 'Planta 0',
+    ubicacion: '',
+    fecha_inicio: '',
+    hora_inicio: '',
+    fecha_fin: '',
+    hora_fin: '',
+    duracion_horas: null,
+    intervalo_min: 10,
+    n_medidas: null,
+    rac_media: null,
+    rac_max: null,
+    rac_min: null,
+    u_rac: null,
+    umbral_decision: 10,
+    limite_deteccion: 20,
+    nivel_referencia: 300,
+    norma: 'IS-47 CSN + PE-CYE-39 (ISO 11665-8)',
+    temperatura_media: null,
+    humedad_media: null,
+    presion_media: null,
+    observaciones: ''
   }
 }
 
@@ -669,7 +706,9 @@ export function Ensayos(): JSX.Element {
               ? defaultAlbaranPlantaDatos()
               : tipo === 'radon_trazas'
                 ? defaultRadonDatos()
-                : defaultPlacaDatos()
+                : tipo === 'radon_continuo'
+                  ? defaultRadonContinuoDatos()
+                  : defaultPlacaDatos()
 
   return (
     <EnsayoEditor
@@ -975,6 +1014,7 @@ export function EnsayoEditor({
         {tipo === 'informe_hormigon' && <TomaHormigonForm datos={datos} onChange={setDatos} showRoturas={true} />}
         {tipo === 'albaran_planta' && <AlbaranPlantaForm datos={datos} onChange={setDatos} />}
         {tipo === 'radon_trazas' && <RadonForm datos={datos} onChange={setDatos} />}
+        {tipo === 'radon_continuo' && <RadonContinuoForm datos={datos} onChange={setDatos} />}
       </OcrConfCtx.Provider>
 
       <div className="toolbar" style={{ marginTop: 20 }}>
@@ -1038,7 +1078,7 @@ function applyOcrResult(
   }
 
   if (tipo === 'granulometria') {
-    type GranuOcr = { cabecera?: Record<string, string | null>; masas?: (string | null)[] }
+    type GranuOcr = { cabecera?: Record<string, string | null>; masas?: (string | null)[]; fragmentos_masa?: string | null }
     const granu = ocr as GranuOcr
     const cab = (current.cabecera as Record<string, string>) ?? {}
     const newCab = { ...cab }
@@ -1049,7 +1089,8 @@ function applyOcrResult(
     return {
       ...current,
       cabecera: newCab,
-      ...(masas.length > 0 ? { masas } : {})
+      ...(masas.length > 0 ? { masas } : {}),
+      ...(granu.fragmentos_masa != null && granu.fragmentos_masa !== '' ? { fragmentos_masa: granu.fragmentos_masa } : {})
     }
   }
 
@@ -1161,6 +1202,7 @@ function computeVeredictoLocal(tipo: string, datos: Record<string, unknown>): st
     if (tipo === 'granulometria') return granulometriaSummary(datos).veredicto
     if (tipo === 'toma_hormigon' || tipo === 'informe_hormigon') return tomaHormigonSummary(datos).veredicto
     if (tipo === 'radon_trazas') return radonSummary(datos)?.veredicto ?? ''
+    if (tipo === 'radon_continuo') return radonContinuoSummary(datos)?.veredicto ?? ''
   } catch {
     /* silent */
   }
@@ -1700,12 +1742,10 @@ function PlacaForm({
                 )}
               </td>
             </tr>
-            <tr className={ratioOk === true ? 'cond-ok' : ratioOk === false ? 'cond-no' : ''}>
-              <td>Ev2/Ev1 (≤ {ratioMax.toFixed(1)})</td>
+            <tr>
+              <td>Ev2/Ev1</td>
               <td>{ratio !== null ? ratio.toFixed(1).replace('.', ',') : '—'}</td>
-              <td className="cond-verdict">
-                {ratioOk === true ? '✓ CUMPLE' : ratioOk === false ? '✗ NO CUMPLE' : '—'}
-              </td>
+              <td className="cond-verdict">—</td>
             </tr>
           </tbody>
         </table>
@@ -2600,7 +2640,7 @@ function TomaHormigonForm({
           </div>
           <div className="field-group">
             <label className="field-label">fck manual (MPa) — si no está en el tipo</label>
-            <input className="input" value={String(datos.fck_manual ?? '')} onChange={(e) => onChange({ ...datos, fck_manual: e.target.value })} placeholder="Ej: 30" />
+            <input className="input field-extra" value={String(datos.fck_manual ?? '')} onChange={(e) => onChange({ ...datos, fck_manual: e.target.value })} placeholder="Ej: 30" />
           </div>
         </div>
       </div>
@@ -2647,7 +2687,7 @@ function TomaHormigonForm({
           </div>
           <div className="field-group">
             <label className="field-label">Hora llegada obra</label>
-            <input className={cc('camion.hora_llegada')} value={String(camion.hora_llegada ?? '')} onChange={(e) => setCamion('hora_llegada', e.target.value)} placeholder="hh:mm" />
+            <input className={`${cc('camion.hora_llegada')} field-extra`} value={String(camion.hora_llegada ?? '')} onChange={(e) => setCamion('hora_llegada', e.target.value)} placeholder="hh:mm" />
           </div>
           <div className="field-group" style={{ maxWidth: 150 }}>
             <label className="field-label">Consistencia</label>
@@ -2755,7 +2795,7 @@ function TomaHormigonForm({
           </div>
           <div className="field-group">
             <label className="field-label">% Humedad</label>
-            <input className={cc('composicion.humedad_pct')} value={String(comp.humedad_pct ?? '')} onChange={(e) => setComp('humedad_pct', e.target.value)} />
+            <input className={`${cc('composicion.humedad_pct')} field-extra`} value={String(comp.humedad_pct ?? '')} onChange={(e) => setComp('humedad_pct', e.target.value)} />
           </div>
         </div>
       </div>
@@ -2816,7 +2856,7 @@ function TomaHormigonForm({
           </div>
           <div className="field-group">
             <label className="field-label">Hora recogida</label>
-            <input className={cc('probetas.hora_recogida')} value={String(prob.hora_recogida ?? '')} onChange={(e) => setProb('hora_recogida', e.target.value)} placeholder="hh:mm" />
+            <input className={`${cc('probetas.hora_recogida')} field-extra`} value={String(prob.hora_recogida ?? '')} onChange={(e) => setProb('hora_recogida', e.target.value)} placeholder="hh:mm" />
           </div>
         </div>
       </div>
@@ -3374,9 +3414,11 @@ function RadonForm({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
           <div className="sec-label" style={{ marginBottom: 0 }}>Detectores ({detectores.length})</div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* TODO: restaurar cuando el bot soporte radón trazas
             <button className="btn" onClick={handleImportJson} style={{ background: 'var(--color-purple, #6B21A8)', color: '#fff', borderColor: 'transparent' }}>
               📥 Importar desde bot
             </button>
+            */}
             <span style={{ fontSize: 13, color: 'var(--text-soft)' }}>Añadir:</span>
             <input
               type="number" min={1} max={100}
@@ -3616,6 +3658,233 @@ function RadonForm({
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FORMULARIO RADÓN CONTINUO (ISO 11665-8 / IS-47 CSN)
+// ══════════════════════════════════════════════════════════════════════════════
+
+function RadonContinuoForm({
+  datos,
+  onChange
+}: {
+  datos: Record<string, unknown>
+  onChange: (d: Record<string, unknown>) => void
+}): JSX.Element {
+  const equipo = (datos.equipo as Record<string, unknown>) ?? {}
+  const nivelRef = toNum(datos.nivel_referencia) ?? 300
+  const rac_media = toNum(datos.rac_media)
+  const excede = rac_media !== null && rac_media > nivelRef
+
+  function setField(key: string, val: unknown): void {
+    onChange({ ...datos, [key]: val })
+  }
+  function setEquipo(key: string, val: unknown): void {
+    onChange({ ...datos, equipo: { ...equipo, [key]: val } })
+  }
+  function numField(key: string, val: string): void {
+    const n = parseFloat(val.replace(',', '.'))
+    onChange({ ...datos, [key]: isNaN(n) ? null : n })
+  }
+  function numEquipo(key: string, val: string): void {
+    const n = parseFloat(val.replace(',', '.'))
+    onChange({ ...datos, equipo: { ...equipo, [key]: isNaN(n) ? null : n } })
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+      {/* EQUIPO */}
+      <div className="card" style={{ padding: '14px 16px' }}>
+        <div className="sec-label" style={{ marginBottom: '10px' }}>Equipo de medida</div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Tipo de equipo</label>
+            <select className="input" value={String(equipo.tipo ?? 'AlphaGUARD')} onChange={e => setEquipo('tipo', e.target.value)}>
+              <option value="AlphaGUARD">AlphaGUARD</option>
+              <option value="SARAD">SARAD</option>
+              <option value="RAD7">RAD7</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div className="field-group">
+            <label className="field-label">Modelo</label>
+            <input className="input" value={String(equipo.modelo ?? '')} onChange={e => setEquipo('modelo', e.target.value)} placeholder="Ej. AlphaGUARD PQ2000" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Nº de serie</label>
+            <input className="input" value={String(equipo.numero_serie ?? '')} onChange={e => setEquipo('numero_serie', e.target.value)} placeholder="Ej. EF2184" />
+          </div>
+        </div>
+        <div className="field-row" style={{ marginTop: '8px' }}>
+          <div className="field-group">
+            <label className="field-label">Nº certificado calibración</label>
+            <input className="input" value={String(equipo.n_certificado ?? '')} onChange={e => setEquipo('n_certificado', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Fecha calibración</label>
+            <input className="input" type="date" value={String(equipo.fecha_calibracion ?? '')} onChange={e => setEquipo('fecha_calibracion', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Factor calibración C₀ (Bq/m³)</label>
+            <input className="input" type="number" value={equipo.factor_calibracion != null ? String(equipo.factor_calibracion) : ''} onChange={e => numEquipo('factor_calibracion', e.target.value)} placeholder="Ej. 5" />
+          </div>
+        </div>
+      </div>
+
+      {/* LOCALIZACIÓN */}
+      <div className="card" style={{ padding: '14px 16px' }}>
+        <div className="sec-label" style={{ marginBottom: '10px' }}>Localización del punto de medida</div>
+        <div className="field-row">
+          <div className="field-group" style={{ flex: 2 }}>
+            <label className="field-label">Edificio / Centro de trabajo</label>
+            <input className="input" value={String(datos.edificio ?? '')} onChange={e => setField('edificio', e.target.value)} placeholder="Ej. Nave industrial" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Planta</label>
+            <select className="input" value={String(datos.planta ?? 'Planta 0')} onChange={e => setField('planta', e.target.value)}>
+              {PLANTA_OPCIONES.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="field-row" style={{ marginTop: '8px' }}>
+          <div className="field-group" style={{ flex: 1 }}>
+            <label className="field-label">Ubicación (estancia, descripción)</label>
+            <input className="input" value={String(datos.ubicacion ?? '')} onChange={e => setField('ubicacion', e.target.value)} placeholder="Ej. Zona de trabajo, junto a pared norte" />
+          </div>
+        </div>
+      </div>
+
+      {/* CAMPAÑA */}
+      <div className="card" style={{ padding: '14px 16px' }}>
+        <div className="sec-label" style={{ marginBottom: '10px' }}>Campaña de medición</div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Fecha inicio</label>
+            <input className="input" type="date" value={String(datos.fecha_inicio ?? '')} onChange={e => setField('fecha_inicio', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Hora inicio</label>
+            <input className="input" type="time" value={String(datos.hora_inicio ?? '')} onChange={e => setField('hora_inicio', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Fecha fin</label>
+            <input className="input" type="date" value={String(datos.fecha_fin ?? '')} onChange={e => setField('fecha_fin', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Hora fin</label>
+            <input className="input" type="time" value={String(datos.hora_fin ?? '')} onChange={e => setField('hora_fin', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row" style={{ marginTop: '8px' }}>
+          <div className="field-group">
+            <label className="field-label">Duración (horas)</label>
+            <input className="input" type="number" value={datos.duracion_horas != null ? String(datos.duracion_horas) : ''} onChange={e => numField('duracion_horas', e.target.value)} placeholder="Ej. 120" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Intervalo de medida (min)</label>
+            <input className="input" type="number" value={datos.intervalo_min != null ? String(datos.intervalo_min) : ''} onChange={e => numField('intervalo_min', e.target.value)} placeholder="10" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Nº de medidas</label>
+            <input className="input" type="number" value={datos.n_medidas != null ? String(datos.n_medidas) : ''} onChange={e => numField('n_medidas', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Norma aplicada</label>
+            <input className="input" value={String(datos.norma ?? '')} onChange={e => setField('norma', e.target.value)} />
+          </div>
+        </div>
+      </div>
+
+      {/* CONDICIONES AMBIENTALES */}
+      <div className="card" style={{ padding: '14px 16px' }}>
+        <div className="sec-label" style={{ marginBottom: '10px' }}>Condiciones ambientales medias</div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">Temperatura media (°C)</label>
+            <input className="input" type="number" step="0.1" value={datos.temperatura_media != null ? String(datos.temperatura_media) : ''} onChange={e => numField('temperatura_media', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Humedad relativa media (%)</label>
+            <input className="input" type="number" step="0.1" value={datos.humedad_media != null ? String(datos.humedad_media) : ''} onChange={e => numField('humedad_media', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Presión media (mbar)</label>
+            <input className="input" type="number" step="0.1" value={datos.presion_media != null ? String(datos.presion_media) : ''} onChange={e => numField('presion_media', e.target.value)} />
+          </div>
+        </div>
+      </div>
+
+      {/* RESULTADOS */}
+      <div className="card" style={{ padding: '14px 16px' }}>
+        <div className="sec-label" style={{ marginBottom: '10px' }}>Resultados</div>
+        <div className="field-row">
+          <div className="field-group">
+            <label className="field-label">RAC media (Bq/m³) <span style={{ color: 'var(--accent)', fontWeight: 700 }}>*</span></label>
+            <input className="input" type="number" step="0.1" value={datos.rac_media != null ? String(datos.rac_media) : ''} onChange={e => numField('rac_media', e.target.value)} placeholder="Concentración media" />
+          </div>
+          <div className="field-group">
+            <label className="field-label">RAC máxima (Bq/m³)</label>
+            <input className="input" type="number" step="0.1" value={datos.rac_max != null ? String(datos.rac_max) : ''} onChange={e => numField('rac_max', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">RAC mínima (Bq/m³)</label>
+            <input className="input" type="number" step="0.1" value={datos.rac_min != null ? String(datos.rac_min) : ''} onChange={e => numField('rac_min', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">± U_RAC k=2 (Bq/m³)</label>
+            <input className="input" type="number" step="0.1" value={datos.u_rac != null ? String(datos.u_rac) : ''} onChange={e => numField('u_rac', e.target.value)} />
+          </div>
+        </div>
+        <div className="field-row" style={{ marginTop: '8px' }}>
+          <div className="field-group">
+            <label className="field-label">Umbral decisión DT (Bq/m³)</label>
+            <input className="input" type="number" step="0.1" value={datos.umbral_decision != null ? String(datos.umbral_decision) : ''} onChange={e => numField('umbral_decision', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Límite detección LLD (Bq/m³)</label>
+            <input className="input" type="number" step="0.1" value={datos.limite_deteccion != null ? String(datos.limite_deteccion) : ''} onChange={e => numField('limite_deteccion', e.target.value)} />
+          </div>
+          <div className="field-group">
+            <label className="field-label">Nivel de referencia (Bq/m³)</label>
+            <input className="input" type="number" value={datos.nivel_referencia != null ? String(datos.nivel_referencia) : '300'} onChange={e => numField('nivel_referencia', e.target.value)} />
+          </div>
+        </div>
+
+        {/* VEREDICTO PROVISIONAL */}
+        {rac_media !== null && (
+          <div style={{
+            marginTop: '12px',
+            padding: '10px 14px',
+            borderRadius: '6px',
+            fontWeight: 600,
+            fontSize: '13px',
+            background: excede ? '#FFF0F0' : '#F0FFF4',
+            color: excede ? '#C00000' : '#166534',
+            border: `1px solid ${excede ? '#FCA5A5' : '#86EFAC'}`
+          }}>
+            {excede
+              ? `RAC media (${rac_media} Bq/m³) SUPERA el nivel de referencia (${nivelRef} Bq/m³)`
+              : `RAC media (${rac_media} Bq/m³) por debajo del nivel de referencia (${nivelRef} Bq/m³)`}
+          </div>
+        )}
+      </div>
+
+      {/* OBSERVACIONES */}
+      <div className="card" style={{ padding: '14px 16px' }}>
+        <div className="sec-label" style={{ marginBottom: '10px' }}>Observaciones</div>
+        <textarea
+          className="input"
+          rows={3}
+          style={{ width: '100%', resize: 'vertical' }}
+          value={String(datos.observaciones ?? '')}
+          onChange={e => setField('observaciones', e.target.value)}
+          placeholder="Observaciones relevantes sobre la medición, condiciones del local, incidencias..."
+        />
+      </div>
+
     </div>
   )
 }

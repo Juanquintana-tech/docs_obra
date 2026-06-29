@@ -386,86 +386,11 @@ export async function fillAlbaranWord(
     ], 240),
   ])
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // PÁGINA 2: TABLA DENSIDAD "IN SITU" (apaisado)
-  // ══════════════════════════════════════════════════════════════════════════
-  // Columnas: [Nº Lote | Referencia | D.Máx | H.Opt | Densidad | Humedad | %Comp | Observaciones]
-  // Anchuras: [900, 2000, 1700, 1600, 2000, 1900, 1600, 3438] = 15138
-
-  const WD = [900, 2000, 1700, 1600, 2000, 1900, 1600, 3438] as const
-
-  const DATA_ROWS = 20
-  const hdrShade = 'D9D9D9'
-  const midShade = 'EEEEEE'
-
-  const logoPage2Px = Math.round((5 * PX_PER_MM) * ((logoMeta.width ?? 620) / (logoMeta.height ?? 120)))
-  const logo2Hpx   = Math.round(5 * PX_PER_MM)  // 5mm de alto
-
-  // Cabecera pag 2
-  const WH2 = [3500, 6138, 5500] as const  // logo | doc ref | dirección
-  const cabPag2 = tbl(WH2 as unknown as number[], [
-    tr([
-      new TableCell({
-        width: { size: WH2[0], type: WidthType.DXA },
-        borders: bNone,
-        verticalAlign: 'center',
-        children: [new Paragraph({ alignment: AlignmentType.LEFT, spacing: sp(10, 10),
-          children: [new ImageRun({ type: 'jpg', data: logoBuf, transformation: { width: logoPage2Px, height: logo2Hpx } })] })]
-      }),
-      tc(WH2[1], [], {
-        borders: bNone, vAlign: 'center',
-        paras: [
-          p([val('CF-DENSIS Rev 0  –  Pág. 1', 7)], AlignmentType.CENTER, sp(4, 4)),
-          p([lblU('DENSIDAD "IN SITU"', 14)],        AlignmentType.CENTER, sp(4, 4)),
-        ]
-      }),
-      tc(WH2[2], [], {
-        borders: bNone, vAlign: 'center',
-        paras: [
-          p([val('Polígono de la Gándara, Avda del Mar, 123, 15570 Narón (A Coruña)', 6.5)], AlignmentType.RIGHT, sp(4, 2)),
-          p([val('Tel 981-37 11 36  /  Fax 981-37 11 04', 6.5)],                             AlignmentType.RIGHT, sp(2, 4)),
-        ]
-      }),
-    ], 300),
-  ])
-
-  // Tabla de datos
-  const tdRows: TableRow[] = [
-    // Fila cabecera grupo superior
-    tr([
-      tc(WD[0], [lbl('Nº\nLote', 7)],       { shade: hdrShade, align: AlignmentType.CENTER, vAlign: 'center', vMerge: 'restart' }),
-      tc(WD[1], [lbl('REFERENCIA', 7)],      { shade: hdrShade, align: AlignmentType.CENTER, vAlign: 'center', vMerge: 'restart' }),
-      tc(WD[2] + WD[3], [lbl('LABORATORIO', 7)],
-        { shade: midShade, align: AlignmentType.CENTER, span: 2 }),
-      tc(WD[4] + WD[5] + WD[6], [lbl('OBRA', 7)],
-        { shade: midShade, align: AlignmentType.CENTER, span: 3 }),
-      tc(WD[7], [lbl('OBSERVACIONES', 7)],   { shade: hdrShade, align: AlignmentType.CENTER, vAlign: 'center', vMerge: 'restart' }),
-    ], 200),
-    // Fila cabecera sub-columnas
-    tr([
-      tcCont(WD[0]),
-      tcCont(WD[1]),
-      tc(WD[2], [lbl('Dens. Máx.\ng/cm³', 7)],  { shade: midShade, align: AlignmentType.CENTER }),
-      tc(WD[3], [lbl('Hum. Opt.\n%',      7)],  { shade: midShade, align: AlignmentType.CENTER }),
-      tc(WD[4], [lbl('Densidad\ng/cm³',   7)],  { shade: midShade, align: AlignmentType.CENTER }),
-      tc(WD[5], [lbl('Humedad\n%',        7)],  { shade: midShade, align: AlignmentType.CENTER }),
-      tc(WD[6], [lbl('% Comp.',           7)],  { shade: midShade, align: AlignmentType.CENTER }),
-      tcCont(WD[7]),
-    ], 220),
-    // Filas de datos (en blanco para rellenar en campo)
-    ...Array.from({ length: DATA_ROWS }, () =>
-      tr(WD.map((w) => tc(w, [tx('')], { borders: bGray })), 200)
-    ),
-  ]
-
-  const tDensidad = tbl(WD as unknown as number[], tdRows)
-
   // ── Montar documento ───────────────────────────────────────────────────────
   const page1Margin = { top: MARGIN_TW, bottom: MARGIN_TW, left: MARGIN_TW, right: MARGIN_TW }
 
   const doc = new Document({
     sections: [
-      // ─── Sección 1: Formulario solicitud (retrato) ─────────────────────────
       {
         properties: {
           page: {
@@ -483,20 +408,6 @@ export async function fillAlbaranWord(
           t7, gap(),
           t8, gap(),
           t9,
-        ]
-      },
-      // ─── Sección 2: Tabla de campo densidad in situ (apaisado) ────────────
-      {
-        properties: {
-          page: {
-            size:   { width: 16838, height: 11906, orientation: PageOrientation.LANDSCAPE },
-            margin: { top: MARGIN_TW, bottom: MARGIN_TW, left: MARGIN_TW, right: MARGIN_TW }
-          }
-        },
-        children: [
-          cabPag2,
-          gap(),
-          tDensidad,
         ]
       }
     ]

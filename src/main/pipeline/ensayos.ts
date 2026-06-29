@@ -322,8 +322,7 @@ export function computePlaca(input: PlacaInput): PlacaResult {
   const ev2 = calcEvCiclo(c2, radio_mm, true) // c2: E49 usa ROUND(AVERAGE,2) en high
   const ratio = ev1 && ev2 && ev1 > 0 ? Math.round((ev2 / ev1) * 10) / 10 : null
 
-  const cumple = ratio !== null && ratio <= ratio_max
-
+  // Criterio Ev2/Ev1 ≤ 2.2 desactivado temporalmente
   return {
     ciclo1: c1,
     descarga: desc,
@@ -333,7 +332,7 @@ export function computePlaca(input: PlacaInput): PlacaResult {
     ratio,
     ratio_max,
     radio_mm,
-    veredicto: ratio !== null ? (cumple ? 'CUMPLE' : 'NO CUMPLE') : ''
+    veredicto: ''
   }
 }
 
@@ -484,6 +483,63 @@ export function computeRadon(input: RadonInput): RadonResult {
     nivel_referencia: nivel,
     veredicto
   }
+}
+
+export interface RadonContinuoEquipo {
+  tipo: 'SARAD' | 'AlphaGUARD' | 'RAD7' | 'Otro'
+  modelo?: string
+  numero_serie?: string
+  n_certificado?: string
+  fecha_calibracion?: string
+  factor_calibracion?: number  // C0 en Bq/m³ (offset de calibración del equipo)
+}
+
+export interface RadonContinuoInput {
+  equipo?: RadonContinuoEquipo
+  edificio?: string
+  planta?: string
+  ubicacion?: string
+  fecha_inicio?: string
+  hora_inicio?: string
+  fecha_fin?: string
+  hora_fin?: string
+  duracion_horas?: number | null
+  intervalo_min?: number        // intervalo de medida en minutos (10=AlphaGUARD, 60=SARAD/RAD7)
+  n_medidas?: number | null     // nº de puntos de medida
+  rac_media?: number | null     // Bq/m³ — resultado principal
+  rac_max?: number | null       // Bq/m³
+  rac_min?: number | null       // Bq/m³
+  u_rac?: number | null         // incertidumbre expandida k=2 en Bq/m³
+  umbral_decision?: number      // DT en Bq/m³ (default 10)
+  limite_deteccion?: number     // LLD en Bq/m³ (default 20)
+  nivel_referencia?: number     // 300 Bq/m³ Art. 72 RD 1029/2022
+  norma?: string
+  temperatura_media?: number | null
+  humedad_media?: number | null
+  presion_media?: number | null
+  observaciones?: string
+}
+
+export interface RadonContinuoResult {
+  rac_media: number | null
+  rac_max: number | null
+  rac_min: number | null
+  nivel_referencia: number
+  veredicto: 'CUMPLE' | 'NO CUMPLE' | ''
+}
+
+export function computeRadonContinuo(input: RadonContinuoInput): RadonContinuoResult {
+  const nivel = input.nivel_referencia ?? 300
+  const rac_media = input.rac_media ?? null
+  const rac_max = input.rac_max ?? null
+  const rac_min = input.rac_min ?? null
+
+  let veredicto: 'CUMPLE' | 'NO CUMPLE' | '' = ''
+  if (rac_media !== null) {
+    veredicto = rac_media > nivel ? 'NO CUMPLE' : 'CUMPLE'
+  }
+
+  return { rac_media, rac_max, rac_min, nivel_referencia: nivel, veredicto }
 }
 
 export function computeGranulometria(input: GranulometriaInput): GranulometriaResult {

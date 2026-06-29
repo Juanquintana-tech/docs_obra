@@ -1808,9 +1808,17 @@
   transition: background 0.2s, border-color 0.2s;
 }
 .ocr-low {
-  background: rgba(239, 68, 68, 0.10) !important;
-  border-color: rgba(239, 68, 68, 0.50) !important;
+  background: rgba(234, 179, 8, 0.13) !important;
+  border-color: rgba(234, 179, 8, 0.60) !important;
   transition: background 0.2s, border-color 0.2s;
+}
+.input.field-extra {
+  background: rgba(100, 116, 139, 0.10) !important;
+  border-color: rgba(100, 116, 139, 0.40) !important;
+  color: var(--text-secondary, #64748b) !important;
+}
+.input.field-extra::placeholder {
+  color: rgba(100, 116, 139, 0.55);
 }
 
 /* ── ScanPanel: resultado de confianza ──────────────────────────────────────── */

@@ -7,8 +7,8 @@ import { LlmError, type ChatOptions, type LlmProvider, type VisionOptions } from
 import { stripMdFences } from './minimax'
 
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models'
-const GEMINI_MODEL = 'gemini-3-flash-preview'
-const GEMINI_FALLBACK_MODEL = 'gemini-2.5-flash'
+const GEMINI_MODEL = 'gemini-2.5-flash'
+const GEMINI_FALLBACK_MODEL = 'gemini-2.0-flash'
 
 export interface GeminiOptions {
   apiKey?: string
@@ -100,7 +100,7 @@ export class GeminiProvider implements LlmProvider {
       if (!resp.ok) {
         const text = await resp.text().catch(() => '')
         // Fallback si el modelo principal no está disponible o saturado
-        if ((resp.status === 404 || resp.status === 503) && model !== GEMINI_FALLBACK_MODEL) {
+        if ((resp.status === 400 || resp.status === 404 || resp.status === 503) && model !== GEMINI_FALLBACK_MODEL) {
           clearTimeout(timer)
           return this._call(GEMINI_FALLBACK_MODEL, body, timeoutMs, tag)
         }

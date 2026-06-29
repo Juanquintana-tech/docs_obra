@@ -156,6 +156,12 @@ export function fillDensidadTemplate(
   wbXml = wbXml.replace(/<workbookView /, '<workbookView activeTab="1" ')
   zip.file('xl/workbook.xml', wbXml)
 
+  // ── Limpiar caché de gráficas ────────────────────────────────────────────────
+  // Los chart*.xml llevan <c:numCache> con datos hardcodeados de la plantilla vacía.
+  // Excel los muestra en lugar de releer las celdas, de modo que la gráfica aparece
+  // vacía o incorrecta. Al borrar el bloque numCache Excel lo reconstruye al abrir.
+  injectChartData(zip, rows, Number(datos.compactacion_min ?? 100))
+
   // ── Quitar las macros VBA huérfanas ──────────────────────────────────────────
   // La plantilla es la versión vaciada de un .xls con macros (AdjustGraf, Espec,
   // Pred, VerInf, SaveAs) cuyo código VBA ya NO está en el fichero. Sus llamadas
@@ -177,6 +183,117 @@ export function fillDensidadTemplate(
   bakeFormulas(zip)
 
   return zip.generate({ type: 'nodebuffer', compression: 'DEFLATE' })
+}
+
+/**
+ * Construye un bloque numCache XML con los valores proporcionados.
+ * Las posiciones sin valor (undefined/NaN) se emiten como puntos vacíos omitidos.
+ */
+function buildNumCache(values: (number | null)[], formatCode = '0.0'): string {
+  const pts = values
+    .map((v, i) => (v !== null && isFinite(v) ? `<c:pt idx="${i}"><c:v>${Math.round(v * 10) / 10}</c:v></c:pt>` : ''))
+    .join('')
+  return `<c:numCache><c:formatCode>${formatCode}</c:formatCode><c:ptCount val="${values.length}"/>${pts}</c:numCache>`
+}
+
+/**
+ * Construye un bloque strCache XML para el eje de categorías (nº de ensayo).
+ */
+function buildStrCache(values: (string | number | null)[]): string {
+  const pts = values
+    .map((v, i) => (v !== null && v !== '' ? `<c:pt idx="${i}"><c:v>${v}</c:v></c:pt>` : ''))
+    .join('')
+  return `<c:strCache><c:ptCount val="${values.length}"/>${pts}</c:strCache>`
+}
+
+/**
+ * Inyecta numCache con los valores reales del ensayo en chart1 y chart3 (% compactación)
+ * y ajusta los límites del eje Y para que la gráfica se vea con margen adecuado.
+ *
+ * Series chart1/chart3:
+ *   DATINF!$L$26:$L$41 → categorías (nº ensayo)
+ *   DATINF!$M$26:$M$41 → Lote (% compactación individual)
+ *   DATINF!$O$26:$O$41 → Media Lote (media del lote)
+ *   DATINF!$P$26:$P$41 → Especificación (= compactacion_min)
+ */
+function injectChartData(zip: PizZip, rows: DensidadRow[], compactacionMin: number): void {
+  const TOTAL = DATA_MAX_ROWS // 16 slots en el chart
+
+  // Calcular % compactación por fila
+  const pcts: (number | null)[] = Array.from({ length: TOTAL }, (_, i) => {
+    const r = rows[i]
+    if (!r) return null
+    const d = typeof r.d_situ === 'number' ? r.d_situ : parseFloat(String(r.d_situ ?? '').replace(',', '.'))
+    const dm = typeof r.d_max === 'number' ? r.d_max : parseFloat(String(r.d_max ?? '').replace(',', '.'))
+    return isFinite(d) && isFinite(dm) && dm > 0 ? (d / dm) * 100 : null
+  })
+
+  const validPcts = pcts.filter((v): v is number => v !== null)
+  const media = validPcts.length ? validPcts.reduce((a, b) => a + b, 0) / validPcts.length : null
+
+  // Categorías: nº de ensayo (1..n para los que existen, null el resto)
+  const cats: (number | null)[] = Array.from({ length: TOTAL }, (_, i) =>
+    i < rows.length ? (Number(rows[i].n) || i + 1) : null
+  )
+
+  // Series: media (línea plana) y especificación (línea plana)
+  const medias: (number | null)[] = pcts.map(v => (v !== null ? media : null))
+  const specs: (number | null)[] = pcts.map(v => (v !== null ? compactacionMin : null))
+
+  // Límites del eje Y
+  const minVal = validPcts.length ? Math.min(...validPcts) : compactacionMin
+  const maxVal = validPcts.length ? Math.max(...validPcts) : compactacionMin + 2
+  const axisMin = Math.max(60, Math.floor(Math.min(minVal, compactacionMin) - 8))
+  const axisMax = Math.ceil(Math.max(maxVal, compactacionMin) + 4)
+
+  const catCache  = buildStrCache(cats)
+  const loteCache  = buildNumCache(pcts)
+  const mediaCache = buildNumCache(medias)
+  const specCache  = buildNumCache(specs, 'General')
+
+  for (const name of ['xl/charts/chart1.xml', 'xl/charts/chart3.xml']) {
+    const f = zip.file(name)
+    if (!f) continue
+    let xml = f.asText()
+
+    // Inyectar numCache/strCache en cada <c:numRef> o <c:cat>/<c:val> según la fórmula
+    xml = xml.replace(/(<c:cat>[\s\S]*?<c:numRef>)([\s\S]*?)(<\/c:numRef>[\s\S]*?<\/c:cat>)/g,
+      (_, a, inner, b) => `${a}${inner.replace(/<c:numCache>[\s\S]*?<\/c:numCache>/, '').replace(/<\/c:f>/, `</c:f>${catCache}`)}${b}`)
+    xml = xml.replace(/(<c:cat>[\s\S]*?<c:strRef>)([\s\S]*?)(<\/c:strRef>[\s\S]*?<\/c:cat>)/g,
+      (_, a, inner, b) => `${a}${inner.replace(/<c:strCache>[\s\S]*?<\/c:strCache>/, '').replace(/<\/c:f>/, `</c:f>${catCache}`)}${b}`)
+
+    // Inyectar numCache en cada serie de valor según la referencia de fórmula
+    const seriesMap: Record<string, string> = {
+      'DATINF!$M$': loteCache,
+      'DATINF!$O$': mediaCache,
+      'DATINF!$P$': specCache,
+    }
+    xml = xml.replace(/(<c:val>[\s\S]*?<c:numRef>)([\s\S]*?)(<\/c:numRef>[\s\S]*?<\/c:val>)/g,
+      (match, a, inner, b) => {
+        const fMatch = inner.match(/<c:f>([^<]+)<\/c:f>/)
+        if (!fMatch) return match
+        const formula = fMatch[1]
+        const cache = Object.entries(seriesMap).find(([k]) => formula.includes(k))?.[1]
+        if (!cache) return match
+        const cleaned = inner.replace(/<c:numCache>[\s\S]*?<\/c:numCache>/, '')
+        return `${a}${cleaned.replace(/<\/c:f>/, `</c:f>${cache}`)}${b}`
+      })
+
+    // Ajustar límites y unidad principal del eje Y
+    const range = axisMax - axisMin
+    const majorUnit = range <= 15 ? 2 : range <= 30 ? 5 : range <= 60 ? 10 : 20
+    xml = xml.replace(
+      /(<c:valAx>[\s\S]*?<c:scaling>)([\s\S]*?)(<\/c:scaling>)([\s\S]*?)(<\/c:valAx>)/g,
+      (_m, before, scaling, closingScale, rest, closingAx) => {
+        const base = scaling
+          .replace(/<c:min[^/]*\/>/g, '')
+          .replace(/<c:max[^/]*\/>/g, '')
+        const restClean = rest.replace(/<c:majorUnit[^/]*\/>/g, '')
+        return `${before}${base}<c:min val="${axisMin}"/><c:max val="${axisMax}"/>${closingScale}${restClean}<c:majorUnit val="${majorUnit}"/>${closingAx}`
+      })
+
+    zip.file(name, xml)
+  }
 }
 
 /** Anula las llamadas a macros VBA inexistentes en hoja de datos y marcos de gráfica.

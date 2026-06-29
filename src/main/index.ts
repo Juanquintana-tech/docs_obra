@@ -68,26 +68,6 @@ app.whenReady().then(() => {
   // Registra todos los handlers IPC (DB + ingesta + entregables).
   registerIpc()
 
-  // Diagnóstico temporal: reproducir la ingesta sin UI (CYE_INGEST_TEST=ruta).
-  if (process.env.CYE_INGEST_TEST) {
-    const fs = require('fs') as typeof import('fs')
-    const log = (m: string): void => fs.appendFileSync('/tmp/cye_diag.txt', m + '\n')
-    fs.writeFileSync('/tmp/cye_diag.txt', 'START\n')
-    ;(async () => {
-      try {
-        log('importing pipeline')
-        const { ingestDocument } = await import('./services/pipeline')
-        log('ingest start')
-        const r = await ingestDocument(process.env.CYE_INGEST_TEST as string)
-        log('INGEST-OK plan=' + r.plan.length + ' materiales=' + r.materials.length)
-      } catch (e) {
-        log('INGEST-ERR ' + (e instanceof Error ? e.stack : String(e)))
-      }
-      app.quit()
-    })()
-    return
-  }
-
   createWindow()
 
   app.on('activate', function () {

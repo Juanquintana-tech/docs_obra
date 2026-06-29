@@ -3,25 +3,17 @@
  * Todos los payloads son objetos planos serializables.
  */
 import { ipcMain, dialog, BrowserWindow, shell, app } from 'electron'
-import { writeFile, readFile, copyFile, mkdir, rm } from 'fs/promises'
+import { writeFile, readFile, copyFile, mkdir, rm, readdir } from 'fs/promises'
 import { basename, dirname, join, extname } from 'path'
-import { execFile } from 'child_process'
-import { promisify } from 'util'
-
-const execFileAsync = promisify(execFile)
+import PizZip from 'pizzip'
 import * as db from './db'
 import type { PlanRow, ObraInput, EnsayoInput, PlanRowPatch, NewPlanRowData, PlanEdits } from './db'
 import { writableKnowledgePath } from './paths'
 import type { PlanRowInput } from './pipeline/types'
 import type { ObraInfo } from './pipeline/formatter'
 import {
-  ingestDocument,
-  ingestText,
-  repricePlan,
   buildExcel,
   buildWord,
-  ragStatus,
-  ragFindMatches,
   buildEnsayoWord,
   buildEnsayoExcel,
   listBudgetSheets,
@@ -29,11 +21,12 @@ import {
 } from './services/pipeline'
 import { interpretCommand } from './services/agent'
 import { interpretBudgetEdit } from './services/budgetAgent'
+import { generateBBDDPlan, ingestDocumentBBDD, ingestTextBBDD, repricePlanBBDD } from './services/bbddPlan'
 import { loadCatalog } from './pipeline/rag/catalog'
 import { scanEnsayo } from './pipeline/ocr/ensayoOcr'
 import type { Rules } from './pipeline/planner'
 import type { Material } from './pipeline/types'
-import type { PriceStrategy } from './pipeline/rag/priceBook'
+import type { PriceStrategy } from './pipeline/types'
 import { knowledgePath } from './paths'
 
 /** Mapea filas de la DB (row_type) al contrato del pipeline (type) para el formatter. */
@@ -170,27 +163,26 @@ export function registerIpc(): void {
     if (canceled || filePaths.length === 0) return null
     return { path: filePaths[0], name: basename(filePaths[0]) }
   })
-  ipcMain.handle('ingest:document', (e, path: string, strategy?: PriceStrategy) =>
-    ingestDocument(path, strategy, (done, total) => {
-      e.sender.send('ingest:chunkProgress', { done, total })
-    })
+  // Ingesta → motor BBDD determinista (el RAG/plannerLLM se retiró).
+  ipcMain.handle('ingest:document', (_e, path: string, strategy?: PriceStrategy) =>
+    ingestDocumentBBDD(path, strategy)
   )
   ipcMain.handle('ingest:text', (_e, text: string, strategy?: PriceStrategy) =>
-    ingestText(text, strategy)
+    ingestTextBBDD(text, strategy)
   )
-  ipcMain.handle('pipeline:repricePlan', (_e, materials: Material[], strategy: PriceStrategy) =>
-    repricePlan(materials, strategy)
+
+  // ── Plan BBDD (motor determinista por lote) ──
+  ipcMain.handle('bbdd:generateFromDoc', (_e, path: string) => generateBBDDPlan(path))
+  ipcMain.handle('bbdd:ingestDocument', (_e, path: string, strategy?: PriceStrategy) =>
+    ingestDocumentBBDD(path, strategy)
+  )
+  ipcMain.handle('pipeline:repricePlan', (_e, materials: Material[]) =>
+    repricePlanBBDD(materials)
   )
 
   // ── Entregables ──
   ipcMain.handle('export:excel', (_e, obraId: number) => exportDeliverable(obraId, 'excel'))
   ipcMain.handle('export:word', (_e, obraId: number) => exportDeliverable(obraId, 'word'))
-
-  // ── RAG (pantalla de validación) ──
-  ipcMain.handle('rag:status', () => ragStatus())
-  ipcMain.handle('rag:findMatches', (_e, query: string, category?: string, n?: number) =>
-    ragFindMatches(query, category ?? '', n)
-  )
 
   // ── Ensayos (informes de campo) ──
   ipcMain.handle('ensayo:getAll', (_e, obraId: number | null, tipo?: string) =>
@@ -259,20 +251,20 @@ export function registerIpc(): void {
       tempExtractDir = join(app.getPath('userData'), 'radon-fotos', String(ts), 'extracted')
       await mkdir(tempExtractDir, { recursive: true })
       try {
-        await execFileAsync('unzip', ['-o', pickedPath, '-d', tempExtractDir])
+        const zipData = await readFile(pickedPath)
+        const zip = new PizZip(zipData)
+        for (const [relPath, entry] of Object.entries(zip.files)) {
+          if (entry.dir) continue
+          const outPath = join(tempExtractDir, relPath)
+          await mkdir(dirname(outPath), { recursive: true })
+          await writeFile(outPath, Buffer.from(entry.asUint8Array()))
+        }
       } catch (e) {
         await rm(tempExtractDir, { recursive: true, force: true })
         throw new Error(`No se pudo extraer el ZIP: ${String(e)}`)
       }
       // Buscar radon_data.json en el directorio extraído (puede estar en subdirectorio)
-      const { stdout } = await execFileAsync('find', [
-        tempExtractDir,
-        '-name',
-        'radon_data.json',
-        '-maxdepth',
-        '3'
-      ])
-      const found = stdout.trim().split('\n').filter(Boolean)[0]
+      const found = await findFileRecursive(tempExtractDir, 'radon_data.json', 3)
       if (!found) {
         await rm(tempExtractDir, { recursive: true, force: true })
         throw new Error('No se encontró radon_data.json dentro del ZIP.')
@@ -343,6 +335,22 @@ export function registerIpc(): void {
     interpretBudgetEdit(obraId, userText)
   )
 
+  // ── Catálogo KB editable ──
+  ipcMain.handle('catalog:getTests', async () => {
+    const { getCatalogEntries } = await import('./services/bbddPlan')
+    return getCatalogEntries()
+  })
+  ipcMain.handle('catalog:upsertOverride', async (_e, override: db.CatalogOverrideRow) => {
+    db.upsertCatalogOverride(override)
+    const { invalidateKbCache } = await import('./services/bbddPlan')
+    invalidateKbCache()
+  })
+  ipcMain.handle('catalog:deleteOverride', async (_e, testId: string) => {
+    db.deleteCatalogOverride(testId)
+    const { invalidateKbCache } = await import('./services/bbddPlan')
+    invalidateKbCache()
+  })
+
   // ── Presupuestos (catálogo y reglas) ──
   ipcMain.handle('presup:getCatalog', () => loadCatalog(knowledgePath('tarifas_alagal.xlsx')))
   ipcMain.handle('presup:getRules', async () => {
@@ -361,4 +369,22 @@ export function registerIpc(): void {
     const { invalidateRulesCache } = await import('./services/pipeline')
     invalidateRulesCache()
   })
+}
+
+async function findFileRecursive(
+  dir: string,
+  name: string,
+  maxDepth: number
+): Promise<string | null> {
+  if (maxDepth < 0) return null
+  const entries = await readdir(dir, { withFileTypes: true })
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name)
+    if (entry.isFile() && entry.name === name) return fullPath
+    if (entry.isDirectory()) {
+      const found = await findFileRecursive(fullPath, name, maxDepth - 1)
+      if (found) return found
+    }
+  }
+  return null
 }

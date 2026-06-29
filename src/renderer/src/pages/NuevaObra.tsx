@@ -159,7 +159,7 @@ export function NuevaObra(): JSX.Element {
   const doIngest = useCallback(async (path: string, name: string): Promise<void> => {
     setError(null); setFileName(name); setElapsed(0); setChunkInfo(null); setGenPhase('ingesting')
     try {
-      const r = await api.ingestDocument(path, strategy)
+      const r = await api.bbddIngest(path, strategy)
       setProgress(100)
       await new Promise((res) => setTimeout(res, 350))
       setGenResult(r)
@@ -541,6 +541,14 @@ export function NuevaObra(): JSX.Element {
               ⚠ El documento parece escaneado. El texto extraído puede ser escaso y afectar a la calidad del análisis.
             </div>
           )}
+          {mode === 'generate' && genResult?.warnings && genResult.warnings.length > 0 && (
+            <div className="banner banner-warn">
+              <strong>Avisos ({genResult.warnings.length}):</strong>
+              <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+                {genResult.warnings.map((w, i) => <li key={i}>{w}</li>)}
+              </ul>
+            </div>
+          )}
 
           {/* Datos del proyecto */}
           <div className="card" style={{ marginBottom: 18 }}>
@@ -549,6 +557,7 @@ export function NuevaObra(): JSX.Element {
               <div className="meta-chips">
                 {fileName && <span className="meta-chip">📄 {fileName}</span>}
                 <span className="meta-chip"><b>{currentPlan.length}</b> líneas de ensayo</span>
+                {(() => { const r = currentPlan.filter((p) => p.needs_review).length; return r > 0 ? <span className="meta-chip">⚠ <b>{r}</b> a revisar</span> : null })()}
                 {mode === 'generate' && genResult && (
                   <span className="meta-chip">{genResult.meta.format.toUpperCase()} · {fmtChars(genResult.meta.chars)}</span>
                 )}

@@ -1,0 +1,849 @@
+{
+  "tests": [
+    {
+      "id": "C-0001",
+      "canonicalDesc": "Inspección para determinación de la himedad mediante higrómetro de contacto",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0002",
+      "canonicalDesc": "Ensayo arrancamiento en pavimentos y recrecidos",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0003",
+      "canonicalDesc": "Espesor del panel, de las chapas y del aislante, densidad del aislante y espesor de recubrimiento de las chapas externa e interna.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0004",
+      "canonicalDesc": "Control de ejecución de estructuras Inspección de control de ejecución de estructuras. Inspección a cargo de técnico titulado de grado superior o medio, con experiencia en control de ejecución de estructuras. Se incluye ",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0005",
+      "canonicalDesc": "Prueba de estanqueidad en instalación de Saneamiento",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0006",
+      "canonicalDesc": "Saneamiento prueba de circulación de la red general. Mediante el accionamiento de los aparatos, se comprobará que no hay estancamientos y que no existen fugas en los puntos visibles.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0007",
+      "canonicalDesc": "Visita para inspección de tubería de saneamiento diámetro superior a 250 mm mediante equipo robotizado equipado con cámara CCTV. Mínimo facturable 500 m por visita",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0008",
+      "canonicalDesc": "Instalación de electricidad. Realización de las pruebas electricas necesarias para comprobar los siguientes parámetros fundamentales de una instalación eléctrica: impedancia de linea, impedancia bucle defecto, aislamient",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0009",
+      "canonicalDesc": "Electricidad, puesta a tierra. Medición de la resistencia de puesta a tierra y comparación del mismo con los valores máximos reglamentarios establecidos teniendo en cuenta el valor de tensión de contacto existente, los d",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0010",
+      "canonicalDesc": "Comprobación de la continuidad del conductor de protección. En las tomas de corriente del edificio se comprobará que existe una continuidad del conductor de protección de tal forma que se asegura que cualquier equipo de ",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0011",
+      "canonicalDesc": "Prueba de funcionamiento de puesta a tierra de pararrayos A realizar en la misma visita",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0012",
+      "canonicalDesc": "Pruebas finales de centros de transformación. Se realizará una verificación de las medidas de seguridad del centro y el estado y características del local. (ventilaciones, contactos, distancias, medidas de seguridad, acc",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0013",
+      "canonicalDesc": "Pruebas eléctricas del grupo electrógeno. Consiste en la comprobación del correcto funcionamiento del grupo, la conmutación y acoplamiento y desacoplamiento del grupo a la instalación. Se realizarán comprobaciones en car",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0014",
+      "canonicalDesc": "Ensayos de conductores de líneas de Media Tensión según UNE-211006.",
+      "normCodes": [
+        "UNE-211006."
+      ],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0015",
+      "canonicalDesc": "Iluminación, pruebas de funcionamiento. Se verificará el funcionamiento de los sistemas de iluminación, accionamiento de los mecanismos, sensores de presencia, sistema de control de iluminación del alumbrado próximo a la",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0016",
+      "canonicalDesc": "Medición lumínica de diferentes estancias donde se necesite un aporte de luz específico. Se realizará una medición de luxes en un mínimo de 5 puntos por estancia",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0017",
+      "canonicalDesc": "Pruebas de servicio en antenas TV/FM. En las tomas de televisión se verificará el nivel de señal existente y se comprobará que cumple con los mínimos establecidos por la normativa.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0018",
+      "canonicalDesc": "Pruebas de servicio de instalación de control de accesos.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0019",
+      "canonicalDesc": "Funcionamiento de la red de incendios. Se hará una comprobación de la existencia de todos los elementos de extinción contra incendios tanto manuales como automáticos, así como que su distribución cumpla con la normativa.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0020",
+      "canonicalDesc": "Supervisión de estaqueidad de BIEs o rociadores",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0021",
+      "canonicalDesc": "Prueba de servicio de instalación fotovoltaica",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0022",
+      "canonicalDesc": "Supervisión de prueba de presión y estanqueidad de la red de fontanería y agua fría del edificio.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0023",
+      "canonicalDesc": "Se verificará el correcto accionamiento de los grifos y llaves de corte de aparatos y de locales húmedos, comprobando que es completo y que los caudales son adecuados.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0024",
+      "canonicalDesc": "Supervisión de prueba de presión y estanqueidad de la red de fontanería y agua caliente del edificio.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0025",
+      "canonicalDesc": "Se realizará una prueba de prestaciones térmicas (temperatura y humedad) en todas las estancias climatizadas, control de los equipos instalados, caudales en un porcentaje de las rejillas, medidas de seguridad en la sala ",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0026",
+      "canonicalDesc": "Supervisión de prueba de presión en circuito hidráulico de refrigeración.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0027",
+      "canonicalDesc": "Prueba de servicio de la instalación de ventilación.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0028",
+      "canonicalDesc": "Prueba de servicio y funcionamiento de los equipos de producción térmica",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0029",
+      "canonicalDesc": "Supervisión de prueba de presión en circuito de tubería de producción térmica.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0030",
+      "canonicalDesc": "Pruebas de servicio de aparatos elevadores. Comprobación del funcionamiento del equipo, enclavamientos mecánicos y eléctricos, medidas de seguridad, nivelado de la cabina, ventilación del hueco, deslizamiento de los cabl",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0031",
+      "canonicalDesc": "Aislamiento Acústico de Fachadas. Se realizará en el exterior del local cuando las condiciones climatológicas lo permitan.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0032",
+      "canonicalDesc": "Medición Ruido Ambiental Exterior. Se medirá el nivel de presión sonora recibido en 2 posiciones.",
+      "normCodes": [
+        "en 2"
+      ],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0033",
+      "canonicalDesc": "Ensayo Blower Door, para medir el volumen de infiltraciones de aire, en edificación de hasta 100 m² de superficie útil, durante la ejecución de la obra, una vez cerrada la envolvente.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0034",
+      "canonicalDesc": "Informe sobre cumplimiento de la envolvente que nos permitirá detectar anomalías y problemas ocultos (filtraciones de aire, deficiencias de sellado, humedades, etc.) en el edificio, reaizando las siguientes pruebas: - Pr",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0035",
+      "canonicalDesc": "Informe de mediciones de la concentración de radón a edificio terminado, mediante la instalación y deinstalación de 15 detectores de trazas, un período de exposicón de tres meses",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0036",
+      "canonicalDesc": "Informe de mediciones de parámetros acústicos según DB HR: - Aislamiento a ruido aéreo de elementos de separación entre estancias - Aislamiento a ruido aéreo de elementos de fachada - Aislamiento a ruido de impacto de su",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0037",
+      "canonicalDesc": "Prueba de servicio de la instalación de fontanería, determinando: -Grupo de presión (nivel muestreo 100%): Presiones de tarado Secuencias y alternancias de bombas. Consumo de motores. -Red de tuberías Prueba de resistenc",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0038",
+      "canonicalDesc": "Prueba de servicio de electricidad e iluminación RBT, determinando: - Medición de la resistencia de aislamiento - Circuitos: Reparto de cargas, caidas de tensión, equipotencialidad - Cuadros eléctricos - Resistencia de p",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0039",
+      "canonicalDesc": "Prueba de servicio de calefacción y ACS determinando: - Circulación y libre dilatación: Identificación, Deformaciones y expansión - Conductos de distribución: velocidad, cuadales, temperaturas, sondas, compuertas - Clima",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0040",
+      "canonicalDesc": "Prueba de servicio de contra incendios, determinando: - Detectores - Central de señalización y alarma - Pulsadores - Extintores - Estanqueidad y presiones de las bocas de incendios e hidrantes",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0041",
+      "canonicalDesc": "Comprobación caracteristicas/propiedades específicas",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0042",
+      "canonicalDesc": "Toma de muestra de MBC e inspección a obra para medición de espectro de temperaturas de MBC en camión, vertido, extendido y compactación, y verificación de la segregación térmica con cámara termográfica",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0043",
+      "canonicalDesc": "Prueba estática a realizar en obra, sobre una barandilla, para la determinación de la fuerza horizontal que resiste según CTE DB SE-AE. Incluso desplazamiento a obra e informe de resultados",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0044",
+      "canonicalDesc": "Visita para la supervisión de la prueba de funcionamiento de instalación de riego con comprobación de apertura de electroválvulas, accionamiento de aspersores y la correcta cobertura de la superficie ajardinada.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0045",
+      "canonicalDesc": "P.A. para visitas para la realización de prueba de funcionamiento de la instalación de alumbrado con la comprobación de los siguientes parámetros: - Puesta a tierra - Equipotencialidad - Protección diferencial - Aislamie",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0046",
+      "canonicalDesc": "Visita para la medición en horario nocturno de los niveles de iluminación en los diferentes ambientes de la obra.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0047",
+      "canonicalDesc": "P.A. para visitas para la realización de prueba de funcionamiento de red semafórica con comprobación de temporización, activación de pulsadores y coordinación entre diferentes puntos y funcionamiento eléctrico de la inst",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0048",
+      "canonicalDesc": "Granulometría Pedraplén-Todo Uno. Inspección de acopio de material Todo Uno/Pedraplén, fotografías, Tam. Máx y estimación de % de mat. > 100 mm, muestreo del mat. <100 mm. Determinación en lab. del % de mat. <a 20 mm y a",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0049",
+      "canonicalDesc": "Estudio de dosificación de una mezcla de suelo estabilizado incluyendo: Fabricación de cuatro series de cuatro probetas con 4 porcentajes de cemento",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0050",
+      "canonicalDesc": "Comprobación de la fórmula de trabajo: fabricación de 3 probetas y rotura a compresión a 7 días con el % de cemento óptimo",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0051",
+      "canonicalDesc": "Plazo de trabajabilidad UNE 41240",
+      "normCodes": [
+        "UNE 41240"
+      ],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0052",
+      "canonicalDesc": "Comprobación del espesor de capa (mediante comprobación de estaquillado) (mínimo facturable 10 determinaciones por desplazamiento)",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0053",
+      "canonicalDesc": "Determinación del espesor de la capa estabilizada mediante ejecución de calicata y rociado con fenolftaleína",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0054",
+      "canonicalDesc": "Estudio de dosificación de una mezcla de suelo cemento incluyendo: Fabricación de cuatro series de cuatro probetas con 4 porcentajes de cemento",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0055",
+      "canonicalDesc": "Extracción de probeta-testigo en suelo-cemento con diámetro 100 mm y determinación del espesor de capa",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0056",
+      "canonicalDesc": "Extracción de testigo para comprobación de espesor de la mezcla de suelo cemento",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0057",
+      "canonicalDesc": "Ud. Determinación del espesor de zahorra mediante la inspección de calicatas manuales",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0058",
+      "canonicalDesc": "Comprobación de las características y propiedades específicas de la mezcla bituminosa a utilizar: toma de muestra en extendido de Tramo de Prueba , preparación y fabricación de probetas y determinación de la densidad apa",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0059",
+      "canonicalDesc": "Recuperación elástica de betún modificado NLT-329",
+      "normCodes": [
+        "NLT-329"
+      ],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0060",
+      "canonicalDesc": "Determinación del tiempo de fluencia por medio de viscosímetro de flujo",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0061",
+      "canonicalDesc": "Desplazamiento de equipo APL para determinación del IRI en obra",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0062",
+      "canonicalDesc": "Desplazamiento de equipo para el cálculo del CRT en obra 2 meses después de la puesta en servicio No incluye señalización que será por cuenta del Contratista",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0063",
+      "canonicalDesc": "Km. de resistencia al deslizamiento CRT NLT-336",
+      "normCodes": [
+        "NLT-336"
+      ],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0064",
+      "canonicalDesc": "Dotación individual de microesferas y pintura en marcas viales sobre 15 pares de bandejas taradas",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0065",
+      "canonicalDesc": "Desplazamiento de equipo ECODYN para la medida de la retrorreflexión en obra No incluye señalización que será por cuenta del Contratista",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0066",
+      "canonicalDesc": "Km de retrorrreflexión de marcas viales a los 30, 180 o 730 días de la puesta en servicio",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0067",
+      "canonicalDesc": "Georreferenciación de punto de prospección con tres coordenadas",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0068",
+      "canonicalDesc": "Movilización de equipo de sondeos y su personal a las obras",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0069",
+      "canonicalDesc": "Traslado de sonda entre puntos a reconocer",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0070",
+      "canonicalDesc": "ml de perforación a rotación en rellenos o suelos",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0071",
+      "canonicalDesc": "ml de perforación a rotación en roca dura (con diamante)",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0072",
+      "canonicalDesc": "ml de perforación a rotación en roca blanda (con widia)",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0073",
+      "canonicalDesc": "ml de tubo ranurado de PVC",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0074",
+      "canonicalDesc": "Ud. De embocadura y tapado de sondeo con arqueta",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0075",
+      "canonicalDesc": "Ud. De toma de muestra de agua",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0076",
+      "canonicalDesc": "Ud. De caja portatestigo de plástico rígido",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0077",
+      "canonicalDesc": "Lectura de nivel piezométrico en sondeo",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0078",
+      "canonicalDesc": "Ensayo presiométrico con ciclo intermedio",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0079",
+      "canonicalDesc": "Apertura y preparación de muestras de suelo",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0080",
+      "canonicalDesc": "Apertura y preparación de muestras de roca",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0081",
+      "canonicalDesc": "Análisis químico completo de aguas para determinar su agresividad",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0082",
+      "canonicalDesc": "Análisis químico completo de suelos para determinar su agresividad",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0083",
+      "canonicalDesc": "Ensayo de durabilidad (SDT) NLT 251",
+      "normCodes": [
+        "NLT 251"
+      ],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0084",
+      "canonicalDesc": "Estudio de dosificación de una mezcla de gravacemento incluyendo: Fabricación de cuatro series de cuatro probetas con 4 porcentajes de cemento",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0085",
+      "canonicalDesc": "Extracción de testigo para comprobación de espesor de la mezcla de gravacemento",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0086",
+      "canonicalDesc": "Realización de ensayo de integridad estructural por Crosshole de pilote instrumentado con 4 tubos incluyendo el desplazamiento de personal y equipo a obra y la elaboración del correspondiente informe Mínimo facturable po",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0087",
+      "canonicalDesc": "Visita para la medición del espesor de pintura mediante corrientes inducidas S/ UNE ISO 28,08-00. Pasarela 1, pasarela 2",
+      "normCodes": [
+        "ISO 28"
+      ],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0088",
+      "canonicalDesc": "Visita para ensayo de adherencia de pintura sobre estructura metálica mediante corte por enrejado. (método destructivo)",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0089",
+      "canonicalDesc": "Visita de inspección por técnico para la realización del control de soldaduras mediante partículas magnéticas por técnico nivel II con emisión de informe. Mínimo 8 cordones inspeccionados por visita",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0090",
+      "canonicalDesc": "Visita de inspección por técnico para la realización del control de soldaduras en la estructura metálica mediante inspección visual, UNE-EN 970 por técnico END nivel II con emisión de Informe",
+      "normCodes": [
+        "UNE-EN 970"
+      ],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0091",
+      "canonicalDesc": "Toma de muestra de mortero/lechada de cemento, fabricación de probetas de 4x4x16 cm y rotura a compresión y flexión a tres edades",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0092",
+      "canonicalDesc": "Dotación individual de microesferas y pintura en marcas viales",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0093",
+      "canonicalDesc": "Ensayos ópticos sobre la señal, incluyendo la medición de coordenadas cromáticas, factor de luminancia y coeficiente de retroreflexión UNE 135334 (hasta un máximo de 10 señales)",
+      "normCodes": [
+        "UNE 135334"
+      ],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0094",
+      "canonicalDesc": "Prueba de funcionamiento de instalación de alumbrado exterior, comprobando funcionamiento general de la instalación, puesta a tierra y equipotencialidad, protecciones y cumplimiento de ITC-BT 09",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0095",
+      "canonicalDesc": "Jornada de mandrilado de la instalación eléctrica y de comunicaciones",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0096",
+      "canonicalDesc": "Realización de prueba de estanqueidad de tubería de abastecimiento de agua en reposición de servicios",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0097",
+      "canonicalDesc": "Visita de inspección para la realización del ensayo de impedancia mecánica de pilotes prefabricados para comprobación de la integridad estructural de los mismos",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0098",
+      "canonicalDesc": "Visita de inspección para la realización del control de uniones soldadas mediante ensayos no destructivos: Líquidos penetrantes o partículas magnéticas",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0099",
+      "canonicalDesc": "Visita de inspección para la determinación del índice de resbaladicidad de los pavimentos acabados",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0100",
+      "canonicalDesc": "Supervisión de las pruebas de funcionamiento de las instalaciones, en presencia del Instalador, de: saneamiento, fontanería, electricidad e iluminación, contra incendios, ACS, gas, telecomunicaciones y climatización.",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0101",
+      "canonicalDesc": "Extracción de testigo para comprobación de esperor de la mezcla de suelo cemento",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0102",
+      "canonicalDesc": "Ensayo de arrancamiento hasta la carga de servicio. Mínimo por desplazamiento 5 ensayos. Si fuesen necesarios medios de elevación correrán a cargo del Peticionario",
+      "normCodes": [],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    },
+    {
+      "id": "C-0103",
+      "canonicalDesc": "Ensayo de choque sobre barreras metálicas de seguridad UNE EN 1317-1 y UNE EN 1317-2",
+      "normCodes": [
+        "UNE EN 1317-1",
+        "UNE EN 1317-2"
+      ],
+      "alagalSection": null,
+      "alagalCode": null,
+      "origin": "cye"
+    }
+  ]
+}
